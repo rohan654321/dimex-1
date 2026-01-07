@@ -1,26 +1,68 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: 'Montserrat', system-ui, sans-serif;
+  --font-display: 'Montserrat', system-ui, sans-serif;
+  
+  --color-main-1: #040d1f;
+  --color-main-2: #0092D7;
+  --color-main-3: #33A8DF;
+  --color-main-4: #003366;
+  --color-main-5: #06162f;
+  
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ===========================
+   Base styles
+=========================== */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  @apply bg-white text-gray-900 antialiased;
+}
+
+/* ===========================
+   Custom Utility Classes
+=========================== */
+.title-72 {
+  @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+}
+
+.title-32 {
+  @apply text-xl md:text-2xl lg:text-[32px] font-bold;
+}
+
+.container {
+  @apply mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl;
+}
+
+/* ===========================
+   Compact Styles
+=========================== */
+.compact-section {
+  @apply py-8 md:py-12;
+}
+
+.compact-card {
+  @apply p-4;
+}
+
+/* ===========================
+   Text Utilities
+=========================== */
+.text-body {
+  @apply text-sm sm:text-base;
+}
+
+.text-lead {
+  @apply text-base sm:text-lg;
 }
