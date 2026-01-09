@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ChevronDown, Menu, X } from "lucide-react"
 import Button from "./UI/Button"
@@ -25,7 +25,7 @@ const navItems = [
       { text: "Download Event Brochure", href: "/event-brochure" },
     ],
   },
-  { title: "Connect", href: "/connect", dropdown: false },
+  // { title: "Connect", href: "/connect", dropdown: false },
   {
     title: "Insights",
     dropdown: true,
@@ -42,7 +42,7 @@ const navItems = [
       { text: "About TransRussia", href: "/about-transrussia" },
       { text: "About SkladTech", href: "/about-skladtech" },
       { text: "About ITE Group", href: "/about-ite" },
-      { text: "Partners & Sponsors", href: "/partners-and-sponsors"}
+      { text: "Partners & Sponsors", href: "/partners-and-sponsors" },
     ],
   },
   { title: "Contact us", href: "/contact-us", dropdown: false },
@@ -50,58 +50,69 @@ const navItems = [
 
 export default function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 80)
+    }
+    window.addEventListener("scroll", onScroll)
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   return (
     <>
       {/* ================= DESKTOP NAVBAR ================= */}
-      <header className="hidden xl:block fixed top-5 left-1/2 z-50 w-full -translate-x-1/2">
-        <div className="flex justify-center px-5">
+      <header
+        className={`hidden xl:block fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
+          scrolled ? "pt-2" : "pt-5"
+        }`}
+      >
+        <div className="px-6">
           <div
-            className="
-              w-full max-w-375
-              rounded-full
-              px-6 py-3
-              text-white
-              bg-linear-to-r from-[#06162f] to-[#0a2b57]
-              shadow-[0_10px_30px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.05)]
-            "
+            className={`mx-auto w-full rounded-4xl bg-linear-to-r from-[#06162f] to-[#0a2b57]
+              text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+              transition-all duration-300
+              ${scrolled ? "py-3" : "py-5"}
+            `}
           >
-            <div className="flex items-center justify-between gap-6">
-              {/* LOGO */}
-              <div className="flex items-center gap-5">
-                <Link href="/" className="flex items-center gap-3">
+            <div className="flex items-center justify-between gap-8 px-8">
+              {/* LOGOS + DATE */}
+              <div className="flex items-center gap-6">
+                <Link href="/" className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-blue-500" />
-                    <div>
-                      <div className="font-bold leading-none">TransRussia</div>
-                      <div className="text-xs">©24</div>
-                    </div>
+                    <div className="h-6 w-6 rounded bg-blue-500" />
+                    <span className="font-semibold">TransRussia</span>
                   </div>
                   <div className="h-8 w-px bg-white/40" />
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-blue-300" />
-                    <div className="font-bold">SkladTech</div>
+                    <div className="h-6 w-6 rounded bg-blue-300" />
+                    <span className="font-semibold">SkladTech</span>
                   </div>
                 </Link>
 
-                <div className="flex flex-col text-sm">
-                  <span>17–19 March 2026</span>
-                  <span>Crocus Expo, Pavilion 3</span>
-                </div>
+                {!scrolled && (
+                  <div className="flex flex-col text-sm leading-tight">
+                    <span>17–19 March 2026</span>
+                    <span className="opacity-80">
+                      Crocus Expo, Pavilion 3
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* NAV LINKS */}
-              <nav className="flex items-center gap-6">
+              <nav className="flex items-center gap-7">
                 {navItems.map((item, i) =>
                   item.dropdown ? (
                     <div key={i} className="relative group">
                       <button className="flex items-center gap-1 hover:text-gray-200">
                         {item.title}
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className="h-4 w-4" />
                       </button>
 
                       <div className="absolute left-0 top-full hidden group-hover:block pt-3">
-                        <div className="min-w-48 rounded-lg bg-white py-2 shadow-xl">
+                        <div className="min-w-52 rounded-lg bg-white py-2 shadow-xl">
                           {item.links?.map((link, j) => (
                             <Link
                               key={j}
@@ -126,13 +137,37 @@ export default function NavBar() {
                 )}
               </nav>
 
-              {/* CTA */}
-              <div className="flex items-center gap-3">
-                <Button href="/exhibiting-enquiry">Become an Exhibitor</Button>
-                <Button href="/visitor-registration">Register Now</Button>
-              </div>
+              {/* CTA BUTTONS */}
+             <div className="flex items-center gap-4">
+  <Button
+    href="/exhibiting-enquiry"
+    className="rounded-full border-2 border-[#004D9F] bg-[#004D9F] px-6 py-3 text-white hover:bg-[#0a53be]"
+  >
+    Become an Exhibitor
+  </Button>
+
+  <Button
+    href="/visitor-registration"
+    className="rounded-full bg-[#003a8f] px-6 py-3 text-white hover:bg-[#002f73]"
+  >
+    Register Now
+  </Button>
+</div>
+
             </div>
           </div>
+
+          {/* TIMER BAR */}
+          {!scrolled && (
+            <div className="mx-auto mt-3 flex w-full max-w-[1400px] justify-end gap-6 text-sm text-white">
+              <span>67 Days</span>
+              <span>1 Hours</span>
+              <span>10 Mins</span>
+              <span className="flex items-center gap-1">
+                RU 🇷🇺
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
@@ -149,10 +184,6 @@ export default function NavBar() {
           >
             {mobileMenuOpen ? <X /> : <Menu />}
           </button>
-        </div>
-
-        <div className="mt-1 text-xs">
-          17–19 March 2026 · Crocus Expo, Pavilion 3
         </div>
 
         {mobileMenuOpen && (

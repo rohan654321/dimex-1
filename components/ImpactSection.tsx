@@ -1,85 +1,145 @@
-// components/ImpactSection.tsx
+'use client';
+
+import { useState } from 'react';
+
 export default function ImpactSection() {
   const impacts = [
     {
       title: 'Find the right platform to propel your business forward',
-      content: 'TransRussia offers an unmatched opportunity for visitors to discover new suppliers and innovative logistics solutions under one roof.',
-      image: '/images/impact1.jpg',
-      stat: { value: '76%', label: 'Of visitors attend the exhibition to find new suppliers' }
+      content:
+        'TransRussia offers an unmatched opportunity for visitors to discover new suppliers and innovative logistics solutions under one roof.',
+      image: '/images/image.png',
+      stat: {
+        value: '76%',
+        label: 'Of visitors attend the exhibition to find new suppliers',
+      },
     },
     {
       title: 'Expand your business with the right partners',
-      content: 'Visitors to TransRussia leave with actionable insights and connections to trusted suppliers. The event showcases tailored solutions, and 72% of attendees plan to conclude purchases and implement new services afterwards.',
-      image: '/images/impact2.jpg',
-      stat: { value: '72%', label: 'Of visitors plan to purchase products and services post event' }
+      content:
+        'Visitors to TransRussia leave with actionable insights and connections to trusted suppliers.',
+      image: '/images/image.png',
+      stat: {
+        value: '72%',
+        label: 'Of visitors plan to purchase products and services post event',
+      },
     },
     {
-      title: 'The industry\'s go-to event for comprehensive solutions',
-      content: 'TransRussia and SkladTech stand as the only choice for industry professionals seeking unparalleled transport, logistics, and warehouse solutions.',
-      image: '/images/impact3.jpg',
-      stat: { value: '79%', label: 'Of visitors only attend TransRussia and SkladTech among other industry events' }
+      title: 'Build long-term business connections',
+      content:
+        'Meet decision-makers and industry leaders to create long-term partnerships.',
+      image: '/images/image.png',
+      stat: {
+        value: '68%',
+        label: 'Of visitors establish new business connections',
+      },
     },
     {
-      title: 'Your gateway to high-quality business leads',
-      content: 'TransRussia delivers tangible results for exhibitors, with many securing over 100 qualified leads during the event. Engage directly with decision-makers, build meaningful connections, and lay the groundwork for lucrative partnerships that drive your business forward.',
-      image: '/images/impact4.jpg',
-      stat: { value: '74%', label: 'Of exhibitors generated more than 100 qualified leads during the event' }
+      title: 'Showcase innovation to the right audience',
+      content:
+        'Present your latest solutions to a highly targeted professional audience.',
+      image: '/images/image.png',
+      stat: {
+        value: '81%',
+        label: 'Of exhibitors achieve key business goals',
+      },
+    },
+  ];
+
+  const ITEMS_PER_VIEW = 2;
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const next = () => {
+    if (currentIndex + ITEMS_PER_VIEW < impacts.length) {
+      setCurrentIndex(currentIndex + ITEMS_PER_VIEW);
     }
-  ]
+  };
+
+  const prev = () => {
+    if (currentIndex - ITEMS_PER_VIEW >= 0) {
+      setCurrentIndex(currentIndex - ITEMS_PER_VIEW);
+    }
+  };
 
   return (
-    <section className="py-32">
-      <div className="container">
-        <div className="flex flex-col lg:flex-row justify-between lg:items-end mb-16">
-          <div className="lg:basis-2/3">
-            <div className="flex items-center justify-center w-fit gap-3 py-2 pe-5 pl-3 bg-[#F4F4F4] rounded-full mb-6">
-              <img src="/images/logo-icon-3.png" alt="TransRussia" className="size-auto w-6" />
-              <span className="text-sm font-medium">Numbers</span>
-            </div>
-            
-            <h2 className="text-6xl md:text-7xl lg:text-8xl font-bold text-black leading-[0.85] tracking-tight mb-8">
-              TransRussia Impact
-            </h2>
-            
-            <p className="text-lg md:text-xl leading-relaxed max-w-3xl">
-              Discover the scale and reach of TransRussia and SkladTech. From global exhibitors to thousands of visitors, explore the numbers behind the event's success
-            </p>
-          </div>
-        </div>
+    <section className="py-32 bg-white">
+      <div className="w-full px-6 xl:px-10">
+        <div className="mx-auto max-w-[1600px]">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {impacts.map((impact, index) => (
-            <div key={index} className="overflow-hidden rounded-2xl bg-[#003366] text-white">
-              <div className="flex flex-col gap-6 p-8">
-                <h3 className="text-2xl md:text-3xl font-bold leading-tight">{impact.title}</h3>
-                <div className="min-h-24">
-                  <p className="text-lg leading-relaxed">{impact.content}</p>
-                </div>
+          {/* ================= HEADER ================= */}
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between mb-16">
+            <div className="max-w-4xl">
+              <div className="mb-6 flex w-fit items-center gap-3">
+                <img src="/images/logo-icon-3.png" alt="Numbers" className="w-6" />
+                <span className="text-sm font-medium text-gray-700">Numbers</span>
               </div>
-              
-              <div className="flex flex-col">
-                <div className="relative h-80">
-                  <div 
-                    className="size-full object-cover"
-                    style={{
-                      backgroundImage: `url(${impact.image})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: '50% 50%'
-                    }}
+
+              <h2 className="text-6xl md:text-7xl font-semibold mb-6">
+                TransRussia Impact
+              </h2>
+
+              <p className="text-lg text-gray-700">
+                Discover the scale and reach of TransRussia and SkladTech. From
+                global exhibitors to thousands of visitors, explore the numbers
+                behind the event’s success.
+              </p>
+            </div>
+
+            {/* ARROWS */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={prev}
+                disabled={currentIndex === 0}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-[#9BB6D9] text-white disabled:opacity-40 hover:bg-[#003366]"
+              >
+                ←
+              </button>
+              <button
+                onClick={next}
+                disabled={currentIndex + ITEMS_PER_VIEW >= impacts.length}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-[#003366] text-white disabled:opacity-40 hover:bg-[#00264d]"
+              >
+                →
+              </button>
+            </div>
+          </div>
+
+          {/* ================= SLIDER ================= */}
+          <div className="grid md:grid-cols-2 gap-10">
+            {impacts
+              .slice(currentIndex, currentIndex + ITEMS_PER_VIEW)
+              .map((impact, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col overflow-hidden rounded-2xl bg-[#0b1f3f] text-white"
+                >
+                  <div className="p-10">
+                    <h3 className="mb-5 text-3xl lg:text-4xl font-bold leading-tight">
+                      {impact.title}
+                    </h3>
+                    <p className="text-lg leading-relaxed opacity-90">
+                      {impact.content}
+                    </p>
+                  </div>
+
+                  <div
+                    className="h-[320px] w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${impact.image})` }}
                   />
-                </div>
-                
-                <div className="flex justify-between bg-[#003366] p-8">
-                  <div className="flex grow flex-col">
-                    <h4 className="text-4xl md:text-5xl font-bold mb-2">{impact.stat.value}</h4>
-                    <p className="text-lg">{impact.stat.label}</p>
+
+                  <div className="bg-[#0b1f3f] p-8">
+                    <h4 className="mb-2 text-5xl font-bold">
+                      {impact.stat.value}
+                    </h4>
+                    <p className="text-base opacity-90">
+                      {impact.stat.label}
+                    </p>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}
+          </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

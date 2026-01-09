@@ -1,95 +1,94 @@
-// components/SectorsSection.tsx
 export default function SectorsSection() {
   const sectors = [
-    {
-      title: 'Complex Logistics Services & Freight Forwarding',
-      slug: 'complex-logistics-services-and-freight-forwarding',
-      description: 'Leading Russian and international freight forwarders will showcase comprehensive logistics solutions at the event.',
-      image: '/images/image.png'
-    },
-    {
-      title: 'Road Freight Transportation',
-      slug: 'road-freight-transportation',
-      description: '',
-      image: '/images/image.png'
-    },
-    {
-      title: 'Rail Freight',
-      slug: 'rail-freight',
-      description: 'Explore rail transport solutions for diverse cargo types, showcasing efficiency and versatility at TransRussia.',
-      image: '/images/image.png'
-    },
-    {
-      title: 'Air Freight',
-      slug: 'air-freight',
-      description: 'Air transportation is crucial for fast delivery of time-sensitive cargo like perishables, medicines, and e-commerce, overcoming topographical limitations that affect road or rail.',
-      image: '/images/image.png'
-    },
-    {
-      title: 'Maritime & Inland Waterway Transport',
-      slug: 'maritime-and-inland-waterway-transport',
-      description: 'Maritime cargo transportation offers cost-effective, high-capacity solutions for intercontinental shipments of diverse cargo types.',
-      image: '/images/image.png'
-    },
-    {
-      title: 'Ports & Terminals, Freight Handling Services In Ports',
-      slug: 'ports-and-terminals-freight-handling-services-in-ports',
-      description: 'Discover expert stevedoring, logistics, and storage solutions for seamless port operations at TransRussia.',
-      image: '/images/image.png'
-    }
-  ]
+    { title: 'Road Freight', slug: 'road', image: '/images/image.png' },
+    { title: 'Rail Freight', slug: 'rail', image: '/images/image.png' },
+    { title: 'Air Freight', slug: 'air', image: '/images/image.png' },
+        { title: 'Road Freight', slug: 'road', image: '/images/image.png' },
+    { title: 'Rail Freight', slug: 'rail', image: '/images/image.png' },
+    { title: 'Air Freight', slug: 'air', image: '/images/image.png' },
+  ];
 
   return (
-    <section className="py-32">
-      <div className="container">
-        <div className="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-12 mb-20">
-          <div className="lg:col-span-9">
-            <div className="flex items-center justify-center w-fit gap-3 py-2 pe-5 pl-3 bg-[#F4F4F4] rounded-full mb-6">
-              <img src="/images/logo-icon-3.png" alt="TransRussia" className="size-auto w-6" />
-              <span className="text-sm font-medium">Sectors</span>
+    <section className="bg-white py-32">
+      <div className="w-full px-6 xl:px-10">
+        <div className="mx-auto max-w-[1600px]">
+
+          {/* ================= HEADER ================= */}
+          <div className="mb-15 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            {/* LEFT */}
+            <div>
+              {/* LABEL */}
+              <div className="mb-5 flex items-center gap-3">
+                <img
+                  src="/images/logo-icon-3.png"
+                  alt="Sectors"
+                  className="h-6 w-6"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Sectors
+                </span>
+              </div>
+
+              {/* TITLE */}
+              <h2 className="
+                text-5xl 
+                lg:text-6xl 
+                font-[600] 
+                leading-[0.95]
+                tracking-tight
+                whitespace-nowrap
+                max-xl:whitespace-normal
+              ">
+                Discover 13 Product Sectors In-Demand
+              </h2>
             </div>
-            
-            <h2 className="text-6xl md:text-7xl lg:text-8xl font-bold text-black leading-[0.85] tracking-tight">
-              Discover 13 Product Sectors In-Demand
-            </h2>
-          </div>
-          
-          <div className="flex lg:col-span-3 lg:justify-end">
-            <a href="/sectors" className="block">
-              <button className="flex items-center justify-center group gap-2 overflow-hidden rounded-full px-10 py-4 font-jakarta text-[16px] font-semibold transition-all duration-300 bg-[#0092D7] text-white hover:bg-[#33A8DF] w-fit">
+
+            {/* RIGHT BUTTON */}
+            <a href="/sectors">
+              <button className="
+                rounded-full 
+                bg-[#005EB8] 
+                px-10 
+                py-4 
+                text-white 
+                font-semibold 
+                transition 
+                hover:bg-[#0074D9]
+              ">
                 Explore Sectors
               </button>
             </a>
           </div>
-        </div>
 
-        <div className="grid max-md:gap-6 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {sectors.map((sector, index) => (
-            <a 
-              key={index}
-              href={`/sectors/${sector.slug}`}
-              className="group relative flex min-h-96 w-full flex-col justify-end overflow-hidden rounded-2xl p-8 text-white transition-transform duration-300 hover:scale-[1.02]"
-            >
-              <div 
-                className="absolute inset-0 z-[-2] size-full object-cover"
-                style={{
-                  backgroundImage: `url(${sector.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: '50% 50%'
-                }}
-              />
-              <div className="absolute inset-0 z-[-1] bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-              
-              <h5 className="text-2xl md:text-3xl font-bold mb-4">{sector.title}</h5>
-              {sector.description && (
-                <p className="text-lg leading-relaxed opacity-0 h-0 group-hover:opacity-100 group-hover:h-auto transition-all duration-300">
-                  {sector.description}
-                </p>
-              )}
-            </a>
-          ))}
+          {/* ================= CARDS ================= */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {sectors.map((sector, i) => (
+              <a
+                key={i}
+                href={`/sectors/${sector.slug}`}
+                className="group relative h-[460px] overflow-hidden"
+              >
+                {/* IMAGE */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${sector.image})` }}
+                />
+
+                {/* DARK GRADIENT OVERLAY */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+
+                {/* TEXT */}
+                <div className="absolute bottom-0 left-0 p-8">
+                  <h3 className="text-3xl font-bold text-white">
+                    {sector.title}
+                  </h3>
+                </div>
+              </a>
+            ))}
+          </div>
+
         </div>
       </div>
     </section>
-  )
+  );
 }
