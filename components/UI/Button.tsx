@@ -1,44 +1,27 @@
-import Link from 'next/link'
-import { ReactNode } from 'react'
-
-interface ButtonProps {
-  children: ReactNode
-  variant?: 'primary' | 'secondary' | 'outline'
-  href?: string
-  onClick?: () => void
-  className?: string
-  fullWidth?: boolean
-}
+import Link from "next/link"
+import clsx from "clsx"
 
 export default function Button({
-  children,
-  variant = 'primary',
   href,
-  onClick,
-  className = '',
-  fullWidth = false
-}: ButtonProps) {
-  const baseClasses = 'flex-center gap-2 overflow-hidden rounded-full font-semibold global-transition px-5 py-3'
-  const variantClasses = {
-    primary: 'bg-[var(--main-color-2)] text-white hover:bg-[var(--main-color-4)]',
-    secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
-    outline: 'border-2 border-[var(--main-color-2)] text-[var(--main-color-2)] hover:bg-[var(--main-color-2)] hover:text-white'
-  }
-  const widthClass = fullWidth ? 'w-full' : 'w-fit'
-  
-  const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${widthClass} ${className}`
-
-  if (href) {
-    return (
-      <Link href={href} className={buttonClasses}>
-        {children}
-      </Link>
-    )
-  }
-
+  children,
+  className = "",
+  fullWidth = false,
+}: {
+  href: string
+  children: React.ReactNode
+  className?: string
+  fullWidth?: boolean
+}) {
   return (
-    <button onClick={onClick} className={buttonClasses}>
+    <Link
+      href={href}
+      className={clsx(
+        "inline-flex items-center justify-center font-medium transition-all",
+        fullWidth && "w-full",
+        className
+      )}
+    >
       {children}
-    </button>
+    </Link>
   )
 }

@@ -1,40 +1,64 @@
-// components/SkladTechSection.tsx
 export default function SkladTechSection() {
   return (
     <section className="relative py-32">
-      <div className="container mx-auto grid items-center gap-16 lg:grid-cols-3">
-        <div className="grid place-content-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-full max-w-sm" fill="none" viewBox="0 0 309 309">
-            <path fill="#33A8DF" d="M154.5 0 0 154v93.211L154.5 93.236l84.188 83.916v83.915H70.312v1.31L24.516 308H309V154L154.5 0Z"/>
-            <path fill="#0092D7" d="M195.5 308.062 70 177v84l52.5 47.062"/>
-          </svg>
-        </div>
-        
-        <div className="col-span-2 flex flex-col gap-8">
-          <div className="flex items-center justify-center w-fit gap-3 py-2 pe-5 pl-3 bg-[#F4F4F4] rounded-full">
-            <img 
-              src="/images/logo-icon-4.png" 
-              alt="SkladTech" 
-              className="size-auto w-6"
-            />
-            <span className="text-sm font-medium">Two Leading Events, One Location</span>
+      {/* FULL WIDTH WRAPPER (same as Hero / About) */}
+      <div className="w-full px-6 xl:px-10">
+        {/* CONTENT WIDTH */}
+        <div className="mx-auto grid max-w-[1600px] items-center gap-16 lg:grid-cols-3">
+          
+          {/* LEFT ICON */}
+          <div className="grid place-content-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full max-w-sm"
+              fill="none"
+              viewBox="0 0 309 309"
+            >
+              <path
+                fill="#33A8DF"
+                d="M154.5 0 0 154v93.211L154.5 93.236l84.188 83.916v83.915H70.312v1.31L24.516 308H309V154L154.5 0Z"
+              />
+              <path
+                fill="#0092D7"
+                d="M195.5 308.062 70 177v84l52.5 47.062"
+              />
+            </svg>
           </div>
-          
-          <h2 className="text-6xl md:text-7xl lg:text-8xl font-bold text-black leading-[0.85] tracking-tight">
-            SkladTech
-          </h2>
-          
-          <div className="space-y-6 max-w-3xl">
-            <p className="text-lg md:text-xl leading-relaxed">
-              Discover SkladTech, the premier showcase of cutting-edge warehouse equipment designed for maximum commercial impact. Held collocated with TransRussia, SkladTech offers unparalleled exposure to warehousing buyers at the industry's most significant gathering in CIS.
-            </p>
+
+          {/* RIGHT CONTENT */}
+          <div className="col-span-2 flex flex-col gap-8">
+            <div className="flex w-fit items-center gap-3 rounded-full bg-[#F4F4F4] py-2 pe-5 pl-3">
+              <img
+                src="/images/logo-icon-4.png"
+                alt="SkladTech"
+                className="w-6"
+              />
+              <span className="text-sm font-medium">
+                Two Leading Events, One Location
+              </span>
+            </div>
+
+            <h2 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-[0.85] tracking-tight text-black">
+              SkladTech
+            </h2>
+
+            <div className="max-w-3xl space-y-6">
+              <p className="text-lg md:text-xl leading-relaxed">
+                Discover SkladTech, the premier showcase of cutting-edge warehouse
+                equipment designed for maximum commercial impact. Held collocated
+                with TransRussia, SkladTech offers unparalleled exposure to
+                warehousing buyers at the industry's most significant gathering
+                in CIS.
+              </p>
+            </div>
+
+            <a href="/about-skladtech" className="w-fit">
+              <button className="group flex items-center justify-center gap-2 rounded-full bg-[#0092D7] px-10 py-4 text-[16px] font-semibold text-white transition-all duration-300 hover:bg-[#33A8DF]">
+                Discover SkladTech
+              </button>
+            </a>
           </div>
-          
-          <a href="/about-skladtech" className="block">
-            <button className="flex items-center justify-center group gap-2 overflow-hidden rounded-full px-10 py-4 font-jakarta text-[16px] font-semibold transition-all duration-300 bg-[#0092D7] text-white hover:bg-[#33A8DF] w-fit">
-              Discover SkladTech
-            </button>
-          </a>
+
         </div>
       </div>
     </section>
