@@ -121,7 +121,7 @@ export default function AboutSkladTechPage() {
               <p className="mb-8 text-lg">
                 Make sure you grab your copy of the event brochure to learn more about the show and explore your participation opportunities.
               </p>
-              <Button href="/event-brochure" variant="secondary" className="px-10 py-3">
+              <Button href="/event-brochure"  className="px-10 py-3">
                 Download Now
               </Button>
             </div>
@@ -233,7 +233,7 @@ export default function AboutSkladTechPage() {
             <p className="mx-auto mb-8 max-w-2xl text-lg">
               Whether you&apos;re traveling from across the globe or nearby, we&apos;ve got you covered. Find all the essential information to ensure a smooth and hassle-free trip to SkladTech 2026.
             </p>
-            <Button href="/plan-your-travel" variant="secondary" className="px-10 py-3">
+            <Button href="/plan-your-travel" className="px-10 py-3">
               Plan Your Travel
             </Button>
           </div>
