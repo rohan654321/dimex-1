@@ -91,7 +91,7 @@ export default function NavBar() {
     <>
       {/* ================= DESKTOP NAVBAR ================= */}
       <header
-        className={`hidden xl:block fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
+        className={`hidden lg:block fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
           scrolled ? "pt-2" : "pt-4"
         }`}
       >
@@ -100,12 +100,12 @@ export default function NavBar() {
           {/* NAVBAR CONTAINER */}
           <div
             className={`
-              mx-auto
-              w-full
-              max-w-[1180px]
-              2xl:max-w-[1400px]
-              3xl:max-w-[1800px]
-              rounded-3xl
+                mx-auto
+    w-full
+    max-w-[1240px]
+    lg:max-w-[1320px]
+    xl:max-w-[1440px]
+    2xl:max-w-[1600px]
               bg-linear-to-r from-[#06162f] to-[#0a2b57]
               text-white
               shadow-[0_10px_30px_rgba(0,0,0,0.35)]
@@ -238,7 +238,7 @@ export default function NavBar() {
       </header>
 
       {/* ================= MOBILE NAVBAR ================= */}
-      <header className="xl:hidden fixed top-0 left-0 right-0 z-50 bg-linear-to-r from-[#06162f] to-[#0a2b57] px-4 py-3 text-white shadow-lg">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-linear-to-r from-[#06162f] to-[#0a2b57] px-4 py-3 text-white shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="font-bold text-lg">
