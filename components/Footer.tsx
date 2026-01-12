@@ -33,15 +33,13 @@ export default function Footer() {
           {/* ABOUT */}
           <div className="max-w-md space-y-5">
             <p className="text-white/70">
-              TransRussia is Eurasia&apos;s leading international exhibition for
-              transport and logistics services, warehouse equipment, and IT
-              solutions.
+              DIEMEX 2026 is a premier international exhibition showcasing die & mould technologies, tool room solutions, precision components, and next-generation manufacturing systems.
             </p>
 
             <div>
               <h5 className="mb-2 font-semibold">Contact Us</h5>
               <div className="text-white/70">
-                <p>+7-(495)-799-55-85</p>
+                <p>+91 91483 19993</p>
                 <a
                   href="mailto:pad@maxxmedia.in"
                   className="hover:underline"
@@ -58,13 +56,13 @@ export default function Footer() {
               <h5 className="mb-2 font-semibold">Opening Hours</h5>
               <div className="text-white/70 space-y-1">
                 <p>
-                  <strong>17 March 2026:</strong> 10:00—18:00
+                  <strong>08 October 2026:</strong> 10:00—18:00
                 </p>
                 <p>
-                  <strong>18 March 2026:</strong> 10:00—18:00
+                  <strong>09 October 2026:</strong> 10:00—18:00
                 </p>
                 <p>
-                  <strong>19 March 2026:</strong> 10:00—16:00
+                  <strong>10 October 2026:</strong> 10:00—18:00
                 </p>
               </div>
             </div>
@@ -72,7 +70,7 @@ export default function Footer() {
             <div>
               <h5 className="mb-2 font-semibold">Venue</h5>
               <p className="text-white/70">
-                Crocus Expo IEC, Moscow, Pavilion 3
+                Auto Cluster Exhibition Centre, Pune, India
               </p>
             </div>
           </div>
@@ -99,7 +97,7 @@ export default function Footer() {
               <div className="flex gap-3">
                 {/* LinkedIn */}
                 <a
-                  href="https://www.linkedin.com/company/transrussia"
+                  href="https://www.linkedin.com/company/diemex-india/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-white"
@@ -109,7 +107,7 @@ export default function Footer() {
 
                 {/* Instagram */}
                 <a
-                  href="https://www.instagram.com/expotransrussia/"
+                  href="https://www.instagram.com/diemex_india"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-purple-500 via-pink-500 to-yellow-400"
@@ -143,23 +141,23 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-wrap gap-3 text-white/70">
-            <span>© TransRussia 2025. All Rights Reserved</span>
+            <span>© DIEMEX 2026. All Rights Reserved</span>
             <a
-              href="https://ite.group/en/terms-of-use"
+              href="https://maxxmedia.in/terms-of-use"
               target="_blank"
               className="hover:underline"
             >
               Terms
             </a>
             <a
-              href="https://ite.group/en/privacy"
+              href="https://maxxmedia.in/privacy"
               target="_blank"
               className="hover:underline"
             >
               Privacy
             </a>
             <a
-              href="https://ite.group/en/cookies/"
+              href="https://maxxmedia.in/cookies/"
               target="_blank"
               className="hover:underline"
             >
