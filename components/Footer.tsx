@@ -125,7 +125,7 @@ export default function Footer() {
 
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/20 py-5 text-sm">
           <div className="flex items-center gap-2">
-            <span>Organised By</span>
+            <span>Organised By </span>
             <div className="h-6 w-16 rounded bg-white/20" />
           </div>
 
