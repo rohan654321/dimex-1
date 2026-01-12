@@ -17,9 +17,10 @@ interface ContactEmailProps {
   data: Record<string, any>;
   formType: string;
   submittedAt: string;
+  siteName: string;
 }
 
-export default function ContactEmail({ data, formType, submittedAt }: ContactEmailProps) {
+export default function ContactEmail({ data, formType, submittedAt, siteName }: ContactEmailProps) {
   const formatFormType = (type: string) => {
     return type.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
@@ -56,7 +57,8 @@ export default function ContactEmail({ data, formType, submittedAt }: ContactEma
 
           <Section style={footer}>
             <Text style={footerText}>
-              This email was generated automatically from the {SITE_NAME} website.
+              This email was generated automatically from the {siteName} website.
+
             </Text>
             <Text style={footerNote}>
               Please respond to the inquiry within 24 hours.
