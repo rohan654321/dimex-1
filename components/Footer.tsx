@@ -11,8 +11,8 @@ export default function Footer() {
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-blue-500" />
                 <div>
-                  <div className="text-xl font-bold">TransRussia</div>
-                  <div className="text-sm">©24</div>
+                  <div className="text-xl font-bold">DIEMEX</div>
+                  <div className="text-sm">©2026</div>
                 </div>
               </div>
 
@@ -43,10 +43,10 @@ export default function Footer() {
               <div className="text-white/70">
                 <p>+7-(495)-799-55-85</p>
                 <a
-                  href="mailto:marketing@ite.group"
+                  href="mailto:pad@maxxmedia.in"
                   className="hover:underline"
                 >
-                  marketing@ite.group
+                  pad@maxxmedia.in
                 </a>
               </div>
             </div>
