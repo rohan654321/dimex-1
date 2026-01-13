@@ -107,7 +107,7 @@ export default function NavBar() {
                   <span>TransRussia</span>
                   <span className="opacity-40">|</span>
                   <span>SkladTech</span>
-                  <div className="flex flex-col"> <span className="text-xs text-white/70 leading-tight"> 17–19 March 2026 </span> <span className="text-xs text-white/60 leading-tight"> Crocus Expo, Pavilion 3 </span> </div>
+                  <div className="flex flex-col"> <span className="text-xs text-white/70 leading-tight"> 08–10 October 2026 </span> <span className="text-xs text-white/60 leading-tight"> Auto Cluster Exhibition Centre, Pune, India </span> </div>
                 </Link>
 
                 {/* DESKTOP NAV */}
