@@ -20,7 +20,7 @@ const ConferenceSection = () => {
             <div className="relative bg-gradient-to-br from-blue-900 to-blue-950 p-8 lg:p-12 flex flex-col justify-center">
               <div className="space-y-6 lg:space-y-8">
                 <div>
-                  <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 lg:mb-6">
+                  <h2 className="text-4xl lg:text-5xl xl:text-4xl font-bold text-white mb-4 lg:mb-6">
                     Conference Programme
                   </h2>
                   <p className="text-white/90 text-lg lg:text-xl leading-relaxed">
@@ -54,7 +54,7 @@ const ConferenceSection = () => {
                 </div>
 
                 {/* Button */}
-                <div className="pt-4 lg:pt-6">
+                {/* <div className="pt-4 lg:pt-6">
                   <Link href="/conference-details">
                     <button className="inline-flex items-center justify-center bg-white text-blue-900 font-bold text-lg px-8 py-4 rounded-full hover:bg-gray-100 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 active:translate-y-0">
                       View Conference Details
@@ -72,7 +72,7 @@ const ConferenceSection = () => {
                       </svg>
                     </button>
                   </Link>
-                </div>
+                </div> */}
               </div>
             </div>
 
