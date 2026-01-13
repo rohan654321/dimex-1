@@ -1,6 +1,7 @@
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
+import React from "react"
+import Image from "next/image"
+import Link from "next/link"
+import SectionContainer from "../UI/SectionContainer"
 
 const EcosystemSection = () => {
   const ecosystemItems = [
@@ -40,11 +41,11 @@ const EcosystemSection = () => {
       link: "/connect",
       buttonText: "Join Connect",
     },
-  ];
+  ]
 
   return (
     <section className="relative overflow-hidden py-24">
-      <div className="container">
+      <SectionContainer>
         {/* HEADER */}
         <div className="mb-14 flex flex-col gap-6 max-w-4xl">
           <h2 className="title-72 text-black">
@@ -59,7 +60,6 @@ const EcosystemSection = () => {
             operators from across Eurasia.
           </p>
 
-          {/* WHY EXHIBIT BUTTON */}
           <Link href="/why-exhibit" className="w-fit">
             <button className="rounded-full bg-mainColor2 px-10 py-4 text-white font-semibold transition hover:bg-mainColor4">
               Why Exhibit
@@ -72,12 +72,12 @@ const EcosystemSection = () => {
           {ecosystemItems.map((item, index) => (
             <div
               key={index}
-              className="flex flex-col h-full rounded-2xl border border-black/10 bg-white shadow-lg overflow-hidden"
+              className="flex h-full flex-col overflow-hidden rounded-2xl border border-black/10 bg-white shadow-lg"
             >
-              {/* IMAGE + NUMBER ROW */}
+              {/* IMAGE + NUMBER */}
               <div className="p-6 xl:p-8 pb-0">
                 <div className="mb-6 flex items-center justify-between">
-                  <div className="relative size-16 rounded-full overflow-hidden">
+                  <div className="relative size-16 overflow-hidden rounded-full">
                     <Image
                       src={item.image}
                       alt={item.title}
@@ -85,19 +85,19 @@ const EcosystemSection = () => {
                       className="object-cover"
                     />
                   </div>
+
                   <span className="text-2xl font-semibold text-black/60">
                     {item.number}
                   </span>
                 </div>
 
-                {/* CONTENT */}
                 <h4 className="title-32 font-semibold text-black mb-4">
                   {item.title}
                 </h4>
               </div>
 
-              {/* DESCRIPTION WITH SCROLL IF NEEDED */}
-              <div className="px-6 xl:px-8 py-0 flex-1">
+              {/* DESCRIPTION */}
+              <div className="flex-1 px-6 xl:px-8">
                 <div className="h-full overflow-y-auto pr-2">
                   <p className="whitespace-pre-line text-black/80 leading-relaxed">
                     {item.description}
@@ -105,10 +105,10 @@ const EcosystemSection = () => {
                 </div>
               </div>
 
-              {/* BUTTON AT BOTTOM */}
-              <div className="p-6 xl:p-8 pt-4 mt-auto">
-                <Link href={item.link} className="block">
-                  <button className="w-full rounded-full bg-blue-800 px-8 py-4 text-white font-semibold text-lg transition-all duration-300 hover:bg-mainColor4 hover:shadow-lg transform hover:-translate-y-0.5">
+              {/* CTA */}
+              <div className="mt-auto p-6 xl:p-8 pt-4">
+                <Link href={item.link}>
+                  <button className="w-full rounded-full bg-blue-800 px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:bg-mainColor4 hover:shadow-lg hover:-translate-y-0.5">
                     {item.buttonText}
                   </button>
                 </Link>
@@ -116,20 +116,20 @@ const EcosystemSection = () => {
             </div>
           ))}
         </div>
-      </div>
+      </SectionContainer>
 
       {/* BACKGROUND SHAPE */}
       <div className="absolute right-0 top-0 z-[-1] hidden lg:block">
         <Image
           src="/imgs/shape.png"
-          alt="Shape"
+          alt="Decorative Shape"
           width={900}
           height={900}
           className="object-contain"
         />
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default EcosystemSection;
+export default EcosystemSection

@@ -1,6 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import SectionContainer from '@/components/UI/SectionContainer';
 
 const QuickNavigationSection = () => {
   const navigationItems = [
@@ -31,65 +30,67 @@ const QuickNavigationSection = () => {
   ];
 
   return (
-    <section className="py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4">
-        <h3 className="text-sm text-blue-600 font-semibold mb-2">Simplifying Your Participation Journey</h3>
-        <h2 className="text-3xl lg:text-4xl font-bold mb-12">Quick Navigation</h2>
+    <SectionContainer>
+      <section className="py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-4">
+          <h3 className="text-sm text-blue-600 font-semibold mb-2">Simplifying Your Participation Journey</h3>
+          <h2 className="text-3xl lg:text-4xl font-bold mb-12">Quick Navigation</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Card 1 */}
-          <div className="border border-gray-200 rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
-                <span className="text-2xl">📦</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Card 1 */}
+            <div className="border border-gray-200 rounded-lg p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">📦</span>
+                </div>
+                <span className="text-3xl font-bold text-gray-300">01</span>
               </div>
-              <span className="text-3xl font-bold text-gray-300">01</span>
+              <h3 className="text-xl lg:text-2xl font-bold mb-3">Become an Exhibitor</h3>
+              <p className="text-gray-600 text-base mb-6">
+                Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.
+              </p>
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
+                Become an Exhibitor
+              </button>
             </div>
-            <h3 className="text-xl lg:text-2xl font-bold mb-3">Become an Exhibitor</h3>
-            <p className="text-gray-600 text-base mb-6">
-              Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.
-            </p>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
-              Become an Exhibitor
-            </button>
-          </div>
 
-          {/* Card 2 */}
-          <div className="border border-gray-200 rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
-                <span className="text-2xl">📘</span>
+            {/* Card 2 */}
+            <div className="border border-gray-200 rounded-lg p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">📘</span>
+                </div>
+                <span className="text-3xl font-bold text-gray-300">02</span>
               </div>
-              <span className="text-3xl font-bold text-gray-300">02</span>
+              <h3 className="text-xl lg:text-2xl font-bold mb-3">Download Event Brochure</h3>
+              <p className="text-gray-600 text-base mb-6">
+                Find out what we and how our brochure has the key information to prepare up to date brochure.
+              </p>
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
+                Download Now
+              </button>
             </div>
-            <h3 className="text-xl lg:text-2xl font-bold mb-3">Download Event Brochure</h3>
-            <p className="text-gray-600 text-base mb-6">
-              Find out what we and how our brochure has the key information to prepare up to date brochure.
-            </p>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
-              Download Now
-            </button>
-          </div>
 
-          {/* Card 3 */}
-          <div className="border border-gray-200 rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
-                <span className="text-2xl">👥</span>
+            {/* Card 3 */}
+            <div className="border border-gray-200 rounded-lg p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">👥</span>
+                </div>
+                <span className="text-3xl font-bold text-gray-300">03</span>
               </div>
-              <span className="text-3xl font-bold text-gray-300">03</span>
+              <h3 className="text-xl lg:text-2xl font-bold mb-3">Become a Visitor</h3>
+              <p className="text-gray-600 text-base mb-6">
+                Why not visit the market? Why not visit the show and what to expect for the following edition.
+              </p>
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
+                Visitor Registration
+              </button>
             </div>
-            <h3 className="text-xl lg:text-2xl font-bold mb-3">Become a Visitor</h3>
-            <p className="text-gray-600 text-base mb-6">
-              Why not visit the market? Why not visit the show and what to expect for the following edition.
-            </p>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
-              Visitor Registration
-            </button>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </SectionContainer>
   );
 };
 

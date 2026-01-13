@@ -5,6 +5,13 @@ import Image from "next/image"
 import Link from "next/link"
 import SectionContainer from "../UI/SectionContainer" // Adjust import path as needed
 
+
+type Partner = {
+  name: string
+  logo: string
+  link: string
+}
+
 const PartnersSection = () => {
   const sliderRef = useRef<HTMLDivElement>(null)
   const requestRef = useRef<number | null>(null)
@@ -14,8 +21,10 @@ const PartnersSection = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
+ 
 
-  const partners = [
+ const partners: Partner[] = [
+
     { name: "Apace Digital Cargo", logo: "/images/image.png", link: "/partner/apace-digital-cargo" },
     { name: "Cargo Insights", logo: "/images/image.png", link: "/partner/cargo-insights" },
     { name: "International Coordinating Council for Trans-Eurasian Transportation", logo: "/images/image.png", link: "/partner/international-coordinating-council-for-trans-eurasian-transportation" },
@@ -41,6 +50,8 @@ const PartnersSection = () => {
     { name: "ACU Logo", logo: "/images/image.png", link: "/partner/acu-logo" }
 
   ]
+
+  // const [imgSrc, setImgSrc] = useState(partners.logo)
 
   // Duplicate partners for seamless loop (we need enough duplicates to fill the gap)
   const duplicatedPartners = [...partners, ...partners, ...partners]
@@ -156,18 +167,20 @@ const PartnersSection = () => {
                     className="group flex w-full flex-col items-center gap-5 text-center transition-transform hover:scale-[1.02]"
                   >
                     <div className="h-40 w-full overflow-hidden rounded-lg bg-white px-8 py-6 shadow-lg transition-all group-hover:shadow-xl">
-                      <Image
-                        src={partner.logo}
-                        alt={partner.name}
-                        width={160}
-                        height={160}
-                        draggable={false}
-                        className="h-full w-full object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          target.src = "/images/placeholder-logo.png" // Add a fallback
-                        }}
-                      />
+ <Image
+  src={partner.logo}
+  alt={partner.name}
+  width={160}
+  height={160}
+  draggable={false}
+  className="h-full w-full object-contain"
+  unoptimized
+  onError={(e) => {
+    const img = e.currentTarget as HTMLImageElement
+    img.src = "/images/image.png"
+  }}
+/>
+
                     </div>
                     <small className="text-sm font-medium text-gray-700 line-clamp-2">
                       {partner.name}

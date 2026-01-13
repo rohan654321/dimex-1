@@ -1,16 +1,17 @@
 // app/why-exhibit/page.tsx - UPDATED WITH NEW LAYOUT
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import NavBar from "@/components/NavBar"
 import Footer from "@/components/Footer"
 import PartnersSection from "@/components/PartnersSection"
 import SectionContainer from "@/components/UI/SectionContainer"
 import Image from "next/image";
+import Link from "next/link"
 
 export default function WhyExhibit() {
-  const [testimonialIndex, setTestimonialIndex] = useState(0)
+
 
   const testimonials = [
     {
@@ -19,7 +20,22 @@ export default function WhyExhibit() {
       author: "ALEXEY KRAVCHENKO",
       company: "Sales Director, FESCO",
     },
+        {
+      logo: "🚢",
+      text: "TransRussia delivers consistent high-quality leads and long-term partnerships.",
+      author: "IVAN PETROV",
+      company: "Head of Logistics, GlobalTrans",
+    },
   ]
+   const [testimonialIndex, setTestimonialIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestimonialIndex((prev) => (prev + 1) % testimonials.length)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [testimonials.length])
 
   return (
     <>
@@ -43,9 +59,12 @@ export default function WhyExhibit() {
                 <span className="flex items-center gap-2">📅 17 - 19 March 2026</span>
                 <span className="flex items-center gap-2">📍 Crocus Expo, Moscow</span>
               </div>
+              <Link href="/exhibiting-enquiry">
               <button className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-medium">
                 Enquire to Exhibit
               </button>
+              </Link>
+              
             </div>
           </SectionContainer>
         </section>
@@ -89,10 +108,12 @@ export default function WhyExhibit() {
   </li>
 </ul>
 
-
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-medium">
+<Link href="/exhibiting-enquiry">
+<button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-medium">
                   Enquire to Exhibit
                 </button>
+</Link>
+                
               </div>
 
   <div className="relative h-96 rounded-lg overflow-hidden">
@@ -265,10 +286,13 @@ export default function WhyExhibit() {
           From Freight to Technology Discover our Core Sectors
         </h2>
       </div>
-
-<button className="mt-16 lg:mt-24 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium">
+      <Link href="/sectors">
+      <button className="mt-16 lg:mt-24 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium">
   Explore Our 13 Sectors
 </button>
+      </Link>
+
+
 
     </div>
 
@@ -336,10 +360,12 @@ export default function WhyExhibit() {
       and the key industry players present.
     </p>
   </div>
-
-  <button className="bg-white text-blue-900 border border-white px-8 py-3 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap w-fit">
+  <Link href="/event-brochure">
+    <button className="bg-white text-blue-900 border border-white px-8 py-3 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap w-fit">
     Download Now
   </button>
+  </Link>
+
 </div>
 
 
@@ -358,39 +384,38 @@ export default function WhyExhibit() {
     </div>
 
     {/* Heading + Controls */}
-    <div className="flex items-center justify-between mb-16">
-      <h2 className="text-4xl lg:text-5xl font-bold">
-        Trusted by Industry Leaders
-      </h2>
+  <div className="relative flex items-center justify-between mb-16">
+  <h2 className="text-4xl lg:text-5xl font-bold">
+    Trusted by Industry Leaders
+  </h2>
 
-            {/* Quote background */}
-      <div className="absolute -top-10 right-0 text-[180px] text-blue-100 leading-none select-none">
-        “”
-      </div>
-      
+  <div className="absolute -top-10 right-0 text-[180px] text-blue-100 leading-none select-none pointer-events-none">
+    “”
+  </div>
 
-      <div className="flex gap-3">
-        <button
-          onClick={() =>
-            setTestimonialIndex(
-              (i) => (i - 1 + testimonials.length) % testimonials.length
-            )
-          }
-          className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
+  <div className="flex gap-3 z-10">
+    <button
+      onClick={() =>
+        setTestimonialIndex(
+          (i) => (i - 1 + testimonials.length) % testimonials.length
+        )
+      }
+      className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200"
+    >
+      <ChevronLeft className="w-5 h-5" />
+    </button>
 
-        <button
-          onClick={() =>
-            setTestimonialIndex((i) => (i + 1) % testimonials.length)
-          }
-          className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-    </div>
+    <button
+      onClick={() =>
+        setTestimonialIndex((i) => (i + 1) % testimonials.length)
+      }
+      className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700"
+    >
+      <ChevronRight className="w-5 h-5" />
+    </button>
+  </div>
+</div>
+
 
     {/* Testimonial Card */}
     <div className="relative flex items-start gap-16">
@@ -444,9 +469,12 @@ export default function WhyExhibit() {
         find solutions, forge partnerships, and drive businesses forward.
       </p>
 
+      <Link href="/post-show-report">
       <button className="bg-blue-700 hover:bg-blue-800 text-white px-10 py-4 rounded-full text-lg font-medium">
         Know More Insights – Download Your Post-Show Report
       </button>
+      </Link>
+      
     </SectionContainer>
   </div>
 
@@ -528,9 +556,12 @@ export default function WhyExhibit() {
                 Whether you're travelling from across the globe or are just connected. Find all the essential information to
                 ensure a smooth and hassle-free trip to TransRussia Moscow 2026.
               </p>
+              <Link href="/plan-your-travel">
               <button className="bg-white text-blue-900 px-6 py-3 rounded-full font-medium hover:bg-gray-100">
                 Plan Your Travel
               </button>
+              </Link>
+              
             </div>
           </SectionContainer>
         </section>
@@ -554,9 +585,12 @@ export default function WhyExhibit() {
                 <p className="text-gray-600 text-base mb-6">
                   Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.
                 </p>
+                <Link href="/exhibiting-enquiry">
                 <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                   Become an Exhibitor
                 </button>
+                </Link>
+                
               </div>
 
               {/* Card 2 */}
@@ -571,9 +605,12 @@ export default function WhyExhibit() {
                 <p className="text-gray-600 text-base mb-6">
                   Find out what we and how our brochure has the key information to prepare up to date brochure.
                 </p>
+                <Link href="/event-brochure">
                 <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                   Download Now
                 </button>
+                </Link>
+                
               </div>
 
               {/* Card 3 */}
@@ -588,9 +625,12 @@ export default function WhyExhibit() {
                 <p className="text-gray-600 text-base mb-6">
                   Why not visit the market? Why not visit the show and what to expect for the following edition.
                 </p>
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
+                <Link href="/visitor-registration">
+                 <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                   Visitor Registration
                 </button>
+                </Link>
+               
               </div>
             </div>
           </SectionContainer>
