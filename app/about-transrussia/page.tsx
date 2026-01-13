@@ -1,4 +1,3 @@
-// AboutTransRussia.js - Update with consistent SectionContainer
 import React from 'react';
 import HeroSection from '@/components/section/HeroSection';
 import StatsSection from '@/components/section/StatsSection';
@@ -32,33 +31,38 @@ export default function AboutTransRussia() {
       </div>
 
       <main>
-        <HeroSection />
+        {/* Hero Section wrapped with SectionContainer */}
+        <div className="animated-block">
+          <div className="animated-block-target">
+            <HeroSection />
+          </div>
+        </div>
         
         <div className="page-spacing-wrapper">
           {/* Stats Section with SectionContainer */}
           <div className="animated-block">
             <div className="animated-block-target">
-              <SectionContainer>
+              
                 <StatsSection />
-              </SectionContainer>
+             
             </div>
           </div>
 
           {/* Ecosystem Section with SectionContainer */}
           <div className="animated-block">
             <div className="animated-block-target">
-              <SectionContainer>
+              
                 <EcosystemSection />
-              </SectionContainer>
+             
             </div>
           </div>
 
           {/* Sectors Section with SectionContainer */}
           <div className="animated-block">
             <div className="animated-block-target">
-              <SectionContainer>
+            
                 <SectorsSection />
-              </SectionContainer>
+             
             </div>
           </div>
 
@@ -72,9 +76,9 @@ export default function AboutTransRussia() {
           {/* Exhibitors Section with SectionContainer */}
           <div className="animated-block">
             <div className="animated-block-target">
-              <SectionContainer>
+              
                 <ExhibitorsSection />
-              </SectionContainer>
+           
             </div>
           </div>
 
@@ -85,26 +89,30 @@ export default function AboutTransRussia() {
             </div>
           </div>
 
-          {/* Conference Section - Fix the container */}
-          <div className="animated-block">
-            <div className="animated-block-target">
-              <ConferenceSection />
-            </div>
-          </div>
-
-          {/* Connect Section - Update to use SectionContainer */}
-          <div className="animated-block">
-            <div className="animated-block-target">
-              <ConnectSection />
-            </div>
-          </div>
-
-          {/* Travel Section - Fix the container */}
+          {/* Conference Section with SectionContainer */}
           <div className="animated-block">
             <div className="animated-block-target">
               <SectionContainer>
-                <TravelSection />
+                <ConferenceSection />
               </SectionContainer>
+            </div>
+          </div>
+
+          {/* Connect Section with SectionContainer */}
+          <div className="animated-block">
+            <div className="animated-block-target">
+              
+                <ConnectSection />
+            
+            </div>
+          </div>
+
+          {/* Travel Section with SectionContainer */}
+          <div className="animated-block">
+            <div className="animated-block-target">
+              
+                <TravelSection />
+             
             </div>
           </div>
 

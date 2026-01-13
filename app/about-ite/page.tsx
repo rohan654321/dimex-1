@@ -71,7 +71,7 @@ const AboutITEPage: React.FC = () => {
       </div>
 
       {/* Button */}
-      <a
+      {/* <a
         href="https://ite.group/en/calendar/"
         target="_blank"
         rel="noopener noreferrer"
@@ -80,7 +80,7 @@ const AboutITEPage: React.FC = () => {
         <button className="rounded-full bg-blue-600 px-8 py-4 text-white font-semibold hover:bg-blue-700 transition">
           Explore Our Event Calendar
         </button>
-      </a>
+      </a> */}
 
 {/* Stats Section – HARD FIX */}
 <div className="mt-12 flex gap-x-32">
@@ -207,7 +207,7 @@ const AboutITEPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <a 
+              {/* <a 
                 href="https://ite.group/en/" 
                 target="_blank" 
                 rel="noopener noreferrer"
@@ -216,7 +216,7 @@ const AboutITEPage: React.FC = () => {
                 <button className="flex items-center gap-2 overflow-hidden rounded-full bg-blue-600 px-8 lg:px-10 py-3 lg:py-4 text-white font-semibold text-base lg:text-lg hover:bg-blue-700 transition-all duration-300">
                   Find Out More About Us
                 </button>
-              </a>
+              </a> */}
             </div>
 
             {/* Exhibitions Grid */}
