@@ -96,7 +96,9 @@ export default function NavBar() {
   return (
     <>
       {/* ================= DESKTOP NAVBAR ================= */}
-      <header className="hidden lg:block fixed top-0 left-0 z-50 w-full">
+      <header className="pointer-events-auto fixed top-0 left-0 w-full z-[999]">
+
+
         <div className={`w-full ${scrolled ? "pt-2" : "pt-4"} px-4 sm:px-6 lg:px-8`}>
           {/* Container with consistent width */}
           <div className="mx-auto max-w-[1240px] lg:max-w-[1320px] xl:max-w-[1440px] 2xl:max-w-[1600px]">
@@ -107,8 +109,18 @@ export default function NavBar() {
                 {/* LOGOS - Original design */}
                 <Link href="/" className="flex items-center gap-4 font-semibold">
                   <span>TransRussia</span>
+    
                   <span className="opacity-40">|</span>
                   <span>SkladTech</span>
+<div className="flex flex-col">
+  <span className="text-xs text-white/70 leading-tight">
+    17–19 March 2026
+  </span>
+  <span className="text-xs text-white/60 leading-tight">
+    Crocus Expo, Pavilion 3
+  </span>
+</div>
+
                 </Link>
 
                 {/* NAV LINKS - Original design */}
