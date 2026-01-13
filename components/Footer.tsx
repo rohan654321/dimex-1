@@ -29,8 +29,9 @@ export default function Footer() {
  {false && (
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-blue-300" />
-                <div className="text-xl font-bold"></div>)}
+                <div className="text-xl font-bold"></div>
               </div>
+      )}
             </Link>
           </div>
         </div>
