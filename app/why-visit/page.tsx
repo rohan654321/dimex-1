@@ -1,5 +1,6 @@
 import PartnersSection from "@/components/PartnersSection"
 import SectionContainer from "@/components/UI/SectionContainer"
+import Link from "next/link"
 
 export default function WhyVisit() {
   return (
@@ -61,10 +62,12 @@ export default function WhyVisit() {
                 potential partners, open up network opportunities to regional and international
                 suppliers, expand your knowledge, and discover the latest industry innovations.
               </p>
-
+              <Link href='/contact-us'>
               <button className="bg-blue-700 hover:bg-blue-800 text-white px-10 py-4 rounded-full text-lg font-medium">
                 Contact Us
               </button>
+              </Link>
+              
             </SectionContainer>
           </section>
 
@@ -274,10 +277,12 @@ export default function WhyVisit() {
                       and the key industry players present.
                     </p>
                   </div>
-
-                  <button className="bg-white text-blue-900 border border-white px-8 py-3 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap w-fit">
+                  <Link href='/event-brochure'>
+                   <button className="bg-white text-blue-900 border border-white px-8 py-3 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap w-fit">
                     Download Now
                   </button>
+                  </Link>
+                 
                 </div>
 
 
@@ -298,10 +303,12 @@ export default function WhyVisit() {
                   experiences for our visitors. Our commitment to excellence is reflected
                   in the numbers.
                 </p>
-
+                <Link href='/post-show-report'>
                 <button className="bg-blue-700 hover:bg-blue-800 text-white px-10 py-4 rounded-full text-lg font-medium">
                   Download Your Post-Show Report
                 </button>
+                </Link>
+                
               </SectionContainer>
             </section>
 
@@ -472,9 +479,12 @@ export default function WhyVisit() {
 
               {/* CTA */}
               <div className="text-center">
+                <Link href='/sectors'>
                 <button className="bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-full text-base font-medium">
                   Explore All the Event Sectors
                 </button>
+                </Link>
+                
               </div>
             </SectionContainer>
           </section>
@@ -580,9 +590,12 @@ export default function WhyVisit() {
                   <p className="text-gray-600 text-base mb-6">
                     Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.
                   </p>
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
+                  <Link href='/exhibiting-enquiry'>
+                   <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                     Become an Exhibitor
                   </button>
+                  </Link>
+                 
                 </div>
 
                 {/* Card 2 */}
@@ -597,9 +610,12 @@ export default function WhyVisit() {
                   <p className="text-gray-600 text-base mb-6">
                     Find out what we and how our brochure has the key information to prepare up to date brochure.
                   </p>
+                  <Link href='/event-brochure'>
                   <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                     Download Now
                   </button>
+                  </Link>
+                  
                 </div>
 
                 {/* Card 3 */}
@@ -614,9 +630,12 @@ export default function WhyVisit() {
                   <p className="text-gray-600 text-base mb-6">
                     Why not visit the market? Why not visit the show and what to expect for the following edition.
                   </p>
+                  <Link href='/visitor-registration'>
                   <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                     Visitor Registration
                   </button>
+                  </Link>
+                  
                 </div>
               </div>
             </SectionContainer>

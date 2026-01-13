@@ -63,9 +63,12 @@ export default function AboutSkladTechPage() {
               <p className="mb-8 text-lg lg:text-xl text-gray-700">
                 SkladTech is Eurasia's premier exhibition dedicated to advanced warehouse equipment and technologies. Held alongside TransRussia, the country's largest transport and logistics exhibition, SkladTech serves as a specialized platform for showcasing cutting-edge solutions in storage systems, material handling, automation, and inventory management.
               </p>
+              <Link href='/exhibiting-enquiry'>
               <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 lg:px-10 py-3 lg:py-4 rounded-full font-medium">
                 Enquire to Exhibit
               </button>
+              </Link>
+              
             </div>
 
             {/* Stats */}
@@ -119,9 +122,12 @@ export default function AboutSkladTechPage() {
             </div>
 
             <div className="mt-12 text-center">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 lg:px-10 py-3 lg:py-4 rounded-full font-medium">
+              <Link href='/sectors'>
+                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 lg:px-10 py-3 lg:py-4 rounded-full font-medium">
                 Explore Our Event Sectors
               </button>
+              </Link>
+
             </div>
           </SectionContainer>
         </section>
@@ -151,10 +157,12 @@ export default function AboutSkladTechPage() {
                 and the key industry players present.
               </p>
             </div>
-
+            <Link href='/event-brochure'>
             <button className="bg-white text-blue-900 border border-white px-8 py-3 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap w-fit">
               Download Now
             </button>
+            </Link>
+            
           </div>
         </div>
       </div>
@@ -170,9 +178,12 @@ export default function AboutSkladTechPage() {
               <p className="mb-8 text-lg lg:text-xl text-gray-700">
                 SkladTech unites decision-makers, industry leaders, and innovators in warehouse technology and logistics. Attendees explore cutting-edge solutions, forge partnerships, and optimize operations—shaping the future of warehousing.
               </p>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 lg:px-10 py-3 lg:py-4 rounded-full font-medium">
+              <Link href='post-show-report'>
+                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 lg:px-10 py-3 lg:py-4 rounded-full font-medium">
                 Discover Key Visitor Insights – Download the Post-Show Report
               </button>
+              </Link>
+           
             </div>
 
             {/* Visitor Stats */}
@@ -312,9 +323,12 @@ export default function AboutSkladTechPage() {
                   </div>
                   <h3 className="mb-4 text-2xl font-bold">{card.title}</h3>
                   <p className="mb-6 text-gray-600 text-lg">{card.description}</p>
+                  <Link href={card.href}>
                   <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                     {card.buttonText}
                   </button>
+                  </Link>
+                  
                 </div>
               ))}
             </div>

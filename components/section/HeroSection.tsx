@@ -1,32 +1,34 @@
 import React from "react"
 import Image from "next/image"
+import SectionContainer from "@/components/UI/SectionContainer"
 
 const HeroSection = () => {
   return (
-    <div className="relative flex min-h-[80vh] flex-col justify-end bg-mainColor5 pt-96">
-      
+    <section className="relative h-screen overflow-hidden">
       {/* BACKGROUND IMAGE */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/image.png"
-          alt="TransRussia©24"
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
+      <Image
+        src="/images/image.png"
+        alt="TransRussia©24"
+        fill
+        priority
+        className="object-cover"
+      />
 
-      {/* GRADIENT OVERLAY */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      {/* GRADIENT (BOTTOM ONLY) */}
+      <div className="absolute bottom-0 h-[45%] w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
       {/* CONTENT */}
-      <div className="relative z-20 container pb-10 text-white">
-        <h2 className="title-72">About TransRussia</h2>
-        <p className="max-w-6xl py-5">
-          Shaping Routes To A Seamless Supply Chain.
-        </p>
+      <div className="relative z-10 flex h-full items-end">
+        <SectionContainer>
+          <div className="pb-25 text-white">
+            <h2 className="title-72">About TransRussia</h2>
+            <p className="mt-4 max-w-6xl text-lg">
+              Shaping Routes To A Seamless Supply Chain.
+            </p>
+          </div>
+        </SectionContainer>
       </div>
-    </div>
+    </section>
   )
 }
 

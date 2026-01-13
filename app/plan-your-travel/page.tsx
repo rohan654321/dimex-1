@@ -2,6 +2,7 @@
 
 import PartnersSection from '@/components/section/PartnersSection';
 import React, { ReactNode, useState } from 'react';
+import SectionContainer from '@/components/UI/SectionContainer'; // Make sure to import this
 
 interface ButtonProps {
   children: ReactNode;
@@ -100,18 +101,11 @@ const Image: React.FC<ImageProps> = ({
   );
 };
 
-// Hero Section (Server Component)
+// Hero Section
 const HeroSection: React.FC = () => {
   return (
-    <div className="page-spacing-wrapper">
-      <div className="relative z-[1] flex flex-col justify-end bg-mainColor5 !pt-96">
-        <div className="container flex flex-col justify-end !pt-0 !pb-10 text-white">
-          <h2 className="title-72 text-white">Plan Your Travel</h2>
-          <p className="max-w-6xl whitespace-pre-line py-5">
-            Plan your journey with ease with our comprehensive guide to visas, hotels, and bookings, 
-            designed to ensure a seamless exhibition experience, all in one place.
-          </p>
-        </div>
+    <div className="relative z-[1] flex flex-col justify-end bg-mainColor5 !pt-96 w-full">
+      <div className="w-full">
         <div className="absolute inset-0 z-[-1] size-full !py-0">
           <div className="absolute inset-0 bg-gradient-to-t from-black"></div>
           <Image
@@ -120,17 +114,27 @@ const HeroSection: React.FC = () => {
             className="size-full object-cover"
           />
         </div>
+        
+        <SectionContainer>
+          <div className="flex flex-col justify-end !pt-0 !pb-10 text-white">
+            <h2 className="title-72 text-white">Plan Your Travel</h2>
+            <p className="max-w-6xl whitespace-pre-line py-5">
+              Plan your journey with ease with our comprehensive guide to visas, hotels, and bookings, 
+              designed to ensure a seamless exhibition experience, all in one place.
+            </p>
+          </div>
+        </SectionContainer>
       </div>
     </div>
   );
 };
 
-// Introduction Section (Server Component)
+// Introduction Section
 const IntroductionSection: React.FC = () => {
   return (
-    <div className="animated-block">
-      <div className="animated-block-target">
-        <div className="container overflow-hidden">
+    <div className="animated-block py-16">
+      <SectionContainer>
+        <div className="animated-block-target">
           <div className="mb-14 flex flex-wrap justify-between gap-10 lg:items-end">
             <div className="lg:basis-2/3">
               <div className="flex-center w-fit gap-2 py-2 pe-5 pl-1 capitalize">
@@ -153,12 +157,12 @@ const IntroductionSection: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </SectionContainer>
     </div>
   );
 };
 
-// Guide Item Component (Server Component)
+// Guide Item Component
 const GuideItemComponent: React.FC<GuideItem & { index: number }> = ({
   title,
   content,
@@ -192,7 +196,7 @@ const GuideItemComponent: React.FC<GuideItem & { index: number }> = ({
   );
 };
 
-// Guide Section with Tabs (Client Component - needs useState)
+// Guide Section with Tabs
 const GuideSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'exhibitors' | 'visitors'>('exhibitors');
   
@@ -223,45 +227,53 @@ const GuideSection: React.FC = () => {
   ];
 
   return (
-    <div className="animated-block">
-      <div className="animated-block-target">
-        <div className="container">
-          <div className="flex-between mb-10 flex-wrap !items-end gap-5 border-b border-mainColor1 pb-10">
-            <div>
-              <div className="flex-center w-fit gap-2 py-2 pe-5 pl-1 capitalize">
-                <Image
-                  src="/imgs/logo-icon-3.png"
-                  alt="TransRussia©24"
-                  className="size-auto w-5"
-                />
-                <span>Plan Your Travel</span>
-              </div>
-              <h2 className="title-72 text-black mt-5">The Information You Need Before Traveling</h2>
-            </div>
-            
-            <div className="inline-flex p-1 text-muted-foreground size-fit rounded-full bg-mainColor5">
-              <button
-                onClick={() => setActiveTab('exhibitors')}
-                className={`inline-flex text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 m-0 rounded-full px-5 py-3 font-bold transition-all duration-700 ease-in-out ${
-                  activeTab === 'exhibitors' 
-                    ? 'bg-mainColor2 text-white' 
-                    : 'bg-transparent text-gray-700'
-                }`}
-              >
-                Exhibitors
-              </button>
-              <button
-                onClick={() => setActiveTab('visitors')}
-                className={`inline-flex text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 m-0 rounded-full px-5 py-3 font-bold transition-all duration-700 ease-in-out ${
-                  activeTab === 'visitors' 
-                    ? 'bg-mainColor2 text-white' 
-                    : 'bg-transparent text-gray-700'
-                }`}
-              >
-                Visitors
-              </button>
-            </div>
-          </div>
+    <div className="animated-block py-16">
+      <SectionContainer>
+        <div className="animated-block-target">
+          <div className="mb-10 flex flex-col gap-6 border-b border-mainColor1 pb-10 lg:flex-row lg:items-end lg:justify-between">
+  
+  {/* LEFT: TITLE */}
+  <div className="max-w-6xl">
+    <div className="flex-center w-fit gap-2 py-2 pe-5 pl-1 capitalize">
+      <Image
+        src="/imgs/logo-icon-3.png"
+        alt="TransRussia©24"
+        className="w-5"
+      />
+      <span>Plan Your Travel</span>
+    </div>
+
+    <h2 className="title-72 text-black mt-4">
+      The Information You Need Before Traveling
+    </h2>
+  </div>
+
+  {/* RIGHT: TABS */}
+  <div className="relative z-10 inline-flex shrink-0 rounded-full bg-white p-1 shadow-md ring-1 ring-black/10">
+    <button
+      onClick={() => setActiveTab("exhibitors")}
+      className={`rounded-full px-6 py-3 text-sm font-bold transition ${
+        activeTab === "exhibitors"
+          ? "bg-black text-white shadow"
+          : "text-gray-700 hover:bg-gray-100"
+      }`}
+    >
+      Exhibitors
+    </button>
+
+    <button
+      onClick={() => setActiveTab("visitors")}
+      className={`rounded-full px-6 py-3 text-sm font-bold transition ${
+        activeTab === "visitors"
+          ? "bg-black text-white shadow"
+          : "text-gray-700 hover:bg-gray-100"
+      }`}
+    >
+      Visitors
+    </button>
+  </div>
+</div>
+
 
           <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-1">
             {activeTab === 'exhibitors' && (
@@ -282,12 +294,12 @@ const GuideSection: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
+      </SectionContainer>
     </div>
   );
 };
 
-// Hotel Component (Server Component)
+// Hotel Component
 const HotelComponent: React.FC<HotelItem> = ({
   name,
   description,
@@ -331,7 +343,7 @@ const HotelComponent: React.FC<HotelItem> = ({
   );
 };
 
-// Hotels Section (Server Component)
+// Hotels Section
 const HotelsSection: React.FC = () => {
   const hotels: HotelItem[] = [
     {
@@ -357,13 +369,12 @@ The hotel has a stylish interior and an elaborate infrastructure, including a re
       bookingLink: "https://www.hotel-peter1.ru/",
       locationLink: "https://yandex.ru/maps/org/petr_i/1014459869/?ll=37.619774%2C55.763544&source=wizbiz_new_map_single&z=14"
     },
-    // Add more hotels as needed
   ];
 
   return (
-    <div className="animated-block">
-      <div className="animated-block-target">
-        <div className="container">
+    <div className="animated-block py-16">
+      <SectionContainer>
+        <div className="animated-block-target">
           <h2 className="title-72 text-black">
             20% Off When You Book at the Hotel Website Using the Promo Code "EXPO"
           </h2>
@@ -375,42 +386,38 @@ The hotel has a stylish interior and an elaborate infrastructure, including a re
             ))}
           </div>
         </div>
-      </div>
+      </SectionContainer>
     </div>
   );
 };
 
-// City Guide Section (Server Component)
-const CityGuideSection: React.FC = () => {
-  return (
-    <div className="animated-block">
-      <div className="animated-block-target">
-        <div className="relative z-[1] overflow-hidden">
-          <div className="container">
-            <div className="flex flex-col gap-5">
-              <h2 className="title-72 text-black">Explore Moscow Beyond the Exhibition</h2>
-              <a href="/explore-moscow" className="block">
-                <Button>City Guide</Button>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// // City Guide Section
+// const CityGuideSection: React.FC = () => {
+//   return (
+//     <div className="animated-block py-16">
+//       <SectionContainer fullWidth className="relative z-[1] overflow-hidden">
+//         <div className="relative">
+//           <div className="flex flex-col gap-5">
+//             <h2 className="title-72 text-black">Explore Moscow Beyond the Exhibition</h2>
+//             <a href="/explore-moscow" className="block">
+//               <Button>City Guide</Button>
+//             </a>
+//           </div>
+//         </div>
+//       </SectionContainer>
+//     </div>
+//   );
+// };
 
-
-
-// Main Page Component - Marked as Client Component
+// Main Page Component
 const PlanYourTravelPage: React.FC = () => {
   return (
-    <div>
+    <div className="pt-20"> {/* Add padding-top to account for fixed navbar */}
       <HeroSection />
       <IntroductionSection />
       <GuideSection />
       <HotelsSection />
-      <CityGuideSection />
+      {/* <CityGuideSection /> */}
       <PartnersSection />
     </div>
   );
