@@ -180,59 +180,61 @@ export default function NavBar() {
         </div>
       </header>
 
-      {/* ================= MOBILE MENU ================= */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[998] bg-black/50 lg:hidden" onClick={() => setMobileMenuOpen(false)}>
-          <div
-            className="absolute right-0 top-0 h-full w-80 bg-[#0d1e3c] p-6 text-white"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-6 text-center font-mono text-sm">
-              {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
-            </div>
+{mobileMenuOpen && (
+  <div
+    className="lg:hidden fixed top-[72px] left-0 right-0 z-[998]
+               max-h-[calc(100vh-80px)] overflow-y-auto
+               bg-[#0d1e3c] text-white shadow-xl"
+  >
+    <div className="px-5 py-4">
+      <div className="mb-3 text-center font-mono text-xs opacity-80">
+        {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
+      </div>
 
-            <div className="flex flex-col gap-5">
-              {navItems.map((item, i) =>
-                item.dropdown && item.links ? (
-                  <div key={i}>
-                    <div className="font-semibold">{item.title}</div>
-                    <div className="mt-2 ml-3 flex flex-col gap-2">
-                      {item.links.map((link, j) => (
-                        <Link
-                          key={j}
-                          href={link.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="text-sm opacity-80"
-                        >
-                          {link.text}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
+      <div className="flex flex-col gap-4">
+        {navItems.map((item, i) =>
+          item.dropdown && item.links ? (
+            <div key={i}>
+              <div className="text-sm font-semibold">{item.title}</div>
+              <div className="mt-1 ml-3 flex flex-col gap-1.5">
+                {item.links.map((link, j) => (
                   <Link
-                    key={i}
-                    href={item.href!}
+                    key={j}
+                    href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="font-semibold"
+                    className="text-sm opacity-80 hover:opacity-100"
                   >
-                    {item.title}
+                    {link.text}
                   </Link>
-                )
-              )}
-
-              <div className="mt-6 flex flex-col gap-3 border-t border-white/20 pt-6">
-                <Button href="/exhibiting-enquiry" fullWidth>
-                  Become an Exhibitor
-                </Button>
-                <Button href="/visitor-registration" fullWidth>
-                  Register Now
-                </Button>
+                ))}
               </div>
             </div>
-          </div>
+          ) : (
+            <Link
+              key={i}
+              href={item.href!}
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-semibold"
+            >
+              {item.title}
+            </Link>
+          )
+        )}
+
+        <div className="mt-4 flex flex-col gap-2 border-t border-white/20 pt-4">
+          <Button href="/exhibiting-enquiry" fullWidth>
+            Become an Exhibitor
+          </Button>
+          <Button href="/visitor-registration" fullWidth>
+            Register Now
+          </Button>
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
+
+
     </>
   )
 }
