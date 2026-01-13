@@ -121,11 +121,10 @@ export default function AboutTransRussia() {
           </div>
 
           {/* Quick Navigation - Already has SectionContainer */}
-          <div className="animated-block">
-            <div className="animated-block-target">
-              <QuickNavigationSection />
-            </div>
-          </div>
+
+      <QuickNavigationSection />
+
+
 
           {/* Partners Section with SectionContainer */}
           <div className="animated-block">

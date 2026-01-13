@@ -1,5 +1,6 @@
 import React from 'react';
 import SectionContainer from '@/components/UI/SectionContainer';
+import Link from 'next/link';
 
 const QuickNavigationSection = () => {
   const navigationItems = [
@@ -49,9 +50,12 @@ const QuickNavigationSection = () => {
               <p className="text-gray-600 text-base mb-6">
                 Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.
               </p>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
+              <Link href='/exhibiting-enquiry'>
+               <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                 Become an Exhibitor
               </button>
+              </Link>
+             
             </div>
 
             {/* Card 2 */}
@@ -66,9 +70,12 @@ const QuickNavigationSection = () => {
               <p className="text-gray-600 text-base mb-6">
                 Find out what we and how our brochure has the key information to prepare up to date brochure.
               </p>
+              <Link href='/event-brochure'>
               <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                 Download Now
               </button>
+              </Link>
+              
             </div>
 
             {/* Card 3 */}
@@ -83,9 +90,12 @@ const QuickNavigationSection = () => {
               <p className="text-gray-600 text-base mb-6">
                 Why not visit the market? Why not visit the show and what to expect for the following edition.
               </p>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
+              <Link href='visitor-registration'>
+               <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
                 Visitor Registration
               </button>
+              </Link>
+             
             </div>
           </div>
         </div>

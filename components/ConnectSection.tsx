@@ -15,11 +15,11 @@ export default function ConnectSection() {
               </p>
             </div>
             
-            <a href="https://app.transrussia-connect.com/public/post?id=3f91096c0eb34ab0bf2a55762da78caa&vendorId=edce6a84-ed2f-455a-afd7-d7fbb0d16c00" className="block mt-8">
+            {/* <a href="https://app.transrussia-connect.com/public/post?id=3f91096c0eb34ab0bf2a55762da78caa&vendorId=edce6a84-ed2f-455a-afd7-d7fbb0d16c00" className="block mt-8">
               <button className="flex items-center justify-center group gap-2 overflow-hidden rounded-full px-10 py-4 font-jakarta text-[16px] font-semibold transition-all duration-300 bg-white text-[#0092D7] hover:bg-[#0092D7] hover:text-white w-fit">
                 Join TransRussia Connect
               </button>
-            </a>
+            </a> */}
           </div>
           
           <div className="flex items-center justify-center relative z-[-1] my-10 lg:h-full lg:my-0">
