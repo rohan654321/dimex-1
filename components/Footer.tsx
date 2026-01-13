@@ -28,10 +28,8 @@ export default function Footer() {
               <div className="h-10 w-px bg-white/40" />
 
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-blue-300 flex items-center justify-center">
-                  <span className="text-lg font-bold text-blue-900">M</span>
-                </div>
-                <div className="text-xl font-bold">MAX</div>
+                <div className="h-8 w-8 rounded-full bg-blue-300" />
+                <div className="text-xl font-bold"></div>
               </div>
             </Link>
           </div>
@@ -87,9 +85,8 @@ export default function Footer() {
 
             <div>
               <h5 className="mb-2 font-semibold">Venue</h5>
-              <p className="text-white/70 flex items-start gap-2">
-                <span>📍</span>
-                <span>Auto Cluster Exhibition Centre, Pune, India</span>
+              <p className="text-white/70">
+                Auto Cluster Exhibition Centre, Pune, India
               </p>
             </div>
           </div>
