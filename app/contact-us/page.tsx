@@ -37,8 +37,9 @@ export default function ContactPage() {
             {/* Intro text */}
             <div className="mb-12 text-center">
               <p className="mx-auto max-w-2xl text-lg text-gray-700">
-                Have questions or need help? Contact us below, and our team will
-                respond within 24 hours.
+                Have questions or need help? Contact us below, and our team will respond promptly.
+
+
               </p>
             </div>
 
