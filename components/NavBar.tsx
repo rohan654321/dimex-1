@@ -103,7 +103,7 @@ export default function NavBar() {
               <div className="flex items-center justify-between px-6 py-3">
 
                 {/* LOGO */}
-                <Link href="/" className="flex items-center gap-3 font-semibold">
+                <Link href="/" className="flex items-center gap-3 font-bold">
                   <span>DIEMEX 2026</span>
                   <span className="opacity-0">|</span>
                   <div className="flex flex-col"> <span className="text-xs text-white leading-tight"> 08–10 October 2026 </span> <span className="text-xs text-white leading-tight"> Auto Cluster Exhibition Centre, Pune, India </span> </div>
