@@ -32,15 +32,14 @@ export default function BrochurePage() {
             <div>
               <div className="max-w-3xl">
                 <h2 className="mt-5 text-4xl font-semibold text-blue-800 lg:text-5xl">
-                  Your Roadmap to TransRussia 2026
+                  Your Roadmap to DIEMEX 2026
                 </h2>
 
                 <p className="mt-6 text-lg leading-relaxed text-gray-700">
-                  Position your brand at the heart of Russia and Eurasia&apos;s logistics
-                  market. As the region&apos;s leading B2B exhibition for transport and
-                  logistics services, <strong className="text-blue-700">TransRussia</strong> connects international
-                  freight forwarders, carriers, and logistics technology providers with
-                  thousands of qualified buyers from across 50+ countries.
+                  Position your brand at the centre of India’s fast-growing die, mould, and precision 
+                  manufacturing market. As a leading B2B exhibition for die & mould, tooling, and advanced 
+                  manufacturing technologies, <strong className="text-blue-700">DIEMEX</strong> connects global solution providers with qualified buyers, 
+                  OEMs, and decision-makers from across India and international markets. c
                 </p>
 
                 <hr className="my-10 border-gray-300" />
