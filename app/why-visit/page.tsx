@@ -196,8 +196,8 @@ export default function WhyVisit() {
 
                 <div className="flex flex-wrap justify-center gap-4 mt-14">
                   {[
-                    "Kazakhstan", "Turkey", "Pakistan", "United Arab Emirates", "South Korea",
-                    "India", "Uzbekistan", "Armenia", "Azerbaijan", "Belarus", "China"
+                    "JAPAN", "CHINA", "TAIWAN", "GERMANY", "INDIA"
+              
                   ].map((country, index) => (
                     <motion.div
                       key={country}
