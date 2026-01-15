@@ -585,8 +585,8 @@ export default function WhyVisit() {
 },
 
         { 
-          title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders
-", 
+          title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders",
+ 
           slug: "tooling-tool-rom-technologies", 
           image: "/images/image.png" 
         },
@@ -596,8 +596,7 @@ export default function WhyVisit() {
           image: "/images/image.png" 
         },
         { 
-          title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs
-", 
+          title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
           slug: "cnc-machines", 
           image: "/images/image.png" 
         },
@@ -607,20 +606,18 @@ export default function WhyVisit() {
           image: "/images/image.png" 
         },
         { 
-          title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables
-", 
+          title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables",
+ 
           slug: "materials-steels-alloys", // Changed to unique slug
           image: "/images/image.png" 
         },
         { 
-          title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering
-", 
+          title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering", 
           slug: "cad-cam", 
           image: "/images/image.png" 
         },
         { 
-          title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions
-, 
+          title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
           slug: "die-casting", 
           image: "/images/image.png" 
         }
