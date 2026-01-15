@@ -62,7 +62,7 @@ const slideInFromRight: Variants = {
                 transition={{ duration: 0.8, delay: 0.1 }}
               >
                 <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold text-black mb-4">
-                  About ITE Group
+                  About Maxx Business Media
                 </h1>
               </motion.div>
               
@@ -72,7 +72,7 @@ const slideInFromRight: Variants = {
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
                 <p className="max-w-6xl text-lg lg:text-xl text-gray-700 py-5">
-                  Organising Eurasia's largest industry exhibitions since 1991
+                  Organising India's largest industry exhibitions since 2019
                 </p>
               </motion.div>
             </div>
@@ -119,12 +119,7 @@ const slideInFromRight: Variants = {
                 className="space-y-6 text-gray-700 text-base lg:text-lg leading-relaxed"
               >
                 <motion.p variants={fadeInUp}>
-                  ITE Group is a business events organiser that has been operating in the
-                  Eurasian market since 1991. Every year, we host more than 30 of the
-                  largest industry events, including exhibitions, summits, and
-                  conferences. Powered by the Connect digital platform, the ITE ecosystem
-                  offers unique hybrid solutions for industry communities in Eurasia, the
-                  CIS countries, and beyond.
+             Maxx Business Media Pvt. Ltd. is a leading B2B business events and media company based in India, dedicated to creating powerful platforms that connect industries, innovators, and decision-makers. Since its inception, Maxx Business Media has been organizing high-impact trade exhibitions, conferences, and industry-focused initiatives across key manufacturing and emerging sectors.
                 </motion.p>
 
                 <motion.p variants={fadeInUp}>
