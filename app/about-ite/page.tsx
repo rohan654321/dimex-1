@@ -225,8 +225,7 @@ Our events drive industrial development, support export growth, and provide unma
                     Working for Your Success
                   </h2>
                   <p className="whitespace-pre-line text-gray-700 text-base lg:text-lg leading-relaxed">
-                    At ITE Group, our goal is to empower businesses by creating impactful events that drive industry growth and foster valuable connections. We are dedicated to supporting our clients' success and facilitating meaningful opportunities for professionals worldwide.
-                  </p>
+At Maxx Business Media, our mission is to create powerful B2B platforms that accelerate business growth, showcase innovation, and connect industry leaders. Through our exhibitions, conferences, and media initiatives, we enable meaningful engagement and measurable opportunities that help our clients succeed in competitive markets.                  </p>
                 </div>
               </div>
             </motion.div>
@@ -311,7 +310,7 @@ Our events drive industrial development, support export growth, and provide unma
                 </h2>
                 <div className="mt-10 flex flex-col justify-between lg:flex-row lg:items-end gap-10 lg:gap-32">
                   <div className="text-gray-700 text-base lg:text-lg leading-relaxed">
-                    <p className="mb-4">Each year, we organize and host over 30 leading industry events across key sectors, including exhibitions, summits, and conferences.</p>
+                    <p className="mb-4">ganize and host over 30 leading industry events across key sectors, including exhibitions, summits, and conferences.</p>
                     <p>Supported by the Connect digital platform, the ITE ecosystem offers innovative hybrid solutions for industry communities in Russia, the CIS, and beyond.</p>
                   </div>
                 </div>
