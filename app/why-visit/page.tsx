@@ -378,7 +378,7 @@ export default function WhyVisit() {
                 >
                   {[
                     { value: "98%", label: "Were Satisfied with the Exhibition" },
-                    { value: "78%", label: "Only Attended TransRussia and SkaldTech Among Similar Exhibitions for Logistics" },
+                    { value: "78%", label: "A focused exhibition with a highly relevant industry audience." },
                     { value: "78%", label: "Sourced New Clients and Partners" },
                     { value: "63%", label: "Generated Quality Leads at the Show" }
                   ].map((stat, index) => (
