@@ -100,15 +100,12 @@ export default function WhyVisit() {
           >
             <SectionContainer>
               <h2 className="text-5xl lg:text-6xl font-bold mb-8 max-w-10xl leading-tight">
-                The Entire Warehouse and Logistics Industry<br />
-                Brought Under One Roof
+                The Entire Die & Mould and Precision Manufacturing Ecosystem<br />
+                Brought Together Under One Roof
               </h2>
 
               <p className="text-gray-700 text-[10] max-w-7xl mb-10 leading-relaxed">
-                As business opportunities grow in the country, TransRussia provides a perfect
-                place for the entire logistics and warehouse industry to come together and meet
-                potential partners, open up network opportunities to regional and international
-                suppliers, expand your knowledge, and discover the latest industry innovations.
+               As India’s manufacturing sector continues to grow, DIEMEX provides a focused platform for the die & mould, tooling, and precision engineering community to connect, collaborate, and do business. The exhibition enables manufacturers, OEMs, and technology providers to meet potential partners, expand regional and international networks, exchange knowledge, and discover the latest innovations shaping the future of manufacturing.
               </p>
               <Link href='/contact-us'>
                 <motion.button
