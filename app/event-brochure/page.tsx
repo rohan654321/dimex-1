@@ -65,8 +65,8 @@ export default function BrochurePage() {
 
                 <div className="grid grid-cols-2 gap-x-10 gap-y-12">
                   <div>
-                    <p className="text-5xl font-bold text-blue-600">2</p>
-                    <p className="mt-2 text-xl text-gray-700">Successful Editions Completed</p>
+                    <p className="text-5xl font-bold text-blue-600">3rd Edition</p>
+                    <p className="mt-2 text-xl text-gray-700">2 Successful Editions Completed</p>
                   </div>
                   <div>
                     <p className="text-5xl font-bold text-blue-600">600+</p>
