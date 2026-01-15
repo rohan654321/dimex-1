@@ -119,25 +119,32 @@ const slideInFromRight: Variants = {
                 className="space-y-6 text-gray-700 text-base lg:text-lg leading-relaxed"
               >
                 <motion.p variants={fadeInUp}>
-             Maxx Business Media Pvt. Ltd. is a leading B2B business events and media company based in India, dedicated to creating powerful platforms that connect industries, innovators, and decision-makers. Since its inception, Maxx Business Media has been organizing high-impact trade exhibitions, conferences, and industry-focused initiatives across key manufacturing and emerging sectors.
+             Maxx Business Media Pvt. Ltd. is a leading B2B business events and media company based in India, 
+                  dedicated to creating powerful platforms that connect industries, innovators, and decision-makers. 
+                  Since its inception, Maxx Business Media has been organizing high-impact trade exhibitions, conferences, 
+                  and industry-focused initiatives across key manufacturing and emerging sectors.
                 </motion.p>
 
                 <motion.p variants={fadeInUp}>
-                  With over 100 agents and hundreds of associations and partners spanning
-                  150 countries and 5 continents, our global network seamlessly connects
-                  clients to opportunities around the world.
+                 Every year, we deliver multiple flagship exhibitions, summits, and industry forums that serve as 
+                  catalysts for business growth, technology exchange, and market expansion. Supported by our integrated 
+                  digital and media ecosystem, we offer year-round visibility and engagement opportunities for exhibitors, 
+                  advertisers, and industry partners.
                 </motion.p>
 
                 <motion.p variants={fadeInUp}>
-                  ITE events contribute to business success and development, unlock the
-                  export potential of countries and regions, provide access to a broad
-                  target audience, and offer effective, innovative solutions for
-                  networking, growth, and professional development. They ensure dialogue
-                  between the business community and government.
+               With a strong network of international agents, industry associations, government bodies, and strategic partners, 
+                  Maxx Business Media facilitates meaningful global–local connections, enabling companies to access new markets,
+                  buyers, and collaborations across India and overseas.
                 </motion.p>
 
                 <motion.p variants={fadeInUp}>
-                  ITE offices are located in Moscow, Dubai, Beijing, and New Delhi.
+Our events drive industrial development, support export growth, and provide unmatched access to targeted business audiences. 
+                  By combining exhibitions, conferences, awards, digital platforms, and trade publications, we create comprehensive 
+                  solutions for networking, branding, and professional advancement—while fostering constructive dialogue between industry stakeholders and policymakers.  
+
+                  Maxx Business Media operates with a pan-India presence and an expanding international footprint, serving as a trusted partner to industries seeking sustainable growth and global relevance.
+                
                 </motion.p>
               </motion.div>
 
