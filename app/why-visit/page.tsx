@@ -905,7 +905,7 @@ export default function WhyVisit() {
   loading="lazy"
   referrerPolicy="no-referrer-when-downgrade"
 />
-</iframe>
+
               </motion.div>
             </SectionContainer>
           </section>
