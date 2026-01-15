@@ -241,7 +241,7 @@ At Maxx Business Media, our mission is to create powerful B2B platforms that acc
               {[
                 {
                   title: "Our Mission",
-                  description: "TTo create high-impact B2B platforms that drive business success, accelerate industry growth, and contribute to the development of strong and sustainable economies.",
+                  description: "To create high-impact B2B platforms that drive business success, accelerate industry growth, and contribute to the development of strong and sustainable economies.",
                   image: "/images/image.png"
                 },
                 {
