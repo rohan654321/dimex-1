@@ -585,8 +585,9 @@ export default function WhyVisit() {
 },
 
         { 
-          title: "Ports & Terminals, Freight Handling Services In Ports", 
-          slug: "ports-and-terminals-freight-handling-services-in-ports", 
+          title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders
+", 
+          slug: "tooling-tool-rom-technologies", 
           image: "/images/image.png" 
         },
         { 
@@ -595,8 +596,9 @@ export default function WhyVisit() {
           image: "/images/image.png" 
         },
         { 
-          title: "Maritime & Inland Waterway Transport", 
-          slug: "maritime-and-inland-waterway-transport", 
+          title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs
+", 
+          slug: "cnc-machines", 
           image: "/images/image.png" 
         },
         { 
@@ -605,18 +607,21 @@ export default function WhyVisit() {
           image: "/images/image.png" 
         },
         { 
-          title: "Logistics, Distribution Centers & Terminals", 
-          slug: "distribution-centers", // Changed to unique slug
+          title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables
+", 
+          slug: "materials-steels-alloys", // Changed to unique slug
           image: "/images/image.png" 
         },
         { 
-          title: "Outsize & Heavy Lift Carriage (Breakbulk)", 
-          slug: "heavy-lift-carriage", 
+          title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering
+", 
+          slug: "cad-cam", 
           image: "/images/image.png" 
         },
         { 
-          title: "Complex Logistics Services & Freight Forwarding", 
-          slug: "complex-logistics", 
+          title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions
+, 
+          slug: "die-casting", 
           image: "/images/image.png" 
         }
       ].map((item, index) => (
