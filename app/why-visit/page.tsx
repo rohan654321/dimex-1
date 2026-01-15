@@ -683,8 +683,7 @@ export default function WhyVisit() {
                     More Than Just an Exhibition
                   </h2>
                   <p className="text-gray-600 text-lg">
-                    A blended experience of warehouse and logistics exhibition with learning
-                    and staying on top of trends through experts and industry leaders
+                    A focused die & mould and precision manufacturing exhibition that combines live technology showcases with expert-led knowledge sharing.
                   </p>
                 </div>
 
@@ -716,12 +715,12 @@ export default function WhyVisit() {
                 {[
                   {
                     title: "Conference Programme",
-                    text: "6 industry conferences with the most useful and relevant information to help solve your business problems, all the way from trends taking place in the industry to the prospects of development of the warehouse, transport and logistics industry.",
+                    text: "2 Days focused industry conference delivering practical insights to address real business challenges — from emerging die & mould technologies and tooling innovations to future trends shaping precision manufacturing.",
                     image: "/images/more/conference.jpg"
                   },
                   {
-                    title: "TransRussia Summit",
-                    text: "A platform that brings market professionals and leading analysts on one stage to help everyone in the warehouse, transport and logistics industry to stay on top of trends of a dynamically changing industry.",
+                    title: "MOLDING TRENDS Summit",
+                    text: "A knowledge-driven platform bringing industry professionals and leading experts together to share insights, helping the die & mould and tooling community stay ahead in a rapidly evolving manufacturing landscape.",
                     image: "/images/more/summit.jpg"
                   }
                 ].map((card, index) => (
@@ -789,7 +788,7 @@ export default function WhyVisit() {
                     icon: "📦",
                     number: "01",
                     title: "Become an Exhibitor",
-                    description: "Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.",
+                    description: "Showcase your die & mould, tooling, and manufacturing solutions over three focused business days and connect with a rapidly growing base of qualified buyers and decision-makers.",
                     buttonText: "Become an Exhibitor",
                     href: "/exhibiting-enquiry"
                   },
