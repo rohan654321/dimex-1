@@ -579,8 +579,10 @@ export default function WhyVisit() {
     >
       {[
         { 
-          title: "Equipment Suppliers", 
-          slug: "warehouse-technology",
+          title: "Die & Mould Manufacturing
+", 
+          slug: "Die & Mould Manufacturing
+Injection moulds, die casting dies, press tools, blow moulds, extrusion dies",
           image: "/images/image.png" 
         },
         { 
