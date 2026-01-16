@@ -8,28 +8,32 @@ import Link from 'next/link';
 export default function SectorsSection() {
   const sectors = [
     { 
-      title: 'Complex Logistics', 
-      slug: 'complex-logistics', 
+      title: 'Precision Die & Mould Solutions',
+
+      slug: 'precision-moulds', 
       image: '/images/image.png',
-      description: 'Freight forwarding, customs clearance, and comprehensive supply chain management solutions for global trade.'
+      description: 'Comprehensive die & mould manufacturing, tooling systems, design engineering, and end-to-end production solutions supporting high-precision industrial applications.'
     },
     { 
-      title: 'Maritime Transport', 
-      slug: 'maritime-and-inland-waterway-transport', 
+      title: 'Tooling, Mould Bases & Standard Components',
+
+      slug: 'tooling-mould-base', 
       image: '/images/image.png',
-      description: 'Ocean shipping, river transport, and port-to-port logistics services across Eurasian trade corridors.'
+      description: 'High-quality mould bases, precision components, hot runner systems, and standard tooling elements supporting efficient and reliable die & mould production.'
     },
     { 
-      title: 'Air Freight', 
-      slug: 'air-freight', 
+      title: 'Machining & Finishing Technologies',
+
+      slug: 'machining-finishing', 
       image: '/images/image.png',
-      description: 'Express cargo, temperature-controlled transport, and time-sensitive logistics solutions.'
+      description: 'High-precision CNC machining, EDM, wire-cut, surface finishing, and polishing solutions for toolroom operations.'
     },
     { 
-      title: 'Rail Freight', 
-      slug: 'rail-freight', 
+      title: 'Automation & Industry 4.0 Solutions
+', 
+      slug: 'automation-industry', 
       image: '/images/image.png',
-      description: 'Rail transportation, intermodal solutions, and cross-border rail logistics infrastructure.'
+      description: 'Smart automation, robotics, digital manufacturing, and smart factory technologies for modern die & mould production.'
     },
     { 
       title: 'Road Freight', 
@@ -73,7 +77,7 @@ export default function SectorsSection() {
               leading-[0.95]
               tracking-tight
             ">
-              Discover 13 Product Sectors In-Demand
+              Discover In-Demand Product Sectors at DIEMEX
             </h2>
           </div>
 
