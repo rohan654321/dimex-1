@@ -18,23 +18,26 @@ export default function WhyChooseSection() {
   const reasons = [
     {
       number: '01',
-      title: 'Connect with over 30,000 industry professionals',
+      title: 'Meet serious buyers from the die & mould industry',
+
       description:
-        'Access a highly targeted audience of transport and logistics professionals, including decision-makers actively seeking new solutions and partnerships.',
+        'Gain access to a highly focused audience of toolmakers, OEMs, component manufacturers, design engineers, and senior decision-makers actively seeking advanced die & mould solutions, precision tooling, and manufacturing partnerships.',
       icon: '👥',
     },
     {
       number: '02',
-      title: 'Expand your market presence at TransRussia',
+      title: 'Expand Your Market Presence at DIEMEX 2026',
+
       description:
-        'Gain a market share the 12 countries part of the CIS region by showcasing your brand to a selected and highly engaged audience.',
+        'Strengthen your footprint in India’s rapidly growing manufacturing ecosystem by showcasing your brand to a highly targeted and decision-driven audience of die & mould manufacturers, OEMs, automotive and engineering companies, and industrial buyers from across India and overseas.',
       icon: '🌍',
     },
     {
       number: '03',
-      title: 'Meet decision-makers and build instantly trust',
+      title: 'Meet Key Decision-Makers and Build Instant Credibility',
+
       description:
-        'Showcase your innovative solutions and establish your brand as a market leader in this rapidly growing sector.',
+        'Showcase your cutting-edge die & mould solutions and position your brand as a trusted leader in India’s precision manufacturing and tooling industry.',
       icon: '🤝',
     },
   ];

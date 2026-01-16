@@ -34,9 +34,7 @@ export default function SkladTechSection() {
                 alt="SkladTech"
                 className="w-6"
               />
-              <span className="text-sm font-medium">
-                Two Leading Events, One Location
-              </span>
+  
             </div>
 
             <h2 className="text-5xl lg:text-7xl xl:text-8xl font-bold leading-[0.85] tracking-tight text-black">
