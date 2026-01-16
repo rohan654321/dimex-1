@@ -57,7 +57,7 @@ export default function WhyVisit() {
                 transition={{ duration: 0.8, delay: 0.1 }}
                 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-6 max-w-4xl"
               >
-                Why Visit TransRussia
+                Why Visit DIEMEX 2026
               </motion.h1>
 
               <motion.p
@@ -66,8 +66,7 @@ export default function WhyVisit() {
                 transition={{ delay: 0.3 }}
                 className="text-lg lg:text-xl text-white/90 mb-8 max-w-3xl"
               >
-                Join over 30,500 visitors coming together to explore over 580 leading
-                companies showcasing the full spectrum of logistics and warehouse innovation.
+               Discover a focused B2B platform bringing together die & mould manufacturers, tooling suppliers, and precision manufacturing technology providers. DIEMEX offers visitors the opportunity to explore new solutions, connect directly with exhibitors, and gain insights into trends shaping India’s manufacturing and automotive sectors.
               </motion.p>
 
               <motion.div
@@ -78,12 +77,12 @@ export default function WhyVisit() {
               >
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-                  <span className="text-lg font-medium">17 – 19 March 2026</span>
+                  <span className="text-lg font-medium">08 – 10 October 2026</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-                  <span className="text-lg font-medium">Crocus Expo, Moscow</span>
+                  <span className="text-lg font-medium">Auto Cluster Exhibition Centre,Pune, India</span>
                 </div>
               </motion.div>
             </div>
@@ -101,15 +100,12 @@ export default function WhyVisit() {
           >
             <SectionContainer>
               <h2 className="text-5xl lg:text-6xl font-bold mb-8 max-w-10xl leading-tight">
-                The Entire Warehouse and Logistics Industry<br />
-                Brought Under One Roof
+                The Entire Die & Mould and Precision Manufacturing Ecosystem<br />
+                Brought Together Under One Roof
               </h2>
 
               <p className="text-gray-700 text-[10] max-w-7xl mb-10 leading-relaxed">
-                As business opportunities grow in the country, TransRussia provides a perfect
-                place for the entire logistics and warehouse industry to come together and meet
-                potential partners, open up network opportunities to regional and international
-                suppliers, expand your knowledge, and discover the latest industry innovations.
+               As India’s manufacturing sector continues to grow, DIEMEX provides a focused platform for the die & mould, tooling, and precision engineering community to connect, collaborate, and do business. The exhibition enables manufacturers, OEMs, and technology providers to meet potential partners, expand regional and international networks, exchange knowledge, and discover the latest innovations shaping the future of manufacturing.
               </p>
               <Link href='/contact-us'>
                 <motion.button
@@ -134,10 +130,10 @@ export default function WhyVisit() {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16"
               >
                 {[
-                  { value: "30,500", label: "Visitors" },
-                  { value: "600+", label: "Exhibitors" },
-                  { value: "50+", label: "Countries Represented" },
-                  { value: "13", label: "Event Sectors" }
+                  { value: "10,000", label: "Visitors" },
+                  { value: "200+", label: "Exhibitors" },
+                  { value: "5+", label: "Countries Represented" },
+                  { value: "10", label: "Event Sectors" }
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
@@ -181,15 +177,13 @@ export default function WhyVisit() {
                 className="relative z-10 text-center max-w-4xl mx-auto"
               >
                 <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-6 leading-tight">
-                  Connect with a Global Logistics
+                  Connect with the Die & Mould Manufacturing
                   <br />
-                  Network at TransRussia
+                  Community at DIEMEX
                 </h2>
 
                 <p className="text-gray-600 text-lg lg:text-xl mb-10 leading-relaxed">
-                  TransRussia unites leading solution providers from the logistics and
-                  warehousing sectors worldwide, creating a dynamic platform for
-                  networking and business over three action-packed days.
+                 DIEMEX brings together die & mould manufacturers, tooling suppliers, and precision manufacturing solution providers from India and abroad, creating a focused platform for networking, collaboration, and business over three action-packed days.
                 </p>
 
                 <motion.button
@@ -202,8 +196,8 @@ export default function WhyVisit() {
 
                 <div className="flex flex-wrap justify-center gap-4 mt-14">
                   {[
-                    "Kazakhstan", "Turkey", "Pakistan", "United Arab Emirates", "South Korea",
-                    "India", "Uzbekistan", "Armenia", "Azerbaijan", "Belarus", "China"
+                    "JAPAN", "CHINA", "TAIWAN", "GERMANY", "INDIA"
+              
                   ].map((country, index) => (
                     <motion.div
                       key={country}
@@ -232,7 +226,7 @@ export default function WhyVisit() {
                 viewport={{ once: true }}
                 className="text-4xl lg:text-5xl font-bold mb-12"
               >
-                Why Attend TransRussia
+                Why Attend DIEMEX 2026
               </motion.h2>
 
               <motion.div
@@ -245,23 +239,23 @@ export default function WhyVisit() {
                 {[
                   {
                     image: "/images/attend-1.jpg",
-                    title: "Connect With Key Players",
-                    text: "TransRussia is an exhibition for you to meet suppliers from within the region and beyond, allowing you to connect with the right people for your organisation."
+                    title: "Connect with Key Industry Players",
+                    text: "DIEMEX offers a focused platform to meet die & mould manufacturers, tooling suppliers, and precision manufacturing solution providers from India and international markets—helping you connect with the right partners for your business."
                   },
                   {
                     image: "/images/attend-2.jpg",
                     title: "Discover The Latest Innovations",
-                    text: "Visit TransRussia to see the latest innovations in the warehouse and logistics industry and understand how they can benefit you."
+                    text: "Visit DIEMEX to explore the newest developments in die & mould, tooling, and precision manufacturing technologies—and understand how they can enhance productivity, quality, and competitiveness."
                   },
                   {
                     image: "/images/attend-3.jpg",
-                    title: "Get The Best Deals",
-                    text: "Talk directly to negotiate the best prices and sign contracts on the spot with manufacturers and suppliers useful for years to come."
+                    title: "Build the Right Business Deals",
+                    text: "Engage directly with manufacturers and technology suppliers to discuss requirements, evaluate solutions, and establish long-term business partnerships."
                   },
                   {
                     image: "/images/attend-4.jpg",
-                    title: "Stay Ahead Of Trends",
-                    text: "Learn about the latest trends and insights through the event's conference programme led by industry experts."
+                    title: "Stay Ahead of Industry Trends",
+                    text: "Gain insights into emerging technologies, market developments, and best practices through DIEMEX’s conference sessions led by industry experts."
                   }
                 ].map((card, index) => (
                   <motion.div
@@ -355,13 +349,11 @@ export default function WhyVisit() {
             >
               <SectionContainer>
                 <h2 className="text-5xl lg:text-6xl font-bold mb-6 max-w-12xl leading-tight">
-                  Proven Success: What Visitors Say About TransRussia
+                  Proven Success: What Visitors Say About DIEMEX
                 </h2>
 
                 <p className="text-gray-700 text-[10] max-w-8xl mb-10 leading-relaxed">
-                  At TransRussia, we prioritise delivering value and creating impactful
-                  experiences for our visitors. Our commitment to excellence is reflected
-                  in the numbers.
+                  Here are DIEMEX 2026–aligned rewrites, keeping the same tone and intent but suited to a growing, credibility-focused exhibition. The first option is recommended.
                 </p>
                 <Link href='/post-show-report'>
                   <motion.button
@@ -386,7 +378,7 @@ export default function WhyVisit() {
                 >
                   {[
                     { value: "98%", label: "Were Satisfied with the Exhibition" },
-                    { value: "78%", label: "Only Attended TransRussia and SkaldTech Among Similar Exhibitions for Logistics" },
+                    { value: "78%", label: "A focused exhibition with a highly relevant industry audience." },
                     { value: "78%", label: "Sourced New Clients and Partners" },
                     { value: "63%", label: "Generated Quality Leads at the Show" }
                   ].map((stat, index) => (
@@ -427,7 +419,7 @@ export default function WhyVisit() {
                 viewport={{ once: true }}
                 className="text-4xl lg:text-5xl font-bold mb-12"
               >
-                Who is TransRussia for?
+                Who is DIEMEX for?
               </motion.h2>
 
               <motion.div
@@ -439,31 +431,31 @@ export default function WhyVisit() {
               >
                 {[
                   [
-                    "Supply Chain Directors",
-                    "Logistics Strategy Managers",
-                    "Freight Forwarders",
-                    "Cargo Shipping Managers",
-                    "Trucking Company Owners",
-                    "Fleet Management Professionals",
-                    "Port Authority Representatives"
+                    "Die & Mould Manufacturers",
+                    "Tooling & Tool Room Owners",
+                    "Automotive OEMs & Tier-1 / Tier-2 Suppliers",
+                    "Production & Manufacturing Heads",
+                    "Design, CAD / CAM & R&D Engineers",
+                    "Injection Moulding & Casting Professionals",
+                    "Press Tool & Sheet Metal Component Manufacturers"
                   ],
                   [
-                    "Shipping Line Executives",
-                    "Railway Logistics Managers",
-                    "Cargo Train Operators",
-                    "Airline Cargo Management Teams",
-                    "Manufacturing Supply Chain Managers",
-                    "Logistics Technology Managers",
-                    "Transportation Policy Makers"
+                    "CNC Machining & Precision Engineering Companies",
+                    "Industrial Automation & Robotics Professionals",
+                    "Materials, Steel & Special Alloy Suppliers",
+                    "Quality, Testing & Metrology Professionals",
+                    "Maintenance, Tooling & Plant Managers",
+                    "Procurement & Strategic Sourcing Heads",
+                    "New Product Development (NPD) Teams"
                   ],
                   [
-                    "Customs and Border Control Officials",
-                    "E-commerce Logistics Managers",
-                    "Last-Mile Delivery Strategists",
-                    "Distribution Center Managers",
-                    "Import / Export Logistics Specialists",
+                    "MSME & Large Manufacturing Enterprise Owners",
+                    "Industry Consultants & Technology Advisors",
+                    "Academic Institutions & Skill Development Bodies",
+                    "Industry Associations & Government Bodies",
+                    "Export-Oriented Manufacturing Professionals",
                     "Transportation Infrastructure Planners",
-                    "Financial and Other Service Providers"
+                    "Finance, Leasing & Industrial Service Providers"
                   ]
                 ].map((list, index) => (
                   <motion.div
@@ -561,7 +553,7 @@ export default function WhyVisit() {
                 whileTap={{ scale: 0.95 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-base font-medium transition-all duration-300"
               >
-                View Top 2024 Exhibitor List
+                View Top 2025 Exhibitor List
               </motion.button>
             </SectionContainer>
           </section>
@@ -586,44 +578,46 @@ export default function WhyVisit() {
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
     >
       {[
+ {
+  title: "Die & Mould Manufacturing – Injection moulds, die casting dies, press tools, blow moulds, extrusion dies",
+  slug: "die-mould-manufacturing",
+  image: "/images/image.png"
+},
+
         { 
-          title: "Equipment Suppliers", 
-          slug: "warehouse-technology",
+          title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders",
+ 
+          slug: "tooling-tool-rom-technologies", 
           image: "/images/image.png" 
         },
         { 
-          title: "Ports & Terminals, Freight Handling Services In Ports", 
-          slug: "ports-and-terminals-freight-handling-services-in-ports", 
+          title: "Automation, Robotics & Smart Manufacturing - Industrial automation, robotics, Industry 4.0 solutions", 
+          slug: "automation-robotics", 
           image: "/images/image.png" 
         },
         { 
-          title: "Road Freight Transportation", 
-          slug: "road-freight-transportation", 
+          title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
+          slug: "cnc-machines", 
           image: "/images/image.png" 
         },
         { 
-          title: "Maritime & Inland Waterway Transport", 
-          slug: "maritime-and-inland-waterway-transport", 
+          title: "Surface Treatment & Heat Treatment-Coatings, finishing, hardening, thermal processes", 
+          slug: "surface-treatment", 
           image: "/images/image.png" 
         },
         { 
-          title: "IT-Solutions", 
-          slug: "it-solutions", 
+          title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables",
+          slug: "materials-steels-alloys", // Changed to unique slug
           image: "/images/image.png" 
         },
         { 
-          title: "Logistics, Distribution Centers & Terminals", 
-          slug: "distribution-centers", // Changed to unique slug
+          title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering", 
+          slug: "cad-cam", 
           image: "/images/image.png" 
         },
         { 
-          title: "Outsize & Heavy Lift Carriage (Breakbulk)", 
-          slug: "heavy-lift-carriage", 
-          image: "/images/image.png" 
-        },
-        { 
-          title: "Complex Logistics Services & Freight Forwarding", 
-          slug: "complex-logistics", 
+          title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
+          slug: "die-casting", 
           image: "/images/image.png" 
         }
       ].map((item, index) => (
@@ -689,8 +683,7 @@ export default function WhyVisit() {
                     More Than Just an Exhibition
                   </h2>
                   <p className="text-gray-600 text-lg">
-                    A blended experience of warehouse and logistics exhibition with learning
-                    and staying on top of trends through experts and industry leaders
+                    A focused die & mould and precision manufacturing exhibition that combines live technology showcases with expert-led knowledge sharing.
                   </p>
                 </div>
 
@@ -722,12 +715,12 @@ export default function WhyVisit() {
                 {[
                   {
                     title: "Conference Programme",
-                    text: "6 industry conferences with the most useful and relevant information to help solve your business problems, all the way from trends taking place in the industry to the prospects of development of the warehouse, transport and logistics industry.",
+                    text: "2 Days focused industry conference delivering practical insights to address real business challenges — from emerging die & mould technologies and tooling innovations to future trends shaping precision manufacturing.",
                     image: "/images/more/conference.jpg"
                   },
                   {
-                    title: "TransRussia Summit",
-                    text: "A platform that brings market professionals and leading analysts on one stage to help everyone in the warehouse, transport and logistics industry to stay on top of trends of a dynamically changing industry.",
+                    title: "MOLDING TRENDS Summit",
+                    text: "A knowledge-driven platform bringing industry professionals and leading experts together to share insights, helping the die & mould and tooling community stay ahead in a rapidly evolving manufacturing landscape.",
                     image: "/images/more/summit.jpg"
                   }
                 ].map((card, index) => (
@@ -795,7 +788,7 @@ export default function WhyVisit() {
                     icon: "📦",
                     number: "01",
                     title: "Become an Exhibitor",
-                    description: "Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.",
+                    description: "Showcase your die & mould, tooling, and manufacturing solutions over three focused business days and connect with a rapidly growing base of qualified buyers and decision-makers.",
                     buttonText: "Become an Exhibitor",
                     href: "/exhibiting-enquiry"
                   },
@@ -878,7 +871,7 @@ export default function WhyVisit() {
                   className="bg-blue-50 p-8 rounded-lg transition-all duration-300"
                 >
                   <h3 className="text-lg lg:text-xl font-semibold text-blue-600 mb-4">Venue</h3>
-                  <p className="text-gray-800 font-medium text-lg">Rosaski, Moscov, Crocus Expo IEC, Pavilion 3</p>
+                  <p className="text-gray-800 font-medium text-lg">Auto Cluster Exhibition Centre,Pune, India</p>
                 </motion.div>
 
                 <motion.div
@@ -890,8 +883,8 @@ export default function WhyVisit() {
                   className="bg-blue-50 p-8 rounded-lg transition-all duration-300"
                 >
                   <h3 className="text-lg lg:text-xl font-semibold text-blue-600 mb-4">Opening Hours</h3>
-                  <p className="text-gray-800 font-medium text-lg">12-16 March 2026, 10:00 -18:00</p>
-                  <p className="text-gray-800 font-medium text-lg">19 March 2026, 10:00 -18:00</p>
+                  <p className="text-gray-800 font-medium text-lg">08-10 October 2026, 10:00 -18:00</p>
+                 
                 </motion.div>
               </div>
 
@@ -903,14 +896,16 @@ export default function WhyVisit() {
                 whileHover={{ boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}
                 className="bg-gray-200 rounded-lg h-64 lg:h-80 overflow-hidden transition-all duration-300"
               >
-                <iframe
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2245.8743484199996!2d37.51654!3d55.61139!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46b53a9e6c8c1111%3A0x1234567890ab!2sCrocus%20Expo%2C%20Moscow!5e0!3m2!1sen!2sru"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
+             <iframe
+  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4110.374496455856!2d73.7990458754672!3d18.638844465550328!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2b84992d04bbd%3A0x9f1c44fb853ba461!2sAuto%20Cluster%20Exhibition%20Center%2C%20Chinchwad%2C%20Pune!5e1!3m2!1sen!2sin!4v1768501548011!5m2!1sen!2sin"
+  width="100%"
+  height="450"
+  style={{ border: 0 }}
+  allowFullScreen
+  loading="lazy"
+  referrerPolicy="no-referrer-when-downgrade"
+/>
+
               </motion.div>
             </SectionContainer>
           </section>

@@ -62,7 +62,7 @@ const slideInFromRight: Variants = {
                 transition={{ duration: 0.8, delay: 0.1 }}
               >
                 <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold text-black mb-4">
-                  About ITE Group
+                  Maxx Business Media
                 </h1>
               </motion.div>
               
@@ -72,7 +72,7 @@ const slideInFromRight: Variants = {
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
                 <p className="max-w-6xl text-lg lg:text-xl text-gray-700 py-5">
-                  Organising Eurasia's largest industry exhibitions since 1991
+                  Organising India's largest industry exhibitions since 2019
                 </p>
               </motion.div>
             </div>
@@ -119,30 +119,32 @@ const slideInFromRight: Variants = {
                 className="space-y-6 text-gray-700 text-base lg:text-lg leading-relaxed"
               >
                 <motion.p variants={fadeInUp}>
-                  ITE Group is a business events organiser that has been operating in the
-                  Eurasian market since 1991. Every year, we host more than 30 of the
-                  largest industry events, including exhibitions, summits, and
-                  conferences. Powered by the Connect digital platform, the ITE ecosystem
-                  offers unique hybrid solutions for industry communities in Eurasia, the
-                  CIS countries, and beyond.
+             Maxx Business Media Pvt. Ltd. is a leading B2B business events and media company based in India, 
+                  dedicated to creating powerful platforms that connect industries, innovators, and decision-makers. 
+                  Since its inception, Maxx Business Media has been organizing high-impact trade exhibitions, conferences, 
+                  and industry-focused initiatives across key manufacturing and emerging sectors.
                 </motion.p>
 
                 <motion.p variants={fadeInUp}>
-                  With over 100 agents and hundreds of associations and partners spanning
-                  150 countries and 5 continents, our global network seamlessly connects
-                  clients to opportunities around the world.
+                 Every year, we deliver multiple flagship exhibitions, summits, and industry forums that serve as 
+                  catalysts for business growth, technology exchange, and market expansion. Supported by our integrated 
+                  digital and media ecosystem, we offer year-round visibility and engagement opportunities for exhibitors, 
+                  advertisers, and industry partners.
                 </motion.p>
 
                 <motion.p variants={fadeInUp}>
-                  ITE events contribute to business success and development, unlock the
-                  export potential of countries and regions, provide access to a broad
-                  target audience, and offer effective, innovative solutions for
-                  networking, growth, and professional development. They ensure dialogue
-                  between the business community and government.
+               With a strong network of international agents, industry associations, government bodies, and strategic partners, 
+                  Maxx Business Media facilitates meaningful global–local connections, enabling companies to access new markets,
+                  buyers, and collaborations across India and overseas.
                 </motion.p>
 
                 <motion.p variants={fadeInUp}>
-                  ITE offices are located in Moscow, Dubai, Beijing, and New Delhi.
+Our events drive industrial development, support export growth, and provide unmatched access to targeted business audiences. 
+                  By combining exhibitions, conferences, awards, digital platforms, and trade publications, we create comprehensive 
+                  solutions for networking, branding, and professional advancement—while fostering constructive dialogue between industry stakeholders and policymakers.  
+
+                  Maxx Business Media operates with a pan-India presence and an expanding international footprint, serving as a trusted partner to industries seeking sustainable growth and global relevance.
+                
                 </motion.p>
               </motion.div>
 
@@ -156,9 +158,9 @@ const slideInFromRight: Variants = {
                 {/* LEFT COLUMN */}
                 <div className="flex w-1/2 flex-col gap-10">
                   {[
-                    { number: "2 Mil+", label: "Database" },
-                    { number: "500,000+", label: "Visitors Per Year" },
-                    { number: "10,000+", label: "Exhibitors Per Year" }
+                    { number: "1 Mil+", label: "Database" },
+                    { number: "10,000+", label: "Visitors Per Year" },
+                    { number: "500+", label: "Exhibitors Per Year" }
                   ].map((stat, index) => (
                     <motion.div
                       key={index}
@@ -223,8 +225,7 @@ const slideInFromRight: Variants = {
                     Working for Your Success
                   </h2>
                   <p className="whitespace-pre-line text-gray-700 text-base lg:text-lg leading-relaxed">
-                    At ITE Group, our goal is to empower businesses by creating impactful events that drive industry growth and foster valuable connections. We are dedicated to supporting our clients' success and facilitating meaningful opportunities for professionals worldwide.
-                  </p>
+At Maxx Business Media, our mission is to create powerful B2B platforms that accelerate business growth, showcase innovation, and connect industry leaders. Through , conferences, and media initiatives, we enable meaningful engagement and measurable opportunities that help our clients succeed in competitive markets.                  </p>
                 </div>
               </div>
             </motion.div>
@@ -240,12 +241,12 @@ const slideInFromRight: Variants = {
               {[
                 {
                   title: "Our Mission",
-                  description: "To create unique and valuable events for the success of your business and the development of industries and economies.",
+                  description: "To create high-impact B2B platforms that drive business success, accelerate industry growth, and contribute to the development of strong and sustainable economies.",
                   image: "/images/image.png"
                 },
                 {
                   title: "Our Vision",
-                  description: "Connecting businesses year-round, both online and in person, allowing professionals to establish long-term business partnerships.",
+                  description: "To be a trusted global connector, enabling businesses to engage, collaborate, and build long-term partnerships year-round—through both physical events and digital platforms.",
                   image: "/images/image.png"
                 },
                 {
@@ -309,8 +310,8 @@ const slideInFromRight: Variants = {
                 </h2>
                 <div className="mt-10 flex flex-col justify-between lg:flex-row lg:items-end gap-10 lg:gap-32">
                   <div className="text-gray-700 text-base lg:text-lg leading-relaxed">
-                    <p className="mb-4">Each year, we organize and host over 30 leading industry events across key sectors, including exhibitions, summits, and conferences.</p>
-                    <p>Supported by the Connect digital platform, the ITE ecosystem offers innovative hybrid solutions for industry communities in Russia, the CIS, and beyond.</p>
+                    <p className="mb-4">We organize and host a portfolio of leading B2B trade exhibitions, summits, and conferences across high-growth industry sectors. Each event is designed to deliver targeted business opportunities, strong buyer–seller engagement, and measurable outcomes for participants.</p>
+                    <p>Backed by our integrated media, digital, and on-ground platforms, Maxx Business Media enables year-round visibility and meaningful connections for industry communities in India and international markets.</p>
                   </div>
                 </div>
               </div>
