@@ -142,7 +142,7 @@ export default function AboutSection() {
               ref={titleRef}
               className="max-w-[1400px] text-5xl lg:text-6xl font-[500] leading-[0.9] tracking-tight text-black opacity-0"
             >
-              India &apos;s Leading Die & Mould Manufacturing ExhibitionRussia
+              India&apos;s Leading Die & Mould Manufacturing Exhibitiongit
             </h2>
 
             <div className="max-w-[1050px] space-y-4">
