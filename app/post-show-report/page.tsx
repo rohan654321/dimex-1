@@ -30,15 +30,14 @@ export default function PostShowReportPage() {
             {/* LEFT CONTENT */}
             <div>
               <h2 className="mb-6 text-4xl font-semibold text-gray-800 lg:text-5xl">
-                Your Roadmap to TransRussia 2026
+                Your Roadmap to DIEMEX 2026
               </h2>
 
               <p className="mb-8 text-lg leading-relaxed text-gray-700">
-                Position your brand at the heart of Russia and Eurasia&apos;s logistics
-                market. As the region&apos;s leading B2B exhibition for transport and
-                logistics services, <strong className="text-blue-700">TransRussia</strong> connects international
-                freight forwarders, carriers, and logistics technology providers with
-                thousands of qualified buyers from across 50+ countries.
+                Position your brand within India’s growing die, mould, and precision manufacturing 
+                ecosystem. <strong className="text-blue-700">DIEMEX </strong> is a focused B2B platform that brings together die & mould manufacturers, 
+                tooling suppliers, technology providers, and serious buyers from automotive, engineering, 
+                and industrial manufacturing sectors. 
               </p>
 
               <hr className="my-8 border-gray-300" />
@@ -48,11 +47,10 @@ export default function PostShowReportPage() {
               </h3>
 
               <ul className="mb-10 list-disc space-y-4 pl-5 text-lg text-gray-700">
-                <li>Explore exhibitor opportunities and participation packages.</li>
-                <li>Understand visitor demographics, cargo volumes, and purchasing trends.</li>
+                <li>Review exhibitor participation highlights and market response</li>
+                <li>Understand visitor profiles, industry representation, and sourcing interests</li>
                 <li>
-                  Discover how TransRussia delivers measurable ROI and long-term
-                  business growth.
+                  Learn how DIEMEX supports lead generation, brand visibility, and long-term business growth
                 </li>
               </ul>
 
@@ -63,24 +61,24 @@ export default function PostShowReportPage() {
                 Success In Numbers
               </h3>
 
-              <div className="grid grid-cols-2 gap-x-12 gap-y-10">
-                <div>
-                  <p className="text-5xl font-bold text-blue-600">30,500</p>
-                  <p className="text-lg text-gray-700">Visitors</p>
+                <div className="grid grid-cols-2 gap-x-10 gap-y-12">
+                  <div>
+                    <p className="text-5xl font-bold text-blue-600">3rd Edition</p>
+                    <p className="mt-2 text-xl text-gray-700">2 Successful Editions Completed</p>
+                  </div>
+                  <div>
+                    <p className="text-5xl font-bold text-blue-600">Growing</p>
+                    <p className="mt-2 text-xl text-gray-700">Exhibitor Participation</p>
+                  </div>
+                  <div>
+                    <p className="text-5xl font-bold text-blue-600">Strong</p>
+                    <p className="mt-2 text-xl text-gray-700">Buyer & OEM Engagement</p>
+                  </div>
+                  <div>
+                    <p className="text-5xl font-bold text-blue-600">3+</p>
+                    <p className="mt-2 text-xl text-gray-700">Countries Represented</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-5xl font-bold text-blue-600">600+</p>
-                  <p className="text-lg text-gray-700">Exhibitors</p>
-                </div>
-                <div>
-                  <p className="text-5xl font-bold text-blue-600">160+</p>
-                  <p className="text-lg text-gray-700">Speakers</p>
-                </div>
-                <div>
-                  <p className="text-5xl font-bold text-blue-600">50+</p>
-                  <p className="text-lg text-gray-700">Countries Represented</p>
-                </div>
-              </div>
 
               {/* Image */}
               <div className="mt-14 flex justify-center">

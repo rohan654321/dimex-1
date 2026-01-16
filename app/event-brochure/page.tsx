@@ -32,15 +32,14 @@ export default function BrochurePage() {
             <div>
               <div className="max-w-3xl">
                 <h2 className="mt-5 text-4xl font-semibold text-blue-800 lg:text-5xl">
-                  Your Roadmap to TransRussia 2026
+                  Your Roadmap to DIEMEX 2026
                 </h2>
 
                 <p className="mt-6 text-lg leading-relaxed text-gray-700">
-                  Position your brand at the heart of Russia and Eurasia&apos;s logistics
-                  market. As the region&apos;s leading B2B exhibition for transport and
-                  logistics services, <strong className="text-blue-700">TransRussia</strong> connects international
-                  freight forwarders, carriers, and logistics technology providers with
-                  thousands of qualified buyers from across 50+ countries.
+                  Position your brand at the centre of India’s fast-growing die, mould, and precision 
+                  manufacturing market. As a leading B2B exhibition for die & mould, tooling, and advanced 
+                  manufacturing technologies, <strong className="text-blue-700">DIEMEX</strong> connects global solution providers with qualified buyers, 
+                  OEMs, and decision-makers from across India and international markets. 
                 </p>
 
                 <hr className="my-10 border-gray-300" />
@@ -50,35 +49,35 @@ export default function BrochurePage() {
                 </h3>
 
                 <ul className="mt-6 space-y-4 pl-6 text-lg text-gray-700">
-                  <li className="list-disc">Explore exhibitor opportunities and participation packages.</li>
-                  <li className="list-disc">Understand visitor demographics, cargo volumes, and purchasing trends.</li>
+                  <li className="list-disc">Explore exhibitor opportunities and tailored participation packages.</li>
+                  <li className="list-disc">Understand visitor demographics, cargo volumes, and purchasing trends.
+</li>
                   <li className="list-disc">
-                    Discover how TransRussia delivers measurable ROI and long-term
-                    business growth.
+                    Discover how DIEMEX delivers measurable ROI, qualified leads, and long-term business growth.
                   </li>
                 </ul>
 
                 <hr className="my-12 border-gray-300" />
 
                 <h3 className="mb-8 text-3xl font-semibold text-gray-900">
-                  Success In Numbers
+                  DIEMEX at a Glance
                 </h3>
 
                 <div className="grid grid-cols-2 gap-x-10 gap-y-12">
                   <div>
-                    <p className="text-5xl font-bold text-blue-600">30,500</p>
-                    <p className="mt-2 text-xl text-gray-700">Visitors</p>
+                    <p className="text-5xl font-bold text-blue-600">3rd Edition</p>
+                    <p className="mt-2 text-xl text-gray-700">2 Successful Editions Completed</p>
                   </div>
                   <div>
-                    <p className="text-5xl font-bold text-blue-600">600+</p>
-                    <p className="mt-2 text-xl text-gray-700">Exhibitors</p>
+                    <p className="text-5xl font-bold text-blue-600">Growing</p>
+                    <p className="mt-2 text-xl text-gray-700">Exhibitor Participation</p>
                   </div>
                   <div>
-                    <p className="text-5xl font-bold text-blue-600">160+</p>
-                    <p className="mt-2 text-xl text-gray-700">Speakers</p>
+                    <p className="text-5xl font-bold text-blue-600">Strong</p>
+                    <p className="mt-2 text-xl text-gray-700">Buyer & OEM Engagement</p>
                   </div>
                   <div>
-                    <p className="text-5xl font-bold text-blue-600">50+</p>
+                    <p className="text-5xl font-bold text-blue-600">3+</p>
                     <p className="mt-2 text-xl text-gray-700">Countries Represented</p>
                   </div>
                 </div>
