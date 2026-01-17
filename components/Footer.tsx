@@ -33,9 +33,9 @@ export default function Footer() {
                 <Image
                   src="/images/3rd-edition.png"          // put logo inside /public
                   alt="DIEMEX 2026 Logo"
-                  width={150}
+                  width={120}
                   height={80}
-                  className="object-contain mb-3"
+                  className="object-contain mb-1"
                   priority
                 />
               </div>
