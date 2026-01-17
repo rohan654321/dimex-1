@@ -113,37 +113,44 @@ export default function NavBar() {
               <div className="flex items-center justify-between px-6 py-3">
 
                 {/* LOGO */}
-                <Link href="/" className="flex items-center gap-3 font-bold">
+                <Link
+                  href="/"
+                  className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 font-bold"
+                >
+
                   {/* Logo */}
-                  <Image
-                    src="/images/logo-diemex2.png"          // put logo inside /public
-                    alt="DIEMEX 2026 Logo"
-                    width={120}
-                    height={80}
-                    className="object-contain"
-                    priority
-                  />
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src="/images/logo-diemex2.png"
+                      alt="DIEMEX 2026 Logo"
+                      width={120}
+                      height={80}
+                      className="object-contain"
+                      priority
+                    />
 
-                  {/* Text */}
-                  {/* <span>DIEMEX 2026</span> */}
-                  <span className="h-8 w-px bg-white/70 mx-2"></span>
-                  <Image
-                    src="/images/3rd-edition.png"          // put logo inside /public
-                    alt="DIEMEX 2026 Logo"
-                    width={120}
-                    height={80}
-                    className="object-contain mb-1.5"
-                    priority
-                  />
+                    <span className="hidden lg:block h-8 w-px bg-white/70 mx-2"></span>
 
-                  <div className="flex flex-col font-parabolica">
-                    <span className="text-[14px] text-white leading-tight font-[10px]">
-                      08–10 October 2026, 
+                    <Image
+                      src="/images/3rd-edition.png"
+                      alt="3rd Edition"
+                      width={120}
+                      height={80}
+                      className="object-contain mb-1.5"
+                      priority
+                    />
+                  </div>
+
+
+                  <div className="flex flex-col font-parabolica text-center lg:text-left">
+                    <span className="text-[12px] sm:text-[13px] lg:text-[14px] leading-snug">
+                      08–10 October 2026
                     </span>
-                    <span className="text-[14px] text-white leading-tight font-[10px]">
-                       Auto Cluster Exhibition Centre, Pune
+                    <span className="text-[12px] sm:text-[13px] lg:text-[14px] leading-snug">
+                      Auto Cluster Exhibition Centre, Pune
                     </span>
                   </div>
+
 
                 </Link>
 
