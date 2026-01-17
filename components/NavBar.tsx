@@ -130,17 +130,17 @@ export default function NavBar() {
                   <Image
                     src="/images/3rd-edition.png"          // put logo inside /public
                     alt="DIEMEX 2026 Logo"
-                    width={150}
+                    width={120}
                     height={80}
-                    className="object-contain mb-3"
+                    className="object-contain mb-1.5"
                     priority
                   />
 
                   <div className="flex flex-col font-parabolica">
-                    <span className="text-[14px] text-white leading-tight font-light">
+                    <span className="text-[14px] text-white leading-tight font-[10px]">
                       08–10 October 2026, 
                     </span>
-                    <span className="text-[14px] text-white leading-tight font-light">
+                    <span className="text-[14px] text-white leading-tight font-[10px]">
                        Auto Cluster Exhibition Centre, Pune
                     </span>
                   </div>
