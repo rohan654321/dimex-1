@@ -3,7 +3,7 @@
 
 import HeroSection from '@/components/HeroSection'
 import AboutSection from '@/components/AboutSection'
-import SkladTechSection from '@/components/SkladTechSection'
+// import SkladTechSection from '@/components/SkladTechSection'
 import WhyChooseSection from '@/components/WhyChooseSection'
 import DiscoverSection from '@/components/DiscoverSection'
 import ImpactSection from '@/components/ImpactSection'
