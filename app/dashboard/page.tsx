@@ -1,103 +1,180 @@
 // app/dashboard/page.tsx
-import StatsCard from './components/StatsCard';
-import { 
-  UserGroupIcon, 
-  MapPinIcon, 
-  CurrencyDollarIcon,
-  DocumentCheckIcon 
-} from '@heroicons/react/24/outline';
+import EnhancedStatsCard, {
+  EnhancedStatsCardProps,
+} from "./components/EnhancedStatsCard";
+import RecentActivity from "./components/RecentActivity";
+import QuickActions from "./components/QuickActions";
 
-export default function DashboardPage() {
-  const stats = [
+import {
+  BuildingStorefrontIcon,
+  MapPinIcon,
+  CurrencyDollarIcon,
+  DocumentCheckIcon,
+  ArrowTrendingUpIcon,
+  UsersIcon,
+  CalendarIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
+
+export default function EnhancedDashboardPage() {
+  const stats: EnhancedStatsCardProps[] = [
     {
-      title: 'Profile Status',
-      value: 'Complete',
-      change: '+100%',
-      icon: UserGroupIcon,
-      color: 'bg-green-500',
-      href: '/dashboard/profile'
+      title: "Company Profile",
+      value: "Complete",
+      change: "+100%",
+      icon: BuildingStorefrontIcon,
+      color: "from-green-500 to-emerald-600",
+      trend: "up",
+      href: "/dashboard/profile",
     },
     {
-      title: 'Stall Location',
-      value: 'A-12',
-      change: 'Premium',
+      title: "Stall Location",
+      value: "A-12",
+      change: "Premium Stall",
       icon: MapPinIcon,
-      color: 'bg-blue-500',
-      href: '/dashboard/layout'
+      color: "from-blue-500 to-cyan-600",
+      trend: "stable",
+      href: "/dashboard/layout",
     },
     {
-      title: 'Total Paid',
-      value: '$4,500',
-      change: 'Paid',
+      title: "Total Investment",
+      value: "$4,500",
+      change: "Fully Paid",
       icon: CurrencyDollarIcon,
-      color: 'bg-purple-500',
-      href: '/dashboard/invoice'
+      color: "from-purple-500 to-violet-600",
+      trend: "up",
+      href: "/dashboard/invoice",
     },
     {
-      title: 'Requirements',
-      value: '3 Pending',
-      change: 'View All',
+      title: "Requirements",
+      value: "3 Pending",
+      change: "Needs Review",
       icon: DocumentCheckIcon,
-      color: 'bg-yellow-500',
-      href: '/dashboard/requirements'
+      color: "from-amber-500 to-orange-600",
+      trend: "warning",
+      href: "/dashboard/requirements",
     },
   ];
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Exhibitor Dashboard</h1>
-      
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        {stats.map((stat) => (
-          <StatsCard key={stat.title} {...stat} />
-        ))}
-      </div>
+  const upcomingEvents = [
+    { id: 1, title: "Setup Day", date: "Jan 28, 2024", time: "8:00 AM", type: "setup" },
+    { id: 2, title: "Exhibition Opening", date: "Jan 29, 2024", time: "9:00 AM", type: "event" },
+    { id: 3, title: "Networking Dinner", date: "Jan 30, 2024", time: "7:00 PM", type: "social" },
+  ];
 
-      {/* Quick Actions */}
-      <div className="bg-white shadow rounded-lg p-6 mb-8">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors">
-            Download Exhibitor Manual
-          </button>
-          <button className="bg-green-50 hover:bg-green-100 text-green-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors">
-            View Stall Layout
-          </button>
-          <button className="bg-purple-50 hover:bg-purple-100 text-purple-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors">
-            Submit Extra Requirements
+  const resourceUsage = [
+    { label: "Stall Space", value: 100, max: 100, color: "bg-blue-500" },
+    { label: "Power Load", value: 65, max: 100, color: "bg-green-500" },
+    { label: "Storage", value: 30, max: 100, color: "bg-purple-500" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Welcome back, Tech Innovations!
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Here's what's happening with your exhibition today.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg">
+            <CalendarIcon className="h-4 w-4" />
+            <span>Event starts in 12 days</span>
+          </div>
+
+          <button className="btn-primary flex items-center gap-2">
+            <SparklesIcon className="h-4 w-4" />
+            Quick Actions
           </button>
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h2>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b pb-3">
-            <div className="flex items-center">
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                <DocumentCheckIcon className="h-4 w-4 text-blue-600" />
-              </div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat) => (
+          <EnhancedStatsCard key={stat.title} {...stat} />
+        ))}
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-sm font-medium text-gray-900">Invoice Paid</p>
-                <p className="text-xs text-gray-500">2 days ago</p>
+                <h2 className="section-title">Quick Actions</h2>
+                <p className="section-subtitle">Common tasks and shortcuts</p>
               </div>
+              <ArrowTrendingUpIcon className="h-5 w-5 text-gray-400" />
             </div>
-            <span className="text-sm font-medium text-green-600">$1,500</span>
+            <QuickActions />
           </div>
-          
-          <div className="flex items-center justify-between border-b pb-3">
-            <div className="flex items-center">
-              <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
-                <MapPinIcon className="h-4 w-4 text-yellow-600" />
-              </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-sm font-medium text-gray-900">Stall Confirmed</p>
-                <p className="text-xs text-gray-500">1 week ago</p>
+                <h2 className="section-title">Recent Activity</h2>
+                <p className="section-subtitle">Latest updates</p>
               </div>
+              <button className="text-sm font-medium text-blue-600">
+                View All
+              </button>
             </div>
-            <span className="text-sm font-medium text-blue-600">A-12</span>
+            <RecentActivity />
+          </div>
+        </div>
+
+        {/* Right */}
+        <div className="space-y-6">
+          <div className="card p-6">
+            <h2 className="section-title mb-4">Upcoming Events</h2>
+            <div className="space-y-4">
+              {upcomingEvents.map((event) => (
+                <div key={event.id} className="flex items-center gap-4 p-3 border rounded-lg">
+                  <CalendarIcon className="h-4 w-4 text-gray-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{event.title}</p>
+                    <p className="text-xs text-gray-500">
+                      {event.date} • {event.time}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <h2 className="section-title mb-4">Resource Usage</h2>
+            <div className="space-y-4">
+              {resourceUsage.map((r) => (
+                <div key={r.label}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>{r.label}</span>
+                    <span>{r.value}%</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full">
+                    <div
+                      className={`h-full rounded-full ${r.color}`}
+                      style={{ width: `${(r.value / r.max) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <h3 className="font-semibold mb-2">Need Help?</h3>
+            <p className="text-sm mb-4">
+              Our support team is available 24/7.
+            </p>
+            <button className="btn-primary w-full">Contact Support</button>
           </div>
         </div>
       </div>
