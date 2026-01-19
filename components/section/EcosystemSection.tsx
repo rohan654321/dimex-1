@@ -51,15 +51,11 @@ const EcosystemSection = () => {
           {/* HEADER */}
           <div className="mb-14 flex max-w-8xl flex-col gap-6">
             <h2 className="title-72 text-black">
-              TransRussia Moscow: A Year-Round Logistics Ecosystem
+              DIEMEX: A Year-Round Die & Mould Manufacturing Ecosystem
             </h2>
 
             <p className="text-lg text-black/70">
-              TransRussia is Eurasia&apos;s leading international exhibition for
-              transport and logistics services. With a strong track record and
-              industry trust, it plays a key role in connecting logistics
-              providers, freight forwarders, cargo owners, and infrastructure
-              operators from across Eurasia.
+              DIEMEX is India’s leading international exhibition for die & mould manufacturing, tooling, and precision engineering technologies. With a strong legacy and deep industry trust, it plays a pivotal role in connecting toolrooms, OEMs, material suppliers, and advanced manufacturing solution providers from India and global markets—before, during, and beyond the exhibition dates.
             </p>
 
             {/* LINK AS BUTTON – NO <button> */}

@@ -4,10 +4,10 @@ import SectionContainer from "../UI/SectionContainer"
 
 const StatsSection = () => {
   const stats = [
-    { value: "30,500", label: "Visitors" },
-    { value: "600+", label: "Exhibitors" },
-    { value: "50+", label: "Countries Represented" },
-    { value: "13", label: "Event Sectors" },
+    { value: "10,000", label: "Visitors" },
+    { value: "200+", label: "Exhibitors" },
+    { value: "5+", label: "Countries" },
+    { value: "10", label: "Event Sectors" },
   ]
 
   return (
@@ -16,17 +16,19 @@ const StatsSection = () => {
       <SectionContainer className="pt-24 pb-16">
         <div className="max-w-10xl">
           <h2 className="text-[56px] leading-[1.1] font-extrabold text-black mb-6">
-            Shaping the Future of Transport and Logistics
+            Shaping the Future of Die & Mould Manufacturing
           </h2>
 
           <p className="text-lg leading-relaxed text-black/80 max-w-8xl mb-10">
-            TransRussia is Eurasia&apos;s largest transport and logistics
-            exhibition, featuring top companies across rail, road, sea, air,
-            warehousing, and IT. This year, the 30th edition, held alongside
-            SkladTech — a special warehouse equipment showcase — will run from
-            March 17–19, 2026, at Crocus Expo IEC, Pavilion 3 in Moscow.
+            DIEMEX is India’s leading die & mould and tooling exhibition, bringing together top manufacturers, toolrooms, 
+            material suppliers, and advanced manufacturing technology providers across the entire precision manufacturing value chain.
           </p>
 
+  <p className="text-lg leading-relaxed text-black/80 max-w-8xl mb-10">
+            The 2026 edition, to be held from 8–10 October 2026 at the Auto Cluster Exhibition Centre, Pune, 
+            India, will serve as a focused platform for showcasing cutting-edge tooling technologies, design and 
+            engineering solutions, automation, materials, and Industry 4.0 innovations to a highly qualified audience of industry decision-makers.
+          </p>
           <Link href="/why-exhibit">
             <button className="rounded-full bg-[#0B4EA2] px-10 py-4 text-white font-semibold text-base transition hover:bg-[#083E82]">
               Why Exhibit
