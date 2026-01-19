@@ -21,9 +21,9 @@ const HeroSection = () => {
       <div className="relative z-10 flex h-full items-end">
         <SectionContainer>
           <div className="pb-25 text-white">
-            <h2 className="title-72">About TransRussia</h2>
+            <h2 className="title-72">About DIEMEX 2026</h2>
             <p className="mt-4 max-w-6xl text-lg">
-              Shaping Routes To A Seamless Supply Chain.
+              Shaping the Future of Die & Mould Manufacturing.
             </p>
           </div>
         </SectionContainer>
