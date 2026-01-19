@@ -150,18 +150,7 @@ export default function SectorsPage() {
         </SectionContainer>
       </section>
 
-      {/* SkladTech Sectors - COMPACT */}
-      <section className="py-16 lg:py-24 bg-gray-50">
-        <SectionContainer>
-          <div className="mb-6 lg:mb-8">
-            <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-3 w-full">SkladTech Event Sectors</h2>
-            <p className="text-gray-600 text-lg lg:text-xl w-full">
-              Showcases automation, robotics, IoT, and sustainable logistics solutions.
-            </p>
-          </div>
-          <SectorGrid sectors={skladTechSectors} />
-        </SectionContainer>
-      </section>
+    
       
       <QuickNavigation/>
       <PartnersSection/>
