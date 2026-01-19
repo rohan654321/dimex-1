@@ -93,7 +93,7 @@ export default function WhyChooseSection() {
                        leading-[0.85] tracking-tight opacity-0"
           >
             Why choose{" "}
-            <span className="text-[#82c6eb]">TransRussia 2026</span>
+            <span className="text-[#82c6eb]">DIEMEX 2026</span>
           </h2>
         </SectionContainer>
       </div>
