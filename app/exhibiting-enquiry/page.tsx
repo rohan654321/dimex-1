@@ -46,20 +46,23 @@ const TransRussiaExhibitPage: React.FC = () => {
   ]
 
   const productSectors = [
-    "Air Freight",
-    "Complex Logistics Services & Freight Forwarding",
-    "Equipment Supplies",
-    "Logistics, Distribution Centers & Terminals",
-    "Outside & Heavy Lift Carriage (Break Bulk)",
-    "Rail Freight",
-    "Warehouse Equipment & Technology SkladTech",
-    "Associated Services",
-    "E-commerce Logistics",
-    "IT Solutions",
-    "Maritime & Inland Waterway Transport",
-    "Ports & Terminals, Freight Handling Services in Ports",
-    "Road Freight Transportation",
-    "Industrial Unions & Media",
+    "Additive Manufacturing - 3D Printing",
+    "CNC Milling / Machining Centre, EDM",
+    "Cutting Tools",
+    "Heat Treatment",
+    "Hot Runner System",
+    "Injection Moulding Machine",
+    "Inspection and Quality Systems, CMM",
+    "Machine Tools & Accessories for Dies and Moulds",
+    "Mechanical Presses for Sheet Metal Components",
+    "Raw Material Suppliers (Tool Steel)",
+    "Texturizing, Polishing & Plating",
+    "CAD/CAM/CAE, Simulation",
+    "Mould Base",
+    "Tool Room - Die Casting Dies & Rubber Moulds",
+     "Tool Room - Jig, Fixture and Gauges",
+      "Tool Room - Sheet Metal Dies / Sheet metal Components",
+     
   ]
 
   useEffect(() => {
