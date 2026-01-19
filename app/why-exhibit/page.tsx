@@ -603,9 +603,7 @@ export default function WhyExhibit() {
                 transition={{ delay: 0.1 }}
                 className="text-gray-700 text-xl max-w-8xl mb-6 leading-relaxed"
               >
-                Discover the professionals shaping the future of logistics and transportation.
-                TransRussia attracts a highly targeted audience of decision-makers, industry
-                leaders, and innovators from across the globe.
+                Discover the professionals shaping the future of die & mould manufacturing and precision engineering. DIEMEX attracts a highly targeted audience of decision-makers, industry leaders, and technology innovators from India and international markets.
               </motion.p>
 
               <motion.p
@@ -615,9 +613,7 @@ export default function WhyExhibit() {
                 transition={{ delay: 0.2 }}
                 className="text-gray-700 text-xl max-w-8xl mb-10 leading-relaxed"
               >
-                From senior executives in freight and supply chain management to specialists in
-                e-commerce logistics and technology, our visitors come with clear objectives—to
-                find solutions, forge partnerships, and drive businesses forward.
+                From OEM procurement heads and plant managers to toolroom owners, design engineers, and manufacturing specialists, DIEMEX visitors arrive with clear objectives—to source advanced tooling solutions, evaluate new technologies, build strategic partnerships, and drive manufacturing competitiveness.
               </motion.p>
 
               <Link href="/post-show-report">
@@ -642,10 +638,11 @@ export default function WhyExhibit() {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16"
               >
                 {[
-                  { value: "48%", label: "Transportation and Logistics Companies" },
-                  { value: "40%", label: "Cargo Owners, Manufacturers, Wholesales, Retail" },
-                  { value: "31%", label: "Head of Departments" },
-                  { value: "12%", label: "IT Solutions, Insurance, Foreign Trade Agencies" }
+                  { value: "48%", label: "Die & Mould Manufacturers, Toolrooms & Tooling Companies" },
+                  { value: "40%", label: "OEMs, Component Manufacturers, Automotive, EV, Plastics & Industrial Companies" },
+                  { value: "31%", label: "Senior Decision-Makers & Department Heads"},
+
+                  { value: "12%", label: "Design Software Providers, Automation & Industry 4.0 Solutions, Material Suppliers & Technical Consultants" }
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
@@ -738,7 +735,7 @@ export default function WhyExhibit() {
               whileTap={{ scale: 0.95 }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-base font-medium transition-all duration-300"
             >
-              View Top 2024 Exhibitor List
+              View Top 2025 Exhibitor List
             </motion.button>
           </SectionContainer>
         </section>
@@ -753,11 +750,10 @@ export default function WhyExhibit() {
               className="text-center"
             >
               <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-                Your Journey Starts Here: Essential Travel Info for TransRussia 2026
+                Your Journey Starts Here: Essential Travel Info for DIEMEX 2026
               </h2>
               <p className="text-lg mb-8 max-w-3xl mx-auto">
-                Whether you're travelling from across the globe or are just connected. Find all the essential information to
-                ensure a smooth and hassle-free trip to TransRussia Moscow 2026.
+                Whether you are travelling from across India or from overseas, find all the essential information you need to ensure a smooth, comfortable, and hassle-free visit to DIEMEX 2026 at the Auto Cluster Exhibition Centre, Pune, India.
               </p>
               <Link href="/plan-your-travel">
                 <motion.button
@@ -808,7 +804,7 @@ export default function WhyExhibit() {
                   icon: "📦",
                   number: "01",
                   title: "Become an Exhibitor",
-                  description: "Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.",
+                  description: "Join 200+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.",
                   buttonText: "Become an Exhibitor",
                   href: "/exhibiting-enquiry"
                 },
@@ -891,7 +887,7 @@ export default function WhyExhibit() {
                 className="bg-blue-50 p-8 rounded-lg transition-all duration-300"
               >
                 <h3 className="text-lg lg:text-xl font-semibold text-blue-600 mb-4">Venue</h3>
-                <p className="text-gray-800 font-medium text-lg">Rosaski, Moscov, Crocus Expo IEC, Pavilion 3</p>
+                <p className="text-gray-800 font-medium text-lg"> Auto Cluster Exhibition Centre, Pune, India</p>
               </motion.div>
 
               <motion.div
@@ -903,8 +899,7 @@ export default function WhyExhibit() {
                 className="bg-blue-50 p-8 rounded-lg transition-all duration-300"
               >
                 <h3 className="text-lg lg:text-xl font-semibold text-blue-600 mb-4">Opening Hours</h3>
-                <p className="text-gray-800 font-medium text-lg">12-16 March 2026, 10:00 -18:00</p>
-                <p className="text-gray-800 font-medium text-lg">19 March 2026, 10:00 -18:00</p>
+                <p className="text-gray-800 font-medium text-lg">08-10 October 2026, 10:00 -18:00</p>
               </motion.div>
             </div>
 
@@ -920,7 +915,7 @@ export default function WhyExhibit() {
                 width="100%"
                 height="100%"
                 frameBorder="0"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2245.8743484199996!2d37.51654!3d55.61139!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46b53a9e6c8c1111%3A0x1234567890ab!2sCrocus%20Expo%2C%20Moscow!5e0!3m2!1sen!2sru"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3780.5601269562317!2d73.79904587592934!3d18.638844465549226!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2b84992d04bbd%3A0x9f1c44fb853ba461!2sAuto%20Cluster%20Exhibition%20Center%2C%20Chinchwad%2C%20Pune!5e0!3m2!1sen!2sin!4v1768810852287!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
