@@ -34,7 +34,7 @@ const SectorsSection = () => {
       <div className="grid gap-5 lg:grid-cols-12 lg:items-end lg:gap-10">
         <div className="lg:col-span-9">
           <h2 className="title-72 text-black my-3">
-            13 Event Sectors Housing the Entire Logistics Value Chain
+            10 Event Sectors Covering the Complete Die & Mould Value Chain
           </h2>
         </div>
 

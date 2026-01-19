@@ -8,38 +8,38 @@ const EcosystemSection = () => {
     {
       number: "01",
       title: "The Exhibition",
-      description: `At the heart of the ecosystem is the annual TransRussia exhibition in Moscow. It brings together the full spectrum of the transport and logistics sector, offering a high-impact platform to:
+      description: `At the heart of the ecosystem is the annual DIEMEX exhibition in Pune, India. It brings together the entire die & mould and tooling value chain, offering a high-impact platform to::
 
-- Establish direct, face-to-face business connections.
-- Showcase advanced solutions in video surveillance, access control, cybersecurity, fire safety, and perimeter protection.
-- Meet thousands of security integrators, installers, distributors, and corporate buyers all in one place from 17 - 19 March 2026.`,
+- Establish direct, face-to-face business connections with OEMs, toolroom owners, and senior decision-makers.
+- Showcase advanced die & mould solutions, including tooling technologies, design & engineering software, automation, materials, and Industry 4.0 innovations.
+- Engage with thousands of qualified buyers and technical professionals from automotive, EV, plastics, aerospace, and industrial manufacturing sectors—all in one place from 8–10 October 2026.`,
       image: "/TR_2025_161_da551e1607.jpg",
       link: "/about-transrussia",
       buttonText: "Know More",
     },
     {
       number: "02",
-      title: "Conference and Summit",
-      description: `Throughout the exhibition and beyond, the ecosystem includes a robust program of conferences, forums, and summits. These events are curated to foster dialogue around logistics innovations, policy, and market trends.
+      title: "Conference",
+      description: `Alongside the exhibition, DIEMEX 2026 features a comprehensive conference programme comprising technical conferences, expert forums, and industry-led sessions. These are carefully curated to encourage meaningful dialogue around die & mould technologies, tooling innovation, manufacturing trends, and future-ready production strategies.
 
-- Gain insights from experts on the latest logistics trends and market challenges.
-- Explore innovative transport solutions, supply chain technologies, and infrastructure developments.
-- Build valuable professional connections with industry peers, freight owners, and decision-makers.`,
+- Gain insights from industry experts on the latest developments, challenges, and opportunities in die & mould and precision manufacturing.
+- Explore emerging technologies, including advanced tooling, materials, automation, digital design, and Industry 4.0 applications.
+- Build valuable professional connections with OEMs, toolroom heads, engineers, buyers, and decision-makers from across the manufacturing ecosystem.`,
       image: "/TR_2025_159_0d4f744777.jpg",
       link: "/conference-programme",
       buttonText: "Conference Programme",
     },
     {
       number: "03",
-      title: "TransRussia Connect",
-      description: `TransRussia Connect is the ecosystem's digital layer — an online platform designed to keep the conversation going before, during, and after the exhibition. Through Connect, participants can:
+      title: "Molding Trends",
+      description: `DIEMEX Connect is the digital extension of the DIEMEX ecosystem—an online platform designed to keep the industry connected before, during, and after the exhibition. Through DIEMEX Connect, participants can::
 
-- Network with buyers, suppliers, and industry peers 365 days a year.
-- Access curated content, market news, and exhibitor updates.
-- Schedule meetings and follow up on new business leads online.`,
+- Network year-round with buyers, OEMs, toolrooms, technology providers, and industry peers.
+- Access curated content, including industry news, technical insights, exhibitor updates, and market trends.
+- Schedule meetings, manage contacts, and follow up on business leads seamlessly through a single digital platform.`,
       image: "/Untitled_design_92_3f5e8a1454.png",
       link: "/connect",
-      buttonText: "Join Connect",
+      buttonText: "Join Molding Trends",
     },
   ]
 
