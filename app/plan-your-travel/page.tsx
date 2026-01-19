@@ -230,13 +230,10 @@ const IntroductionSection: React.FC = () => {
               <span>TransRussia</span>
             </motion.div>
             <h2 className="title-72 text-black my-3">
-              Combine Business with Moscow's Rich Culture at TransRussia
+Combine Business with Pune’s Manufacturing Heritage at DIEMEX
             </h2>
             <p className="whitespace-pre-line">
-              Join thousands of warehousing and logistics industry leaders and peers to forge 
-              valuable connections, discover cutting-edge trends in the industry, and immerse 
-              yourself in the rich history and vibrant culture of Moscow—a city that blends 
-              innovation with timeless charm.
+              Connect with die & mould and precision manufacturing leaders from across India and beyond, explore the latest technologies and industry trends, and experience Pune—a city known for its strong automotive base, engineering excellence, and vibrant cultural legacy.
             </p>
           </div>
         </div>
