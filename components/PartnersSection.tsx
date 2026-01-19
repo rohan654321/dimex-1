@@ -19,15 +19,15 @@ export default function PartnersSection() {
   const subtitleRef = useRef<HTMLDivElement>(null);
 
   const partners = [
-    { name: 'Apace Digital Cargo', logo: '/images/partner1.png', url: '#' },
-    { name: 'Cargo Insights', logo: '/images/partner2.png', url: '#' },
-    { name: 'International Coordinating Council for Trans-Eurasian Transportation', logo: '/images/partner3.png', url: '#' },
-    { name: 'LOGIRUS', logo: '/images/partner4.png', url: '#' },
-    { name: 'CargoTalk', logo: '/images/partner5.png', url: '#' },
-    { name: 'Logistics 360 Magazine', logo: '/images/partner6.png', url: '#' },
-    { name: 'BizToday', logo: '/images/partner7.png', url: '#' },
-    { name: 'Logistics.ru', logo: '/images/partner8.png', url: '#' },
-    { name: 'TravTalkME', logo: '/images/partner9.png', url: '#' },
+    { name: '', logo: '/images/partner1.png', url: '#' },
+    { name: '', logo: '/images/partner2.png', url: '#' },
+    { name: '', logo: '/images/partner3.png', url: '#' },
+    { name: '', logo: '/images/partner4.png', url: '#' },
+    { name: '', logo: '/images/partner5.png', url: '#' },
+    { name: '', logo: '/images/partner6.png', url: '#' },
+    { name: '', logo: '/images/partner7.png', url: '#' },
+    { name: '', logo: '/images/partner8.png', url: '#' },
+    { name: '', logo: '/images/partner9.png', url: '#' },
   ];
 
   useEffect(() => {
