@@ -32,8 +32,7 @@ const EcosystemSection = () => {
     {
       number: "03",
       title: "Molding Trends",
-      description: `DIEMEX Connect is the digital extension of the DIEMEX ecosystem—an online platform designed to keep the industry connected before, during, and after the exhibition. Through DIEMEX Connect, participants can::
-
+      description: `Molding Trends is an online platform designed to keep the industry connected before, during, and after the exhibition. Through Molding Trends, participants can::
 - Network year-round with buyers, OEMs, toolrooms, technology providers, and industry peers.
 - Access curated content, including industry news, technical insights, exhibitor updates, and market trends.
 - Schedule meetings, manage contacts, and follow up on business leads seamlessly through a single digital platform.`,
