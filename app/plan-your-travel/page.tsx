@@ -174,7 +174,7 @@ const HeroSection: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black"></div>
           <img
             src="/images/image.png"
-            alt="TransRussia©24"
+            alt="Diemex"
             className="size-full object-cover"
           />
         </motion.div>
@@ -224,10 +224,10 @@ const IntroductionSection: React.FC = () => {
             >
               <Image
                 src="/images/logo-icon-3.png"
-                alt="TransRussia©24"
+                alt="Diemex"
                 className="size-auto w-5"
               />
-              <span>TransRussia</span>
+              <span>DIEMEX</span>
             </motion.div>
             <h2 className="title-72 text-black my-3">
 Combine Business with Pune’s Manufacturing Heritage at DIEMEX
@@ -304,13 +304,13 @@ const GuideSection: React.FC = () => {
   const exhibitorItems: GuideItem[] = [
     {
       title: "Visa",
-      content: "A regular business visa is suitable for business visits to Russia aimed at negotiating, concluding contracts, participating in exhibitions, conferences, or other business meetings and events.",
+      content: "A standard business visa is appropriate for international visitors travelling to India to attend exhibitions, conferences, business meetings, and related professional events.",
       imageSrc: "/images/image.png",
       link: "/visa"
     },
     {
       title: "Freight, Handling & Customs",
-      content: "We recommend DMW EXPO for shipping your products, equipment, materials, or displays. Their reliable service ensures timely and safe delivery for your stand allowing you to focus on your stand.",
+      content: "The officially appointed Clearing & Forwarding (C&F) Agent for DIEMEX 2026 will handle the shipment of exhibits, equipment, materials, and stand components. Exhibitors are strongly advised to coordinate with the official C&F agent to ensure timely, secure, and smooth delivery to the venue.",
       imageSrc: "/images/image.png",
       link: "/exhibitor-resource-center"
     },
@@ -492,7 +492,7 @@ The hotel has a stylish interior and an elaborate infrastructure, including a re
       <SectionContainer>
         <div>
           <h2 className="title-72 text-black">
-            20% Off When You Book at the Hotel Website Using the Promo Code "EXPO"
+            Special discounted accommodation rates are available for DIEMEX 2026 participants when booking through our partner hotels.
           </h2>
           <motion.div
             initial={{ width: 0 }}
