@@ -48,7 +48,7 @@ const QuickNavigationSection = () => {
               </div>
               <h3 className="text-xl lg:text-2xl font-bold mb-3">Become an Exhibitor</h3>
               <p className="text-gray-600 text-base mb-6">
-                Join 600+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.
+                Join 200+ exhibitors in presenting your solutions for 3 days for unmatched networking opportunities.
               </p>
               <Link href='/exhibiting-enquiry'>
                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium">
