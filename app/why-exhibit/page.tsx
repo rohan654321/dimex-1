@@ -131,15 +131,12 @@ export default function WhyExhibit() {
               className="grid lg:grid-cols-2 gap-12 items-center"
             >
               <div>
-                <h2 className="text-4xl lg:text-5xl font-bold mb-6">Where the Transport & Logistics Industry Comes Together</h2>
+                <h2 className="text-4xl lg:text-5xl font-bold mb-6">Where the Die & Mould Industry Comes Together</h2>
                 <p className="text-gray-700 mb-6 text-lg">
-                  TransRussia is a prime gateway to tap into the thriving logistics and transport sector within one of the
-                  world's largest economies.
+                  DIEMEX is a powerful gateway to tap into India’s rapidly expanding die & mould, tooling, and precision manufacturing ecosystem—one of the world’s fastest-growing industrial markets.
                 </p>
                 <p className="text-gray-700 mb-8 text-lg">
-                  With Russia's strategic location and a market size of over 145 million people, the country presents
-                  significant growth potential for companies looking to expand their operations and optimize supply
-                  chains.
+                  WiWith India’s strong automotive, EV, aerospace, electronics, and industrial manufacturing base, supported by large-scale localisation and “Make in India” initiatives, the country offers significant growth opportunities for companies aiming to expand operations, enter new markets, and build long-term manufacturing partnerships.
                 </p>
 
                 <ul className="space-y-4 mb-8">
@@ -149,7 +146,7 @@ export default function WhyExhibit() {
                       whileHover={{ scale: 1.02, x: 5 }}
                       className="text-[#4D4D4D] text-[20px] cursor-pointer"
                     >
-                      <strong>30,500 Visitors</strong>
+                      <strong>10,000 Visitors</strong>
                     </motion.span>
                   </li>
 
@@ -159,7 +156,7 @@ export default function WhyExhibit() {
                       whileHover={{ scale: 1.02, x: 5 }}
                       className="text-[#4D4D4D] text-[20px] cursor-pointer"
                     >
-                      <strong>600+ Exhibitors</strong>
+                      <strong>200+ Exhibitors</strong>
                     </motion.span>
                   </li>
 
@@ -169,7 +166,7 @@ export default function WhyExhibit() {
                       whileHover={{ scale: 1.02, x: 5 }}
                       className="text-[#4D4D4D] text-[20px] cursor-pointer"
                     >
-                      <strong>50+ Countries Represented</strong>
+                      <strong>5+ Countries</strong>
                     </motion.span>
                   </li>
                 </ul>
@@ -226,13 +223,10 @@ export default function WhyExhibit() {
             </motion.div>
 
             <p className="text-gray-700 mb-8 max-w-7xl text-lg">
-              TransRussia provides an unmatched platform for professionals in the transportation and logistics sector to
-              present cutting-edge solutions to a qualified audience of industry leaders and decision-makers.
+              DIEMEX offers a powerful platform for die & mould manufacturers, tooling suppliers, material specialists, and advanced manufacturing solution providers to showcase innovative technologies to a highly qualified audience of OEMs, toolroom heads, engineers, and senior decision-makers.
             </p>
             <p className="text-gray-700 mb-12 max-w-7xl text-lg">
-              With budgets dedicated to optimising supply chains and expanding operational efficiency, exhibiting at
-              TransRussia offers you the opportunity to make valuable connections, establish strategic partnerships, and
-              drive growth in a competitive market.
+              With active capital investment and sourcing budgets focused on capacity expansion, localisation, quality improvement, and production efficiency, exhibiting at DIEMEX enables you to build high-value business connections, form long-term strategic partnerships, and accelerate growth in India’s competitive precision manufacturing market.
             </p>
 
             <motion.div
