@@ -3,17 +3,12 @@ import SectionContainer from './UI/SectionContainer'
 
 export default function CountriesSection() {
   const countries = [
-    { name: 'Russia', flag: '/images/russia.png' },
+       { name: 'China', flag: '/images/china.png' },
+    { name: 'India', flag: '/images/india.webp' },
+     { name: 'Russia', flag: '/images/russia.png' },
     { name: 'Türkiye', flag: '/images/turkey.png' },
     { name: 'United Arab Emirates', flag: '/images/uae.png' },
-    { name: 'United Kingdom', flag: '/images/uk.png' },
-    { name: 'Uzbekistan', flag: '/images/uzbekistan.png' },
-    { name: 'Armenia', flag: '/images/armenia.webp' },
-    { name: 'Azerbaijan', flag: '/images/azerbaijan.png' },
-    { name: 'Belarus', flag: '/images/belarus.webp' },
-    { name: 'China', flag: '/images/china.png' },
-    { name: 'India', flag: '/images/india.webp' },
-    { name: 'Pakistan', flag: '/images/pakistan.png' }
+   
   ]
 
   return (
