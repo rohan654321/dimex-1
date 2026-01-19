@@ -369,7 +369,7 @@ export default function WhyExhibit() {
       <div>
         <h3 className="text-sm text-blue-600 font-semibold mb-2">Event Sectors</h3>
         <h2 className="text-4xl lg:text-6xl font-bold max-w-4xl">
-          From Freight to Technology Discover our Core Sectors
+          Discover the Core Sectors Powering Die & Mould Manufacturing
         </h2>
       </div>
       <Link href="/sectors">
