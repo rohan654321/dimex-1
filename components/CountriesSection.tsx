@@ -22,7 +22,7 @@ export default function CountriesSection() {
         <div className="mb-16 flex flex-col gap-8 lg:items-center lg:text-center">
           <div className="flex items-center justify-center w-fit gap-3 py-2 pe-5 pl-3 bg-white rounded-full mx-auto">
             <img src="/images/logo-icon-3.png" alt="TransRussia" className="w-6 h-6" />
-            <span className="text-sm font-medium">Countries Represented</span>
+            <span className="text-sm font-medium">Countries</span>
           </div>
           
           <h2 className="text-5xl lg:text-7xl font-bold text-black mb-8 leading-[0.85] tracking-tight text-center">
