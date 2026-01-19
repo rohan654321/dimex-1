@@ -163,10 +163,10 @@ const TransRussiaExhibitPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-10">
                 {[
-                  ["30,500","Visitors"],
-                  ["600+","Exhibitors"],
-                  ["160+","Speakers"],
-                  ["50+","Countries Represented"],
+                  ["10,500","Visitors"],
+                  ["200+","Exhibitors"],
+                  ["20+","Speakers"],
+                  ["5+","Countries"],
                 ].map(([n,l]) => (
                   <div key={l}>
                     <p className="text-mainColor1 text-5xl font-bold">{n}</p>
