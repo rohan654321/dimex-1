@@ -46,9 +46,8 @@ const navItems: NavItem[] = [
     title: "About",
     dropdown: true,
     links: [
-      { text: "About TransRussia", href: "/about-transrussia" },
-      { text: "About SkladTech", href: "/about-skladtech" },
-      { text: "About ITE Group", href: "/about-ite" },
+      { text: "About Diemex", href: "/about-diemex" },
+      { text: "About The Organizer", href: "/about-maxxbusinessmedia" },
       { text: "Partners & Sponsors", href: "/partners-and-sponsors" },
     ],
   },
