@@ -163,7 +163,7 @@ const TransRussiaExhibitPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-10">
                 {[
-                  ["10,500","Visitors"],
+                  ["10,000","Visitors"],
                   ["200+","Exhibitors"],
                   ["20+","Speakers"],
                   ["5+","Countries"],
