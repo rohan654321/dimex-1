@@ -24,8 +24,7 @@ const ConferenceSection = () => {
                     Conference Programme
                   </h2>
                   <p className="text-white/90 text-lg lg:text-xl leading-relaxed">
-                    Each year, TransRussia Moscow presents a comprehensive three-day conference program filled with forums, analytical and practical sessions, plenary discussions, lectures, and more—delivering the latest insights and trends in the industry.
-                  </p>
+Each year, DIEMEX presents a comprehensive two-day conference programme featuring technical forums, expert panels, practical workshops, plenary sessions, and knowledge-led discussions—delivering the latest insights, innovations, and market trends shaping the die & mould, tooling, and precision manufacturing industry.                  </p>
                 </div>
 
                 {/* Stats Grid */}

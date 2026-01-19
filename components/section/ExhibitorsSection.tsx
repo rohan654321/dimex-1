@@ -4,24 +4,24 @@ import SectionContainer from "../UI/SectionContainer"
 
 const ExhibitorsSection = () => {
   const exhibitors = [
-    "Trans Net.",
-    "AL BAYAN",
-    "MARMED CONTAINER SERVICES",
-    "Eagleway Cargo",
-    "BORERS",
-    "GillcoScal, L. Calymonte",
-    "SONTIZAR",
-    "康泽远",
-    "SARIAK",
-    "CONTAINER LINES OF MARRISTSELL SISTERS",
-    "1KARGO",
-    "PROJECTS, EXPOINT ORGANICS",
-    "AERO FREIGHT",
-    "pak.shahcen (Prt.) Ltd.",
-    "CARAVAN LOGISTICS",
-    "ONE TOUCH TOUCH & MOUNTERS",
-    "ACT PARBO",
-    "PTC HOLDING",
+    ".",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
   ]
 
   return (
@@ -32,7 +32,7 @@ const ExhibitorsSection = () => {
       </h2>
 
       <p className="title-40 font-semibold text-gray-700 mb-12 lg:mb-16">
-        Participating in TransRussia Boosts Your Business Growth and Visibility
+        Participating in DIEMEX Boosts Your Business Growth and Visibility
       </p>
 
       {/* Exhibitors Grid */}
