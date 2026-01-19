@@ -65,7 +65,7 @@ const PartnersSponsorsPage: React.FC = () => {
   const partnersData: Record<string, Partner[]> = {
     supportingPartner2026: [
       {
-        name: 'ICIB',
+        name: '',
         role: 'Supporting Partner',
         logo: 'https://cdn.itegroupnews.com/thumbnail_ICIB_Logo_24_834a8e19c7.jpg',
         exploreLink: '/partner/trans-russia-partner-3/',
@@ -75,7 +75,7 @@ const PartnersSponsorsPage: React.FC = () => {
     ],
     officialMediaPartner2026: [
       {
-        name: 'Cargo Insights',
+        name: '',
         role: 'Official Media Partner',
         logo: 'https://cdn.itegroupnews.com/Cargo_Insights_e965193be1.webp',
         exploreLink: '/partner/cargo-insights/',
@@ -85,7 +85,7 @@ const PartnersSponsorsPage: React.FC = () => {
     ],
     transRussiaOfficialBank: [
       {
-        name: 'VTB',
+        name: '',
         role: 'TransRussia Official Bank',
         logo: 'https://cdn.itegroupnews.com/VTB_16f0fc5875.webp',
         exploreLink: '/partner/vtb/',
@@ -95,7 +95,7 @@ const PartnersSponsorsPage: React.FC = () => {
     ],
     wifiPartner: [
       {
-        name: 'RZD Business Asset',
+        name: '',
         role: 'Wi-Fi Partner',
         logo: 'https://cdn.itegroupnews.com/RZD_Business_Asset_aca7ff2f81.webp',
         exploreLink: '/partner/rzd-business-asset/',
@@ -105,7 +105,7 @@ const PartnersSponsorsPage: React.FC = () => {
     ],
     coOrganizer: [
       {
-        name: 'International Coordinating Council for Trans-Eurasian Transportation',
+        name: '',
         role: 'Co-organizer',
         logo: 'https://cdn.itegroupnews.com/International_Coordinating_for_Trans0_Eurasian_Transportation_965b26881c.webp',
         exploreLink: '/partner/international-coordinating-council-for-trans-eurasian-transportation/',
@@ -114,7 +114,7 @@ const PartnersSponsorsPage: React.FC = () => {
     ],
     businessProgramPartner: [
       {
-        name: 'The Council of Supply Chain Professionals',
+        name: '',
         role: 'Business Programme Partner',
         logo: 'https://cdn.itegroupnews.com/Council_of_Supply_Chain_Professinoals_03e79f3b06.webp',
         exploreLink: '/partner/the-council-of-supply-chain-professionals/',
@@ -124,21 +124,21 @@ const PartnersSponsorsPage: React.FC = () => {
     ],
     mediaPartners: [
       {
-        name: 'The Business Year',
+        name: '',
         role: 'Media Partner',
         logo: 'https://cdn.itegroupnews.com/The_Business_Year_e20d1c0f9f.png',
         exploreLink: '/partner/the-business-year/',
         websiteLink: 'https://thebusinessyear.com/',
       },
       {
-        name: 'Indian Transport & Logistics News (ITLN)',
+        name: '',
         role: 'Media Partner',
         logo: 'https://cdn.itegroupnews.com/logo_bedd7fc0a0.png',
         exploreLink: '/partner/indian-transport-and-logistics-news-itln/',
         websiteLink: 'https://www.itln.in/',
       },
       {
-        name: 'Apace Digital Cargo',
+        name: '',
         role: 'Media Partner',
         logo: 'https://cdn.itegroupnews.com/APACE_Digital_Cargo_523bc2c2a2.webp',
         exploreLink: '/partner/apace-digital-cargo/',
