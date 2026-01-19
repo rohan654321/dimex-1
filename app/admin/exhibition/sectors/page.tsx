@@ -145,7 +145,7 @@ export default function SectorsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex items-center">
-            <div className="flex-shrink-0 rounded-md p-3 bg-blue-100">
+            <div className="shrink-0 rounded-md p-3 bg-blue-100">
               <Building className="h-6 w-6 text-blue-600" />
             </div>
             <div className="ml-5">
@@ -156,7 +156,7 @@ export default function SectorsPage() {
         </div>
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex items-center">
-            <div className="flex-shrink-0 rounded-md p-3 bg-green-100">
+            <div className="shrink-0 rounded-md p-3 bg-green-100">
               <Users className="h-6 w-6 text-green-600" />
             </div>
             <div className="ml-5">
@@ -167,7 +167,7 @@ export default function SectorsPage() {
         </div>
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex items-center">
-            <div className="flex-shrink-0 rounded-md p-3 bg-purple-100">
+            <div className="shrink-0 rounded-md p-3 bg-purple-100">
               <TrendingUp className="h-6 w-6 text-purple-600" />
             </div>
             <div className="ml-5">
