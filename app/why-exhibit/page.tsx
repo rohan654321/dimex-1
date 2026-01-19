@@ -295,7 +295,7 @@ export default function WhyExhibit() {
           </SectionContainer>
         </section>
 
-        {/* WHY EXPAND TO CIS */}
+        {/* WHY EXPAND TO DIEMEX */}
         <section className="py-16 lg:py-24 bg-gray-50">
           <SectionContainer>
             <motion.h2
@@ -304,7 +304,7 @@ export default function WhyExhibit() {
               viewport={{ once: true }}
               className="text-4xl lg:text-5xl font-bold mb-12"
             >
-              Why Expand to the CIS?
+              Why Expand in India’s Die & Mould Market?
             </motion.h2>
             
             <motion.div
@@ -316,16 +316,16 @@ export default function WhyExhibit() {
             >
               {[
                 {
-                  title: "$88.38 Billion by 2024",
-                  text: "Russia's logistics market is on track to reach an estimated $88.38 billion, supported by a resilient economy with a GDP surpassing $2 trillion."
+                  title: "A Fast-Growing Manufacturing Economy",
+                  text: "India is one of the world’s fastest-growing manufacturing hubs, supported by strong GDP growth and major investments in automotive, EVs, aerospace, electronics, and industrial manufacturing—all key drivers of die & mould demand."
                 },
                 {
-                  title: "Growth in Demand",
-                  text: "As the Russian economy rebounds and the regional security landscape becomes more complex, there's a growing need for cutting-edge solutions in surveillance."
+                  title: "Rising Demand for Precision Tooling",
+                  text: "With increasing localisation, shorter product life cycles, and higher quality standards, there is growing demand for advanced dies, moulds, tooling systems, and high-performance materials across industries."
                 },
                 {
-                  title: "$108.78 Billion by 2029",
-                  text: "As Russia's logistics landscape continues to expand, the market is forecasted to reach $108.78 billion by 2029, offering leading demand for investment and innovation in the world's largest projects."
+                  title: "Long-Term Growth & Investment Potential",
+                  text: "India’s die & mould and tooling sector is poised for sustained expansion through 2026 and beyond, driven by capacity expansion, technology upgrades, automation, and global sourcing shifts—creating strong opportunities for technology providers, material suppliers, and solution partners."
                 }
               ].map((item, index) => (
                 <motion.div
