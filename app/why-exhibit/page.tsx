@@ -239,27 +239,27 @@ export default function WhyExhibit() {
               {[
                 {
                   title: "Want to grow internationally?",
-                  text: "Connect with buyers and partners from over 50 countries who attend TransRussia to discover global solutions."
+                  text: "Connect with buyers, OEMs, and sourcing partners from India and overseas who attend DIEMEX to discover advanced die & mould, tooling, and manufacturing solutions."
                 },
                 {
-                  title: "Struggling to measure impact?",
-                  text: "TransRussia delivers tangible results, from new leads to direct sales and strengthened partnerships."
+                  title: "Struggling to Measure Exhibition ROI?",
+                  text: "DIEMEX delivers measurable results—from qualified leads and RFQs to confirmed orders and long-term partnerships.."
                 },
                 {
-                  title: "Facing challenges entering the market?",
-                  text: "Gain direct access to decision-makers and partners across Eurasia's logistics and transportation sectors."
+                  title: "Facing Challenges Entering New Manufacturing Markets?",
+                  text: "Gain direct access to decision-makers, including toolroom heads, plant managers, procurement leaders, and engineering teams across India’s precision manufacturing sectors."
                 },
                 {
-                  title: "Concerned about the cost and complexity of logistics in Eurasia?",
-                  text: "Meet partners to simplify your supply chain and operations."
+                  title: "Concerned About Cost, Quality & Lead Times?",
+                  text: "Meet trusted suppliers and technology partners who help optimize tooling costs, improve quality, and reduce production cycles."
                 },
                 {
                   title: "Need better lead generation?",
-                  text: "Build a pipeline of leads from industries such as freight forwarding, manufacturing, and e-commerce logistics."
+                  text: "Build a strong pipeline from automotive, EV, plastics, die casting, aerospace, and industrial manufacturing sectors."
                 },
                 {
                   title: "Is your brand struggling to get noticed?",
-                  text: "Showcase your unique solutions in front of a targeted audience in a competitive environment."
+                  text: "Showcase your unique technologies and capabilities to a highly targeted, decision-driven audience in a competitive marketplace."
                 }
               ].map((item, index) => (
                 <motion.div
