@@ -111,7 +111,7 @@ const TransRussiaExhibitPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>Enquiry to Exhibit | TransRussia</title>
+        <title>Enquiry to Exhibit | DIEMEX 2026</title>
       </Head>
 
       {/* INTRO LOADER */}
@@ -135,7 +135,7 @@ const TransRussiaExhibitPage: React.FC = () => {
           <SectionContainer className="!pb-10">
             <h1 className="title-72 bg-[] text-black mt-15">Enquiry to Exhibit</h1>
             <p className="max-w-6xl py-5">
-              If you'd like to exhibit at TransRussia 2026 or would like more
+              If you'd like to exhibit at DIEMEX 2026 or would like more
               information about exhibiting opportunities, please complete the
               form below and a member of our team will be in touch with you.
             </p>
@@ -149,12 +149,11 @@ const TransRussiaExhibitPage: React.FC = () => {
             {/* LEFT CONTENT */}
             <div>
               <h2 className="title-mainColor2 my-5 text-3xl lg:text-6xl font-semibold">
-                Be Part of Eurasia's Leading Transport & Logistics Exhibition
+                Be Part of India’s Leading Die & Mould Manufacturing Exhibition
               </h2>
 
               <p className="my-5">
-                Showcase your freight, logistics, transport, and supply chain
-                solutions to Eurasia’s <strong>$110B+</strong> logistics market.
+                Showcase your die & mould, tooling, materials, and precision manufacturing solutions to India’s rapidly expanding automotive, EV, plastics, aerospace, and industrial manufacturing market.
               </p>
 
               <hr className="my-8" />
@@ -178,13 +177,13 @@ const TransRussiaExhibitPage: React.FC = () => {
               </h3>
 
               <ul className="list-disc pl-5 space-y-2">
-                <li>Freight Forwarders & Transport Operators</li>
-                <li>Logistics Service Providers & 3PLs</li>
-                <li>Warehousing & Distribution Companies</li>
-                <li>Retailers, Manufacturers & Importers</li>
-                <li>Customs Brokers & Trade Agents</li>
-                <li>IT & Digital Supply Chain Providers</li>
-                <li>Government & Infrastructure Decision-Makers</li>
+                <li>Die & Mould Manufacturers & Toolrooms</li>
+                <li>OEMs & Component Manufacturers (Automotive, EV, Plastics, Aerospace, Industrial)</li>
+                <li>Production, Toolroom & Plant Heads</li>
+                <li>Design, CAD/CAM & Engineering Professionals</li>
+                <li>Material, Tool Steel & Consumables Suppliers</li>
+                <li>Automation, Industry 4.0 & Manufacturing Technology Providers</li>
+                <li>Procurement Heads, Investors & Industry Consultants</li>
               </ul>
             </div>
 
