@@ -3,10 +3,10 @@ import SectionContainer from "../UI/SectionContainer"
 
 const ConferenceStats = () => {
   const stats = [
-    { value: "2,800+", label: "Delegates" },
-    { value: "160+", label: "Speakers" },
-    { value: "6", label: "Conferences" },
-    { value: "3", label: "Days" },
+    { value: "200+", label: "Delegates" },
+    { value: "20+", label: "Speakers" },
+    { value: "10", label: "Conference Sessions" },
+    { value: "2", label: "Days" },
   ]
 
   return (
