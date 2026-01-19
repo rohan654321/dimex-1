@@ -136,7 +136,7 @@ export default function WhyExhibit() {
                   DIEMEX is a powerful gateway to tap into India’s rapidly expanding die & mould, tooling, and precision manufacturing ecosystem—one of the world’s fastest-growing industrial markets.
                 </p>
                 <p className="text-gray-700 mb-8 text-lg">
-                  WiWith India’s strong automotive, EV, aerospace, electronics, and industrial manufacturing base, supported by large-scale localisation and “Make in India” initiatives, the country offers significant growth opportunities for companies aiming to expand operations, enter new markets, and build long-term manufacturing partnerships.
+                  With India’s strong automotive, EV, aerospace, electronics, and industrial manufacturing base, supported by large-scale localisation and “Make in India” initiatives, the country offers significant growth opportunities for companies aiming to expand operations, enter new markets, and build long-term manufacturing partnerships.
                 </p>
 
                 <ul className="space-y-4 mb-8">
