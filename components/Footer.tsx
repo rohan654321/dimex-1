@@ -201,7 +201,7 @@ export default function Footer() {
             <div className="h-8 w-52 rounded bg-white/60 flex items-center justify-center">
               <span className="font-bold text-white">MAXX</span>
               <span className="mx-2 font-bold text-white-600">BUSINESS</span>
-              <span className="font-bold text-white">MEDIA</span>
+              <span className="mx-2 font-bold text-white-600">MEDIA</span>
               <span className="font-bold text-white">PVT.LTD</span>
             </div>
           </div>
