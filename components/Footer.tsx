@@ -200,13 +200,13 @@ export default function Footer() {
             <span className="text-white/70">Organised By</span>
             <div className="h-8 w-52 rounded bg-white/60 flex items-center justify-center">
               <span className="font-bold text-white">MAXX</span>
-              <span className="mx-2 font-bold text-white-600">BUSINESS</span>
-              <span className="mx-2 font-bold text-white-600">MEDIA</span>
+              <span className="mx-2 font-bold text-white-400">BUSINESS</span>
+              <span className="mx-2 font-bold text-white-400">MEDIA</span>
               <span className="font-bold text-white">PVT.LTD</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-white/70">
+          <div className="flex flex-wrap items-center gap-4 text-white/90">
             <span>© DIEMEX 2026. All Rights Reserved</span>
             <div className="flex gap-3">
               <a
