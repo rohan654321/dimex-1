@@ -196,15 +196,17 @@ export default function Footer() {
       {/* BOTTOM BAR */}
       <div className="mx-auto max-w-7xl px-8">
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/20 py-5 text-sm">
-          <div className="flex items-center gap-3">
-            <span className="text-white/70">Organised By</span>
-            <div className="h-8 w-52 rounded bg-white/60 flex items-center justify-center">
-              <span className="font-bold text-white">MAXX</span>
-              <span className="mx-2 font-bold text-white-400">BUSINESS</span>
-              <span className="mx-2 font-bold text-white-400">MEDIA</span>
-              <span className="font-bold text-white">PVT.LTD</span>
-            </div>
-          </div>
+         <div className="flex items-center gap-3">
+  <span className="text-sm text-white/70">Organised By</span>
+
+  <div className="flex items-center rounded-md bg-white px-4 py-2 shadow-sm">
+    <span className="font-bold text-[#004A96]">MAXX</span>
+    <span className="mx-1 font-semibold text-gray-700">BUSINESS</span>
+    <span className="mx-1 font-semibold text-gray-700">MEDIA</span>
+    <span className="ml-1 font-bold text-[#004A96]">PVT. LTD.</span>
+  </div>
+</div>
+
 
           <div className="flex flex-wrap items-center gap-4 text-white/90">
             <span>© DIEMEX 2026. All Rights Reserved</span>
