@@ -168,7 +168,7 @@ export default function NavBar() {
                           <span className="relative">
                             {item.title}
                             {/* Hover underline effect */}
-                            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-white group-hover:w-full transition-all duration-300"></span>
+                            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FF131C] group-hover:w-full transition-all duration-300"></span>
                           </span>
                           <ChevronDown
                             className={`h-4 w-4 transition-transform duration-300 ${activeDropdown === i ? "rotate-180" : ""
@@ -205,7 +205,7 @@ export default function NavBar() {
                         <span className="relative">
                           {item.title}
                           {/* Hover underline effect for non-dropdown items */}
-                          <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-white group-hover:w-full transition-all duration-300"></span>
+                          <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FF131C] group-hover:w-full transition-all duration-300"></span>
                         </span>
                       </Link>
                     )
