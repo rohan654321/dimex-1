@@ -108,7 +108,7 @@ export default function NavBar() {
       <header className="fixed top-0 left-0 right-0 z-[999]">
         <div className={`px-4 sm:px-6 lg:px-8 ${scrolled ? "pt-2" : "pt-4"}`}>
           <div className="mx-auto max-w-[1600px]">
-            <div className="rounded-3xl bg-[#004A96] text-white shadow-xl">
+            <div className="rounded-3xl bg-[#0E1C35] text-white shadow-xl">
               <div className="flex items-center justify-between px-6 py-3">
 
                 {/* LOGO */}
