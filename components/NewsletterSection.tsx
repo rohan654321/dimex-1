@@ -6,7 +6,7 @@ export default function NewsletterSection() {
     <section className="py-32">
       <SectionContainer>
         {/* CARD */}
-        <div className="relative overflow-hidden rounded-[36px] bg-gradient-to-r from-[#0b1f3f] to-[#0a2348] px-6 lg:px-10 xl:px-14 py-14 text-white">
+        <div className="relative overflow-hidden rounded-[36px] bg-[#004A96] px-6 lg:px-10 xl:px-14 py-14 text-white">
           
           {/* LEFT CONTENT */}
           <div className="relative z-10 max-w-[720px] space-y-6">
