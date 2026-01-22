@@ -108,7 +108,7 @@ export default function NavBar() {
       <header className="fixed top-0 left-0 right-0 z-[999]">
         <div className={`px-4 sm:px-6 lg:px-8 ${scrolled ? "pt-2" : "pt-4"}`}>
           <div className="mx-auto max-w-[1600px]">
-            <div className="rounded-3xl bg-[#0E1C35] text-white shadow-xl">
+            <div className="rounded-3xl bg-[#04294f] text-white shadow-xl">
               <div className="flex items-center justify-between px-6 py-3">
 
                 {/* LOGO */}
@@ -232,7 +232,7 @@ export default function NavBar() {
             {/* TIMER BAR (DESKTOP ONLY) */}
             {!scrolled && (
               <div className="hidden lg:flex justify-end mr-25 pr-8">
-                <div className="flex items-center gap-4 rounded-b-xl bg-[#0E1C35] px-4 py-1.5 text-sm text-white">
+                <div className="flex items-center gap-4 rounded-b-xl bg-[#04294f] px-4 py-1.5 text-sm text-white">
                   <span>{timeLeft.days} Days</span>
                   <span>{timeLeft.hours} Hours</span>
                   <span>{timeLeft.minutes} Mins</span>
