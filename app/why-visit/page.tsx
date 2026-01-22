@@ -733,7 +733,7 @@ export default function WhyVisit() {
                     }}
                     className="rounded-xl overflow-hidden border border-gray-200 transition-all duration-300"
                   >
-                    <div className="bg-blue-950 text-white p-6 lg:p-8">
+                    <div className="bg-[#004A96] text-white p-6 lg:p-8">
                       <h3 className="text-xl lg:text-2xl font-bold mb-3 hover:text-blue-300 transition-colors duration-300">
                         {card.title}
                       </h3>
