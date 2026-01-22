@@ -247,7 +247,7 @@ export default function NavBar() {
         <div
           className="lg:hidden fixed top-[72px] left-0 right-0 z-[998]
                max-h-[calc(100vh-80px)] overflow-y-auto
-               bg-[#0d1e3c] text-white shadow-xl"
+               bg-[#04294f] text-white shadow-xl"
         >
           <div className="px-5 py-4">
             <div className="mb-3 text-center font-mono text-xs opacity-80">
