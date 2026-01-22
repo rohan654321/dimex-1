@@ -214,8 +214,8 @@ export default function NavBar() {
 
                 {/* DESKTOP CTA */}
                 <div className="hidden lg:flex items-center gap-3">
-                  <Button href="/exhibiting-enquiry">Become an Exhibitor</Button>
-                  <Button href="/visitor-registration">Register Now</Button>
+                  <Button href="/exhibiting-enquiry" className="bg-[#FF131C]">Become an Exhibitor</Button>
+                  <Button href="/visitor-registration" className="bg-[#FF131C]">Register Now</Button>
                 </div>
 
                 {/* MOBILE MENU BUTTON */}
@@ -232,7 +232,7 @@ export default function NavBar() {
             {/* TIMER BAR (DESKTOP ONLY) */}
             {!scrolled && (
               <div className="hidden lg:flex justify-end mr-25 pr-8">
-                <div className="flex items-center gap-4 rounded-b-xl bg-[#004A96] px-4 py-1.5 text-sm text-white">
+                <div className="flex items-center gap-4 rounded-b-xl bg-[#0E1C35] px-4 py-1.5 text-sm text-white">
                   <span>{timeLeft.days} Days</span>
                   <span>{timeLeft.hours} Hours</span>
                   <span>{timeLeft.minutes} Mins</span>
