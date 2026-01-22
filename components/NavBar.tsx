@@ -108,7 +108,7 @@ export default function NavBar() {
       <header className="fixed top-0 left-0 right-0 z-[999]">
         <div className={`px-4 sm:px-6 lg:px-8 ${scrolled ? "pt-2" : "pt-4"}`}>
           <div className="mx-auto max-w-[1600px]">
-            <div className="rounded-3xl bg-[#04294f] text-white shadow-xl">
+            <div className="rounded-3xl bg-gradient-to-r from-[#06162f] to-[#0a2b57] text-white shadow-xl">
               <div className="flex items-center justify-between px-6 py-3">
 
                 {/* LOGO */}
@@ -168,7 +168,7 @@ export default function NavBar() {
                           <span className="relative">
                             {item.title}
                             {/* Hover underline effect */}
-                            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FF131C] group-hover:w-full transition-all duration-300"></span>
+                            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-white group-hover:w-full transition-all duration-300"></span>
                           </span>
                           <ChevronDown
                             className={`h-4 w-4 transition-transform duration-300 ${activeDropdown === i ? "rotate-180" : ""
@@ -205,7 +205,7 @@ export default function NavBar() {
                         <span className="relative">
                           {item.title}
                           {/* Hover underline effect for non-dropdown items */}
-                          <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FF131C] group-hover:w-full transition-all duration-300"></span>
+                          <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-white group-hover:w-full transition-all duration-300"></span>
                         </span>
                       </Link>
                     )
@@ -215,7 +215,7 @@ export default function NavBar() {
                 {/* DESKTOP CTA */}
                 <div className="hidden lg:flex items-center gap-3">
                   <Button href="/exhibiting-enquiry" className="bg-[#FF131C]">Become an Exhibitor</Button>
-                  <Button href="/visitor-registration" className="bg-[#FF131C]">Register Now</Button>
+                  <Button href="/visitor-registration"className="bg-[#FF131C]">Register Now</Button>
                 </div>
 
                 {/* MOBILE MENU BUTTON */}
@@ -232,7 +232,7 @@ export default function NavBar() {
             {/* TIMER BAR (DESKTOP ONLY) */}
             {!scrolled && (
               <div className="hidden lg:flex justify-end mr-25 pr-8">
-                <div className="flex items-center gap-4 rounded-b-xl bg-[#04294f] px-4 py-1.5 text-sm text-white">
+                <div className="flex items-center gap-4 rounded-b-xl bg-[#0d1e3c] px-4 py-1.5 text-sm text-white">
                   <span>{timeLeft.days} Days</span>
                   <span>{timeLeft.hours} Hours</span>
                   <span>{timeLeft.minutes} Mins</span>
@@ -291,10 +291,10 @@ export default function NavBar() {
               )}
 
               <div className="mt-4 flex flex-col gap-2 border-t border-white/20 pt-4">
-                <Button href="/exhibiting-enquiry" fullWidth>
+                <Button href="/exhibiting-enquiry" className="bg-[#FF131C]" fullWidth>
                   Become an Exhibitor
                 </Button>
-                <Button href="/visitor-registration" fullWidth>
+                <Button href="/visitor-registration" className="bg-[#FF131C]" fullWidth>
                   Register Now
                 </Button>
               </div>
