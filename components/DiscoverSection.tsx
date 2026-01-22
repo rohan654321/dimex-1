@@ -3,12 +3,12 @@ import SectionContainer from './UI/SectionContainer'
 
 export default function DiscoverSection() {
   return (
-    <section className="bg-[#004A96] py-32 text-white">
+    <section className="bg-[#0E1C35] py-32 text-white">
       <SectionContainer>
         <div className="grid lg:grid-cols-12 gap-16">
           <div className="lg:col-span-7 lg:border-l lg:border-white/20 lg:pl-14">
             <h2 className="text-5xl lg:text-6xl xl:text-7xl font-bold leading-[0.85] tracking-tight">
-              Discover <span className="text-[#FF131C]">DIEMEX</span>
+              Discover <span className="text-[#82c6eb]">DIEMEX</span>
             </h2>
 
             <div className="space-y-6 mt-8 max-w-3xl">
