@@ -214,8 +214,8 @@ export default function NavBar() {
 
                 {/* DESKTOP CTA */}
                 <div className="hidden lg:flex items-center gap-3">
-                  <Button href="/exhibiting-enquiry" className="bg-[#FF131C]">Become an Exhibitor</Button>
-                  <Button href="/visitor-registration"className="bg-[#FF131C]">Register Now</Button>
+                  <Button href="/exhibiting-enquiry" className="bg-[#004D9F]">Become an Exhibitor</Button>
+                  <Button href="/visitor-registration"className="bg-[#004D9F]">Register Now</Button>
                 </div>
 
                 {/* MOBILE MENU BUTTON */}
@@ -291,10 +291,10 @@ export default function NavBar() {
               )}
 
               <div className="mt-4 flex flex-col gap-2 border-t border-white/20 pt-4">
-                <Button href="/exhibiting-enquiry" className="bg-[#FF131C]" fullWidth>
+                <Button href="/exhibiting-enquiry" className="bg-[#004D9F]" fullWidth>
                   Become an Exhibitor
                 </Button>
-                <Button href="/visitor-registration" className="bg-[#FF131C]" fullWidth>
+                <Button href="/visitor-registration" className="bg-[#004D9F]" fullWidth>
                   Register Now
                 </Button>
               </div>
