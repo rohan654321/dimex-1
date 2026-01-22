@@ -23,7 +23,7 @@ export default function HeroSection() {
           <div className="flex flex-col justify-end gap-5 pb-16 min-h-screen">
             {/* MAIN HEADING - Adjusted for mobile */}
             <h1 className="text-[70px] sm:text-[100px] md:text-[120px] lg:text-[150px] xl:text-[170px] leading-[0.85] font-bold tracking-tight mt-32 lg:mt-0">
-              DIEMEX <span className="text-[#33A8DF]">2026</span>
+              DIEMEX <span className="text-[#FF131C]">2026</span>
             </h1>
             
             {/* CONTENT - Adjusted for mobile */}
