@@ -62,7 +62,7 @@ const scaleIn = {
 const PartnersSponsorsPage: React.FC = () => {
   /* ===================== DATA ===================== */
 
-  const partnersData: Record<string, Partner[]> = {
+  /* const partnersData: Record<string, Partner[]> = {
     supportingPartner2026: [
       {
         name: '',
