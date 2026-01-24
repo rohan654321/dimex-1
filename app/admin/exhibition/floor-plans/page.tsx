@@ -62,6 +62,7 @@ type ToolMode = "select" | "draw" | "pan" | "text" | "measure";
 export default function ProfessionalExhibitionEditor() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<string | null>(null);
+  const [imageDimensions, setImageDimensions] = useState<{width: number, height: number} | null>(null);
   const [shapes, setShapes] = useState<Shape[]>([
     {
       id: "booth-1",
@@ -87,7 +88,7 @@ export default function ProfessionalExhibitionEditor() {
   ]);
   
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(0.8);
+  const [zoom, setZoom] = useState(1);
   const [currentTool, setCurrentTool] = useState<ToolMode>("select");
   const [currentShape, setCurrentShape] = useState<ShapeType>("booth");
   const [currentColor, setCurrentColor] = useState("rgba(59, 130, 246, 0.3)");
@@ -98,7 +99,7 @@ export default function ProfessionalExhibitionEditor() {
   const [isPanning, setIsPanning] = useState(false);
   const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
   const [tempShape, setTempShape] = useState<Shape | null>(null);
-  const [panOffset, setPanOffset] = useState({ x: 50, y: 50 });
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [gridSize, setGridSize] = useState(20);
   const [showGrid, setShowGrid] = useState(true);
   const [isSnapToGrid, setIsSnapToGrid] = useState(true);
@@ -211,8 +212,18 @@ export default function ProfessionalExhibitionEditor() {
       setIsLoading(true);
       const reader = new FileReader();
       reader.onload = () => {
-        setImage(reader.result as string);
-        setIsLoading(false);
+        const img = new Image();
+        img.onload = () => {
+          setImage(reader.result as string);
+          setImageDimensions({
+            width: img.width,
+            height: img.height
+          });
+          // Center the image
+          setPanOffset({ x: 50, y: 50 });
+          setIsLoading(false);
+        };
+        img.src = reader.result as string;
       };
       reader.readAsDataURL(file);
     };
@@ -224,18 +235,18 @@ export default function ProfessionalExhibitionEditor() {
     
     setIsLoading(true);
     try {
- const html2canvas = (await import("html2canvas")).default;
+      const html2canvas = (await import("html2canvas")).default;
 
-const options: Partial<Html2CanvasOptions> = {
-  backgroundColor: "#ffffff",
-  scale: 2,
-  useCORS: true,
-  logging: false,
-  allowTaint: true,
-  removeContainer: true,
-};
+      const options: Partial<Html2CanvasOptions> = {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        allowTaint: true,
+        removeContainer: true,
+      };
 
-const canvas = await html2canvas(containerRef.current!, options);
+      const canvas = await html2canvas(containerRef.current!, options);
       const link = document.createElement("a");
       link.download = `exhibition-floor-plan-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
@@ -290,18 +301,27 @@ const canvas = await html2canvas(containerRef.current!, options);
     input.click();
   };
 
-  /* ================= DRAWING & INTERACTION ================= */
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!containerRef.current) return;
-
+  /* ================= UTILITY FUNCTIONS ================= */
+  const getCoordinates = (clientX: number, clientY: number) => {
+    if (!containerRef.current) return { x: 0, y: 0 };
     const rect = containerRef.current.getBoundingClientRect();
-    let x = (e.clientX - rect.left) / zoom - panOffset.x;
-    let y = (e.clientY - rect.top) / zoom - panOffset.y;
+    let x = (clientX - rect.left) / zoom - panOffset.x;
+    let y = (clientY - rect.top) / zoom - panOffset.y;
 
     if (isSnapToGrid && showGrid) {
       x = Math.round(x / gridSize) * gridSize;
       y = Math.round(y / gridSize) * gridSize;
     }
+
+    return { x, y };
+  };
+
+  /* ================= DRAWING & INTERACTION - MOUSE EVENTS ================= */
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!containerRef.current) return;
+
+    const { x, y } = getCoordinates(e.clientX, e.clientY);
 
     if (currentTool === "pan") {
       setIsPanning(true);
@@ -347,11 +367,10 @@ const canvas = await html2canvas(containerRef.current!, options);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (!containerRef.current) return;
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / zoom - panOffset.x;
-    const y = (e.clientY - rect.top) / zoom - panOffset.y;
+    const { x, y } = getCoordinates(e.clientX, e.clientY);
 
     if (isPanning) {
       const deltaX = (e.clientX - startPoint.x) / zoom;
@@ -422,7 +441,131 @@ const canvas = await html2canvas(containerRef.current!, options);
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isDrawing && tempShape && tempShape.width > 10 && tempShape.height > 10) {
+      const finalShape = {
+        ...tempShape,
+        id: `shape-${Date.now()}`
+      };
+      setShapes(prev => [...prev, finalShape]);
+      setSelectedId(finalShape.id);
+      if (finalShape.type === "booth") {
+        setShowBoothDetails(true);
+      }
+    }
+
+    setIsDrawing(false);
+    setIsPanning(false);
+    setIsMeasuring(false);
+    setTempShape(null);
+  };
+
+  /* ================= TOUCH EVENTS FOR MOBILE ================= */
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (!containerRef.current) return;
+
+    const touch = e.touches[0];
+    const { x, y } = getCoordinates(touch.clientX, touch.clientY);
+
+    if (currentTool === "pan") {
+      setIsPanning(true);
+      setStartPoint({ x: touch.clientX, y: touch.clientY });
+      return;
+    }
+
+    if (currentTool === "measure") {
+      setIsMeasuring(true);
+      setMeasureStart({ x, y });
+      setMeasurementLine({ x1: x, y1: y, x2: x, y2: y });
+      return;
+    }
+
+    if (currentTool === "draw" || currentTool === "text") {
+      setIsDrawing(true);
+      setStartPoint({ x, y });
+
+      const shapeType = currentTool === "text" ? "text" : currentShape;
+      const newShape: Shape = {
+        id: "temp",
+        type: shapeType,
+        x,
+        y,
+        width: 0,
+        height: 0,
+        rotation: 0,
+        color: currentColor,
+        borderColor: currentBorderColor,
+        borderWidth,
+        fontSize,
+        text: shapeType === "text" ? "Text" : getDefaultText(shapeType),
+        zIndex: shapes.length,
+        metadata: shapeType === "booth" ? {
+          boothNumber: (shapes.filter(s => s.type === "booth").length + 1).toString(),
+          status: "available",
+          category: "General"
+        } : undefined
+      };
+
+      setTempShape(newShape);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (!containerRef.current) return;
+
+    const touch = e.touches[0];
+    const { x, y } = getCoordinates(touch.clientX, touch.clientY);
+
+    if (isPanning) {
+      const deltaX = (touch.clientX - startPoint.x) / zoom;
+      const deltaY = (touch.clientY - startPoint.y) / zoom;
+      setPanOffset(prev => ({
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }));
+      setStartPoint({ x: touch.clientX, y: touch.clientY });
+      return;
+    }
+
+    if (isMeasuring && measurementLine) {
+      setMeasurementLine({
+        ...measurementLine,
+        x2: x,
+        y2: y
+      });
+      return;
+    }
+
+    if (isDrawing && tempShape) {
+      let width = Math.abs(x - startPoint.x);
+      let height = Math.abs(y - startPoint.y);
+
+      if (tempShape.type === "square" || tempShape.type === "circle" || tempShape.type === "pillar") {
+        const size = Math.max(width, height);
+        width = size;
+        height = size;
+      }
+
+      if (isSnapToGrid && showGrid) {
+        width = Math.round(width / gridSize) * gridSize;
+        height = Math.round(height / gridSize) * gridSize;
+      }
+
+      setTempShape({
+        ...tempShape,
+        x: Math.min(startPoint.x, x),
+        y: Math.min(startPoint.y, y),
+        width: Math.max(20, width),
+        height: Math.max(20, height)
+      });
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
     if (isDrawing && tempShape && tempShape.width > 10 && tempShape.height > 10) {
       const finalShape = {
         ...tempShape,
@@ -442,7 +585,7 @@ const canvas = await html2canvas(containerRef.current!, options);
   };
 
   /* ================= SHAPE ACTIONS ================= */
-  const handleShapeClick = (shapeId: string, e: React.MouseEvent) => {
+  const handleShapeClick = (shapeId: string, e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     if (currentTool === "select") {
       setSelectedId(shapeId);
@@ -1164,11 +1307,15 @@ const canvas = await html2canvas(containerRef.current!, options);
           {/* Canvas Container */}
           <div
             ref={containerRef}
-            className="flex-1 relative overflow-hidden bg-gray-50"
+            className="flex-1 relative overflow-hidden bg-gray-50 select-none"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onContextMenu={(e) => e.preventDefault()}
           >
             {/* Grid Background */}
             {showGrid && (
@@ -1201,7 +1348,7 @@ const canvas = await html2canvas(containerRef.current!, options);
                 <img
                   src={image}
                   alt="Floor plan background"
-                  className="absolute top-0 left-0 max-w-none select-none"
+                  className="absolute top-0 left-0 max-w-full max-h-full object-contain select-none pointer-events-none"
                   draggable={false}
                   style={{ opacity: 0.7 }}
                 />
@@ -1223,6 +1370,7 @@ const canvas = await html2canvas(containerRef.current!, options);
                     <div
                       key={shape.id}
                       onClick={(e) => handleShapeClick(shape.id, e)}
+                      onTouchStart={(e) => handleShapeClick(shape.id, e)}
                       className={`absolute transition-all duration-150 ${isLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:shadow-md'} ${
                         isSelected ? 'ring-2 ring-blue-500 ring-offset-1 shadow-lg z-50' : ''
                       }`}
@@ -1874,7 +2022,7 @@ const canvas = await html2canvas(containerRef.current!, options);
 
       {/* Mobile Bottom Navigation */}
       {deviceMode === "mobile" && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-lg">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-lg z-50">
           <div className="flex items-center justify-around">
             <button
               onClick={() => setIsToolsOpen(!isToolsOpen)}
