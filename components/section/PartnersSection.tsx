@@ -22,30 +22,7 @@ const PartnersSection = () => {
   const [scrollLeft, setScrollLeft] = useState(0)
 
   const partners: Partner[] = [
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/", link: "/partner/logirus" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/ },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" },
-    { name: "", logo: "/images/", link: "/partner/" }
-  ]
+   
 
   // Duplicate partners for seamless loop
   const duplicatedPartners = [...partners, ...partners, ...partners]
