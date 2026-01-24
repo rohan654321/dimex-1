@@ -21,17 +21,18 @@ const PartnersSection = () => {
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
 
-  const partners: Partner[] = [
-    { name: '', logo: '/images/partner1.png', url: '#' },
-    { name: '', logo: '/images/partner2.png', url: '#' },
-    { name: '', logo: '/images/partner3.png', url: '#' },
-    { name: '', logo: '/images/partner4.png', url: '#' },
-    { name: '', logo: '/images/partner5.png', url: '#' },
-    { name: '', logo: '/images/partner6.png', url: '#' },
-    { name: '', logo: '/images/partner7.png', url: '#' },
-    { name: '', logo: '/images/partner8.png', url: '#' },
-    { name: '', logo: '/images/partner9.png', url: '#' },
-  ];
+
+const partners: Partner[] = [
+  { name: 'Partner 1', logo: '/images/partner1.png', url: '#' },
+  { name: 'Partner 2', logo: '/images/partner2.png', url: '#' },
+  { name: 'Partner 3', logo: '/images/partner3.png', url: '#' },
+  { name: 'Partner 4', logo: '/images/partner4.png', url: '#' },
+  { name: 'Partner 5', logo: '/images/partner5.png', url: '#' },
+  { name: 'Partner 6', logo: '/images/partner6.png', url: '#' },
+  { name: 'Partner 7', logo: '/images/partner7.png', url: '#' },
+  { name: 'Partner 8', logo: '/images/partner8.png', url: '#' },
+  { name: 'Partner 9', logo: '/images/partner9.png', url: '#' },
+];
 
   // Duplicate partners for seamless loop
   const duplicatedPartners = [...partners, ...partners, ...partners]
