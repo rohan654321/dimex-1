@@ -22,7 +22,7 @@ const PartnersSection = () => {
   const [scrollLeft, setScrollLeft] = useState(0)
 
   const partners: Partner[] = [
-    { name: "", logo: "/images/image.png", link: "/partner/apace-digital-cargo" },
+    { name: "", logo: "/images/image.png", link: "/partner/" },
     { name: "", logo: "/images/image.png", link: "/partner/cargo-insights" },
     { name: "", logo: "/images/image.png", link: "/partner/international-coordinating-council-for-trans-eurasian-transportation" },
     { name: "", logo: "/LOGIRUS_34da1707d5.webp", link: "/partner/logirus" },
