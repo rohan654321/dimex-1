@@ -6,10 +6,40 @@ import { Save, X, Upload, Loader2, Building, User, Mail, Phone, MapPin, Globe } 
 import { exhibitorsAPI } from '@/lib/api/exhibitors';
 import toast from 'react-hot-toast';
 
+// Create a type for the form data
+interface ExhibitorFormData {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  sector: string;
+  boothNumber: string;
+  website: string;
+  address: string;
+  city: string;
+  country: string;
+  postalCode: string;
+  description: string;
+  status: 'pending' | 'confirmed' | 'setup' | 'ready' | 'cancelled';
+  stallSize: string;
+  powerRequirements: string;
+  internetRequirements: string;
+  additionalRequirements: string;
+}
+
+// Map form status to API status
+const statusMapping: Record<string, 'pending' | 'active' | 'inactive' | 'approved' | 'rejected'> = {
+  'pending': 'pending',
+  'confirmed': 'active',
+  'setup': 'pending',
+  'ready': 'approved',
+  'cancelled': 'inactive'
+};
+
 export default function NewExhibitorPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ExhibitorFormData>({
     name: '',
     email: '',
     phone: '',
@@ -51,25 +81,47 @@ export default function NewExhibitorPage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
 
-    try {
-      const response = await exhibitorsAPI.create(formData);
-      
-      if (response.success) {
-        toast.success('Exhibitor created successfully! Credentials have been emailed.');
-        router.push('/admin/exhibition/exhibitors');
+  try {
+    // Map form data to API data
+    const apiData = {
+      ...formData,
+      booth: formData.boothNumber,
+      status: statusMapping[formData.status] || 'pending'
+    };
+
+    const response = await exhibitorsAPI.create(apiData);
+    
+    if (response.id) {
+      // Check if response includes plain password
+      if (response.plainPassword) {
+        // Show success with password
+        toast.success(
+          <div>
+            <p>Exhibitor created successfully!</p>
+            <p>Password: <strong>{response.plainPassword}</strong></p>
+            <p><small>Please save this password. An email has been sent to the exhibitor.</small></p>
+          </div>,
+          { duration: 10000 }
+        );
       } else {
-        toast.error(response.error || 'Failed to create exhibitor');
+        toast.success('Exhibitor created successfully!');
       }
-    } catch (error: any) {
-      toast.error(error.error || 'Failed to create exhibitor');
-    } finally {
-      setIsLoading(false);
+      
+      router.push('/admin/exhibition/exhibitors');
+    } else {
+      toast.error('Failed to create exhibitor - no ID returned');
     }
-  };
+  } catch (error: any) {
+    console.error('Error creating exhibitor:', error);
+    toast.error(error.message || 'Failed to create exhibitor');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
