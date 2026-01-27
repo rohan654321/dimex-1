@@ -1,11 +1,8 @@
 "use client";
 
-import React from "react"
-
-import { useState, useEffect } from 'react';
-import { Lock, Mail, Eye, EyeOff, AlertCircle, Loader2, Shield, Server } from 'lucide-react';
+import { useState } from 'react';
+import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@exhibition.com');
@@ -13,170 +10,32 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [apiUrl, setApiUrl] = useState('');
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
 
-  // Check if already logged in
-  useEffect(() => {
-    if (isAuthenticated('admin')) {
-      router.push('/admin/dashboard');
-    }
-  }, [router, isAuthenticated]);
+  // Hardcoded credentials
+  const ADMIN_EMAIL = 'admin@exhibition.com';
+  const ADMIN_PASSWORD = 'admin123';
 
-  // Set API URL and check status
-  useEffect(() => {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    setApiUrl(API_BASE_URL);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
 
-    const checkApiStatus = async () => {
-      try {
-        console.log('🔍 Checking API at:', `${API_BASE_URL}/api/monitoring/health`);
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const response = await fetch(`${API_BASE_URL}/api/monitoring/health`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ API Health check response:', data);
-          setApiStatus('online');
-        } else {
-          console.log('⚠️ API responded with error:', response.status);
-          setApiStatus('offline');
-        }
-      } catch (error: any) {
-        console.error('❌ API health check failed:', error);
-        if (error.name === 'AbortError') {
-          console.error('⏰ API request timeout');
-          setApiStatus('offline');
-        } else {
-          setApiStatus('offline');
-        }
-      }
-    };
-
-    checkApiStatus();
-  }, []);
-
-// app/admin/login/page.tsx - Updated handleSubmit
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
-  setIsLoading(true);
-
-  try {
-    console.log('🚀 Starting login process...');
-    console.log('📧 Email:', email);
-    console.log('🔑 Password:', password.length > 0 ? '***' : 'empty');
-    console.log('🌐 API URL:', apiUrl);
-    
-    const result = await login(email, password, 'admin');
-    
-    console.log('🎉 Login result:', result);
-    
-    if (result.success) {
-      // Wait a moment for localStorage to be updated
-      await new Promise(resolve => setTimeout(resolve, 100));
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      // Store login state in localStorage (in real app, use proper auth)
+      localStorage.setItem('admin_logged_in', 'true');
+      localStorage.setItem('admin_user', JSON.stringify({
+        email: ADMIN_EMAIL,
+        name: 'Administrator'
+      }));
       
-      // Verify auth is stored
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('admin_token');
-        const user = localStorage.getItem('admin_user');
-        console.log('🔍 After login - localStorage:', {
-          token: token ? `${token.substring(0, 20)}...` : 'none',
-          user: user ? JSON.parse(user) : 'none'
-        });
-      }
-      
-      console.log('🔗 Redirecting to dashboard...');
+      // Redirect to dashboard
       router.push('/admin/dashboard');
     } else {
-      setError(result.message || 'Login failed');
-      setIsLoading(false);
-    }
-  } catch (error: any) {
-    console.error('💥 Login error:', error);
-    console.error('💥 Error details:', {
-      message: error.message,
-      stack: error.stack
-    });
-    
-    let errorMessage = error.message || 'An error occurred during login';
-    
-    if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
-      errorMessage = `Cannot connect to server at ${apiUrl}. Please ensure:
-      1. The backend server is running (check Docker logs)
-      2. The API URL is correct
-      3. There are no network issues`;
-    } else if (error.message.includes('401')) {
-      errorMessage = 'Invalid email or password. Please try again.';
-    }
-    
-    setError(errorMessage);
-    setIsLoading(false);
-  }
-};
-
-  const handleDemoLogin = async () => {
-    setEmail('admin@exhibition.com');
-    setPassword('admin123');
-    
-    // Auto-submit after a short delay
-    setTimeout(() => {
-      const form = document.querySelector('form');
-      if (form) {
-        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-        form.dispatchEvent(submitEvent);
-      }
-    }, 100);
-  };
-
-  const handleTestApi = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-      console.log('🧪 Testing direct API call to:', `${API_BASE_URL}/api/auth/login`);
-      
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'admin@exhibition.com',
-          password: 'admin123'
-        })
-      });
-      
-      console.log('🧪 Direct API response status:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('🧪 Direct API response data:', data);
-        setError(`✅ API Test Successful! Response: ${JSON.stringify(data, null, 2)}`);
-      } else {
-        const errorText = await response.text();
-        console.error('🧪 Direct API error:', errorText);
-        setError(`❌ API Test Failed (${response.status}): ${errorText}`);
-      }
-    } catch (error: any) {
-      console.error('🧪 Direct API test error:', error);
-      setError(`❌ API Test Error: ${error.message}`);
-    } finally {
+      setError('Invalid email or password');
       setIsLoading(false);
     }
   };
@@ -245,14 +104,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="bg-white py-8 px-6 shadow-xl sm:rounded-xl sm:px-10 border border-gray-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="rounded-md bg-red-50 p-4 animate-in fade-in duration-300 border border-red-200">
+              <div className="rounded-md bg-red-50 p-4">
                 <div className="flex">
-                  <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
-                  <div className="ml-3 flex-1">
-                    <h3 className="text-sm font-medium text-red-800">Login Error</h3>
-                    <div className="mt-1 text-sm text-red-700 whitespace-pre-wrap break-words">
-                      {error}
-                    </div>
+                  <AlertCircle className="h-5 w-5 text-red-400" />
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">{error}</h3>
                   </div>
                 </div>
               </div>
@@ -274,9 +130,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
-                  placeholder="admin@exhibition.com"
-                  disabled={isLoading}
+                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter your email"
                 />
               </div>
             </div>
@@ -297,9 +152,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
-                  placeholder="••••••••"
-                  disabled={isLoading}
+                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter your password"
                 />
                 <button
                   type="button"
@@ -316,13 +170,33 @@ const handleSubmit = async (e: React.FormEvent) => {
               </div>
             </div>
 
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  Remember me
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                  Forgot your password?
+                </a>
+              </div>
+            </div>
+
             <div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                     Signing in...
@@ -334,17 +208,25 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Server className="h-4 w-4 text-gray-400" />
-                <p className="text-xs text-gray-500">
-                  API Endpoint: {apiUrl}/api/auth/login
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">System Information</span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-3">
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  Exhibition Management System v1.0
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  For demo purposes only. All data is simulated.
                 </p>
               </div>
-              <p className="text-xs text-gray-400 mt-1">
-                Check browser console for detailed debug information
-              </p>
             </div>
           </div>
         </div>

@@ -10,11 +10,10 @@ import {
   Ruler, MapPin, Package, Truck, AlertCircle, CheckCircle, Maximize2,
   Minimize2, Search, Scissors, Home, Filter, Settings, Menu, X,
   ChevronLeft, ChevronRight, Smartphone, Tablet, Monitor as MonitorIcon,
-  Expand, Minimize, SaveAll, FolderOpen, FileText, FolderTree,
-  BookOpen, Database, CloudUpload, CloudDownload
+  Expand, Minimize
 } from "lucide-react";
 import type { Options as Html2CanvasOptions } from "html2canvas";
-import { api } from "@/lib/api";
+
 
 type ShapeType = "rectangle" | "square" | "circle" | "ellipse" | 
                  "triangle" | "hexagon" | "octagon" | "star" | 
@@ -84,7 +83,7 @@ export default function ProfessionalExhibitionEditor() {
   const [shapes, setShapes] = useState<Shape[]>([
     {
       id: "booth-1",
-      type: "booth",
+      type: "booth" as ShapeType,
       x: 100,
       y: 100,
       width: 80,
@@ -96,11 +95,13 @@ export default function ProfessionalExhibitionEditor() {
       fontSize: 12,
       text: "Booth 1",
       zIndex: 1,
+      isLocked: false,
       metadata: {
         boothNumber: "1",
         companyName: "TechCorp Inc.",
         status: "booked",
-        category: "Technology"
+        category: "Technology",
+        notes: "VIP Client"
       }
     }
   ]);
@@ -141,21 +142,6 @@ export default function ProfessionalExhibitionEditor() {
   const [isToolsOpen, setIsToolsOpen] = useState(true);
   const [deviceMode, setDeviceMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isFullscreen, setIsFullscreen] = useState(false);
-  
-  // Floor plan management state
-  const [floorPlans, setFloorPlans] = useState<FloorPlanData[]>([]);
-  const [currentFloorPlan, setCurrentFloorPlan] = useState<FloorPlanData>({
-    name: "New Floor Plan",
-    description: "",
-    floor: "1",
-    scale: 0.1,
-    gridSize: 20,
-    shapes: []
-  });
-  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
-  const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
-  const [saveName, setSaveName] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Professional color palette
   const colorPalette = [
@@ -171,26 +157,26 @@ export default function ProfessionalExhibitionEditor() {
   ];
 
   const exhibitionShapes = [
-    { type: "booth", label: "Booth", icon: Building2, category: "booths" },
-    { type: "table", label: "Table", icon: Table, category: "fixtures" },
-    { type: "chair", label: "Chair", icon: Armchair, category: "fixtures" },
-    { type: "door", label: "Door", icon: DoorOpen, category: "fixtures" },
-    { type: "stairs", label: "Stairs", icon: MoveVertical, category: "fixtures" },
-    { type: "toilet", label: "Toilet", icon: Toilet, category: "fixtures" },
-    { type: "register", label: "Register", icon: Printer, category: "fixtures" },
-    { type: "stage", label: "Stage", icon: Speaker, category: "fixtures" },
-    { type: "screen", label: "Screen", icon: Monitor, category: "fixtures" },
-    { type: "speaker", label: "Speaker", icon: Speaker, category: "fixtures" },
-    { type: "cafe", label: "Cafe", icon: Coffee, category: "fixtures" },
-    { type: "storage", label: "Storage", icon: Package, category: "fixtures" },
-    { type: "truck", label: "Loading", icon: Truck, category: "fixtures" },
-    { type: "pillar", label: "Pillar", icon: Square, category: "fixtures" },
-    { type: "info", label: "Info Desk", icon: MapPin, category: "fixtures" },
-    { type: "emergency", label: "Emergency", icon: AlertCircle, category: "fixtures" },
-    { type: "rectangle", label: "Rectangle", icon: Square, category: "basic" },
-    { type: "square", label: "Square", icon: Square, category: "basic" },
-    { type: "circle", label: "Circle", icon: Circle, category: "basic" },
-    { type: "text", label: "Text", icon: Type, category: "text" },
+    { type: "booth" as ShapeType, label: "Booth", icon: Building2, category: "booths" },
+    { type: "table" as ShapeType, label: "Table", icon: Table, category: "fixtures" },
+    { type: "chair" as ShapeType, label: "Chair", icon: Armchair, category: "fixtures" },
+    { type: "door" as ShapeType, label: "Door", icon: DoorOpen, category: "fixtures" },
+    { type: "stairs" as ShapeType, label: "Stairs", icon: MoveVertical, category: "fixtures" },
+    { type: "toilet" as ShapeType, label: "Toilet", icon: Toilet, category: "fixtures" },
+    { type: "register" as ShapeType, label: "Register", icon: Printer, category: "fixtures" },
+    { type: "stage" as ShapeType, label: "Stage", icon: Speaker, category: "fixtures" },
+    { type: "screen" as ShapeType, label: "Screen", icon: Monitor, category: "fixtures" },
+    { type: "speaker" as ShapeType, label: "Speaker", icon: Speaker, category: "fixtures" },
+    { type: "cafe" as ShapeType, label: "Cafe", icon: Coffee, category: "fixtures" },
+    { type: "storage" as ShapeType, label: "Storage", icon: Package, category: "fixtures" },
+    { type: "truck" as ShapeType, label: "Loading", icon: Truck, category: "fixtures" },
+    { type: "pillar" as ShapeType, label: "Pillar", icon: Square, category: "fixtures" },
+    { type: "info" as ShapeType, label: "Info Desk", icon: MapPin, category: "fixtures" },
+    { type: "emergency" as ShapeType, label: "Emergency", icon: AlertCircle, category: "fixtures" },
+    { type: "rectangle" as ShapeType, label: "Rectangle", icon: Square, category: "basic" },
+    { type: "square" as ShapeType, label: "Square", icon: Square, category: "basic" },
+    { type: "circle" as ShapeType, label: "Circle", icon: Circle, category: "basic" },
+    { type: "text" as ShapeType, label: "Text", icon: Type, category: "text" },
   ];
 
   const statusColors = {
@@ -200,7 +186,7 @@ export default function ProfessionalExhibitionEditor() {
     maintenance: "#ef4444"
   };
 
-  // Load floor plans on mount
+  // Device detection
   useEffect(() => {
     loadFloorPlans();
   }, []);
@@ -405,40 +391,26 @@ export default function ProfessionalExhibitionEditor() {
     return () => clearInterval(interval);
   }, [currentFloorPlan]);
 
-  // ================= FILE OPERATIONS =================
-  
-  const handleUpload = async () => {
+  /* ================= FILE OPERATIONS ================= */
+  const handleUpload = () => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
     input.onchange = async e => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
-      
       setIsLoading(true);
       const reader = new FileReader();
-      reader.onload = async () => {
+      reader.onload = () => {
         const img = new Image();
-        img.onload = async () => {
+        img.onload = () => {
           setImage(reader.result as string);
           setImageDimensions({
             width: img.width,
             height: img.height
           });
+          // Center the image
           setPanOffset({ x: 50, y: 50 });
-          
-          // If we have a current floor plan, save the image
-          if (currentFloorPlan.id) {
-            try {
-              const response = await api.floorPlans.uploadFloorPlanImage(currentFloorPlan.id, file);
-              if (response.success) {
-                console.log('Image uploaded to server');
-              }
-            } catch (error) {
-              console.error('Error uploading image:', error);
-            }
-          }
-          
           setIsLoading(false);
         };
         img.src = reader.result as string;
@@ -490,33 +462,37 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
       useCORS: true,
     });
 
-    canvas.toBlob(blob => {
-      if (blob) {
-        api.downloadFile(blob, `floor-plan-${currentFloorPlan.name}.png`);
-      }
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-
-  const handleSave = () => {
-    if (currentFloorPlan.id && currentFloorPlan.name !== "New Floor Plan") {
-      // Auto-save existing floor plan
-      saveFloorPlanToBackend(currentFloorPlan);
-    } else {
-      // Open save dialog for new floor plan
-      setIsSaveDialogOpen(true);
-      setSaveName(currentFloorPlan.name || "New Floor Plan");
+      const canvas = await html2canvas(containerRef.current!, options);
+      const link = document.createElement("a");
+      link.download = `exhibition-floor-plan-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleLoad = () => {
-    setIsLoadDialogOpen(true);
+  const handleSave = () => {
+    const data = {
+      shapes,
+      image,
+      scale,
+      createdAt: new Date().toISOString(),
+      version: "1.0"
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'exhibition-plan.json';
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
-  const handleLoadFromFile = () => {
+  const handleLoad = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -527,13 +503,10 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const data = JSON.parse(e.target?.result as string) as FloorPlanData;
-          setCurrentFloorPlan(data);
+          const data = JSON.parse(e.target?.result as string);
           setShapes(data.shapes || []);
           setImage(data.image || null);
           setScale(data.scale || 0.1);
-          setGridSize(data.gridSize || 20);
-          alert('Floor plan loaded from file!');
         } catch (error) {
           console.error('Error loading file:', error);
           alert('Error loading file. Please check the file format.');
@@ -544,23 +517,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
     input.click();
   };
 
-  const handleNewFloorPlan = () => {
-    if (confirm('Create new floor plan? Any unsaved changes will be lost.')) {
-      setCurrentFloorPlan({
-        name: "New Floor Plan",
-        description: "",
-        floor: "1",
-        scale: 0.1,
-        gridSize: 20,
-        shapes: []
-      });
-      setImage(null);
-      setShapes([]);
-      setSelectedId(null);
-    }
-  };
-
-  // ================= UTILITY FUNCTIONS =================
+  /* ================= UTILITY FUNCTIONS ================= */
   const getCoordinates = (clientX: number, clientY: number) => {
     if (!containerRef.current) return { x: 0, y: 0 };
     const rect = containerRef.current.getBoundingClientRect();
@@ -575,7 +532,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
     return { x, y };
   };
 
-  // ================= DRAWING & INTERACTION - MOUSE EVENTS =================
+  /* ================= DRAWING & INTERACTION - MOUSE EVENTS ================= */
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!containerRef.current) return;
@@ -614,6 +571,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
         fontSize,
         text: shapeType === "text" ? "Text" : getDefaultText(shapeType),
         zIndex: shapes.length,
+        isLocked: false,
         metadata: shapeType === "booth" ? {
           boothNumber: (shapes.filter(s => s.type === "booth").length + 1).toString(),
           status: "available",
@@ -720,7 +678,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
     setTempShape(null);
   };
 
-  // ================= TOUCH EVENTS FOR MOBILE =================
+  /* ================= TOUCH EVENTS FOR MOBILE ================= */
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault();
     if (!containerRef.current) return;
@@ -760,6 +718,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
         fontSize,
         text: shapeType === "text" ? "Text" : getDefaultText(shapeType),
         zIndex: shapes.length,
+        isLocked: false,
         metadata: shapeType === "booth" ? {
           boothNumber: (shapes.filter(s => s.type === "booth").length + 1).toString(),
           status: "available",
@@ -843,7 +802,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
     setTempShape(null);
   };
 
-  // ================= SHAPE ACTIONS =================
+  /* ================= SHAPE ACTIONS ================= */
   const handleShapeClick = (shapeId: string, e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     if (currentTool === "select") {
@@ -860,6 +819,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
       setShapes(prev => prev.filter(s => s.id !== selectedId));
       setSelectedId(null);
       setShowBoothDetails(false);
+      toast.success('Shape deleted');
     }
   };
 
@@ -875,6 +835,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
         };
         setShapes(prev => [...prev, duplicate]);
         setSelectedId(duplicate.id);
+        toast.success('Shape duplicated');
       }
     }
   };
@@ -888,6 +849,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
             : s
         )
       );
+      toast.success('Shape rotated');
     }
   };
 
@@ -947,6 +909,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
             : s
         )
       );
+      toast.success('Brought to front');
     }
   };
 
@@ -960,6 +923,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
             : s
         )
       );
+      toast.success('Sent to back');
     }
   };
 
@@ -972,15 +936,17 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
             : s
         )
       );
+      const selected = shapes.find(s => s.id === selectedId);
+      toast.success(selected?.isLocked ? 'Shape unlocked' : 'Shape locked');
     }
   };
 
-  const updateShapeMetadata = (metadata: Partial<Shape['metadata']>) => {
+  const updateSelectedText = (text: string) => {
     if (selectedId) {
       setShapes(prev =>
         prev.map(s =>
           s.id === selectedId
-            ? { ...s, metadata: { ...s.metadata, ...metadata } }
+            ? { ...s, text }
             : s
         )
       );
@@ -989,7 +955,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
 
   const selectedShape = shapes.find(s => s.id === selectedId);
 
-  // ================= LAYERS =================
+  /* ================= LAYERS ================= */
   const toggleLayerVisibility = (layerId: string) => {
     setLayers(prev =>
       prev.map(layer =>
@@ -1010,19 +976,23 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
     );
   };
 
-  const getShapeIcon = (type: ShapeType) => {
-    const shapeDef = exhibitionShapes.find(s => s.type === type);
-    return shapeDef?.icon || Square;
+  const getShapesForActiveLayer = () => {
+    const layer = layers.find(l => l.id === activeLayer);
+    if (!layer) return shapes;
+    
+    return shapes.filter(shape => {
+      const shapeDef = exhibitionShapes.find(s => s.type === shape.type);
+      return shapeDef?.category === layer.category;
+    });
   };
 
-  const calculateDistance = (x1: number, y1: number, x2: number, y2: number) => {
-    const dx = Math.abs(x2 - x1);
-    const dy = Math.abs(y2 - y1);
+  const calculateMeasurement = () => {
+    if (!measurementLine) return '';
+    const dx = measurementLine.x2 - measurementLine.x1;
+    const dy = measurementLine.y2 - measurementLine.y1;
     const pixels = Math.sqrt(dx * dx + dy * dy);
-    return {
-      pixels: Math.round(pixels),
-      meters: Math.round(pixels * scale * 100) / 100
-    };
+    const meters = pixels * scale;
+    return `${meters.toFixed(2)}m (${pixels.toFixed(0)}px)`;
   };
 
   const getDefaultText = (type: ShapeType): string => {
@@ -1042,14 +1012,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
     return num && !isNaN(num) ? num : 0;
   };
 
-  // Filter floor plans based on search query
-  const filteredFloorPlans = floorPlans.filter(plan =>
-    plan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (plan.description && plan.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    plan.floor.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // ================= KEYBOARD SHORTCUTS =================
+  /* ================= KEYBOARD SHORTCUTS ================= */
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -1104,12 +1067,6 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
             setIsFullscreen(!isFullscreen);
           }
           break;
-        case "n":
-          if (e.ctrlKey) {
-            e.preventDefault();
-            handleNewFloorPlan();
-          }
-          break;
       }
     };
 
@@ -1128,217 +1085,6 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
 
   const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
 
-  // ================= MODAL COMPONENTS =================
-
-  const SaveFloorPlanModal = () => (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Save Floor Plan</h3>
-            <p className="text-sm text-gray-500">Save your floor plan to the server</p>
-          </div>
-          <button
-            onClick={() => setIsSaveDialogOpen(false)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-hidden p-6">
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-gray-600 mb-2 block">Floor Plan Name *</label>
-              <input
-                type="text"
-                value={saveName}
-                onChange={(e) => setSaveName(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter floor plan name"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-gray-600 mb-2 block">Description (Optional)</label>
-              <textarea
-                value={currentFloorPlan.description}
-                onChange={(e) => setCurrentFloorPlan(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={3}
-                placeholder="Enter description"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm text-gray-600 mb-1 block">Floor</label>
-                <input
-                  type="text"
-                  value={currentFloorPlan.floor}
-                  onChange={(e) => setCurrentFloorPlan(prev => ({ ...prev, floor: e.target.value }))}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., 1, 2, Ground"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-gray-600 mb-1 block">Scale (px/m)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={scale}
-                  onChange={(e) => setScale(parseFloat(e.target.value))}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsSaveDialogOpen(false)}
-                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveToBackend}
-                disabled={!saveName.trim() || isLoading}
-                className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isLoading ? <Loader2 size={16} className="animate-spin" /> : <SaveAll size={16} />}
-                {currentFloorPlan.id ? 'Update' : 'Save'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const LoadFloorPlanModal = () => (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Load Floor Plan</h3>
-            <p className="text-sm text-gray-500">Select a floor plan to load</p>
-          </div>
-          <button
-            onClick={() => setIsLoadDialogOpen(false)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-gray-200">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={16} className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Search floor plans..."
-              />
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 size={24} className="text-blue-500 animate-spin" />
-                <span className="ml-2 text-gray-600">Loading floor plans...</span>
-              </div>
-            ) : filteredFloorPlans.length === 0 ? (
-              <div className="text-center py-12">
-                <FolderTree size={48} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="font-medium text-gray-700 mb-2">No floor plans found</h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  {searchQuery ? 'Try a different search term' : 'No floor plans saved yet'}
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                {filteredFloorPlans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-blue-100 p-2 rounded-lg">
-                            <Building2 size={16} className="text-blue-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900">{plan.name}</h4>
-                            <p className="text-sm text-gray-500">
-                              Floor {plan.floor} • {plan.shapes?.length || 0} shapes • {plan.scale} px/m
-                            </p>
-                            {plan.description && (
-                              <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => loadFloorPlanFromBackend(plan.id!)}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center gap-2"
-                          disabled={isLoading}
-                        >
-                          <FolderOpen size={14} />
-                          Load
-                        </button>
-                        <button
-                          onClick={() => deleteFloorPlanFromBackend(plan.id!)}
-                          className="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm"
-                          disabled={isLoading}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </div>
-                    {plan.metadata?.updatedAt && (
-                      <div className="text-xs text-gray-400 mt-2">
-                        Last updated: {new Date(plan.metadata.updatedAt).toLocaleDateString()}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex gap-3">
-              <button
-                onClick={handleLoadFromFile}
-                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium flex items-center justify-center gap-2"
-              >
-                <Upload size={16} />
-                Load from File
-              </button>
-              <button
-                onClick={loadFloorPlans}
-                className="px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium flex items-center justify-center gap-2"
-                disabled={isLoading}
-              >
-                <RotateCw size={16} className={isLoading ? 'animate-spin' : ''} />
-                Refresh
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Main JSX remains mostly the same as your original, just with added backend functionality
   return (
     <div className={`flex flex-col h-screen bg-gray-50 ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
       {/* HEADER */}
@@ -1363,14 +1109,21 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
             </div>
           </div>
 
-          {/* Center: Floor Plan Info */}
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
-              <Database size={14} className="text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">{currentFloorPlan.name}</span>
-              {currentFloorPlan.id && (
-                <span className="text-xs text-gray-500">(Saved)</span>
-              )}
+          {/* Center: Stats & Status */}
+          <div className="hidden md:flex items-center gap-6">
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-gray-600">{shapes.filter(s => s.type === 'booth').length} Booths</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600">{shapes.length} Objects</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span className="text-gray-600">Scale: 1px = {scale}m</span>
+              </div>
             </div>
           </div>
 
@@ -1413,26 +1166,17 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
             {/* File Actions */}
             <div className="flex items-center gap-1">
               <button
-                onClick={handleNewFloorPlan}
-                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm flex items-center gap-2"
-                title="New (Ctrl+N)"
-              >
-                <FileText size={14} />
-                <span className="hidden sm:inline">New</span>
-              </button>
-              <button
                 onClick={handleLoad}
-                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm flex items-center gap-2"
+                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm flex items-center gap-2"
               >
-                <CloudDownload size={14} />
+                <Save size={14} />
                 <span className="hidden sm:inline">Load</span>
               </button>
               <button
                 onClick={handleSave}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center gap-2"
-                title="Save (Ctrl+S)"
+                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm flex items-center gap-2"
               >
-                <CloudUpload size={14} />
+                <Save size={14} />
                 <span className="hidden sm:inline">Save</span>
               </button>
               <button
@@ -1444,7 +1188,7 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
                 <span className="hidden sm:inline">Upload</span>
               </button>
               <button
-                onClick={() => handleExport('png')}
+                onClick={handleExport}
                 disabled={isLoading}
                 className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm flex items-center gap-2 disabled:opacity-50"
               >
@@ -2267,275 +2011,498 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
                         </div>
                       </div>
 
-                      <div className="pt-4">
-                        <button
-                          onClick={deleteSelected}
-                          className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Trash2 size={14} />
-                          Delete Booth
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <h3 className="font-semibold text-gray-800">Shape Properties</h3>
-                    
-                    {/* Basic Properties */}
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm text-gray-600 mb-2 block">Type</label>
-                        <div className="text-sm text-gray-800 bg-gray-50 p-3 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            {(() => {
-                              const Icon = getShapeIcon(selectedShape.type);
-                              return <Icon size={14} />;
-                            })()}
-                            <span className="capitalize">{selectedShape.type}</span>
-                          </div>
-                        </div>
-                      </div>
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            Border Width: {selected.borderWidth}px
+          </label>
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={selected.borderWidth}
+            onChange={(e) => {
+              setShapes(prev =>
+                prev.map(s => s.id === selectedId ? { ...s, borderWidth: parseInt(e.target.value) } : s)
+              );
+            }}
+            style={{ width: '100%' }}
+          />
+        </div>
 
-                      {/* Position */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Position</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">X (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.x) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, x: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              step="0.1"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Y (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.y) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, y: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              step="0.1"
-                            />
-                          </div>
-                        </div>
-                      </div>
+        {selected.type === 'text' && (
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+              Text
+            </label>
+            <input
+              type="text"
+              value={selected.text}
+              onChange={(e) => updateSelectedText(e.target.value)}
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+            />
+          </div>
+        )}
 
-                      {/* Size */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Size</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Width (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.width) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, width: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              min="0.1"
-                              step="0.1"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Height (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.height) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, height: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              min="0.1"
-                              step="0.1"
-                            />
-                          </div>
-                        </div>
-                      </div>
+        {selected.type === 'text' && (
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+              Font Size: {selected.fontSize}px
+            </label>
+            <input
+              type="range"
+              min="8"
+              max="48"
+              value={selected.fontSize}
+              onChange={(e) => {
+                setShapes(prev =>
+                  prev.map(s => s.id === selectedId ? { ...s, fontSize: parseInt(e.target.value) } : s)
+                );
+              }}
+              style={{ width: '100%' }}
+            />
+          </div>
+        )}
 
-                      {/* Appearance */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Appearance</h4>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Fill Color</label>
-                            <input
-                              type="color"
-                              value={selectedShape.color}
-                              onChange={e => {
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, color: e.target.value }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full h-10 cursor-pointer rounded-lg border border-gray-300"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Border Color</label>
-                            <input
-                              type="color"
-                              value={selectedShape.borderColor}
-                              onChange={e => {
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, borderColor: e.target.value }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full h-10 cursor-pointer rounded-lg border border-gray-300"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">
-                              Border Width: {selectedShape.borderWidth}px
-                            </label>
-                            <input
-                              type="range"
-                              min="0"
-                              max="10"
-                              value={selectedShape.borderWidth}
-                              onChange={e => {
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, borderWidth: parseInt(e.target.value) }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Text Content */}
-                      <div>
-                        <label className="text-sm text-gray-600 mb-1 block">Text Content</label>
-                        <input
-                          type="text"
-                          value={selectedShape.text || ""}
-                          onChange={e => {
-                            setShapes(prev =>
-                              prev.map(s =>
-                                s.id === selectedId
-                                  ? { ...s, text: e.target.value }
-                                  : s
-                              )
-                            );
-                          }}
-                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Enter text here..."
-                        />
-                      </div>
-
-                      {/* Delete Button */}
-                      <div className="pt-4">
-                        <button
-                          onClick={deleteSelected}
-                          className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Trash2 size={14} />
-                          Delete Shape
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                  <Building2 size={48} className="text-gray-300 mb-4" />
-                  <h3 className="font-medium text-gray-700 mb-2">No Selection</h3>
-                  <p className="text-sm text-gray-500 mb-6">Select a shape to view and edit its properties</p>
-                  <div className="text-xs text-gray-400 space-y-1">
-                    <p>• Click on any shape to select it</p>
-                    <p>• Use the draw tool to add new shapes</p>
-                    <p>• Customize colors, sizes, and text</p>
-                  </div>
-                </div>
-              )}
+        {selected.type === 'booth' && selected.metadata && (
+          <>
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Booth Number
+              </label>
+              <input
+                type="text"
+                value={selected.metadata.boothNumber || ''}
+                onChange={(e) => updateBoothMetadata('boothNumber', e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+              />
             </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Status
+              </label>
+              <select
+                value={selected.metadata.status || 'available'}
+                onChange={(e) => updateBoothMetadata('status', e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+              >
+                <option value="available">Available</option>
+                <option value="booked">Booked</option>
+                <option value="reserved">Reserved</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Category
+              </label>
+              <input
+                type="text"
+                value={selected.metadata.category || ''}
+                onChange={(e) => updateBoothMetadata('category', e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Notes
+              </label>
+              <textarea
+                value={selected.metadata.notes || ''}
+                onChange={(e) => updateBoothMetadata('notes', e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db', minHeight: '60px' }}
+              />
+            </div>
+          </>
+        )}
+
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            Rotation: {selected.rotation}°
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="360"
+            value={selected.rotation}
+            onChange={(e) => {
+              setShapes(prev =>
+                prev.map(s => s.id === selectedId ? { ...s, rotation: parseInt(e.target.value) } : s)
+              );
+            }}
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <button
+          onClick={toggleLock}
+          style={{
+            width: '100%',
+            padding: '8px',
+            marginBottom: '8px',
+            backgroundColor: selected.isLocked ? '#ef4444' : '#10b981',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          {selected.isLocked ? 'Unlock' : 'Lock'}
+        </button>
+
+        <button
+          onClick={deleteSelected}
+          style={{
+            width: '100%',
+            padding: '8px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          Delete
+        </button>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff' }}>
+      <Toaster />
+      
+      <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+          <button
+            onClick={handleUpload}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Upload size={16} /> Upload Background
+          </button>
+          
+          <button
+            onClick={handleSave}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Save size={16} /> Save
+          </button>
+
+          <button
+            onClick={handleLoad}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#8b5cf6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Download size={16} /> Load
+          </button>
+
+          <button
+            onClick={() => exportFloorPlan('png')}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Download size={16} /> Export
+          </button>
+
+          <button
+            onClick={createNewPlan}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#6366f1',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Plus size={16} /> New
+          </button>
+        </div>
+
+        {renderToolbar()}
+      </div>
+
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+          <div style={{
+            flex: 1,
+            overflow: 'auto',
+            backgroundColor: '#f3f4f6',
+            position: 'relative',
+          }}>
+            <div
+              ref={containerRef}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{
+                position: 'relative',
+                width: imageDimensions?.width || 800,
+                height: imageDimensions?.height || 600,
+                margin: 'auto',
+                backgroundColor: '#ffffff',
+                backgroundImage: image ? `url(${image})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                transform: `scale(${zoom}) translate(${panOffset.x}px, ${panOffset.y}px)`,
+                transformOrigin: '0 0',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              }}
+            >
+              {renderGrid()}
+              {shapes.map(shape => renderShape(shape))}
+              {tempShape && renderShape(tempShape)}
+              {selectedId && renderSelectionHandles()}
+              {renderMeasurementLine()}
+            </div>
+          </div>
+        </div>
+
+        {isPropertiesOpen && deviceMode !== 'mobile' && (
+          <div style={{
+            width: '300px',
+            borderLeft: '1px solid #e5e7eb',
+            overflow: 'auto',
+            padding: '12px',
+            backgroundColor: '#f9fafb',
+          }}>
+            {renderPropertiesPanel()}
           </div>
         )}
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      {deviceMode === "mobile" && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-lg z-50">
-          <div className="flex items-center justify-around">
+      {showSaveModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>
+              Save Floor Plan
+            </h2>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Plan Name
+              </label>
+              <input
+                type="text"
+                value={planName}
+                onChange={(e) => setPlanName(e.target.value)}
+                placeholder="e.g., Exhibition 2024"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #d1d5db',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Description
+              </label>
+              <textarea
+                value={planDescription}
+                onChange={(e) => setPlanDescription(e.target.value)}
+                placeholder="Add any notes or description..."
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #d1d5db',
+                  minHeight: '80px',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => saveFloorPlanToBackend()}
+                disabled={isSaving}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  backgroundColor: isSaving ? '#d1d5db' : '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                }}
+              >
+                {isSaving ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={16} />}
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                onClick={() => setShowSaveModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  backgroundColor: '#e5e7eb',
+                  color: 'black',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLoadModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '500px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+            maxHeight: '80vh',
+            overflow: 'auto',
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>
+              Load Floor Plan
+            </h2>
+
+            {isLoadingPlans ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                <Loader2 size={24} style={{ animation: 'spin 1s linear infinite', margin: '0 auto', marginBottom: '8px' }} />
+                <p>Loading floor plans...</p>
+              </div>
+            ) : floorPlans.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#666' }}>
+                <p>No floor plans found. Create a new one first!</p>
+              </div>
+            ) : (
+              <div style={{ maxHeight: '400px', overflow: 'auto' }}>
+                {floorPlans.map(plan => (
+                  <div
+                    key={plan.id}
+                    style={{
+                      padding: '12px',
+                      borderBottom: '1px solid #e5e7eb',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    onClick={() => loadFloorPlanFromBackend(plan.id)}
+                  >
+                    <h3 style={{ marginTop: 0, marginBottom: '4px', fontSize: '14px', fontWeight: 'bold' }}>
+                      {plan.name}
+                    </h3>
+                    <p style={{ marginTop: 0, marginBottom: '4px', fontSize: '12px', color: '#666' }}>
+                      {plan.description}
+                    </p>
+                    <p style={{ marginTop: 0, marginBottom: 0, fontSize: '11px', color: '#999' }}>
+                      {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString() : 'Unknown date'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <button
-              onClick={() => setIsToolsOpen(!isToolsOpen)}
-              className={`flex flex-col items-center p-2 ${isToolsOpen ? 'text-blue-600' : 'text-gray-600'}`}
+              onClick={() => setShowLoadModal(false)}
+              style={{
+                width: '100%',
+                marginTop: '16px',
+                padding: '8px',
+                backgroundColor: '#e5e7eb',
+                color: 'black',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+              }}
             >
-              <Settings size={20} />
-              <span className="text-xs mt-1">Tools</span>
-            </button>
-            <button
-              onClick={() => setCurrentTool("select")}
-              className={`flex flex-col items-center p-2 ${currentTool === "select" ? 'text-blue-600' : 'text-gray-600'}`}
-            >
-              <MousePointer size={20} />
-              <span className="text-xs mt-1">Select</span>
-            </button>
-            <button
-              onClick={() => setCurrentTool("draw")}
-              className={`flex flex-col items-center p-2 ${currentTool === "draw" ? 'text-blue-600' : 'text-gray-600'}`}
-            >
-              <Square size={20} />
-              <span className="text-xs mt-1">Draw</span>
-            </button>
-            <button
-              onClick={() => setIsPropertiesOpen(!isPropertiesOpen)}
-              className={`flex flex-col items-center p-2 ${isPropertiesOpen ? 'text-blue-600' : 'text-gray-600'}`}
-            >
-              <Layers size={20} />
-              <span className="text-xs mt-1">Properties</span>
+              Close
             </button>
           </div>
         </div>
@@ -2546,21 +2513,4 @@ const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
       {isLoadDialogOpen && <LoadFloorPlanModal />}
     </div>
   );
-}
-
-// Helper function for border radius
-function getBorderRadius(shapeType: ShapeType): string {
-  switch (shapeType) {
-    case 'circle':
-    case 'pillar':
-      return '50%';
-    case 'triangle':
-      return '0';
-    case 'hexagon':
-      return '30%';
-    case 'octagon':
-      return '20%';
-    default:
-      return '6px';
-  }
 }
