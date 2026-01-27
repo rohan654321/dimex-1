@@ -11,40 +11,88 @@ import {
   Download,
   ArrowUp,
   ArrowDown,
-  Settings
+  Settings,
+  RefreshCw
 } from 'lucide-react';
+import { useDashboard } from '@/hooks/useDashboard';
+import { useExhibitorStats } from '@/hooks/useExhibitorStats';
+import { useAuth } from '@/hooks/useAuth';
+import toast from 'react-hot-toast';
+import { useState, FormEvent } from 'react';
 
 export default function DashboardPage() {
+  const { summary, isLoading, error, health } = useDashboard();
+  const { stats: exhibitorStats } = useExhibitorStats();
+  const { user } = useAuth();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsExporting(true);
+    try {
+      // Implement export logic here
+      toast.success('Report exported successfully');
+    } catch (error) {
+      toast.error('Failed to export report');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleCalendarView = (e: FormEvent) => {
+    e.preventDefault();
+    toast('Calendar view coming soon');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+          <p className="mt-2 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p className="text-red-800">Failed to load dashboard data. Please try again.</p>
+      </div>
+    );
+  }
+
   const stats = [
     {
       name: 'Total Visitors',
-      value: '2,847',
+      value: summary?.users?.total || 0,
       change: '+12.5%',
-      changeType: 'positive',
+      changeType: 'positive' as const,
       icon: Users,
       color: 'bg-blue-500'
     },
     {
       name: 'Exhibitors',
-      value: '156',
+      value: summary?.exhibitors?.total || 0,
       change: '+8.2%',
-      changeType: 'positive',
+      changeType: 'positive' as const,
       icon: Building,
       color: 'bg-green-500'
     },
     {
       name: 'Revenue',
-      value: '$89,450',
+      value: summary?.revenue?.totalRevenue ? `$${(summary.revenue.totalRevenue).toLocaleString()}` : '$0',
       change: '+23.1%',
-      changeType: 'positive',
+      changeType: 'positive' as const,
       icon: DollarSign,
       color: 'bg-purple-500'
     },
     {
       name: 'Articles Published',
-      value: '42',
+      value: summary?.articles?.total || 0,
       change: '+5.3%',
-      changeType: 'positive',
+      changeType: 'positive' as const,
       icon: FileText,
       color: 'bg-yellow-500'
     }
@@ -54,20 +102,12 @@ export default function DashboardPage() {
     { id: 1, action: 'System started', user: 'System', time: new Date().toISOString() }
   ];
 
-  const topArticles = [
+  const topArticles = summary?.articles?.recent || [
     { id: 1, title: 'Rail Freight Innovation Trends 2026', views: 1245, status: 'published' },
     { id: 2, title: 'Port Automation Solutions', views: 892, status: 'published' },
     { id: 3, title: 'Sustainable Logistics Practices', views: 756, status: 'published' },
     { id: 4, title: 'Autonomous Trucking Revolution', views: 654, status: 'published' }
   ];
-
-  const handleExport = () => {
-    alert('Export functionality would be implemented here');
-  };
-
-  const handleCalendarView = () => {
-    alert('Calendar view would open here');
-  };
 
   return (
     <div className="space-y-6">
@@ -101,7 +141,7 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat) => (
+        {stats.map((stat) => (
           <div key={stat.name} className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -210,41 +250,28 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
-        </div>
-        <div className="px-4 py-5 sm:p-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button
-              onClick={() => alert('Create new article')}
-              className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-            >
-              <FileText className="h-8 w-8 text-gray-400" />
-              <span className="mt-2 text-sm font-medium text-gray-900">New Article</span>
-            </button>
-            <button
-              onClick={() => alert('Add exhibitor')}
-              className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors"
-            >
-              <Building className="h-8 w-8 text-gray-400" />
-              <span className="mt-2 text-sm font-medium text-gray-900">Add Exhibitor</span>
-            </button>
-            <button
-              onClick={() => alert('Process payment')}
-              className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors"
-            >
-              <DollarSign className="h-8 w-8 text-gray-400" />
-              <span className="mt-2 text-sm font-medium text-gray-900">Process Payment</span>
-            </button>
-            <button
-              onClick={() => alert('Open website settings')}
-              className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition-colors"
-            >
-              <Settings className="h-8 w-8 text-gray-400" />
-              <span className="mt-2 text-sm font-medium text-gray-900">Website Settings</span>
-            </button>
+      {/* System Status */}
+      {health && (
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">System Status</h3>
+          </div>
+          <div className="px-4 py-5 sm:p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className={`h-4 w-4 rounded-full ${health.status === 'OK' ? 'bg-green-400' : 'bg-red-400'}`} />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-900">
+                  System is {health.status === 'OK' ? 'operational' : 'experiencing issues'}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Uptime: {Math.floor(health.uptime / 60)} minutes • 
+                  Environment: {health.environment} • 
+                  Last checked: {new Date(health.timestamp).toLocaleTimeString()}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

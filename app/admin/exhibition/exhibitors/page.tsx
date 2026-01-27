@@ -1,154 +1,267 @@
 "use client";
 
-import { useState } from 'react';
-import { Search, Plus, Edit, Trash2, Eye, Mail, Phone, Building, CheckCircle, XCircle } from 'lucide-react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import {
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Mail,
+  Phone,
+  Building,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  Download,
+  Filter,
+  Key,
+  EyeOff,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
-interface Exhibitor {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  sector: string;
-  booth: string;
-  status: 'active' | 'inactive' | 'pending' | 'approved' | 'rejected';
-  registrationDate: string;
-  website: string;
-  createdAt?: string;
-  stallDetails?: any;
-}
+import { useExhibitors } from "@/hooks/useExhibitors";
+import { useExhibitorStats } from "@/hooks/useExhibitorStats";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Exhibitor,
+  ExhibitorStatus,
+} from "@/lib/api/exhibitors";
 
-interface StatusStat {
-  _id: string;
-  count: number;
-}
-
-interface SectorStat {
-  _id: string;
-  count: number;
-}
-
-interface ExhibitorStats {
-  byStatus?: StatusStat[];
-  bySector?: SectorStat[];
-  total?: number;
-}
-
+/* =======================
+   PAGE
+======================= */
 export default function ExhibitorsPage() {
-  const [search, setSearch] = useState('');
-  const [selectedSector, setSelectedSector] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  
-  const [exhibitors, setExhibitors] = useState<Exhibitor[]>([
-    {
-      id: '1',
-      name: 'John Smith',
-      email: 'john@abclogistics.com',
-      phone: '+1 (555) 123-4567',
-      company: 'ABC Logistics',
-      sector: 'Rail',
-      booth: 'A-12',
-      status: 'approved',
-      registrationDate: '2024-01-15',
-      website: 'https://abclogistics.com'
-    },
-    {
-      id: '2',
-      name: 'Jane Doe',
-      email: 'jane@xyzshipping.com',
-      phone: '+1 (555) 987-6543',
-      company: 'XYZ Shipping Co.',
-      sector: 'Maritime',
-      booth: 'B-08',
-      status: 'approved',
-      registrationDate: '2024-01-14',
-      website: 'https://xyzshipping.com'
-    },
-    {
-      id: '3',
-      name: 'Robert Chen',
-      email: 'robert@techlogistics.com',
-      phone: '+1 (555) 456-7890',
-      company: 'Tech Logistics Inc.',
-      sector: 'Technology',
-      booth: 'C-15',
-      status: 'pending',
-      registrationDate: '2024-01-16',
-      website: 'https://techlogistics.com'
-    },
-    {
-      id: '4',
-      name: 'Sarah Johnson',
-      email: 'sarah@warehousesolutions.com',
-      phone: '+1 (555) 234-5678',
-      company: 'Warehouse Solutions Ltd.',
-      sector: 'Warehouse',
-      booth: 'A-22',
-      status: 'approved',
-      registrationDate: '2024-01-12',
-      website: 'https://warehousesolutions.com'
-    },
-    {
-      id: '5',
-      name: 'Michael Brown',
-      email: 'michael@aircargo.com',
-      phone: '+1 (555) 345-6789',
-      company: 'Air Cargo Express',
-      sector: 'Air',
-      booth: 'B-18',
-      status: 'rejected',
-      registrationDate: '2024-01-11',
-      website: 'https://aircargo.com'
-    }
-  ]);
+  const [search, setSearch] = useState("");
+  const [selectedSector, setSelectedSector] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState<
+    "all" | ExhibitorStatus
+  >("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<string | null>(null);
 
-  const sectors = ['all', 'Rail', 'Maritime', 'Air', 'Warehouse', 'Technology'];
-  const statuses = ['all', 'approved', 'pending', 'rejected'];
+  const router = useRouter();
+  const { user } = useAuth();
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this exhibitor?')) {
-      setExhibitors(exhibitors.filter(exhibitor => exhibitor.id !== id));
-    }
-  };
-
-  const handleStatusChange = (id: string, newStatus: Exhibitor['status']) => {
-    setExhibitors(exhibitors.map(exhibitor =>
-      exhibitor.id === id ? { ...exhibitor, status: newStatus } : exhibitor
-    ));
-  };
-
-  const filteredExhibitors = exhibitors.filter(exhibitor => {
-    const matchesSearch = exhibitor.name.toLowerCase().includes(search.toLowerCase()) ||
-                         exhibitor.company.toLowerCase().includes(search.toLowerCase()) ||
-                         exhibitor.email.toLowerCase().includes(search.toLowerCase());
-    const matchesSector = selectedSector === 'all' || exhibitor.sector === selectedSector;
-    const matchesStatus = selectedStatus === 'all' || exhibitor.status === selectedStatus;
-    return matchesSearch && matchesSector && matchesStatus;
+  const {
+    exhibitors,
+    total,
+    isLoading,
+    deleteExhibitor,
+    bulkUpdateStatus,
+    exportExhibitors,
+    updateExhibitor,
+  } = useExhibitors({
+    search: search || undefined,
+    sector: selectedSector !== "all" ? selectedSector : undefined,
+    status: selectedStatus !== "all" ? selectedStatus : undefined,
+    page: currentPage,
+    limit: itemsPerPage,
   });
 
+  const { stats: exhibitorStats, isLoading: statsLoading } =
+    useExhibitorStats();
+
+  const statuses: Array<"all" | ExhibitorStatus> = [
+    "all",
+    "active",
+    "inactive",
+    "pending",
+    "approved",
+    "rejected",
+  ];
+
+  // Define sectors array (you should fetch this from your API or define it statically)
+  const [sectors, setSectors] = useState<string[]>(["all", "Technology", "Healthcare", "Finance", "Retail", "Manufacturing"]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(total / itemsPerPage);
+
+  // Password visibility toggle
+  const togglePasswordVisibility = (id: string) => {
+    setShowPassword(prev => prev === id ? null : id);
+  };
+
+  // Generate pagination numbers
+  const generatePagination = () => {
+    const pages: (number | string)[] = [];
+    
+    if (totalPages <= 7) {
+      // Show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Complex pagination logic
+      if (currentPage <= 4) {
+        // Near the start
+        for (let i = 1; i <= 5; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        // Near the end
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      } else {
+        // In the middle
+        pages.push(1);
+        pages.push('...');
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
+  /* =======================
+     HANDLERS
+  ======================= */
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this exhibitor?")) return;
+
+    setIsDeleting(id);
+    try {
+      await deleteExhibitor(id);
+      toast.success("Exhibitor deleted successfully");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
+  const handleStatusChange = async (
+    id: string,
+    status: ExhibitorStatus
+  ) => {
+    try {
+      await updateExhibitor(id, { status });
+      toast.success("Status updated successfully");
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleBulkStatusChange = async (status: ExhibitorStatus) => {
+    if (!confirm(`Update all exhibitors to ${status}?`)) return;
+
+    try {
+      await bulkUpdateStatus(
+        exhibitors.map((e) => e.id),
+        status
+      );
+      toast.success("Bulk status updated");
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleExport = async (format: "csv" | "excel") => {
+    setIsExporting(true);
+    try {
+      await exportExhibitors(format);
+      toast.success(`Exported as ${format}`);
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  /* =======================
+     HELPERS
+  ======================= */
+  const getStatusColor = (status: ExhibitorStatus) => {
+    switch (status) {
+      case "active":
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "inactive":
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusIcon = (status: ExhibitorStatus) => {
+    switch (status) {
+      case "active":
+      case "approved":
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case "pending":
+        return <Loader2 className="h-4 w-4 text-yellow-600 animate-spin" />;
+      case "rejected":
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      default:
+        return <XCircle className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  /* =======================
+     RENDER
+  ======================= */
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Exhibitors Management</h1>
-          <p className="text-gray-600">Manage exhibition participants and their information</p>
+          <p className="text-gray-600">
+            Managing {total} exhibitors | Showing page {currentPage} of {totalPages}
+          </p>
         </div>
-        <Link
-          href="/admin/exhibition/exhibitors/new"
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Exhibitor
-        </Link>
+        <div className="flex space-x-3">
+          <div className="relative">
+            <button
+              onClick={() => handleExport('csv')}
+              disabled={isExporting || exhibitors.length === 0}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              {isExporting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              Export
+            </button>
+          </div>
+          <button
+            onClick={() => router.push('/admin/exhibition/exhibitors/new')}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Exhibitor
+          </button>
+        </div>
       </div>
 
-      {/* Stats Section */}
+      {/* Stats */}
       {!statsLoading && exhibitorStats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0 rounded-md p-3 bg-blue-100">
+              <div className="shrink-0 rounded-md p-3 bg-blue-100">
                 <Building className="h-6 w-6 text-blue-600" />
               </div>
               <div className="ml-5">
@@ -159,33 +272,33 @@ export default function ExhibitorsPage() {
           </div>
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0 rounded-md p-3 bg-green-100">
+              <div className="shrink-0 rounded-md p-3 bg-green-100">
                 <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">Active</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {exhibitorStats.byStatus?.find((s: { _id: string; }) => s._id === 'active')?.count || 0}
+                  {exhibitorStats.byStatus?.find(s => s._id === 'active')?.count || 0}
                 </p>
               </div>
             </div>
           </div>
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0 rounded-md p-3 bg-yellow-100">
+              <div className="shrink-0 rounded-md p-3 bg-yellow-100">
                 <Loader2 className="h-6 w-6 text-yellow-600" />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">Pending</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {exhibitorStats.byStatus?.find((s: { _id: string; }) => s._id === 'pending')?.count || 0}
+                  {exhibitorStats.byStatus?.find(s => s._id === 'pending')?.count || 0}
                 </p>
               </div>
             </div>
           </div>
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0 rounded-md p-3 bg-purple-100">
+              <div className="shrink-0 rounded-md p-3 bg-purple-100">
                 <Filter className="h-6 w-6 text-purple-600" />
               </div>
               <div className="ml-5">
@@ -210,10 +323,10 @@ export default function ExhibitorsPage() {
               </div>
               <input
                 type="text"
-                placeholder="Search exhibitors..."
+                placeholder="Search by name, company, email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -223,11 +336,11 @@ export default function ExhibitorsPage() {
             <select
               value={selectedSector}
               onChange={(e) => setSelectedSector(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
               {sectors.map(sector => (
                 <option key={sector} value={sector}>
-                  {sector.charAt(0).toUpperCase() + sector.slice(1)}
+                  {sector === 'all' ? 'All Sectors' : sector}
                 </option>
               ))}
             </select>
@@ -237,12 +350,12 @@ export default function ExhibitorsPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              onChange={(e) => setSelectedStatus(e.target.value as "all" | ExhibitorStatus)}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
               {statuses.map(status => (
                 <option key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {status === 'all' ? 'All Status' : status.charAt(0).toUpperCase() + status.slice(1)}
                 </option>
               ))}
             </select>
@@ -251,9 +364,9 @@ export default function ExhibitorsPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Bulk Actions</label>
             <select
-              onChange={(e) => handleBulkStatusUpdate(e.target.value)}
+              onChange={(e) => handleBulkStatusChange(e.target.value as ExhibitorStatus)}
               defaultValue=""
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="" disabled>Update Status...</option>
               <option value="active">Mark as Active</option>
@@ -266,27 +379,27 @@ export default function ExhibitorsPage() {
       </div>
 
       {/* Exhibitors Table */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Exhibitor
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Company & Contact
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Details
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Registration Date
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Password
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Registered
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -298,12 +411,12 @@ export default function ExhibitorsPage() {
                     <Building className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-2 text-sm font-medium text-gray-900">No exhibitors found</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                      {search ? 'Try adjusting your search or filter.' : 'No exhibitors registered yet.'}
+                      {search ? 'Try adjusting your search or filter.' : 'Start by adding your first exhibitor.'}
                     </p>
-                    <div className="mt-6">
+                    <div className="mt-4">
                       <button
-                        onClick={handleCreateExhibitor}
-                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                        onClick={() => router.push('/admin/exhibition/exhibitors/new')}
+                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                       >
                         <Plus className="mr-2 h-4 w-4" />
                         Add First Exhibitor
@@ -312,41 +425,35 @@ export default function ExhibitorsPage() {
                   </td>
                 </tr>
               ) : (
-                exhibitors.map((exhibitor: Exhibitor) => (
+                exhibitors.map((exhibitor) => (
                   <tr key={exhibitor.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
-                          <span className="text-blue-600 font-semibold text-sm">
+                        <div className="h-10 w-10 shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
+                          <span className="text-blue-600 font-semibold">
                             {exhibitor.company?.charAt(0) || 'E'}
                           </span>
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {exhibitor.company}
+                            {exhibitor.company || 'No company'}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {exhibitor.name}
+                            {exhibitor.name || 'No name'}
                           </div>
                           <div className="text-xs text-gray-400">
-                            {exhibitor.sector}
+                            {exhibitor.sector || 'No sector'}
                           </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">
-                        <div className="flex items-center">
-                          <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                          <a href={`mailto:${exhibitor.email}`} className="hover:text-blue-600">
+                          <div className="text-xs text-gray-400 mt-1">
+                            <Mail className="inline h-3 w-3 mr-1" />
                             {exhibitor.email}
-                          </a>
-                        </div>
-                        <div className="flex items-center mt-1">
-                          <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                          <a href={`tel:${exhibitor.phone}`} className="hover:text-blue-600">
-                            {exhibitor.phone}
-                          </a>
+                          </div>
+                          {exhibitor.phone && (
+                            <div className="text-xs text-gray-400">
+                              <Phone className="inline h-3 w-3 mr-1" />
+                              {exhibitor.phone}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -359,63 +466,88 @@ export default function ExhibitorsPage() {
                               href={exhibitor.website.startsWith('http') ? exhibitor.website : `https://${exhibitor.website}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 text-xs"
+                              className="text-blue-600 hover:text-blue-800 text-xs truncate block max-w-xs"
                             >
                               {exhibitor.website}
                             </a>
                           </div>
                         )}
+                        {/* Removed address, city, and country since they don't exist in Exhibitor type */}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         {getStatusIcon(exhibitor.status)}
                         <span className={`ml-2 px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(exhibitor.status)}`}>
-                          {exhibitor.status}
+                          {exhibitor.status?.toUpperCase() || 'UNKNOWN'}
                         </span>
                       </div>
-                      {exhibitor.status === 'pending' && (
-                        <div className="flex space-x-1 mt-2">
+                      {exhibitor.status?.toLowerCase() === 'pending' && (
+                        <div className="flex space-x-2 mt-2">
                           <button
                             onClick={() => handleStatusChange(exhibitor.id, 'approved')}
-                            className="text-green-600 hover:text-green-900 text-xs flex items-center"
-                            title="Approve"
+                            className="text-xs text-green-600 hover:text-green-900"
                           >
-                            <CheckCircle className="h-3 w-3 mr-1" />
                             Approve
                           </button>
                           <button
                             onClick={() => handleStatusChange(exhibitor.id, 'rejected')}
-                            className="text-red-600 hover:text-red-900 text-xs flex items-center"
-                            title="Reject"
+                            className="text-xs text-red-600 hover:text-red-900"
                           >
-                            <XCircle className="h-3 w-3 mr-1" />
                             Reject
                           </button>
                         </div>
                       )}
                     </td>
+                    <td className="px-6 py-4">
+                      {exhibitor.password ? (
+                        <div>
+                          <button
+                            onClick={() => togglePasswordVisibility(exhibitor.id)}
+                            className="text-blue-600 hover:text-blue-900 text-xs flex items-center"
+                          >
+                            <Key className="h-3 w-3 mr-1" />
+                            {showPassword === exhibitor.id ? (
+                              <>
+                                <span className="font-mono">{exhibitor.password}</span>
+                                <EyeOff className="h-3 w-3 ml-1" />
+                              </>
+                            ) : (
+                              <>
+                                <span className="font-mono">••••••••</span>
+                                <Eye className="h-3 w-3 ml-1" />
+                              </>
+                            )}
+                          </button>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {exhibitor.password.length} chars
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No password</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {new Date(exhibitor.registrationDate || exhibitor.createdAt || '').toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
+                        {exhibitor.registrationDate || exhibitor.createdAt ? (
+                          new Date(exhibitor.registrationDate || exhibitor.createdAt!).toLocaleDateString()
+                        ) : (
+                          'Not available'
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-3">
                         <button
-                          onClick={() => handleViewExhibitor(exhibitor.id)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                          title="View"
+                          onClick={() => router.push(`/admin/exhibition/exhibitors/${exhibitor.id}`)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="View Details"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleEditExhibitor(exhibitor.id)}
-                          className="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50"
+                          onClick={() => router.push(`/admin/exhibition/exhibitors/${exhibitor.id}/edit`)}
+                          className="text-green-600 hover:text-green-900"
                           title="Edit"
                         >
                           <Edit className="h-4 w-4" />
@@ -423,7 +555,7 @@ export default function ExhibitorsPage() {
                         <button
                           onClick={() => handleDelete(exhibitor.id)}
                           disabled={isDeleting === exhibitor.id}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="text-red-600 hover:text-red-900 disabled:opacity-50"
                           title="Delete"
                         >
                           {isDeleting === exhibitor.id ? (
@@ -442,95 +574,76 @@ export default function ExhibitorsPage() {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {exhibitors.length > 0 && totalPages > 1 && (
           <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                  currentPage === 1
-                    ? 'text-gray-300 bg-gray-50 cursor-not-allowed'
-                    : 'text-gray-700 bg-white hover:bg-gray-50'
-                }`}
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
+                <ChevronLeft className="h-4 w-4 mr-1" />
                 Previous
               </button>
+              <div className="flex items-center">
+                <span className="text-sm text-gray-700">
+                  Page {currentPage} of {totalPages}
+                </span>
+              </div>
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                  currentPage === totalPages
-                    ? 'text-gray-300 bg-gray-50 cursor-not-allowed'
-                    : 'text-gray-700 bg-white hover:bg-gray-50'
-                }`}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
                 Next
+                <ChevronRight className="h-4 w-4 ml-1" />
               </button>
             </div>
+            
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to{' '}
+                  Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
                   <span className="font-medium">
                     {Math.min(currentPage * itemsPerPage, total)}
                   </span>{' '}
-                  of <span className="font-medium">{total}</span> exhibitors
+                  of <span className="font-medium">{total}</span> results
                 </p>
               </div>
+              
               <div>
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                      currentPage === 1
-                        ? 'text-gray-300 cursor-not-allowed'
-                        : 'text-gray-500 hover:bg-gray-50'
-                    }`}
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                   >
                     <span className="sr-only">Previous</span>
-                    Previous
+                    <ChevronLeft className="h-5 w-5" />
                   </button>
                   
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNumber;
-                    if (totalPages <= 5) {
-                      pageNumber = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNumber = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNumber = totalPages - 4 + i;
-                    } else {
-                      pageNumber = currentPage - 2 + i;
-                    }
-                    
-                    return (
-                      <button
-                        key={pageNumber}
-                        onClick={() => setCurrentPage(pageNumber)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                          currentPage === pageNumber
-                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                        }`}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  })}
+                  {generatePagination().map((page, index) => (
+                    <button
+                      key={index}
+                      onClick={() => typeof page === 'number' ? setCurrentPage(page) : null}
+                      disabled={page === '...'}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        currentPage === page
+                          ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                      } ${page === '...' ? 'cursor-default' : 'cursor-pointer'}`}
+                    >
+                      {page}
+                    </button>
+                  ))}
                   
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                      currentPage === totalPages
-                        ? 'text-gray-300 cursor-not-allowed'
-                        : 'text-gray-500 hover:bg-gray-50'
-                    }`}
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                   >
                     <span className="sr-only">Next</span>
-                    Next
+                    <ChevronRight className="h-5 w-5" />
                   </button>
                 </nav>
               </div>
@@ -540,34 +653,4 @@ export default function ExhibitorsPage() {
       </div>
     </div>
   );
-}
-
-// Fallback function for sample exhibitors
-function getSampleExhibitors(): Exhibitor[] {
-  return [
-    {
-      id: '1',
-      name: 'John Smith',
-      email: 'john@abclogistics.com',
-      phone: '+1 (555) 123-4567',
-      company: 'ABC Logistics',
-      sector: 'Rail',
-      booth: 'A-12',
-      status: 'approved',
-      registrationDate: '2024-01-15',
-      website: 'https://abclogistics.com'
-    },
-    {
-      id: '2',
-      name: 'Jane Doe',
-      email: 'jane@xyzshipping.com',
-      phone: '+1 (555) 987-6543',
-      company: 'XYZ Shipping Co.',
-      sector: 'Maritime',
-      booth: 'B-08',
-      status: 'approved',
-      registrationDate: '2024-01-14',
-      website: 'https://xyzshipping.com'
-    },
-  ];
 }

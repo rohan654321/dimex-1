@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, Mail, Phone, Shield, UserCheck, UserX, Key, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import api from '@/lib/api'; // FIXED: Changed from named import to default import
 
 interface User {
   id: string;
@@ -34,9 +34,10 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await api.users.getAllUsers();
-      if (response.success) {
-        const usersData = response.data.users.map((user: any) => ({
+      const response = await api.get('/users'); // Assuming your API endpoint is /users
+      // Adjust the response structure based on your actual API
+      if (response.data && response.data.success) {
+        const usersData = response.data.data.users?.map((user: any) => ({
           id: user.id,
           name: user.name,
           email: user.email,
@@ -45,8 +46,10 @@ export default function UsersPage() {
           phone: user.phone,
           lastLogin: user.lastLogin,
           createdAt: user.createdAt
-        }));
+        })) || [];
         setUsers(usersData);
+      } else {
+        throw new Error('Invalid response structure');
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -60,8 +63,8 @@ export default function UsersPage() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this user?')) {
       try {
-        const response = await api.users.deleteUser(id);
-        if (response.success) {
+        const response = await api.delete(`/users/${id}`);
+        if (response.data && response.data.success) {
           setUsers(users.filter(user => user.id !== id));
           alert('User deleted successfully');
         }
@@ -79,8 +82,8 @@ export default function UsersPage() {
     const newStatus = user.status === 'active' ? 'inactive' : 'active';
     
     try {
-      const response = await api.users.updateUser(id, { status: newStatus });
-      if (response.success) {
+      const response = await api.patch(`/users/${id}`, { status: newStatus });
+      if (response.data && response.data.success) {
         setUsers(users.map(u =>
           u.id === id ? { ...u, status: newStatus } : u
         ));
@@ -95,8 +98,10 @@ export default function UsersPage() {
   const handleResetPassword = async (id: string) => {
     if (confirm('Are you sure you want to reset this user\'s password? A temporary password will be generated and sent to their email.')) {
       try {
-        // This would call a reset password API endpoint
-        alert('Password reset initiated. Check user email for temporary password.');
+        const response = await api.post(`/users/${id}/reset-password`);
+        if (response.data && response.data.success) {
+          alert('Password reset initiated. Check user email for temporary password.');
+        }
       } catch (error) {
         console.error('Error resetting password:', error);
         alert('Failed to reset password');

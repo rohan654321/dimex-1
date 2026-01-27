@@ -1,119 +1,58 @@
 "use client";
 
-import { useState } from 'react';
-import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { useState, FormEvent } from 'react';
+import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('admin@exhibition.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login, loading, error } = useAuth();
 
-  // Hardcoded credentials
-  const ADMIN_EMAIL = 'admin@exhibition.com';
-  const ADMIN_PASSWORD = 'admin123';
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      // Store login state in localStorage (in real app, use proper auth)
-      localStorage.setItem('admin_logged_in', 'true');
-      localStorage.setItem('admin_user', JSON.stringify({
-        email: ADMIN_EMAIL,
-        name: 'Administrator'
-      }));
-      
-      // Redirect to dashboard
+  
+    
+    const result = await login(email, password);
+    
+    if (result.success) {
+      toast.success('Login successful!');
       router.push('/admin/dashboard');
     } else {
-      setError('Invalid email or password');
-      setIsLoading(false);
+      toast.error(result.error || 'Invalid email or password');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
-            <Shield className="h-8 w-8 text-white" />
+          <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center">
+            <Lock className="h-6 w-6 text-white" />
           </div>
         </div>
-        <h2 className="mt-8 text-center text-3xl font-extrabold text-gray-900">
-          Admin Dashboard
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Admin Panel Login
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Exhibition Management System
+          Use your credentials to access the exhibition management system
         </p>
-
-        {/* API Status */}
-        <div className={`mt-4 rounded-lg p-4 text-center ${apiStatus === 'online' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className={`h-3 w-3 rounded-full ${apiStatus === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-            <span className={`font-medium ${apiStatus === 'online' ? 'text-green-800' : 'text-red-800'}`}>
-              API Status: {apiStatus === 'online' ? 'Connected' : apiStatus === 'offline' ? 'Disconnected' : 'Checking...'}
-            </span>
-          </div>
-          <p className="text-xs text-gray-600 break-all">
-            Endpoint: {apiUrl}/api/auth/login
+        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4 text-center">
+          <p className="text-sm text-blue-800">
+            <strong>Demo Credentials:</strong><br />
+            Email: <code className="bg-white px-1 rounded">admin@exhibition.com</code><br />
+            Password: <code className="bg-white px-1 rounded">admin123</code>
           </p>
-          <button
-            onClick={handleTestApi}
-            disabled={isLoading}
-            className="mt-2 px-3 py-1 text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors"
-          >
-            Test API Connection
-          </button>
-        </div>
-
-        {/* Demo Credentials */}
-        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-center">
-            <p className="text-sm font-medium text-blue-800 mb-2">Demo Credentials</p>
-            <div className="space-y-1 text-sm">
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-blue-700">Email:</span>
-                <code className="bg-white px-2 py-1 rounded border border-blue-300 text-blue-800 font-mono">admin@exhibition.com</code>
-              </div>
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-blue-700">Password:</span>
-                <code className="bg-white px-2 py-1 rounded border border-blue-300 text-blue-800 font-mono">admin123</code>
-              </div>
-            </div>
-            <button
-              onClick={handleDemoLogin}
-              disabled={isLoading}
-              className="mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors w-full disabled:opacity-50"
-            >
-              Use Demo Credentials
-            </button>
-          </div>
         </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-xl sm:rounded-xl sm:px-10 border border-gray-200">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="rounded-md bg-red-50 p-4">
-                <div className="flex">
-                  <AlertCircle className="h-5 w-5 text-red-400" />
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">{error}</h3>
-                  </div>
-                </div>
-              </div>
-            )}
-
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -129,7 +68,10 @@ export default function LoginPage() {
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                   
+                  }}
                   className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Enter your email"
                 />
@@ -151,84 +93,62 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    
+                  }}
                   className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition-colors"
-                  disabled={isLoading}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-500" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-500" />
                   )}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Remember me
-                </label>
+            {error && (
+              <div className="rounded-md bg-red-50 p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                </div>
               </div>
-
-              <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
+            )}
 
             <div>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                     Signing in...
                   </>
                 ) : (
-                  'Sign in to Dashboard'
+                  'Sign in'
                 )}
               </button>
             </div>
           </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">System Information</span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 gap-3">
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  Exhibition Management System v1.0
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  For demo purposes only. All data is simulated.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

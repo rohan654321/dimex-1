@@ -1,6 +1,21 @@
-import api from '../api';
+import api from "../api";
 
+/* =======================
+   STATUS TYPE (SINGLE SOURCE OF TRUTH)
+======================= */
+export type ExhibitorStatus =
+  | "active"
+  | "inactive"
+  | "pending"
+  | "approved"
+  | "rejected";
+
+/* =======================
+   MAIN EXHIBITOR TYPE
+======================= */
 export interface Exhibitor {
+  [x: string]: any;
+  plainPassword: any;
   id: string;
   name: string;
   email: string;
@@ -8,14 +23,18 @@ export interface Exhibitor {
   company: string;
   sector: string;
   booth: string;
-  status: 'active' | 'inactive' | 'pending' | 'approved' | 'rejected';
+  status: ExhibitorStatus;
   registrationDate: string;
   website: string;
+  password?: string;
   createdAt?: string;
   updatedAt?: string;
   stallDetails?: any;
 }
 
+/* =======================
+   API RESPONSE TYPES
+======================= */
 export interface ExhibitorResponse {
   data: Exhibitor[];
   total: number;
@@ -27,7 +46,7 @@ export interface ExhibitorResponse {
 export interface ExhibitorStats {
   total: number;
   byStatus: Array<{
-    _id: string;
+    _id: ExhibitorStatus;
     count: number;
   }>;
   bySector: Array<{
@@ -36,242 +55,167 @@ export interface ExhibitorStats {
   }>;
 }
 
-export interface BulkUpdateRequest {
-  ids: string[];
-  status: string;
-}
-
 interface ApiResponse<T> {
   data: T;
   message?: string;
   success: boolean;
 }
 
+/* =======================
+   QUERY PARAM TYPES
+======================= */
 interface GetAllParams {
   search?: string;
   sector?: string;
-  status?: string;
+  status?: ExhibitorStatus;
   page?: number;
   limit?: number;
 }
 
+/* =======================
+   API IMPLEMENTATION
+======================= */
 export const exhibitorsAPI = {
-  // Get all exhibitors with filters and pagination
-  getAll: async (params: GetAllParams = {}): Promise<ExhibitorResponse> => {
-    const response = await api.get<ApiResponse<ExhibitorResponse>>('/exhibitors', { params });
-    return response.data.data;
+  /* -------- GET ALL -------- */
+  getAll: async (
+    params: GetAllParams = {},
+    includePassword: boolean = false
+  ): Promise<ExhibitorResponse> => {
+    const response = await api.get<ApiResponse<any>>("/exhibitors", {
+      params: {
+        ...params,
+        includePassword: includePassword ? "true" : "false",
+      },
+    });
+
+    const apiData = response.data.data;
+
+    let exhibitors: Exhibitor[] = [];
+    let total = 0;
+    let page = 1;
+    let limit = 10;
+    let totalPages = 0;
+
+    if (apiData) {
+      if (Array.isArray(apiData.data)) {
+        exhibitors = apiData.data;
+        total = apiData.total || 0;
+        page = apiData.page || 1;
+        limit = apiData.limit || 10;
+        totalPages = apiData.totalPages || 0;
+      } else if (Array.isArray(apiData.exhibitors)) {
+        exhibitors = apiData.exhibitors;
+        total = apiData.total || 0;
+        page = apiData.page || 1;
+        limit = apiData.limit || 10;
+        totalPages = apiData.totalPages || 0;
+      } else if (Array.isArray(apiData)) {
+        exhibitors = apiData;
+        total = apiData.length;
+      }
+    }
+
+    return {
+      data: exhibitors,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   },
 
-  // Get single exhibitor by ID
+  /* -------- GET BY ID -------- */
   getById: async (id: string): Promise<Exhibitor> => {
     const response = await api.get<ApiResponse<Exhibitor>>(`/exhibitors/${id}`);
     return response.data.data;
   },
 
-  // Create a new exhibitor
+  /* -------- CREATE -------- */
   create: async (data: Partial<Exhibitor>): Promise<Exhibitor> => {
-    const response = await api.post<ApiResponse<Exhibitor>>('/exhibitors', data);
+    const response = await api.post<ApiResponse<Exhibitor>>(
+      "/exhibitors",
+      data
+    );
     return response.data.data;
   },
 
-  // Update an exhibitor
-  update: async (id: string, data: Partial<Exhibitor>): Promise<Exhibitor> => {
-    const response = await api.put<ApiResponse<Exhibitor>>(`/exhibitors/${id}`, data);
+  /* -------- UPDATE -------- */
+  update: async (
+    id: string,
+    data: Partial<Exhibitor>
+  ): Promise<Exhibitor> => {
+    const response = await api.put<ApiResponse<Exhibitor>>(
+      `/exhibitors/${id}`,
+      data
+    );
     return response.data.data;
   },
 
-  // Delete an exhibitor
+  /* -------- DELETE -------- */
   delete: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<void>>(`/exhibitors/${id}`);
   },
 
-  // Get exhibitor statistics
+  /* -------- STATS -------- */
   getStats: async (): Promise<ExhibitorStats> => {
-    const response = await api.get<ApiResponse<ExhibitorStats>>('/exhibitors/stats');
+    const response = await api.get<ApiResponse<ExhibitorStats>>(
+      "/exhibitors/stats"
+    );
     return response.data.data;
   },
 
-  // Bulk update exhibitor status
-  bulkUpdateStatus: async (ids: string[], status: string): Promise<void> => {
-    await api.post<ApiResponse<void>>('/exhibitors/bulk/update-status', { ids, status });
+  /* -------- BULK STATUS UPDATE -------- */
+  bulkUpdateStatus: async (
+    ids: string[],
+    status: ExhibitorStatus
+  ): Promise<void> => {
+    await api.post<ApiResponse<void>>(
+      "/exhibitors/bulk/update-status",
+      { ids, status }
+    );
   },
 
-  // Export exhibitors data
-  export: async (format: string = 'csv'): Promise<Blob> => {
-    const response = await api.get(`/exhibitors/export/data`, {
+  /* -------- EXPORT -------- */
+  export: async (format: "csv" | "excel" = "csv"): Promise<Blob> => {
+    const response = await api.get("/exhibitors/export/data", {
       params: { format },
-      responseType: 'blob'
+      responseType: "blob",
     });
     return response.data;
   },
 
-  // Additional methods you might need
+  /* -------- FILTER HELPERS -------- */
   getBySector: async (sector: string): Promise<Exhibitor[]> => {
-    const response = await api.get<ApiResponse<Exhibitor[]>>(`/exhibitors/sector/${sector}`);
-    return response.data.data;
-  },
-
-  getByStatus: async (status: string): Promise<Exhibitor[]> => {
-    const response = await api.get<ApiResponse<Exhibitor[]>>(`/exhibitors/status/${status}`);
-    return response.data.data;
-  },
-
-  // Search exhibitors
-  search: async (query: string): Promise<Exhibitor[]> => {
-    const response = await api.get<ApiResponse<Exhibitor[]>>('/exhibitors/search', {
-      params: { q: query }
-    });
-    return response.data.data;
-  },
-
-  // Assign booth to exhibitor
-  assignBooth: async (id: string, boothId: string): Promise<Exhibitor> => {
-    const response = await api.post<ApiResponse<Exhibitor>>(`/exhibitors/${id}/assign-booth`, { boothId });
-    return response.data.data;
-  },
-
-  // Get exhibitors by booth
-  getByBooth: async (boothId: string): Promise<Exhibitor[]> => {
-    const response = await api.get<ApiResponse<Exhibitor[]>>(`/exhibitors/booth/${boothId}`);
-    return response.data.data;
-  },
-
-  // Send email to exhibitor
-  sendEmail: async (id: string, emailData: {
-    subject: string;
-    body: string;
-    template?: string;
-  }): Promise<void> => {
-    await api.post<ApiResponse<void>>(`/exhibitors/${id}/send-email`, emailData);
-  },
-
-  // Bulk send email to multiple exhibitors
-  bulkSendEmail: async (ids: string[], emailData: {
-    subject: string;
-    body: string;
-    template?: string;
-  }): Promise<void> => {
-    await api.post<ApiResponse<void>>('/exhibitors/bulk/send-email', {
-      ids,
-      ...emailData
-    });
-  },
-
-  // Upload exhibitor logo
-  uploadLogo: async (id: string, file: File): Promise<{ url: string }> => {
-    const formData = new FormData();
-    formData.append('logo', file);
-    
-    const response = await api.post<ApiResponse<{ url: string }>>(
-      `/exhibitors/${id}/upload-logo`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }
+    const response = await api.get<ApiResponse<Exhibitor[]>>(
+      `/exhibitors/sector/${sector}`
     );
     return response.data.data;
   },
 
-  // Get exhibitor documents
-  getDocuments: async (id: string): Promise<Array<{
-    id: string;
-    name: string;
-    url: string;
-    type: string;
-    uploadedAt: string;
-  }>> => {
-    const response = await api.get<ApiResponse<any>>(`/exhibitors/${id}/documents`);
-    return response.data.data;
-  },
-
-  // Upload document for exhibitor
-  uploadDocument: async (id: string, file: File, documentType: string): Promise<any> => {
-    const formData = new FormData();
-    formData.append('document', file);
-    formData.append('type', documentType);
-    
-    const response = await api.post<ApiResponse<any>>(
-      `/exhibitors/${id}/upload-document`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }
+  getByStatus: async (status: ExhibitorStatus): Promise<Exhibitor[]> => {
+    const response = await api.get<ApiResponse<Exhibitor[]>>(
+      `/exhibitors/status/${status}`
     );
     return response.data.data;
   },
 
-  // Export exhibitors with custom filters
-  exportFiltered: async (filters: GetAllParams, format: string = 'csv'): Promise<Blob> => {
-    const response = await api.get('/exhibitors/export/filtered', {
-      params: { ...filters, format },
-      responseType: 'blob'
-    });
-    return response.data;
-  },
-
-  // Import exhibitors from file
-  import: async (file: File): Promise<{
-    success: number;
-    failed: number;
-    errors: Array<{ row: number; error: string }>;
-  }> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await api.post<ApiResponse<any>>(
-      '/exhibitors/import',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }
+  /* -------- ASSIGN BOOTH -------- */
+  assignBooth: async (
+    id: string,
+    boothId: string
+  ): Promise<Exhibitor> => {
+    const response = await api.post<ApiResponse<Exhibitor>>(
+      `/exhibitors/${id}/assign-booth`,
+      { boothId }
     );
     return response.data.data;
   },
 
-  // Get exhibitor activity log
-  getActivityLog: async (id: string): Promise<Array<{
-    id: string;
-    action: string;
-    description: string;
-    performedBy: string;
-    performedAt: string;
-    changes?: any;
-  }>> => {
-    const response = await api.get<ApiResponse<any>>(`/exhibitors/${id}/activity-log`);
+  /* -------- STATUS OPTIONS -------- */
+  getStatusOptions: async (): Promise<ExhibitorStatus[]> => {
+    const response = await api.get<ApiResponse<ExhibitorStatus[]>>(
+      "/exhibitors/status-options"
+    );
     return response.data.data;
   },
-
-  // Check if exhibitor exists by email
-  checkEmailExists: async (email: string): Promise<{ exists: boolean }> => {
-    const response = await api.get<ApiResponse<{ exists: boolean }>>('/exhibitors/check-email', {
-      params: { email }
-    });
-    return response.data.data;
-  },
-
-  // Check if exhibitor exists by company name
-  checkCompanyExists: async (company: string): Promise<{ exists: boolean }> => {
-    const response = await api.get<ApiResponse<{ exists: boolean }>>('/exhibitors/check-company', {
-      params: { company }
-    });
-    return response.data.data;
-  },
-
-  // Get exhibitor categories/sectors
-  getCategories: async (): Promise<Array<{ _id: string; count: number }>> => {
-    const response = await api.get<ApiResponse<any>>('/exhibitors/categories');
-    return response.data.data;
-  },
-
-  // Get exhibitor status options
-  getStatusOptions: async (): Promise<string[]> => {
-    const response = await api.get<ApiResponse<string[]>>('/exhibitors/status-options');
-    return response.data.data;
-  }
 };

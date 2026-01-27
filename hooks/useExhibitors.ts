@@ -1,29 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
-import { exhibitorsAPI } from '@/lib/api/exhibitors';
+// hooks/useExhibitors.ts
+import { useState, useEffect, useCallback } from "react";
+import {
+  exhibitorsAPI,
+  ExhibitorStatus,
+  Exhibitor,
+} from "@/lib/api/exhibitors";
 
-interface Exhibitor {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  sector: string;
-  booth: string;
-  status: 'active' | 'inactive' | 'pending' | 'approved' | 'rejected';
-  registrationDate: string;
-  website: string;
-  createdAt?: string;
-  stallDetails?: any;
-}
-
+/* =======================
+   OPTIONS TYPE
+======================= */
 interface UseExhibitorsOptions {
   search?: string;
   sector?: string;
-  status?: string;
+  status?: ExhibitorStatus;
   page?: number;
   limit?: number;
 }
 
+/* =======================
+   RETURN TYPE
+======================= */
 interface UseExhibitorsReturn {
   exhibitors: Exhibitor[];
   total: number;
@@ -32,105 +28,115 @@ interface UseExhibitorsReturn {
   createExhibitor: (data: Partial<Exhibitor>) => Promise<Exhibitor>;
   updateExhibitor: (id: string, data: Partial<Exhibitor>) => Promise<Exhibitor>;
   deleteExhibitor: (id: string) => Promise<void>;
-  bulkUpdateStatus: (ids: string[], status: string) => Promise<void>;
-  exportExhibitors: (format: string) => Promise<void>;
+  bulkUpdateStatus: (ids: string[], status: ExhibitorStatus) => Promise<void>;
+  exportExhibitors: (format?: "csv" | "excel") => Promise<void>;
 }
 
-export const useExhibitors = (options: UseExhibitorsOptions = {}): UseExhibitorsReturn => {
+/* =======================
+   HOOK
+======================= */
+export const useExhibitors = (
+  options: UseExhibitorsOptions = {}
+): UseExhibitorsReturn => {
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /* -------- FETCH -------- */
   const fetchExhibitors = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const params = {
+
+      const params: UseExhibitorsOptions = {
         search: options.search,
         sector: options.sector,
         status: options.status,
         page: options.page,
-        limit: options.limit
+        limit: options.limit,
       };
-      
-      // Remove undefined parameters
-      Object.keys(params).forEach(key => {
-        if (params[key as keyof typeof params] === undefined) {
-          delete params[key as keyof typeof params];
+
+      // Remove undefined values safely
+      Object.keys(params).forEach((key) => {
+        if (params[key as keyof UseExhibitorsOptions] === undefined) {
+          delete params[key as keyof UseExhibitorsOptions];
         }
       });
 
-      const response = await exhibitorsAPI.getAll(params);
-      setExhibitors(response.data || []);
-      setTotal(response.total || 0);
+      const response = await exhibitorsAPI.getAll(params, true);
+
+      setExhibitors(response.data ?? []);
+      setTotal(response.total ?? 0);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch exhibitors');
-      console.error('Fetch exhibitors error:', err);
+      console.error("❌ Fetch exhibitors error:", err);
+      setError(err.message || "Failed to fetch exhibitors");
     } finally {
       setIsLoading(false);
     }
-  }, [options.search, options.sector, options.status, options.page, options.limit]);
+  }, [
+    options.search,
+    options.sector,
+    options.status,
+    options.page,
+    options.limit,
+  ]);
 
   useEffect(() => {
     fetchExhibitors();
   }, [fetchExhibitors]);
 
-  const createExhibitor = async (data: Partial<Exhibitor>): Promise<Exhibitor> => {
-    try {
-      const newExhibitor = await exhibitorsAPI.create(data);
-      await fetchExhibitors(); // Refresh the list
-      return newExhibitor;
-    } catch (err: any) {
-      throw new Error(err.message || 'Failed to create exhibitor');
-    }
+  /* -------- CREATE -------- */
+  const createExhibitor = async (
+    data: Partial<Exhibitor>
+  ): Promise<Exhibitor> => {
+    const exhibitor = await exhibitorsAPI.create(data);
+    await fetchExhibitors();
+    return exhibitor;
   };
 
-  const updateExhibitor = async (id: string, data: Partial<Exhibitor>): Promise<Exhibitor> => {
-    try {
-      const updatedExhibitor = await exhibitorsAPI.update(id, data);
-      await fetchExhibitors(); // Refresh the list
-      return updatedExhibitor;
-    } catch (err: any) {
-      throw new Error(err.message || 'Failed to update exhibitor');
-    }
+  /* -------- UPDATE -------- */
+  const updateExhibitor = async (
+    id: string,
+    data: Partial<Exhibitor>
+  ): Promise<Exhibitor> => {
+    const exhibitor = await exhibitorsAPI.update(id, data);
+    await fetchExhibitors();
+    return exhibitor;
   };
 
+  /* -------- DELETE -------- */
   const deleteExhibitor = async (id: string): Promise<void> => {
-    try {
-      await exhibitorsAPI.delete(id);
-      await fetchExhibitors(); // Refresh the list
-    } catch (err: any) {
-      throw new Error(err.message || 'Failed to delete exhibitor');
-    }
+    await exhibitorsAPI.delete(id);
+    await fetchExhibitors();
   };
 
-  const bulkUpdateStatus = async (ids: string[], status: string): Promise<void> => {
-    try {
-      await exhibitorsAPI.bulkUpdateStatus(ids, status);
-      await fetchExhibitors(); // Refresh the list
-    } catch (err: any) {
-      throw new Error(err.message || 'Failed to bulk update status');
-    }
+  /* -------- BULK STATUS UPDATE -------- */
+  const bulkUpdateStatus = async (
+    ids: string[],
+    status: ExhibitorStatus
+  ): Promise<void> => {
+    await exhibitorsAPI.bulkUpdateStatus(ids, status);
+    await fetchExhibitors();
   };
 
-  const exportExhibitors = async (format: string = 'csv'): Promise<void> => {
-    try {
-      const blob = await exhibitorsAPI.export(format);
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `exhibitors_${new Date().toISOString().split('T')[0]}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err: any) {
-      throw new Error(err.message || 'Failed to export exhibitors');
-    }
+  /* -------- EXPORT -------- */
+  const exportExhibitors = async (
+    format: "csv" | "excel" = "csv"
+  ): Promise<void> => {
+    const blob = await exhibitorsAPI.export(format);
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `exhibitors_${new Date()
+      .toISOString()
+      .split("T")[0]}.${format}`;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   return {
@@ -142,6 +148,6 @@ export const useExhibitors = (options: UseExhibitorsOptions = {}): UseExhibitors
     updateExhibitor,
     deleteExhibitor,
     bulkUpdateStatus,
-    exportExhibitors
+    exportExhibitors,
   };
 };
