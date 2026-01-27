@@ -13,6 +13,7 @@
   },
   "license": "ISC",
   "author": "",
+  "type": "commonjs",
   "main": "tailwind.config.js",
   "directories": {
     "lib": "lib"
@@ -27,6 +28,7 @@
     "@heroicons/react": "^2.2.0",
     "@react-email/components": "^1.0.4",
     "@react-email/render": "^2.0.2",
+    "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "framer-motion": "^12.24.10",
     "gsap": "^3.14.2",
@@ -39,7 +41,8 @@
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "react-player": "^3.4.0",
-    "swiper": "^12.0.3"
+    "swiper": "^12.0.3",
+    "swr": "^2.3.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

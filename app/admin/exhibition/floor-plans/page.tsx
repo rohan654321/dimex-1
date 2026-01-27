@@ -1,53 +1,17 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import {
-  Upload, ZoomIn, ZoomOut, Trash2, Move, Square, Circle,
-  Triangle, Hexagon, Octagon, Star, Heart, Type, Minus, Plus,
-  Download, RotateCw, Copy, Grid, Layers, Palette, MousePointer,
-  Hand, Building2, Table, Armchair, DoorOpen, MoveVertical, Toilet,
-  Printer, Monitor, Speaker, Coffee, Save, Loader2, Eye, EyeOff,
-  Ruler, MapPin, Package, Truck, AlertCircle, CheckCircle, Maximize2,
-  Minimize2, Search, Scissors, Home, Filter, Settings, Menu, X,
-  ChevronLeft, ChevronRight, Smartphone, Tablet, Monitor as MonitorIcon,
-  Expand, Minimize
-} from "lucide-react";
+import React from "react"
+
+import { useRef, useState, useEffect, CSSProperties } from "react";
+import { Upload, ZoomIn, ZoomOut, Trash2, Move, Square, Circle, Triangle, Hexagon, Octagon, Star, Heart, Type, Minus, Plus, Download, RotateCw, Copy, Grid, Layers, Palette, MousePointer, Hand, Building2, Table, Armchair, DoorOpen, MoveVertical, Tablet as Toilet, Printer, Monitor, Speaker, Coffee, Save, Loader2, Eye, EyeOff, Ruler, MapPin, Package, Truck, AlertCircle, CheckCircle, Maximize2, Minimize2, Search, Scissors, Home, Filter, Settings, Menu, X, ChevronLeft, ChevronRight, Smartphone, Tablet, MonitorIcon, Expand, Minimize, Users, Calendar, Clock, Share2, Cloud, Database, FolderPlus, History, RefreshCw, Shield, StarIcon, TrendingUp } from "lucide-react";
 import type { Options as Html2CanvasOptions } from "html2canvas";
+import toast, { Toaster } from 'react-hot-toast';
 
+// Import shared types
+import { FloorPlan, Shape, ShapeType } from '@/lib/types';
 
-type ShapeType = "rectangle" | "square" | "circle" | "ellipse" | 
-                 "triangle" | "hexagon" | "octagon" | "star" | 
-                 "heart" | "line" | "arrow" | "text" | "booth" |
-                 "table" | "chair" | "door" | "stairs" | "toilet" |
-                 "register" | "stage" | "screen" | "speaker" | "cafe" |
-                 "storage" | "truck" | "pillar" | "info" | "emergency";
-
-interface Shape {
-  id: string;
-  type: ShapeType;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation: number;
-  color: string;
-  borderColor: string;
-  borderWidth: number;
-  text?: string;
-  fontSize: number;
-  zIndex: number;
-  isLocked?: boolean;
-  metadata?: {
-    boothNumber?: string;
-    companyName?: string;
-    contactPerson?: string;
-    phone?: string;
-    email?: string;
-    products?: string[];
-    status?: "available" | "booked" | "reserved" | "maintenance";
-    category?: string;
-  };
-}
+// API service functions
+import { floorPlansAPI } from '@/lib/api/floorPlans';
 
 interface Layer {
   id: string;
@@ -66,7 +30,7 @@ export default function ProfessionalExhibitionEditor() {
   const [shapes, setShapes] = useState<Shape[]>([
     {
       id: "booth-1",
-      type: "booth",
+      type: "booth" as ShapeType,
       x: 100,
       y: 100,
       width: 80,
@@ -78,11 +42,13 @@ export default function ProfessionalExhibitionEditor() {
       fontSize: 12,
       text: "Booth 1",
       zIndex: 1,
+      isLocked: false,
       metadata: {
         boothNumber: "1",
         companyName: "TechCorp Inc.",
         status: "booked",
-        category: "Technology"
+        category: "Technology",
+        notes: "VIP Client"
       }
     }
   ]);
@@ -107,7 +73,7 @@ export default function ProfessionalExhibitionEditor() {
   const [measurementLine, setMeasurementLine] = useState<{x1: number, y1: number, x2: number, y2: number} | null>(null);
   const [isMeasuring, setIsMeasuring] = useState(false);
   const [measureStart, setMeasureStart] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(0.1); // 1 pixel = X meters
+  const [scale, setScale] = useState(0.1);
   const [activeLayer, setActiveLayer] = useState<string>("booths");
   const [layers, setLayers] = useState<Layer[]>([
     { id: "booths", name: "Booths", visible: true, locked: false, category: "booths" },
@@ -123,8 +89,19 @@ export default function ProfessionalExhibitionEditor() {
   const [isToolsOpen, setIsToolsOpen] = useState(true);
   const [deviceMode, setDeviceMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  const [floorPlans, setFloorPlans] = useState<FloorPlan[]>([]);
+  const [currentFloorPlan, setCurrentFloorPlan] = useState<FloorPlan | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [planName, setPlanName] = useState("");
+  const [planDescription, setPlanDescription] = useState("");
+  const [autoSave, setAutoSave] = useState(true);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [saveInterval, setSaveInterval] = useState<NodeJS.Timeout | null>(null);
 
-  // Professional color palette
   const colorPalette = [
     "rgba(59, 130, 246, 0.3)", "rgba(16, 185, 129, 0.3)", "rgba(245, 158, 11, 0.3)",
     "rgba(236, 72, 153, 0.3)", "rgba(139, 92, 246, 0.3)", "rgba(6, 182, 212, 0.3)",
@@ -138,26 +115,26 @@ export default function ProfessionalExhibitionEditor() {
   ];
 
   const exhibitionShapes = [
-    { type: "booth", label: "Booth", icon: Building2, category: "booths" },
-    { type: "table", label: "Table", icon: Table, category: "fixtures" },
-    { type: "chair", label: "Chair", icon: Armchair, category: "fixtures" },
-    { type: "door", label: "Door", icon: DoorOpen, category: "fixtures" },
-    { type: "stairs", label: "Stairs", icon: MoveVertical, category: "fixtures" },
-    { type: "toilet", label: "Toilet", icon: Toilet, category: "fixtures" },
-    { type: "register", label: "Register", icon: Printer, category: "fixtures" },
-    { type: "stage", label: "Stage", icon: Speaker, category: "fixtures" },
-    { type: "screen", label: "Screen", icon: Monitor, category: "fixtures" },
-    { type: "speaker", label: "Speaker", icon: Speaker, category: "fixtures" },
-    { type: "cafe", label: "Cafe", icon: Coffee, category: "fixtures" },
-    { type: "storage", label: "Storage", icon: Package, category: "fixtures" },
-    { type: "truck", label: "Loading", icon: Truck, category: "fixtures" },
-    { type: "pillar", label: "Pillar", icon: Square, category: "fixtures" },
-    { type: "info", label: "Info Desk", icon: MapPin, category: "fixtures" },
-    { type: "emergency", label: "Emergency", icon: AlertCircle, category: "fixtures" },
-    { type: "rectangle", label: "Rectangle", icon: Square, category: "basic" },
-    { type: "square", label: "Square", icon: Square, category: "basic" },
-    { type: "circle", label: "Circle", icon: Circle, category: "basic" },
-    { type: "text", label: "Text", icon: Type, category: "text" },
+    { type: "booth" as ShapeType, label: "Booth", icon: Building2, category: "booths" },
+    { type: "table" as ShapeType, label: "Table", icon: Table, category: "fixtures" },
+    { type: "chair" as ShapeType, label: "Chair", icon: Armchair, category: "fixtures" },
+    { type: "door" as ShapeType, label: "Door", icon: DoorOpen, category: "fixtures" },
+    { type: "stairs" as ShapeType, label: "Stairs", icon: MoveVertical, category: "fixtures" },
+    { type: "toilet" as ShapeType, label: "Toilet", icon: Toilet, category: "fixtures" },
+    { type: "register" as ShapeType, label: "Register", icon: Printer, category: "fixtures" },
+    { type: "stage" as ShapeType, label: "Stage", icon: Speaker, category: "fixtures" },
+    { type: "screen" as ShapeType, label: "Screen", icon: Monitor, category: "fixtures" },
+    { type: "speaker" as ShapeType, label: "Speaker", icon: Speaker, category: "fixtures" },
+    { type: "cafe" as ShapeType, label: "Cafe", icon: Coffee, category: "fixtures" },
+    { type: "storage" as ShapeType, label: "Storage", icon: Package, category: "fixtures" },
+    { type: "truck" as ShapeType, label: "Loading", icon: Truck, category: "fixtures" },
+    { type: "pillar" as ShapeType, label: "Pillar", icon: Square, category: "fixtures" },
+    { type: "info" as ShapeType, label: "Info Desk", icon: MapPin, category: "fixtures" },
+    { type: "emergency" as ShapeType, label: "Emergency", icon: AlertCircle, category: "fixtures" },
+    { type: "rectangle" as ShapeType, label: "Rectangle", icon: Square, category: "basic" },
+    { type: "square" as ShapeType, label: "Square", icon: Square, category: "basic" },
+    { type: "circle" as ShapeType, label: "Circle", icon: Circle, category: "basic" },
+    { type: "text" as ShapeType, label: "Text", icon: Type, category: "text" },
   ];
 
   const statusColors = {
@@ -167,7 +144,254 @@ export default function ProfessionalExhibitionEditor() {
     maintenance: "#ef4444"
   };
 
-  // Device detection
+  const loadFloorPlans = async () => {
+    try {
+      setIsLoadingPlans(true);
+      const response = await floorPlansAPI.getAll();
+      if (response.data) {
+        setFloorPlans(response.data);
+        toast.success('Floor plans loaded successfully');
+      }
+    } catch (error) {
+      console.error('Error loading floor plans:', error);
+      toast.error('Failed to load floor plans');
+    } finally {
+      setIsLoadingPlans(false);
+    }
+  };
+
+  const saveFloorPlanToBackend = async (isAutoSave: boolean = false) => {
+    if (!planName.trim() && !isAutoSave) {
+      toast.error('Please enter a plan name');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      
+      const floorPlanData: Omit<FloorPlan, 'id'> = {
+        name: planName || `Untitled Plan ${new Date().toLocaleDateString()}`,
+        description: planDescription,
+        version: "1.0",
+        shapes: shapes.map(shape => ({
+          ...shape,
+          x: safeNumber(shape.x),
+          y: safeNumber(shape.y),
+          width: safeNumber(shape.width),
+          height: safeNumber(shape.height),
+          type: shape.type as ShapeType
+        })),
+        image: image || undefined,
+        scale,
+        tags: ['exhibition', 'floor-plan'],
+        isPublic: false
+      };
+
+      let response;
+      if (currentFloorPlan?.id) {
+        response = await floorPlansAPI.update(currentFloorPlan.id, floorPlanData);
+        if (response.success) {
+          toast.success('Floor plan updated successfully');
+        }
+      } else {
+        response = await floorPlansAPI.create(floorPlanData);
+        if (response.success && response.data) {
+          toast.success('Floor plan saved successfully');
+          setCurrentFloorPlan(response.data);
+        }
+      }
+
+      setLastSaved(new Date().toLocaleTimeString());
+      if (!isAutoSave) {
+        setShowSaveModal(false);
+        setPlanName('');
+        setPlanDescription('');
+      }
+
+      await loadFloorPlans();
+    } catch (error) {
+      console.error('Error saving floor plan:', error);
+      toast.error('Failed to save floor plan');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const loadFloorPlanFromBackend = async (planId: string) => {
+    try {
+      setIsLoading(true);
+      const response = await floorPlansAPI.getById(planId);
+      const plan = response.data;
+      
+      if (plan) {
+        setShapes(plan.shapes || []);
+        setImage(plan.image || null);
+        setScale(plan.scale || 0.1);
+        setCurrentFloorPlan(plan);
+        setLastSaved(plan.updatedAt || plan.createdAt || null);
+        
+        toast.success(`Loaded: ${plan.name}`);
+        setShowLoadModal(false);
+      }
+    } catch (error) {
+      console.error('Error loading floor plan:', error);
+      toast.error('Failed to load floor plan');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteFloorPlanFromBackend = async (planId: string) => {
+    if (!confirm('Are you sure you want to delete this floor plan?')) {
+      return;
+    }
+
+    try {
+      await floorPlansAPI.delete(planId);
+      toast.success('Floor plan deleted successfully');
+      
+      if (currentFloorPlan?.id === planId) {
+        setCurrentFloorPlan(null);
+        setShapes([]);
+        setImage(null);
+        setSelectedId(null);
+      }
+      
+      await loadFloorPlans();
+    } catch (error) {
+      console.error('Error deleting floor plan:', error);
+      toast.error('Failed to delete floor plan');
+    }
+  };
+
+  const duplicateFloorPlan = async (planId: string) => {
+    try {
+      const response = await floorPlansAPI.getById(planId);
+      const plan = response.data;
+      
+      if (!plan) throw new Error('Plan not found');
+      
+      const newPlanName = `${plan.name} (Copy)`;
+      const duplicateData: Omit<FloorPlan, 'id'> = {
+        name: newPlanName,
+        description: plan.description,
+        version: plan.version,
+        shapes: plan.shapes,
+        image: plan.image,
+        scale: plan.scale,
+        tags: plan.tags,
+        isPublic: plan.isPublic
+      };
+
+      const newPlan = await floorPlansAPI.create(duplicateData);
+      if (newPlan.success) {
+        toast.success('Floor plan duplicated successfully');
+        await loadFloorPlans();
+      }
+      
+      return newPlan.data;
+    } catch (error) {
+      console.error('Error duplicating floor plan:', error);
+      toast.error('Failed to duplicate floor plan');
+      throw error;
+    }
+  };
+
+  const exportFloorPlan = async (format: 'json' | 'png' | 'pdf' = 'png') => {
+    try {
+      if (format === 'png') {
+        await handleExport();
+        return;
+      }
+
+      if (format === 'json') {
+        const data = {
+          name: planName || `Exhibition_Plan_${Date.now()}`,
+          version: "1.0",
+          shapes: shapes,
+          image: image || undefined,
+          scale,
+          createdAt: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${data.name}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        toast.success('Exported as JSON successfully');
+      }
+
+      if (format === 'pdf' && currentFloorPlan?.id) {
+        const response = await floorPlansAPI.export(currentFloorPlan.id, 'pdf');
+        if (response.data) {
+          const blob = new Blob([response.data], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${currentFloorPlan.name}.pdf`;
+          link.click();
+          URL.revokeObjectURL(url);
+          
+          toast.success('Exported as PDF successfully');
+        }
+      }
+    } catch (error) {
+      console.error('Error exporting:', error);
+      toast.error('Export failed');
+    }
+  };
+
+  const uploadImageToBackend = async (file: File) => {
+    try {
+      if (!currentFloorPlan?.id) {
+        await saveFloorPlanToBackend();
+      }
+      
+      const response = await floorPlansAPI.uploadImage(currentFloorPlan!.id!, file);
+      if (response.data?.imageUrl) {
+        setImage(response.data.imageUrl);
+        toast.success('Image uploaded successfully');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+    }
+  };
+
+  useEffect(() => {
+    if (autoSave && currentFloorPlan?.id) {
+      const interval = setInterval(() => {
+        saveFloorPlanToBackend(true);
+      }, 30000);
+      
+      setSaveInterval(interval);
+      
+      return () => {
+        if (saveInterval) {
+          clearInterval(saveInterval);
+        }
+      };
+    }
+  }, [autoSave, currentFloorPlan?.id, saveInterval]);
+
+  useEffect(() => {
+    loadFloorPlans();
+    
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (shapes.length > 0 && !currentFloorPlan?.id) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   useEffect(() => {
     const checkDevice = () => {
       const width = window.innerWidth;
@@ -201,31 +425,45 @@ export default function ProfessionalExhibitionEditor() {
     })));
   }, []);
 
-  /* ================= FILE OPERATIONS ================= */
   const handleUpload = () => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = e => {
+    input.onchange = async e => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
+      
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('Image size should be less than 10MB');
+        return;
+      }
+      
       setIsLoading(true);
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          setImage(reader.result as string);
-          setImageDimensions({
-            width: img.width,
-            height: img.height
-          });
-          // Center the image
-          setPanOffset({ x: 50, y: 50 });
-          setIsLoading(false);
-        };
-        img.src = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+      
+      try {
+        if (currentFloorPlan?.id) {
+          await uploadImageToBackend(file);
+        } else {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+              setImage(reader.result as string);
+              setImageDimensions({
+                width: img.width,
+                height: img.height
+              });
+              setPanOffset({ x: 50, y: 50 });
+              setIsLoading(false);
+              toast.success('Image uploaded successfully');
+            };
+            img.src = reader.result as string;
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (error) {
+        setIsLoading(false);
+      }
     };
     input.click();
   };
@@ -251,57 +489,46 @@ export default function ProfessionalExhibitionEditor() {
       link.download = `exhibition-floor-plan-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
+      toast.success('Exported as PNG successfully');
     } catch (error) {
       console.error('Export failed:', error);
-      alert('Export failed. Please try again.');
+      toast.error('Export failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSave = () => {
-    const data = {
-      shapes,
-      image,
-      scale,
-      createdAt: new Date().toISOString(),
-      version: "1.0"
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'exhibition-plan.json';
-    link.click();
-    URL.revokeObjectURL(url);
+    if (currentFloorPlan?.id) {
+      saveFloorPlanToBackend();
+    } else {
+      setShowSaveModal(true);
+    }
   };
 
   const handleLoad = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target?.result as string);
-          setShapes(data.shapes || []);
-          setImage(data.image || null);
-          setScale(data.scale || 0.1);
-        } catch (error) {
-          console.error('Error loading file:', error);
-          alert('Error loading file. Please check the file format.');
-        }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
+    setShowLoadModal(true);
   };
 
-  /* ================= UTILITY FUNCTIONS ================= */
+  const createNewPlan = () => {
+    if (shapes.length > 0 && !currentFloorPlan?.id) {
+      if (!confirm('You have unsaved changes. Create new plan?')) {
+        return;
+      }
+    }
+    
+    setCurrentFloorPlan(null);
+    setShapes([]);
+    setImage(null);
+    setSelectedId(null);
+    setPanOffset({ x: 0, y: 0 });
+    setZoom(1);
+    setPlanName('');
+    setPlanDescription('');
+    
+    toast.success('New plan created');
+  };
+
   const getCoordinates = (clientX: number, clientY: number) => {
     if (!containerRef.current) return { x: 0, y: 0 };
     const rect = containerRef.current.getBoundingClientRect();
@@ -316,7 +543,6 @@ export default function ProfessionalExhibitionEditor() {
     return { x, y };
   };
 
-  /* ================= DRAWING & INTERACTION - MOUSE EVENTS ================= */
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!containerRef.current) return;
@@ -355,6 +581,7 @@ export default function ProfessionalExhibitionEditor() {
         fontSize,
         text: shapeType === "text" ? "Text" : getDefaultText(shapeType),
         zIndex: shapes.length,
+        isLocked: false,
         metadata: shapeType === "booth" ? {
           boothNumber: (shapes.filter(s => s.type === "booth").length + 1).toString(),
           status: "available",
@@ -461,7 +688,6 @@ export default function ProfessionalExhibitionEditor() {
     setTempShape(null);
   };
 
-  /* ================= TOUCH EVENTS FOR MOBILE ================= */
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault();
     if (!containerRef.current) return;
@@ -501,6 +727,7 @@ export default function ProfessionalExhibitionEditor() {
         fontSize,
         text: shapeType === "text" ? "Text" : getDefaultText(shapeType),
         zIndex: shapes.length,
+        isLocked: false,
         metadata: shapeType === "booth" ? {
           boothNumber: (shapes.filter(s => s.type === "booth").length + 1).toString(),
           status: "available",
@@ -584,7 +811,6 @@ export default function ProfessionalExhibitionEditor() {
     setTempShape(null);
   };
 
-  /* ================= SHAPE ACTIONS ================= */
   const handleShapeClick = (shapeId: string, e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     if (currentTool === "select") {
@@ -601,6 +827,7 @@ export default function ProfessionalExhibitionEditor() {
       setShapes(prev => prev.filter(s => s.id !== selectedId));
       setSelectedId(null);
       setShowBoothDetails(false);
+      toast.success('Shape deleted');
     }
   };
 
@@ -616,6 +843,7 @@ export default function ProfessionalExhibitionEditor() {
         };
         setShapes(prev => [...prev, duplicate]);
         setSelectedId(duplicate.id);
+        toast.success('Shape duplicated');
       }
     }
   };
@@ -629,6 +857,7 @@ export default function ProfessionalExhibitionEditor() {
             : s
         )
       );
+      toast.success('Shape rotated');
     }
   };
 
@@ -688,6 +917,7 @@ export default function ProfessionalExhibitionEditor() {
             : s
         )
       );
+      toast.success('Brought to front');
     }
   };
 
@@ -701,6 +931,7 @@ export default function ProfessionalExhibitionEditor() {
             : s
         )
       );
+      toast.success('Sent to back');
     }
   };
 
@@ -713,24 +944,92 @@ export default function ProfessionalExhibitionEditor() {
             : s
         )
       );
+      const selected = shapes.find(s => s.id === selectedId);
+      toast.success(selected?.isLocked ? 'Shape unlocked' : 'Shape locked');
     }
   };
 
-  const updateShapeMetadata = (metadata: Partial<Shape['metadata']>) => {
+  const updateSelectedText = (text: string) => {
     if (selectedId) {
       setShapes(prev =>
         prev.map(s =>
           s.id === selectedId
-            ? { ...s, metadata: { ...s.metadata, ...metadata } }
+            ? { ...s, text }
             : s
         )
       );
     }
   };
 
-  const selectedShape = shapes.find(s => s.id === selectedId);
+  const updateBoothMetadata = (key: string, value: any) => {
+    if (selectedId) {
+      setShapes(prev =>
+        prev.map(s => {
+          if (s.id !== selectedId) return s;
+          return {
+            ...s,
+            metadata: {
+              ...s.metadata,
+              [key]: value
+            }
+          };
+        })
+      );
+    }
+  };
 
-  /* ================= LAYERS ================= */
+  const getDefaultText = (shapeType: ShapeType): string => {
+    const shapeCount = shapes.filter(s => s.type === shapeType).length + 1;
+    switch (shapeType) {
+      case 'booth': return `Booth ${shapeCount}`;
+      case 'table': return `Table ${shapeCount}`;
+      case 'chair': return `Chair ${shapeCount}`;
+      case 'door': return 'Door';
+      case 'stairs': return 'Stairs';
+      case 'toilet': return 'Toilet';
+      case 'register': return 'Register';
+      case 'stage': return 'Stage';
+      case 'screen': return 'Screen';
+      case 'speaker': return 'Speaker';
+      case 'cafe': return 'Cafe';
+      case 'storage': return 'Storage';
+      case 'truck': return 'Loading';
+      case 'pillar': return 'Pillar';
+      case 'info': return 'Info Desk';
+      case 'emergency': return 'Emergency';
+      case 'text': return 'Text';
+      default: return shapeType.charAt(0).toUpperCase() + shapeType.slice(1);
+    }
+  };
+
+  const getShapeIcon = (shapeType: ShapeType) => {
+    const shape = exhibitionShapes.find(s => s.type === shapeType);
+    return shape?.icon || Square;
+  };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.25, 5));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.25, 0.25));
+  };
+
+  const handleZoomReset = () => {
+    setZoom(1);
+    setPanOffset({ x: 0, y: 0 });
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
   const toggleLayerVisibility = (layerId: string) => {
     setLayers(prev =>
       prev.map(layer =>
@@ -751,1327 +1050,1008 @@ export default function ProfessionalExhibitionEditor() {
     );
   };
 
-  const getShapeIcon = (type: ShapeType) => {
-    const shapeDef = exhibitionShapes.find(s => s.type === type);
-    return shapeDef?.icon || Square;
+  const getShapesForActiveLayer = () => {
+    const layer = layers.find(l => l.id === activeLayer);
+    if (!layer) return shapes;
+    
+    return shapes.filter(shape => {
+      const shapeDef = exhibitionShapes.find(s => s.type === shape.type);
+      return shapeDef?.category === layer.category;
+    });
   };
 
-  const calculateDistance = (x1: number, y1: number, x2: number, y2: number) => {
-    const dx = Math.abs(x2 - x1);
-    const dy = Math.abs(y2 - y1);
+  const calculateMeasurement = () => {
+    if (!measurementLine) return '';
+    const dx = measurementLine.x2 - measurementLine.x1;
+    const dy = measurementLine.y2 - measurementLine.y1;
     const pixels = Math.sqrt(dx * dx + dy * dy);
-    return {
-      pixels: Math.round(pixels),
-      meters: Math.round(pixels * scale * 100) / 100
-    };
+    const meters = pixels * scale;
+    return `${meters.toFixed(2)}m (${pixels.toFixed(0)}px)`;
   };
 
-  const getDefaultText = (type: ShapeType): string => {
-    const defaults: Record<ShapeType, string> = {
-      rectangle: "Area", square: "Square", circle: "Circle", ellipse: "Ellipse",
-      triangle: "Triangle", hexagon: "Hexagon", octagon: "Octagon", star: "Star",
-      heart: "Heart", line: "Line", arrow: "Arrow", text: "Text",
-      booth: "Booth", table: "Table", chair: "Chair", door: "Door",
-      stairs: "Stairs", toilet: "Toilet", register: "Register", stage: "Stage",
-      screen: "Screen", speaker: "Speaker", cafe: "Cafe", storage: "Storage",
-      truck: "Truck", pillar: "Pillar", info: "Info", emergency: "Emergency"
-    };
-    return defaults[type] || type;
+  const safeNumber = (value: any): number => {
+    const num = Number(value);
+    return isNaN(num) ? 0 : num;
   };
 
-  const safeNumber = (num: number | undefined): number => {
-    return num && !isNaN(num) ? num : 0;
+  const getSelectedShape = () => {
+    return shapes.find(s => s.id === selectedId);
   };
 
-  /* ================= KEYBOARD SHORTCUTS ================= */
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+  const renderShape = (shape: Shape) => {
+    const isSelected = shape.id === selectedId;
+    const layer = layers.find(l => {
+      const shapeDef = exhibitionShapes.find(s => s.type === shape.type);
+      return shapeDef?.category === l.category;
+    });
 
-      switch (e.key.toLowerCase()) {
-        case "delete":
-        case "backspace":
-          deleteSelected();
-          break;
-        case "d":
-          if (e.ctrlKey) duplicateSelected();
-          break;
-        case "r":
-          rotateSelected();
-          break;
-        case "[":
-          sendToBack();
-          break;
-        case "]":
-          bringToFront();
-          break;
-        case "l":
-          toggleLock();
-          break;
-        case " ":
-          setCurrentTool("pan");
-          break;
-        case "escape":
-          setSelectedId(null);
-          setCurrentTool("select");
-          setShowBoothDetails(false);
-          break;
-        case "+":
-        case "=":
-          if (e.ctrlKey) setZoom(z => Math.min(z + 0.1, 5));
-          break;
-        case "-":
-          if (e.ctrlKey) setZoom(z => Math.max(z - 0.1, 0.1));
-          break;
-        case "m":
-          setCurrentTool("measure");
-          break;
-        case "s":
-          if (e.ctrlKey) {
-            e.preventDefault();
-            handleSave();
-          }
-          break;
-        case "f":
-          if (e.ctrlKey) {
-            e.preventDefault();
-            setIsFullscreen(!isFullscreen);
-          }
-          break;
-      }
+    if (layer && !layer.visible) return null;
+
+    const commonStyles: CSSProperties = {
+      position: 'absolute',
+      left: `${shape.x}px`,
+      top: `${shape.y}px`,
+      width: `${shape.width}px`,
+      height: `${shape.height}px`,
+      transform: `rotate(${shape.rotation}deg)`,
+      backgroundColor: shape.color || 'transparent',
+      border: `${shape.borderWidth}px solid ${shape.borderColor}`,
+      zIndex: shape.zIndex,
+      cursor: layer?.locked || shape.isLocked ? 'not-allowed' : 'move',
+      pointerEvents: (layer?.locked || shape.isLocked ? 'none' : 'auto') as 'auto' | 'none',
+      boxSizing: 'border-box',
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedId, shapes, isFullscreen]);
+    const textStyles: CSSProperties = {
+      ...commonStyles,
+      backgroundColor: 'transparent',
+      border: 'none',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: `${shape.fontSize}px`,
+      color: shape.borderColor,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      whiteSpace: 'pre-wrap',
+      wordBreak: 'break-word',
+      padding: '4px',
+      userSelect: 'none',
+    };
 
-  // Handle fullscreen
-  useEffect(() => {
-    if (isFullscreen) {
-      document.documentElement.requestFullscreen?.();
-    } else if (document.fullscreenElement) {
-      document.exitFullscreen?.();
-    }
-  }, [isFullscreen]);
+    switch (shape.type) {
+      case 'circle':
+        return (
+          <div
+            key={shape.id}
+            style={{
+              ...commonStyles,
+              borderRadius: '50%',
+            }}
+            onClick={(e) => handleShapeClick(shape.id, e)}
+            onTouchStart={(e) => handleShapeClick(shape.id, e)}
+          />
+        );
 
-  const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
-
-  return (
-    <div className={`flex flex-col h-screen bg-gray-50 ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
-      {/* HEADER */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
-        <div className="flex items-center justify-between">
-          {/* Left: Logo & Title */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
-            >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-600 text-white p-2 rounded-lg">
-                <Building2 size={20} />
-              </div>
-              <div>
-                <h1 className="font-semibold text-gray-800">Exhibition Planner</h1>
-                <p className="text-xs text-gray-500">Professional Floor Plan Designer</p>
-              </div>
-            </div>
+      case 'text':
+        return (
+          <div
+            key={shape.id}
+            style={textStyles}
+            onClick={(e) => handleShapeClick(shape.id, e)}
+            onTouchStart={(e) => handleShapeClick(shape.id, e)}
+          >
+            {shape.text}
           </div>
+        );
 
-          {/* Center: Stats & Status */}
-          <div className="hidden md:flex items-center gap-6">
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-gray-600">{shapes.filter(s => s.type === 'booth').length} Booths</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">{shapes.length} Objects</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span className="text-gray-600">Scale: 1px = {scale}m</span>
-              </div>
+      case 'booth':
+        const boothStatus = shape.metadata?.status || 'available';
+        return (
+          <div
+            key={shape.id}
+            style={{
+              ...commonStyles,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px',
+              background: `linear-gradient(135deg, ${shape.color} 0%, rgba(255,255,255,0.3) 100%)`,
+            } as CSSProperties}
+            onClick={(e) => handleShapeClick(shape.id, e)}
+            onTouchStart={(e) => handleShapeClick(shape.id, e)}
+          >
+            <div style={{
+              fontSize: '10px',
+              fontWeight: 'bold',
+              color: shape.borderColor,
+              textAlign: 'center',
+              marginBottom: '2px'
+            }}>
+              {shape.text}
             </div>
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2">
-            {/* Device Mode Selector */}
-            <div className="hidden md:flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setDeviceMode("desktop")}
-                className={`p-1.5 rounded ${deviceMode === "desktop" ? "bg-white shadow" : "hover:bg-gray-200"}`}
-                title="Desktop View"
-              >
-                <MonitorIcon size={14} />
-              </button>
-              <button
-                onClick={() => setDeviceMode("tablet")}
-                className={`p-1.5 rounded ${deviceMode === "tablet" ? "bg-white shadow" : "hover:bg-gray-200"}`}
-                title="Tablet View"
-              >
-                <Tablet size={14} />
-              </button>
-              <button
-                onClick={() => setDeviceMode("mobile")}
-                className={`p-1.5 rounded ${deviceMode === "mobile" ? "bg-white shadow" : "hover:bg-gray-200"}`}
-                title="Mobile View"
-              >
-                <Smartphone size={14} />
-              </button>
-            </div>
-
-            {/* Fullscreen Toggle */}
-            <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-              title={isFullscreen ? "Exit Fullscreen (Ctrl+F)" : "Fullscreen (Ctrl+F)"}
-            >
-              {isFullscreen ? <Minimize size={18} /> : <Expand size={18} />}
-            </button>
-
-            {/* File Actions */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleLoad}
-                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm flex items-center gap-2"
-              >
-                <Save size={14} />
-                <span className="hidden sm:inline">Load</span>
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm flex items-center gap-2"
-              >
-                <Save size={14} />
-                <span className="hidden sm:inline">Save</span>
-              </button>
-              <button
-                onClick={handleUpload}
-                disabled={isLoading}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center gap-2 disabled:opacity-50"
-              >
-                {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-                <span className="hidden sm:inline">Upload</span>
-              </button>
-              <button
-                onClick={handleExport}
-                disabled={isLoading}
-                className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm flex items-center gap-2 disabled:opacity-50"
-              >
-                {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                <span className="hidden sm:inline">Export</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Stats Bar */}
-        <div className="md:hidden mt-3 pt-3 border-t border-gray-100">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600">{shapes.filter(s => s.type === 'booth').length} Booths</span>
-              <span className="text-gray-600">{shapes.length} Objects</span>
-              <span className="text-gray-600">Scale: {scale}</span>
-            </div>
-            <span className="text-gray-500">Zoom: {Math.round(zoom * 100)}%</span>
-          </div>
-        </div>
-      </header>
-
-      {/* MAIN CONTENT */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* LEFT SIDEBAR - TOOLS (Collapsible) */}
-        {(isToolsOpen || deviceMode === "desktop") && (
-          <aside className={`${deviceMode === "mobile" ? 'absolute inset-y-0 left-0 z-40 w-72 bg-white shadow-xl' : 'w-72'} ${deviceMode === "tablet" ? 'w-64' : ''} bg-white border-r border-gray-200 flex flex-col transition-all duration-200`}>
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                  <Settings size={16} />
-                  Tools & Properties
-                </h3>
-                <button
-                  onClick={() => setIsToolsOpen(false)}
-                  className="lg:hidden p-1 hover:bg-gray-100 rounded"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-              </div>
-
-              {/* Tools Grid */}
-              <div className="grid grid-cols-2 gap-2 mb-6">
-                {[
-                  { tool: "select", icon: MousePointer, label: "Select", color: "blue" },
-                  { tool: "pan", icon: Hand, label: "Pan", color: "gray" },
-                  { tool: "draw", icon: Square, label: "Draw", color: "purple" },
-                  { tool: "text", icon: Type, label: "Text", color: "green" },
-                  { tool: "measure", icon: Ruler, label: "Measure", color: "red" },
-                ].map(({ tool, icon: Icon, label, color }) => (
-                  <button
-                    key={tool}
-                    onClick={() => setCurrentTool(tool as ToolMode)}
-                    className={`flex flex-col items-center p-3 rounded-lg border transition-all ${
-                      currentTool === tool
-                        ? `bg-${color}-50 border-${color}-200 text-${color}-700 shadow-sm`
-                        : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Icon size={18} />
-                    <span className="text-xs mt-1">{label}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Quick Actions */}
-              {selectedShape && (
-                <div className="mb-6">
-                  <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Quick Actions</h4>
-                  <div className="grid grid-cols-4 gap-2">
-                    <button
-                      onClick={duplicateSelected}
-                      className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg"
-                      title="Duplicate"
-                    >
-                      <Copy size={14} />
-                    </button>
-                    <button
-                      onClick={rotateSelected}
-                      className="p-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg"
-                      title="Rotate"
-                    >
-                      <RotateCw size={14} />
-                    </button>
-                    <button
-                      onClick={bringToFront}
-                      className="p-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg"
-                      title="Bring to Front"
-                    >
-                      <Layers size={14} />
-                    </button>
-                    <button
-                      onClick={sendToBack}
-                      className="p-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg"
-                      title="Send to Back"
-                    >
-                      <Layers size={14} className="rotate-180" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Color Picker */}
-              <div className="mb-6">
-                <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Colors</h4>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-sm text-gray-700 mb-1 block">Fill Color</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="color"
-                        value={currentColor}
-                        onChange={e => setCurrentColor(e.target.value)}
-                        className="w-10 h-10 cursor-pointer rounded-lg border border-gray-300"
-                      />
-                      <div className="grid grid-cols-5 gap-1 flex-1">
-                        {colorPalette.map((color, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setCurrentColor(color)}
-                            className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-700 mb-1 block">Border Color</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="color"
-                        value={currentBorderColor}
-                        onChange={e => setCurrentBorderColor(e.target.value)}
-                        className="w-10 h-10 cursor-pointer rounded-lg border border-gray-300"
-                      />
-                      <div className="grid grid-cols-5 gap-1 flex-1">
-                        {borderColors.map((color, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setCurrentBorderColor(color)}
-                            className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Shapes Library */}
-            {currentTool === "draw" && (
-              <div className="p-4 border-t border-gray-200 overflow-y-auto flex-1">
-                <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Shapes Library</h4>
-                <div className="space-y-4">
-                  {["booths", "fixtures", "basic", "text"].map(category => (
-                    <div key={category}>
-                      <h5 className="text-sm font-medium text-gray-700 mb-2 capitalize">{category}</h5>
-                      <div className="grid grid-cols-3 gap-2">
-                        {exhibitionShapes
-                          .filter(shape => shape.category === category)
-                          .map(({ type, label, icon: Icon }) => (
-                            <button
-                              key={type}
-                              onClick={() => setCurrentShape(type as ShapeType)}
-                              className={`flex flex-col items-center p-2 rounded-lg border transition-all ${
-                                currentShape === type
-                                  ? 'bg-blue-50 border-blue-500 text-blue-700'
-                                  : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                              }`}
-                            >
-                              <Icon size={16} />
-                              <span className="text-xs mt-1 truncate w-full">{label}</span>
-                            </button>
-                          ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {shape.metadata?.boothNumber && (
+              <div style={{
+                fontSize: '8px',
+                color: statusColors[boothStatus as keyof typeof statusColors] || '#666',
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                padding: '1px 4px',
+                borderRadius: '3px',
+                fontWeight: 'bold'
+              }}>
+                #{shape.metadata.boothNumber}
               </div>
             )}
+          </div>
+        );
 
-            {/* Settings Panel */}
-            <div className="p-4 border-t border-gray-200">
-              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Settings</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm text-gray-700">Show Grid</label>
-                  <button
-                    onClick={() => setShowGrid(!showGrid)}
-                    className={`w-10 h-5 rounded-full transition-colors ${showGrid ? 'bg-blue-600' : 'bg-gray-300'}`}
-                  >
-                    <div className={`w-3 h-3 rounded-full bg-white transform transition-transform ${showGrid ? 'translate-x-6' : 'translate-x-1'}`} />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-sm text-gray-700">Snap to Grid</label>
-                  <button
-                    onClick={() => setIsSnapToGrid(!isSnapToGrid)}
-                    className={`w-10 h-5 rounded-full transition-colors ${isSnapToGrid ? 'bg-green-600' : 'bg-gray-300'}`}
-                  >
-                    <div className={`w-3 h-3 rounded-full bg-white transform transition-transform ${isSnapToGrid ? 'translate-x-6' : 'translate-x-1'}`} />
-                  </button>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-700 mb-1 block">Grid Size: {gridSize}px</label>
-                  <input
-                    type="range"
-                    min="10"
-                    max="100"
-                    step="10"
-                    value={gridSize}
-                    onChange={e => setGridSize(parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-700 mb-1 block">Scale: 1px = {scale}m</label>
-                  <input
-                    type="range"
-                    min="0.01"
-                    max="1"
-                    step="0.01"
-                    value={scale}
-                    onChange={e => setScale(parseFloat(e.target.value))}
-                    className="w-full"
-                  />
-                </div>
+      default:
+        return (
+          <div
+            key={shape.id}
+            style={commonStyles}
+            onClick={(e) => handleShapeClick(shape.id, e)}
+            onTouchStart={(e) => handleShapeClick(shape.id, e)}
+          >
+            {shape.text && (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: shape.borderColor,
+                textAlign: 'center',
+                width: '100%',
+                padding: '0 4px',
+              }}>
+                {shape.text}
               </div>
-            </div>
-          </aside>
+            )}
+          </div>
+        );
+    }
+  };
+
+  const renderSelectionHandles = () => {
+    const selected = getSelectedShape();
+    if (!selected || selected.type === 'text') return null;
+
+    const handles = [
+      { position: 'nw', x: -4, y: -4 },
+      { position: 'ne', x: selected.width - 4, y: -4 },
+      { position: 'sw', x: -4, y: selected.height - 4 },
+      { position: 'se', x: selected.width - 4, y: selected.height - 4 },
+    ];
+
+    return handles.map(handle => (
+      <div
+        key={handle.position}
+        style={{
+          position: 'absolute',
+          left: `${selected.x + handle.x}px`,
+          top: `${selected.y + handle.y}px`,
+          width: '8px',
+          height: '8px',
+          backgroundColor: '#3b82f6',
+          border: '2px solid white',
+          borderRadius: '2px',
+          cursor: `${handle.position}-resize`,
+          zIndex: 1000,
+        } as CSSProperties}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          const startX = e.clientX;
+          const startY = e.clientY;
+
+          const handleMouseMove = (me: MouseEvent) => {
+            const deltaX = me.clientX - startX;
+            const deltaY = me.clientY - startY;
+            resizeSelected(handle.position as 'nw' | 'ne' | 'sw' | 'se', deltaX, deltaY);
+          };
+
+          const handleMouseUp = () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+          };
+
+          document.addEventListener('mousemove', handleMouseMove);
+          document.addEventListener('mouseup', handleMouseUp);
+        }}
+      />
+    ));
+  };
+
+  const renderMeasurementLine = () => {
+    if (!measurementLine || !showMeasurements) return null;
+
+    const distance = calculateMeasurement();
+    const midX = (measurementLine.x1 + measurementLine.x2) / 2;
+    const midY = (measurementLine.y1 + measurementLine.y2) / 2;
+
+    return (
+      <>
+        <svg
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: 100,
+          }}
+        >
+          <line
+            x1={measurementLine.x1}
+            y1={measurementLine.y1}
+            x2={measurementLine.x2}
+            y2={measurementLine.y2}
+            stroke="#ef4444"
+            strokeWidth="2"
+            strokeDasharray="5,5"
+          />
+          <circle cx={measurementLine.x1} cy={measurementLine.y1} r="4" fill="#ef4444" />
+          <circle cx={measurementLine.x2} cy={measurementLine.y2} r="4" fill="#ef4444" />
+        </svg>
+        <div
+          style={{
+            position: 'absolute',
+            left: `${midX}px`,
+            top: `${midY - 15}px`,
+            backgroundColor: '#ef4444',
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            pointerEvents: 'none',
+            zIndex: 101,
+          }}
+        >
+          {distance}
+        </div>
+      </>
+    );
+  };
+
+  const renderGrid = () => {
+    if (!showGrid) return null;
+
+    const gridLines = [];
+    const width = imageDimensions?.width || 800;
+    const height = imageDimensions?.height || 600;
+
+    for (let x = 0; x < width; x += gridSize) {
+      gridLines.push(
+        <line
+          key={`v-${x}`}
+          x1={x}
+          y1={0}
+          x2={x}
+          y2={height}
+          stroke="#e5e7eb"
+          strokeWidth="1"
+        />
+      );
+    }
+
+    for (let y = 0; y < height; y += gridSize) {
+      gridLines.push(
+        <line
+          key={`h-${y}`}
+          x1={0}
+          y1={y}
+          x2={width}
+          y2={y}
+          stroke="#e5e7eb"
+          strokeWidth="1"
+        />
+      );
+    }
+
+    return (
+      <svg
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: `${width}px`,
+          height: `${height}px`,
+          pointerEvents: 'none',
+          zIndex: 10,
+        }}
+      >
+        {gridLines}
+      </svg>
+    );
+  };
+
+  const renderToolbar = () => {
+    return (
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        padding: '12px',
+        backgroundColor: '#f3f4f6',
+        borderRadius: '8px',
+        flexWrap: 'wrap',
+      }}>
+        <button
+          onClick={() => setCurrentTool('select')}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: currentTool === 'select' ? '#3b82f6' : '#e5e7eb',
+            color: currentTool === 'select' ? 'white' : 'black',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <MousePointer size={16} /> Select
+        </button>
+        <button
+          onClick={() => setCurrentTool('draw')}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: currentTool === 'draw' ? '#3b82f6' : '#e5e7eb',
+            color: currentTool === 'draw' ? 'white' : 'black',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <Square size={16} /> Draw
+        </button>
+        <button
+          onClick={() => setCurrentTool('text')}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: currentTool === 'text' ? '#3b82f6' : '#e5e7eb',
+            color: currentTool === 'text' ? 'white' : 'black',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <Type size={16} /> Text
+        </button>
+        <button
+          onClick={() => setCurrentTool('pan')}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: currentTool === 'pan' ? '#3b82f6' : '#e5e7eb',
+            color: currentTool === 'pan' ? 'white' : 'black',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <Hand size={16} /> Pan
+        </button>
+        <button
+          onClick={() => setCurrentTool('measure')}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: currentTool === 'measure' ? '#3b82f6' : '#e5e7eb',
+            color: currentTool === 'measure' ? 'white' : 'black',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <Ruler size={16} /> Measure
+        </button>
+        <div style={{ flex: 1 }} />
+        <button
+          onClick={handleZoomIn}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#e5e7eb',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <ZoomIn size={16} />
+        </button>
+        <button
+          onClick={handleZoomOut}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#e5e7eb',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <ZoomOut size={16} />
+        </button>
+        <button
+          onClick={handleZoomReset}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#e5e7eb',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <RotateCw size={16} />
+        </button>
+      </div>
+    );
+  };
+
+  const renderPropertiesPanel = () => {
+    const selected = getSelectedShape();
+    if (!selected) return null;
+
+    return (
+      <div style={{
+        padding: '16px',
+        backgroundColor: '#f9fafb',
+        borderRadius: '8px',
+        border: '1px solid #e5e7eb',
+      }}>
+        <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '16px', fontWeight: 'bold' }}>
+          Properties
+        </h3>
+        
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            Fill Color
+          </label>
+          <input
+            type="color"
+            value={selected.color || '#3b82f6'}
+            onChange={(e) => {
+              setShapes(prev =>
+                prev.map(s => s.id === selectedId ? { ...s, color: e.target.value } : s)
+              );
+            }}
+            style={{ width: '100%', padding: '4px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            Border Color
+          </label>
+          <input
+            type="color"
+            value={selected.borderColor}
+            onChange={(e) => {
+              setShapes(prev =>
+                prev.map(s => s.id === selectedId ? { ...s, borderColor: e.target.value } : s)
+              );
+            }}
+            style={{ width: '100%', padding: '4px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            Border Width: {selected.borderWidth}px
+          </label>
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={selected.borderWidth}
+            onChange={(e) => {
+              setShapes(prev =>
+                prev.map(s => s.id === selectedId ? { ...s, borderWidth: parseInt(e.target.value) } : s)
+              );
+            }}
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        {selected.type === 'text' && (
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+              Text
+            </label>
+            <input
+              type="text"
+              value={selected.text}
+              onChange={(e) => updateSelectedText(e.target.value)}
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+            />
+          </div>
         )}
 
-        {/* MAIN CANVAS AREA */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-          {/* Canvas Controls Bar */}
-          <div className="bg-white border-b border-gray-200 p-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              {/* Left: Zoom Controls */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setZoom(z => Math.max(z - 0.2, 0.1))}
-                    className="p-2 hover:bg-gray-200 rounded disabled:opacity-50"
-                    disabled={zoom <= 0.1}
-                  >
-                    <ZoomOut size={16} />
-                  </button>
-                  <select
-                    value={zoom}
-                    onChange={e => setZoom(parseFloat(e.target.value))}
-                    className="bg-transparent px-2 py-1 text-sm focus:outline-none"
-                  >
-                    {zoomLevels.map(level => (
-                      <option key={level} value={level}>
-                        {Math.round(level * 100)}%
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => setZoom(z => Math.min(z + 0.2, 5))}
-                    className="p-2 hover:bg-gray-200 rounded disabled:opacity-50"
-                    disabled={zoom >= 5}
-                  >
-                    <ZoomIn size={16} />
-                  </button>
-                  <button
-                    onClick={() => setZoom(1)}
-                    className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"
-                  >
-                    Reset
-                  </button>
-                </div>
-
-                {/* View Toggles */}
-                <div className="flex items-center gap-2 ml-2">
-                  <button
-                    onClick={() => setShowGrid(!showGrid)}
-                    className={`px-3 py-1.5 rounded text-sm flex items-center gap-2 ${showGrid ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}
-                  >
-                    <Grid size={14} />
-                    Grid
-                  </button>
-                  <button
-                    onClick={() => setShowMeasurements(!showMeasurements)}
-                    className={`px-3 py-1.5 rounded text-sm flex items-center gap-2 ${showMeasurements ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}
-                  >
-                    <Ruler size={14} />
-                    Measure
-                  </button>
-                </div>
-              </div>
-
-              {/* Center: Selected Shape Actions */}
-              {selectedShape && (
-                <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
-                  <span className="text-sm text-gray-600 px-2">Selected:</span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={duplicateSelected}
-                      className="p-2 hover:bg-white rounded-lg transition-colors"
-                      title="Duplicate (Ctrl+D)"
-                    >
-                      <Copy size={14} />
-                    </button>
-                    <button
-                      onClick={rotateSelected}
-                      className="p-2 hover:bg-white rounded-lg transition-colors"
-                      title="Rotate (R)"
-                    >
-                      <RotateCw size={14} />
-                    </button>
-                    <button
-                      onClick={toggleLock}
-                      className={`p-2 rounded-lg transition-colors ${selectedShape.isLocked ? 'bg-red-100 text-red-600' : 'hover:bg-white'}`}
-                      title="Lock/Unlock (L)"
-                    >
-                      <Move size={14} />
-                    </button>
-                    <button
-                      onClick={deleteSelected}
-                      className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
-                      title="Delete (Del)"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Right: Info & Help */}
-              <div className="text-xs text-gray-500">
-                <span className="hidden sm:inline">
-                  <kbd className="px-2 py-1 bg-gray-100 rounded border mr-2">Space</kbd> Pan •
-                  <kbd className="px-2 py-1 bg-gray-100 rounded border mx-2">Esc</kbd> Cancel •
-                  <kbd className="px-2 py-1 bg-gray-100 rounded border mx-2">Del</kbd> Delete
-                </span>
-              </div>
-            </div>
+        {selected.type === 'text' && (
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+              Font Size: {selected.fontSize}px
+            </label>
+            <input
+              type="range"
+              min="8"
+              max="48"
+              value={selected.fontSize}
+              onChange={(e) => {
+                setShapes(prev =>
+                  prev.map(s => s.id === selectedId ? { ...s, fontSize: parseInt(e.target.value) } : s)
+                );
+              }}
+              style={{ width: '100%' }}
+            />
           </div>
+        )}
 
-          {/* Canvas Container */}
-          <div
-            ref={containerRef}
-            className="flex-1 relative overflow-hidden bg-gray-50 select-none"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onContextMenu={(e) => e.preventDefault()}
-          >
-            {/* Grid Background */}
-            {showGrid && (
-              <div
-                className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage: `
-                    linear-gradient(to right, #94a3b8 1px, transparent 1px),
-                    linear-gradient(to bottom, #94a3b8 1px, transparent 1px)
-                  `,
-                  backgroundSize: `${gridSize * zoom}px ${gridSize * zoom}px`,
-                  transform: `translate(${panOffset.x * zoom}px, ${panOffset.y * zoom}px)`
-                }}
+        {selected.type === 'booth' && selected.metadata && (
+          <>
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Booth Number
+              </label>
+              <input
+                type="text"
+                value={selected.metadata.boothNumber || ''}
+                onChange={(e) => updateBoothMetadata('boothNumber', e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
               />
-            )}
+            </div>
 
-            {/* Canvas Content */}
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Status
+              </label>
+              <select
+                value={selected.metadata.status || 'available'}
+                onChange={(e) => updateBoothMetadata('status', e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+              >
+                <option value="available">Available</option>
+                <option value="booked">Booked</option>
+                <option value="reserved">Reserved</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Category
+              </label>
+              <input
+                type="text"
+                value={selected.metadata.category || ''}
+                onChange={(e) => updateBoothMetadata('category', e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Notes
+              </label>
+              <textarea
+                value={selected.metadata.notes || ''}
+                onChange={(e) => updateBoothMetadata('notes', e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db', minHeight: '60px' }}
+              />
+            </div>
+          </>
+        )}
+
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            Rotation: {selected.rotation}°
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="360"
+            value={selected.rotation}
+            onChange={(e) => {
+              setShapes(prev =>
+                prev.map(s => s.id === selectedId ? { ...s, rotation: parseInt(e.target.value) } : s)
+              );
+            }}
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <button
+          onClick={toggleLock}
+          style={{
+            width: '100%',
+            padding: '8px',
+            marginBottom: '8px',
+            backgroundColor: selected.isLocked ? '#ef4444' : '#10b981',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          {selected.isLocked ? 'Unlock' : 'Lock'}
+        </button>
+
+        <button
+          onClick={deleteSelected}
+          style={{
+            width: '100%',
+            padding: '8px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          Delete
+        </button>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff' }}>
+      <Toaster />
+      
+      <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+          <button
+            onClick={handleUpload}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Upload size={16} /> Upload Background
+          </button>
+          
+          <button
+            onClick={handleSave}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Save size={16} /> Save
+          </button>
+
+          <button
+            onClick={handleLoad}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#8b5cf6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Download size={16} /> Load
+          </button>
+
+          <button
+            onClick={() => exportFloorPlan('png')}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Download size={16} /> Export
+          </button>
+
+          <button
+            onClick={createNewPlan}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#6366f1',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 'bold',
+            }}
+          >
+            <Plus size={16} /> New
+          </button>
+        </div>
+
+        {renderToolbar()}
+      </div>
+
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+          <div style={{
+            flex: 1,
+            overflow: 'auto',
+            backgroundColor: '#f3f4f6',
+            position: 'relative',
+          }}>
             <div
-              className="absolute inset-0"
+              ref={containerRef}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
               style={{
-                transform: `
-                  translate(${panOffset.x * zoom}px, ${panOffset.y * zoom}px)
-                  scale(${zoom})
-                `,
-                transformOrigin: '0 0'
+                position: 'relative',
+                width: imageDimensions?.width || 800,
+                height: imageDimensions?.height || 600,
+                margin: 'auto',
+                backgroundColor: '#ffffff',
+                backgroundImage: image ? `url(${image})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                transform: `scale(${zoom}) translate(${panOffset.x}px, ${panOffset.y}px)`,
+                transformOrigin: '0 0',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
               }}
             >
-              {/* Background Image */}
-              {image && (
-                <img
-                  src={image}
-                  alt="Floor plan background"
-                  className="absolute top-0 left-0 max-w-full max-h-full object-contain select-none pointer-events-none"
-                  draggable={false}
-                  style={{ opacity: 0.7 }}
-                />
-              )}
-
-              {/* Shapes */}
-              {[...shapes]
-                .filter(shape => {
-                  const layer = layers.find(l => l.category === exhibitionShapes.find(s => s.type === shape.type)?.category);
-                  return layer ? layer.visible : true;
-                })
-                .sort((a, b) => a.zIndex - b.zIndex)
-                .map(shape => {
-                  const isSelected = shape.id === selectedId;
-                  const layer = layers.find(l => l.category === exhibitionShapes.find(s => s.type === shape.type)?.category);
-                  const isLocked = shape.isLocked || layer?.locked;
-                  
-                  return (
-                    <div
-                      key={shape.id}
-                      onClick={(e) => handleShapeClick(shape.id, e)}
-                      onTouchStart={(e) => handleShapeClick(shape.id, e)}
-                      className={`absolute transition-all duration-150 ${isLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:shadow-md'} ${
-                        isSelected ? 'ring-2 ring-blue-500 ring-offset-1 shadow-lg z-50' : ''
-                      }`}
-                      style={{
-                        left: safeNumber(shape.x),
-                        top: safeNumber(shape.y),
-                        width: safeNumber(shape.type === 'square' || shape.type === 'circle' || shape.type === 'pillar' 
-                          ? Math.max(shape.width, shape.height) 
-                          : shape.width),
-                        height: safeNumber(shape.type === 'square' || shape.type === 'circle' || shape.type === 'pillar'
-                          ? Math.max(shape.width, shape.height) 
-                          : shape.height),
-                        backgroundColor: shape.color,
-                        border: `${safeNumber(shape.borderWidth)}px solid ${shape.borderColor}`,
-                        borderRadius: getBorderRadius(shape.type),
-                        transform: `rotate(${safeNumber(shape.rotation)}deg)`,
-                        transformOrigin: 'center',
-                        zIndex: safeNumber(shape.zIndex)
-                      }}
-                    >
-                      {/* Shape Icon */}
-                      {shape.type !== "text" && (
-                        <div className="absolute top-1 left-1/2 transform -translate-x-1/2 opacity-60">
-                          {(() => {
-                            const Icon = getShapeIcon(shape.type);
-                            return <Icon size={10} />;
-                          })()}
-                        </div>
-                      )}
-
-                      {/* Text Content */}
-                      {(shape.text || shape.type === "text") && (
-                        <div className="w-full h-full flex items-center justify-center pointer-events-none p-2">
-                          <span
-                            className="text-center wrap-break-word leading-tight"
-                            style={{
-                              fontSize: Math.max(8, safeNumber(shape.fontSize)),
-                              color: shape.type === 'text' ? shape.borderColor : '#1f2937',
-                              fontWeight: shape.type === 'booth' ? '600' : '400'
-                            }}
-                          >
-                            {shape.text}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Status Indicator */}
-                      {shape.type === "booth" && shape.metadata?.status && (
-                        <div 
-                          className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white shadow-sm"
-                          style={{ backgroundColor: statusColors[shape.metadata.status] }}
-                          title={`Status: ${shape.metadata.status}`}
-                        />
-                      )}
-
-                      {/* Selection Handles & Resize Controls */}
-                      {isSelected && !isLocked && (
-                        <>
-                          {/* Corner Resize Handles */}
-                          <div
-                            className="absolute -top-1 -left-1 w-3 h-3 bg-white border border-blue-500 rounded-full cursor-nw-resize hover:bg-blue-50"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              const startX = e.clientX;
-                              const startY = e.clientY;
-                              
-                              const handleMouseMove = (e: MouseEvent) => {
-                                const deltaX = (startX - e.clientX) / zoom;
-                                const deltaY = (startY - e.clientY) / zoom;
-                                resizeSelected('nw', deltaX, deltaY);
-                              };
-                              
-                              const handleMouseUp = () => {
-                                document.removeEventListener('mousemove', handleMouseMove);
-                                document.removeEventListener('mouseup', handleMouseUp);
-                              };
-                              
-                              document.addEventListener('mousemove', handleMouseMove);
-                              document.addEventListener('mouseup', handleMouseUp);
-                            }}
-                          />
-                          <div
-                            className="absolute -top-1 -right-1 w-3 h-3 bg-white border border-blue-500 rounded-full cursor-ne-resize hover:bg-blue-50"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              const startX = e.clientX;
-                              const startY = e.clientY;
-                              
-                              const handleMouseMove = (e: MouseEvent) => {
-                                const deltaX = (e.clientX - startX) / zoom;
-                                const deltaY = (startY - e.clientY) / zoom;
-                                resizeSelected('ne', deltaX, deltaY);
-                              };
-                              
-                              const handleMouseUp = () => {
-                                document.removeEventListener('mousemove', handleMouseMove);
-                                document.removeEventListener('mouseup', handleMouseUp);
-                              };
-                              
-                              document.addEventListener('mousemove', handleMouseMove);
-                              document.addEventListener('mouseup', handleMouseUp);
-                            }}
-                          />
-                          <div
-                            className="absolute -bottom-1 -left-1 w-3 h-3 bg-white border border-blue-500 rounded-full cursor-sw-resize hover:bg-blue-50"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              const startX = e.clientX;
-                              const startY = e.clientY;
-                              
-                              const handleMouseMove = (e: MouseEvent) => {
-                                const deltaX = (startX - e.clientX) / zoom;
-                                const deltaY = (e.clientY - startY) / zoom;
-                                resizeSelected('sw', deltaX, deltaY);
-                              };
-                              
-                              const handleMouseUp = () => {
-                                document.removeEventListener('mousemove', handleMouseMove);
-                                document.removeEventListener('mouseup', handleMouseUp);
-                              };
-                              
-                              document.addEventListener('mousemove', handleMouseMove);
-                              document.addEventListener('mouseup', handleMouseUp);
-                            }}
-                          />
-                          <div
-                            className="absolute -bottom-1 -right-1 w-3 h-3 bg-white border border-blue-500 rounded-full cursor-se-resize hover:bg-blue-50"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              const startX = e.clientX;
-                              const startY = e.clientY;
-                              
-                              const handleMouseMove = (e: MouseEvent) => {
-                                const deltaX = (e.clientX - startX) / zoom;
-                                const deltaY = (e.clientY - startY) / zoom;
-                                resizeSelected('se', deltaX, deltaY);
-                              };
-                              
-                              const handleMouseUp = () => {
-                                document.removeEventListener('mousemove', handleMouseMove);
-                                document.removeEventListener('mouseup', handleMouseUp);
-                              };
-                              
-                              document.addEventListener('mousemove', handleMouseMove);
-                              document.addEventListener('mouseup', handleMouseUp);
-                            }}
-                          />
-
-                          {/* Side Resize Handles */}
-                          <div className="absolute top-1/2 -left-1 w-2 h-6 bg-white border border-blue-500 rounded cursor-w-resize -translate-y-1/2" />
-                          <div className="absolute top-1/2 -right-1 w-2 h-6 bg-white border border-blue-500 rounded cursor-e-resize -translate-y-1/2" />
-                          <div className="absolute -top-1 left-1/2 h-2 w-6 bg-white border border-blue-500 rounded cursor-n-resize -translate-x-1/2" />
-                          <div className="absolute -bottom-1 left-1/2 h-2 w-6 bg-white border border-blue-500 rounded cursor-s-resize -translate-x-1/2" />
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-
-              {/* Temporary Drawing Shape */}
-              {tempShape && (
-                <div
-                  className="absolute border-2 border-dashed border-blue-400 bg-blue-100/20"
-                  style={{
-                    left: safeNumber(tempShape.x),
-                    top: safeNumber(tempShape.y),
-                    width: safeNumber(tempShape.type === 'square' || tempShape.type === 'circle' || tempShape.type === 'pillar'
-                      ? Math.max(tempShape.width, tempShape.height) 
-                      : tempShape.width),
-                    height: safeNumber(tempShape.type === 'square' || tempShape.type === 'circle' || tempShape.type === 'pillar'
-                      ? Math.max(tempShape.width, tempShape.height) 
-                      : tempShape.height),
-                    borderRadius: getBorderRadius(tempShape.type),
-                    transform: `rotate(${safeNumber(tempShape.rotation)}deg)`,
-                    transformOrigin: 'center'
-                  }}
-                >
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-blue-600 opacity-70">{tempShape.text}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Measurement Line */}
-              {measurementLine && (
-                <>
-                  <div
-                    className="absolute bg-red-500"
-                    style={{
-                      left: safeNumber(measurementLine.x1),
-                      top: safeNumber(measurementLine.y1),
-                      width: Math.sqrt(
-                        Math.pow(measurementLine.x2 - measurementLine.x1, 2) + 
-                        Math.pow(measurementLine.y2 - measurementLine.y1, 2)
-                      ),
-                      height: 2,
-                      transform: `rotate(${Math.atan2(
-                        measurementLine.y2 - measurementLine.y1,
-                        measurementLine.x2 - measurementLine.x1
-                      )}rad)`,
-                      transformOrigin: '0 0'
-                    }}
-                  />
-                  <div
-                    className="absolute bg-white text-red-700 text-xs font-mono px-2 py-1 rounded shadow border border-red-200"
-                    style={{
-                      left: safeNumber((measurementLine.x1 + measurementLine.x2) / 2),
-                      top: safeNumber((measurementLine.y1 + measurementLine.y2) / 2) - 25,
-                      transform: 'translateX(-50%)'
-                    }}
-                  >
-                    {calculateDistance(
-                      measurementLine.x1,
-                      measurementLine.y1,
-                      measurementLine.x2,
-                      measurementLine.y2
-                    ).meters}m
-                    <div className="text-[10px] text-gray-500">
-                      ({calculateDistance(measurementLine.x1, measurementLine.y1, measurementLine.x2, measurementLine.y2).pixels}px)
-                    </div>
-                  </div>
-                </>
-              )}
+              {renderGrid()}
+              {shapes.map(shape => renderShape(shape))}
+              {tempShape && renderShape(tempShape)}
+              {selectedId && renderSelectionHandles()}
+              {renderMeasurementLine()}
             </div>
-
-            {/* Canvas Overlay Info */}
-            <div className="absolute bottom-4 left-4 bg-black/80 text-white px-3 py-2 rounded-lg text-sm font-mono">
-              <div className="flex items-center gap-4">
-                <span>Zoom: {Math.round(zoom * 100)}%</span>
-                <span className="text-gray-400">|</span>
-                <span>X: {Math.round(panOffset.x)}</span>
-                <span>Y: {Math.round(panOffset.y)}</span>
-                <span className="text-gray-400">|</span>
-                <span className="capitalize">{currentTool}</span>
-              </div>
-            </div>
-
-            {/* Mobile Floating Actions */}
-            {deviceMode === "mobile" && (
-              <div className="absolute bottom-20 right-4 flex flex-col gap-2">
-                <button
-                  onClick={() => setIsToolsOpen(!isToolsOpen)}
-                  className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50"
-                >
-                  <Settings size={20} />
-                </button>
-                <button
-                  onClick={() => setIsPropertiesOpen(!isPropertiesOpen)}
-                  className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50"
-                >
-                  <Layers size={20} />
-                </button>
-              </div>
-            )}
           </div>
-        </main>
+        </div>
 
-        {/* RIGHT SIDEBAR - PROPERTIES & LAYERS (Collapsible) */}
-        {(isPropertiesOpen || deviceMode === "desktop") && (
-          <div className={`${deviceMode === "mobile" ? 'absolute inset-y-0 right-0 z-40 w-80 bg-white shadow-xl' : 'w-80'} ${deviceMode === "tablet" ? 'w-72' : ''} bg-white border-l border-gray-200 flex flex-col transition-all duration-200`}>
-            {/* Layers Panel */}
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                  <Layers size={16} />
-                  Layers
-                </h3>
-                <button
-                  onClick={() => setIsPropertiesOpen(false)}
-                  className="lg:hidden p-1 hover:bg-gray-100 rounded"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-              <div className="space-y-2">
-                {layers.map(layer => (
-                  <div key={layer.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => toggleLayerVisibility(layer.id)}
-                        className="p-1"
-                      >
-                        {layer.visible ? <Eye size={14} className="text-gray-700" /> : <EyeOff size={14} className="text-gray-400" />}
-                      </button>
-                      <span className="text-sm text-gray-700">{layer.name}</span>
-                    </div>
-                    <button
-                      onClick={() => toggleLayerLock(layer.id)}
-                      className={`p-1 ${layer.locked ? 'text-red-600' : 'text-gray-400'}`}
-                    >
-                      <Move size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Properties Panel */}
-            <div className="flex-1 overflow-y-auto p-4">
-              {selectedShape ? (
-                showBoothDetails && selectedShape.type === "booth" ? (
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-gray-800 mb-4">Booth Details</h3>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-sm text-gray-600 mb-1 block">Booth #</label>
-                          <input
-                            type="text"
-                            value={selectedShape.metadata?.boothNumber || ""}
-                            onChange={e => updateShapeMetadata({ boothNumber: e.target.value })}
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm text-gray-600 mb-1 block">Status</label>
-                          <select
-                            value={selectedShape.metadata?.status || "available"}
-                            onChange={e => updateShapeMetadata({ status: e.target.value as any })}
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="available">Available</option>
-                            <option value="booked">Booked</option>
-                            <option value="reserved">Reserved</option>
-                            <option value="maintenance">Maintenance</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-sm text-gray-600 mb-1 block">Company</label>
-                        <input
-                          type="text"
-                          value={selectedShape.metadata?.companyName || ""}
-                          onChange={e => updateShapeMetadata({ companyName: e.target.value })}
-                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Company name"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-sm text-gray-600 mb-1 block">Contact</label>
-                          <input
-                            type="text"
-                            value={selectedShape.metadata?.contactPerson || ""}
-                            onChange={e => updateShapeMetadata({ contactPerson: e.target.value })}
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Contact person"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm text-gray-600 mb-1 block">Phone</label>
-                          <input
-                            type="tel"
-                            value={selectedShape.metadata?.phone || ""}
-                            onChange={e => updateShapeMetadata({ phone: e.target.value })}
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Phone number"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="pt-4 border-t">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Dimensions</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Width (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.width) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, width: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              min="0.1"
-                              step="0.1"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Height (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.height) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, height: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              min="0.1"
-                              step="0.1"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-4">
-                        <button
-                          onClick={deleteSelected}
-                          className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Trash2 size={14} />
-                          Delete Booth
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <h3 className="font-semibold text-gray-800">Shape Properties</h3>
-                    
-                    {/* Basic Properties */}
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm text-gray-600 mb-2 block">Type</label>
-                        <div className="text-sm text-gray-800 bg-gray-50 p-3 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            {(() => {
-                              const Icon = getShapeIcon(selectedShape.type);
-                              return <Icon size={14} />;
-                            })()}
-                            <span className="capitalize">{selectedShape.type}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Position */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Position</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">X (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.x) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, x: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              step="0.1"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Y (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.y) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, y: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              step="0.1"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Size */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Size</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Width (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.width) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, width: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              min="0.1"
-                              step="0.1"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Height (m)</label>
-                            <input
-                              type="number"
-                              value={Math.round(safeNumber(selectedShape.height) * scale * 100) / 100}
-                              onChange={e => {
-                                const meters = parseFloat(e.target.value);
-                                const pixels = meters / scale;
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, height: pixels }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              min="0.1"
-                              step="0.1"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Appearance */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Appearance</h4>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Fill Color</label>
-                            <input
-                              type="color"
-                              value={selectedShape.color}
-                              onChange={e => {
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, color: e.target.value }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full h-10 cursor-pointer rounded-lg border border-gray-300"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">Border Color</label>
-                            <input
-                              type="color"
-                              value={selectedShape.borderColor}
-                              onChange={e => {
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, borderColor: e.target.value }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full h-10 cursor-pointer rounded-lg border border-gray-300"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-600 mb-1 block">
-                              Border Width: {selectedShape.borderWidth}px
-                            </label>
-                            <input
-                              type="range"
-                              min="0"
-                              max="10"
-                              value={selectedShape.borderWidth}
-                              onChange={e => {
-                                setShapes(prev =>
-                                  prev.map(s =>
-                                    s.id === selectedId
-                                      ? { ...s, borderWidth: parseInt(e.target.value) }
-                                      : s
-                                  )
-                                );
-                              }}
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Text Content */}
-                      <div>
-                        <label className="text-sm text-gray-600 mb-1 block">Text Content</label>
-                        <input
-                          type="text"
-                          value={selectedShape.text || ""}
-                          onChange={e => {
-                            setShapes(prev =>
-                              prev.map(s =>
-                                s.id === selectedId
-                                  ? { ...s, text: e.target.value }
-                                  : s
-                              )
-                            );
-                          }}
-                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Enter text here..."
-                        />
-                      </div>
-
-                      {/* Delete Button */}
-                      <div className="pt-4">
-                        <button
-                          onClick={deleteSelected}
-                          className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Trash2 size={14} />
-                          Delete Shape
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                  <Building2 size={48} className="text-gray-300 mb-4" />
-                  <h3 className="font-medium text-gray-700 mb-2">No Selection</h3>
-                  <p className="text-sm text-gray-500 mb-6">Select a shape to view and edit its properties</p>
-                  <div className="text-xs text-gray-400 space-y-1">
-                    <p>• Click on any shape to select it</p>
-                    <p>• Use the draw tool to add new shapes</p>
-                    <p>• Customize colors, sizes, and text</p>
-                  </div>
-                </div>
-              )}
-            </div>
+        {isPropertiesOpen && deviceMode !== 'mobile' && (
+          <div style={{
+            width: '300px',
+            borderLeft: '1px solid #e5e7eb',
+            overflow: 'auto',
+            padding: '12px',
+            backgroundColor: '#f9fafb',
+          }}>
+            {renderPropertiesPanel()}
           </div>
         )}
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      {deviceMode === "mobile" && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-lg z-50">
-          <div className="flex items-center justify-around">
+      {showSaveModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>
+              Save Floor Plan
+            </h2>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Plan Name
+              </label>
+              <input
+                type="text"
+                value={planName}
+                onChange={(e) => setPlanName(e.target.value)}
+                placeholder="e.g., Exhibition 2024"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #d1d5db',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Description
+              </label>
+              <textarea
+                value={planDescription}
+                onChange={(e) => setPlanDescription(e.target.value)}
+                placeholder="Add any notes or description..."
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #d1d5db',
+                  minHeight: '80px',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => saveFloorPlanToBackend()}
+                disabled={isSaving}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  backgroundColor: isSaving ? '#d1d5db' : '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                }}
+              >
+                {isSaving ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={16} />}
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                onClick={() => setShowSaveModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  backgroundColor: '#e5e7eb',
+                  color: 'black',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLoadModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '500px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+            maxHeight: '80vh',
+            overflow: 'auto',
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>
+              Load Floor Plan
+            </h2>
+
+            {isLoadingPlans ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                <Loader2 size={24} style={{ animation: 'spin 1s linear infinite', margin: '0 auto', marginBottom: '8px' }} />
+                <p>Loading floor plans...</p>
+              </div>
+            ) : floorPlans.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#666' }}>
+                <p>No floor plans found. Create a new one first!</p>
+              </div>
+            ) : (
+              <div style={{ maxHeight: '400px', overflow: 'auto' }}>
+                {floorPlans.map(plan => (
+                  <div
+                    key={plan.id}
+                    style={{
+                      padding: '12px',
+                      borderBottom: '1px solid #e5e7eb',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    onClick={() => loadFloorPlanFromBackend(plan.id)}
+                  >
+                    <h3 style={{ marginTop: 0, marginBottom: '4px', fontSize: '14px', fontWeight: 'bold' }}>
+                      {plan.name}
+                    </h3>
+                    <p style={{ marginTop: 0, marginBottom: '4px', fontSize: '12px', color: '#666' }}>
+                      {plan.description}
+                    </p>
+                    <p style={{ marginTop: 0, marginBottom: 0, fontSize: '11px', color: '#999' }}>
+                      {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString() : 'Unknown date'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <button
-              onClick={() => setIsToolsOpen(!isToolsOpen)}
-              className={`flex flex-col items-center p-2 ${isToolsOpen ? 'text-blue-600' : 'text-gray-600'}`}
+              onClick={() => setShowLoadModal(false)}
+              style={{
+                width: '100%',
+                marginTop: '16px',
+                padding: '8px',
+                backgroundColor: '#e5e7eb',
+                color: 'black',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+              }}
             >
-              <Settings size={20} />
-              <span className="text-xs mt-1">Tools</span>
-            </button>
-            <button
-              onClick={() => setCurrentTool("select")}
-              className={`flex flex-col items-center p-2 ${currentTool === "select" ? 'text-blue-600' : 'text-gray-600'}`}
-            >
-              <MousePointer size={20} />
-              <span className="text-xs mt-1">Select</span>
-            </button>
-            <button
-              onClick={() => setCurrentTool("draw")}
-              className={`flex flex-col items-center p-2 ${currentTool === "draw" ? 'text-blue-600' : 'text-gray-600'}`}
-            >
-              <Square size={20} />
-              <span className="text-xs mt-1">Draw</span>
-            </button>
-            <button
-              onClick={() => setIsPropertiesOpen(!isPropertiesOpen)}
-              className={`flex flex-col items-center p-2 ${isPropertiesOpen ? 'text-blue-600' : 'text-gray-600'}`}
-            >
-              <Layers size={20} />
-              <span className="text-xs mt-1">Properties</span>
+              Close
             </button>
           </div>
         </div>
       )}
     </div>
   );
-}
-
-// Helper function for border radius
-function getBorderRadius(shapeType: ShapeType): string {
-  switch (shapeType) {
-    case 'circle':
-    case 'pillar':
-      return '50%';
-    case 'triangle':
-      return '0';
-    case 'hexagon':
-      return '30%';
-    case 'octagon':
-      return '20%';
-    default:
-      return '6px';
-  }
 }
