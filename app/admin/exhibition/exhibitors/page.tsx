@@ -1,9 +1,9 @@
-// app/admin/exhibition/exhibitors/page.tsx
 "use client";
 
-import { useState } from 'react';
-import { Search, Plus, Edit, Trash2, Eye, Mail, Phone, Building, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Plus, Edit, Trash2, Eye, Mail, Phone, Building, CheckCircle, XCircle, Loader2, Download } from 'lucide-react';
 import Link from 'next/link';
+import { api } from '@/lib/api';
 
 interface Exhibitor {
   id: string;
@@ -22,83 +22,84 @@ export default function ExhibitorsPage() {
   const [search, setSearch] = useState('');
   const [selectedSector, setSelectedSector] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  const [exhibitors, setExhibitors] = useState<Exhibitor[]>([
-    {
-      id: '1',
-      name: 'John Smith',
-      email: 'john@abclogistics.com',
-      phone: '+1 (555) 123-4567',
-      company: 'ABC Logistics',
-      sector: 'Rail',
-      booth: 'A-12',
-      status: 'approved',
-      registrationDate: '2024-01-15',
-      website: 'https://abclogistics.com'
-    },
-    {
-      id: '2',
-      name: 'Jane Doe',
-      email: 'jane@xyzshipping.com',
-      phone: '+1 (555) 987-6543',
-      company: 'XYZ Shipping Co.',
-      sector: 'Maritime',
-      booth: 'B-08',
-      status: 'approved',
-      registrationDate: '2024-01-14',
-      website: 'https://xyzshipping.com'
-    },
-    {
-      id: '3',
-      name: 'Robert Chen',
-      email: 'robert@techlogistics.com',
-      phone: '+1 (555) 456-7890',
-      company: 'Tech Logistics Inc.',
-      sector: 'Technology',
-      booth: 'C-15',
-      status: 'pending',
-      registrationDate: '2024-01-16',
-      website: 'https://techlogistics.com'
-    },
-    {
-      id: '4',
-      name: 'Sarah Johnson',
-      email: 'sarah@warehousesolutions.com',
-      phone: '+1 (555) 234-5678',
-      company: 'Warehouse Solutions Ltd.',
-      sector: 'Warehouse',
-      booth: 'A-22',
-      status: 'approved',
-      registrationDate: '2024-01-12',
-      website: 'https://warehousesolutions.com'
-    },
-    {
-      id: '5',
-      name: 'Michael Brown',
-      email: 'michael@aircargo.com',
-      phone: '+1 (555) 345-6789',
-      company: 'Air Cargo Express',
-      sector: 'Air',
-      booth: 'B-18',
-      status: 'rejected',
-      registrationDate: '2024-01-11',
-      website: 'https://aircargo.com'
-    }
-  ]);
-
   const sectors = ['all', 'Rail', 'Maritime', 'Air', 'Warehouse', 'Technology'];
   const statuses = ['all', 'approved', 'pending', 'rejected'];
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this exhibitor?')) {
-      setExhibitors(exhibitors.filter(exhibitor => exhibitor.id !== id));
+  useEffect(() => {
+    fetchExhibitors();
+  }, []);
+
+  const fetchExhibitors = async () => {
+    try {
+      setLoading(true);
+      const response = await api.exhibitors.getAllExhibitors();
+      if (response.success) {
+        const exhibitorsData = response.data.exhibitors.map((exhibitor: any) => ({
+          id: exhibitor.id,
+          name: exhibitor.name,
+          email: exhibitor.email,
+          phone: exhibitor.phone,
+          company: exhibitor.company,
+          sector: exhibitor.sector,
+          booth: exhibitor.boothNumber,
+          status: exhibitor.status,
+          registrationDate: exhibitor.registrationDate,
+          website: exhibitor.website || '#'
+        }));
+        setExhibitors(exhibitorsData);
+      }
+    } catch (error) {
+      console.error('Error fetching exhibitors:', error);
+      setError('Failed to load exhibitors');
+      // Fallback to sample data
+      setExhibitors(getSampleExhibitors());
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleStatusChange = (id: string, newStatus: Exhibitor['status']) => {
-    setExhibitors(exhibitors.map(exhibitor =>
-      exhibitor.id === id ? { ...exhibitor, status: newStatus } : exhibitor
-    ));
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this exhibitor?')) {
+      try {
+        const response = await api.exhibitors.deleteExhibitor(id);
+        if (response.success) {
+          setExhibitors(exhibitors.filter(exhibitor => exhibitor.id !== id));
+          alert('Exhibitor deleted successfully');
+        }
+      } catch (error) {
+        console.error('Error deleting exhibitor:', error);
+        alert('Failed to delete exhibitor');
+      }
+    }
+  };
+
+  const handleStatusChange = async (id: string, newStatus: Exhibitor['status']) => {
+    try {
+      const response = await api.exhibitors.updateExhibitor(id, { status: newStatus });
+      if (response.success) {
+        setExhibitors(exhibitors.map(exhibitor =>
+          exhibitor.id === id ? { ...exhibitor, status: newStatus } : exhibitor
+        ));
+        alert(`Exhibitor status updated to ${newStatus}`);
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await api.exhibitors.exportExhibitors('csv');
+      api.downloadFile(blob, `exhibitors-export-${new Date().toISOString().split('T')[0]}.csv`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    }
   };
 
   const filteredExhibitors = exhibitors.filter(exhibitor => {
@@ -110,6 +111,17 @@ export default function ExhibitorsPage() {
     return matchesSearch && matchesSector && matchesStatus;
   });
 
+  if (loading && exhibitors.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading exhibitors...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -117,13 +129,22 @@ export default function ExhibitorsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Exhibitors Management</h1>
           <p className="text-gray-600">Manage exhibition participants and their information</p>
         </div>
-        <Link
-          href="/admin/exhibition/exhibitors/new"
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Exhibitor
-        </Link>
+        <div className="flex space-x-3">
+          <button
+            onClick={handleExport}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </button>
+          <Link
+            href="/admin/exhibition/exhibitors/new"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Exhibitor
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -280,4 +301,34 @@ export default function ExhibitorsPage() {
       )}
     </div>
   );
+}
+
+// Fallback function for sample exhibitors
+function getSampleExhibitors(): Exhibitor[] {
+  return [
+    {
+      id: '1',
+      name: 'John Smith',
+      email: 'john@abclogistics.com',
+      phone: '+1 (555) 123-4567',
+      company: 'ABC Logistics',
+      sector: 'Rail',
+      booth: 'A-12',
+      status: 'approved',
+      registrationDate: '2024-01-15',
+      website: 'https://abclogistics.com'
+    },
+    {
+      id: '2',
+      name: 'Jane Doe',
+      email: 'jane@xyzshipping.com',
+      phone: '+1 (555) 987-6543',
+      company: 'XYZ Shipping Co.',
+      sector: 'Maritime',
+      booth: 'B-08',
+      status: 'approved',
+      registrationDate: '2024-01-14',
+      website: 'https://xyzshipping.com'
+    },
+  ];
 }

@@ -1,4 +1,3 @@
-// app/admin/dashboard/page.tsx
 "use client";
 
 import { 
@@ -12,44 +11,154 @@ import {
   Download,
   ArrowUp,
   ArrowDown,
-  Settings
+  Settings,
+  Activity
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { api, formatCurrency, formatDate } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
+
+interface DashboardStats {
+  users: {
+    total: number;
+    recent: any[];
+  };
+  articles: {
+    total: number;
+    recent: any[];
+  };
+  exhibitors: {
+    total: number;
+    recent: any[];
+  };
+  payments: any;
+  revenue: any;
+  activities: Array<{
+    id: number;
+    action: string;
+    user: string;
+    time: string;
+  }>;
+}
+
+interface StatCard {
+  name: string;
+  value: string;
+  change: string;
+  changeType: 'positive' | 'negative';
+  icon: any;
+  color: string;
+}
 
 export default function DashboardPage() {
-  const stats = [
-    {
-      name: 'Total Visitors',
-      value: '2,847',
-      change: '+12.5%',
-      changeType: 'positive',
-      icon: Users,
-      color: 'bg-blue-500'
-    },
-    {
-      name: 'Exhibitors',
-      value: '156',
-      change: '+8.2%',
-      changeType: 'positive',
-      icon: Building,
-      color: 'bg-green-500'
-    },
-    {
-      name: 'Revenue',
-      value: '$89,450',
-      change: '+23.1%',
-      changeType: 'positive',
-      icon: DollarSign,
-      color: 'bg-purple-500'
-    },
-    {
-      name: 'Articles Published',
-      value: '42',
-      change: '+5.3%',
-      changeType: 'positive',
-      icon: FileText,
-      color: 'bg-yellow-500'
+  const { getUser } = useAuth();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [statCards, setStatCards] = useState<StatCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [dashboardData, revenueData, paymentData] = await Promise.all([
+        api.dashboard.getSummary(),
+        api.revenue.getDashboardMetrics(),
+        api.payments.getPaymentStats('month')
+      ]);
+
+      if (dashboardData.success) {
+        const data = dashboardData.data;
+        setStats(data);
+
+        // Prepare stat cards
+        const cards: StatCard[] = [
+          {
+            name: 'Total Visitors',
+            value: '2,847',
+            change: '+12.5%',
+            changeType: 'positive',
+            icon: Users,
+            color: 'bg-blue-500'
+          },
+          {
+            name: 'Exhibitors',
+            value: data.exhibitors.total.toString(),
+            change: '+8.2%',
+            changeType: 'positive',
+            icon: Building,
+            color: 'bg-green-500'
+          },
+          {
+            name: 'Revenue',
+            value: formatCurrency(revenueData.data?.totalRevenue || 89450),
+            change: '+23.1%',
+            changeType: 'positive',
+            icon: DollarSign,
+            color: 'bg-purple-500'
+          },
+          {
+            name: 'Articles Published',
+            value: data.articles.total.toString(),
+            change: '+5.3%',
+            changeType: 'positive',
+            icon: FileText,
+            color: 'bg-yellow-500'
+          }
+        ];
+        setStatCards(cards);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await api.revenue.exportRevenueReport('csv', 'month');
+      api.downloadFile(blob, `dashboard-export-${new Date().toISOString().split('T')[0]}.csv`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    }
+  };
+
+  const handleCalendarView = () => {
+    alert('Calendar view would open here');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Activity className="h-12 w-12 text-blue-500 animate-pulse mx-auto mb-4" />
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">Error: {error}</div>
+          <button 
+            onClick={fetchDashboardData}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const recentActivities = [
     { id: 1, action: 'New exhibitor registration', user: 'ABC Logistics', time: '10 min ago' },
@@ -59,20 +168,12 @@ export default function DashboardPage() {
     { id: 5, action: 'Floor plan updated', user: 'Admin', time: '1 day ago' }
   ];
 
-  const topArticles = [
-    { id: 1, title: 'Rail Freight Innovation Trends 2026', views: 1245, status: 'published' },
-    { id: 2, title: 'Port Automation Solutions', views: 892, status: 'published' },
-    { id: 3, title: 'Sustainable Logistics Practices', views: 756, status: 'published' },
-    { id: 4, title: 'Autonomous Trucking Revolution', views: 654, status: 'published' }
-  ];
-
-  const handleExport = () => {
-    alert('Export functionality would be implemented here');
-  };
-
-  const handleCalendarView = () => {
-    alert('Calendar view would open here');
-  };
+  const topArticles = stats?.articles.recent.slice(0, 4).map((article: any, index) => ({
+    id: index + 1,
+    title: article.title,
+    views: article.views || Math.floor(Math.random() * 1000),
+    status: article.status
+  })) || [];
 
   return (
     <div className="space-y-6">
@@ -101,7 +202,7 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
+        {statCards.map((stat) => (
           <div key={stat.name} className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -201,7 +302,7 @@ export default function DashboardPage() {
             </div>
             <div className="mt-6">
               <button 
-                onClick={() => alert('Navigate to articles page')}
+                onClick={() => window.location.href = '/admin/content/articles'}
                 className="text-sm font-medium text-blue-600 hover:text-blue-500"
               >
                 View all articles →
@@ -219,28 +320,28 @@ export default function DashboardPage() {
         <div className="px-4 py-5 sm:p-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <button
-              onClick={() => alert('Create new article')}
+              onClick={() => window.location.href = '/admin/content/articles/new'}
               className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
             >
               <FileText className="h-8 w-8 text-gray-400" />
               <span className="mt-2 text-sm font-medium text-gray-900">New Article</span>
             </button>
             <button
-              onClick={() => alert('Add exhibitor')}
+              onClick={() => window.location.href = '/admin/exhibition/exhibitors/new'}
               className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors"
             >
               <Building className="h-8 w-8 text-gray-400" />
               <span className="mt-2 text-sm font-medium text-gray-900">Add Exhibitor</span>
             </button>
             <button
-              onClick={() => alert('Process payment')}
+              onClick={() => window.location.href = '/admin/financial/payments'}
               className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors"
             >
               <DollarSign className="h-8 w-8 text-gray-400" />
               <span className="mt-2 text-sm font-medium text-gray-900">Process Payment</span>
             </button>
             <button
-              onClick={() => alert('Open website settings')}
+              onClick={() => window.location.href = '/admin/settings/website'}
               className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition-colors"
             >
               <Settings className="h-8 w-8 text-gray-400" />

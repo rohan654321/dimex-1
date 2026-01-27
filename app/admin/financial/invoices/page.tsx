@@ -1,8 +1,8 @@
-// app/admin/financial/invoices/page.tsx
 "use client";
 
-import { useState } from 'react';
-import { Search, FileText, Download, Send, Printer, Eye, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, FileText, Download, Send, Printer, Eye, Filter, Loader2 } from 'lucide-react';
+import { api, formatCurrency } from '@/lib/api';
 
 interface Invoice {
   id: string;
@@ -18,71 +18,41 @@ interface Invoice {
 export default function InvoicesPage() {
   const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  const [invoices, setInvoices] = useState<Invoice[]>([
-    {
-      id: '1',
-      invoiceNumber: 'INV-2024-001',
-      company: 'ABC Logistics',
-      amount: 2500,
-      status: 'paid',
-      dueDate: '2024-01-20',
-      issueDate: '2024-01-15',
-      items: 3
-    },
-    {
-      id: '2',
-      invoiceNumber: 'INV-2024-002',
-      company: 'XYZ Shipping Co.',
-      amount: 1800,
-      status: 'pending',
-      dueDate: '2024-01-25',
-      issueDate: '2024-01-16',
-      items: 2
-    },
-    {
-      id: '3',
-      invoiceNumber: 'INV-2024-003',
-      company: 'Tech Logistics Inc.',
-      amount: 3200,
-      status: 'paid',
-      dueDate: '2024-01-18',
-      issueDate: '2024-01-12',
-      items: 4
-    },
-    {
-      id: '4',
-      invoiceNumber: 'INV-2024-004',
-      company: 'Warehouse Solutions Ltd.',
-      amount: 950,
-      status: 'overdue',
-      dueDate: '2024-01-10',
-      issueDate: '2024-01-01',
-      items: 1
-    },
-    {
-      id: '5',
-      invoiceNumber: 'INV-2024-005',
-      company: 'Air Cargo Express',
-      amount: 2100,
-      status: 'pending',
-      dueDate: '2024-01-30',
-      issueDate: '2024-01-17',
-      items: 3
-    },
-    {
-      id: '6',
-      invoiceNumber: 'INV-2024-006',
-      company: 'Maritime Transport Ltd.',
-      amount: 1500,
-      status: 'paid',
-      dueDate: '2024-01-22',
-      issueDate: '2024-01-14',
-      items: 2
-    }
-  ]);
-
   const statuses = ['all', 'paid', 'pending', 'overdue'];
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  const fetchInvoices = async () => {
+    try {
+      setLoading(true);
+      const response = await api.invoices.getAllInvoices();
+      if (response.success) {
+        const invoicesData = response.data.invoices.map((invoice: any) => ({
+          id: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          company: invoice.company || invoice.exhibitorName,
+          amount: invoice.amount,
+          status: invoice.status,
+          dueDate: invoice.dueDate,
+          issueDate: invoice.issueDate,
+          items: invoice.items?.length || 0
+        }));
+        setInvoices(invoicesData);
+      }
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+      setError('Failed to load invoices');
+      setInvoices(getSampleInvoices());
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -120,22 +90,72 @@ export default function InvoicesPage() {
     .filter(inv => inv.status === 'overdue')
     .reduce((sum, inv) => sum + inv.amount, 0);
 
-  const handleAction = (action: string, invoice: Invoice) => {
-    switch(action) {
-      case 'view':
-        alert(`Viewing invoice ${invoice.invoiceNumber}`);
-        break;
-      case 'download':
-        alert(`Downloading invoice ${invoice.invoiceNumber}`);
-        break;
-      case 'send':
-        alert(`Sending invoice ${invoice.invoiceNumber} to ${invoice.company}`);
-        break;
-      case 'print':
-        alert(`Printing invoice ${invoice.invoiceNumber}`);
-        break;
+  const handleView = async (invoice: Invoice) => {
+    try {
+      const blob = await api.invoices.generateInvoicePdf(invoice.id);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error viewing invoice:', error);
+      alert('Failed to view invoice');
     }
   };
+
+  const handleDownload = async (invoice: Invoice) => {
+    try {
+      const blob = await api.invoices.generateInvoicePdf(invoice.id);
+      api.downloadFile(blob, `${invoice.invoiceNumber}.pdf`);
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      alert('Failed to download invoice');
+    }
+  };
+
+  const handleSend = async (invoice: Invoice) => {
+    try {
+      const email = prompt('Enter email address to send invoice:');
+      if (email) {
+        const response = await api.invoices.sendInvoiceEmail(invoice.id, email);
+        if (response.success) {
+          alert(`Invoice sent to ${email}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error sending invoice:', error);
+      alert('Failed to send invoice');
+    }
+  };
+
+  const handlePrint = async (invoice: Invoice) => {
+    try {
+      const blob = await api.invoices.generateInvoicePdf(invoice.id);
+      const url = window.URL.createObjectURL(blob);
+      const printWindow = window.open(url, '_blank');
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      }
+    } catch (error) {
+      console.error('Error printing invoice:', error);
+      alert('Failed to print invoice');
+    }
+  };
+
+  const handleCreateInvoice = () => {
+    window.location.href = '/admin/financial/invoices/new';
+  };
+
+  if (loading && invoices.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading invoices...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -145,7 +165,7 @@ export default function InvoicesPage() {
           <p className="text-gray-600">Create, send, and track exhibition invoices</p>
         </div>
         <button
-          onClick={() => alert('Create new invoice')}
+          onClick={handleCreateInvoice}
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
         >
           <FileText className="mr-2 h-4 w-4" />
@@ -297,28 +317,28 @@ export default function InvoicesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => handleAction('view', invoice)}
+                          onClick={() => handleView(invoice)}
                           className="text-blue-600 hover:text-blue-900"
                           title="View"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleAction('download', invoice)}
+                          onClick={() => handleDownload(invoice)}
                           className="text-green-600 hover:text-green-900"
                           title="Download"
                         >
                           <Download className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleAction('send', invoice)}
+                          onClick={() => handleSend(invoice)}
                           className="text-purple-600 hover:text-purple-900"
                           title="Send"
                         >
                           <Send className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleAction('print', invoice)}
+                          onClick={() => handlePrint(invoice)}
                           className="text-gray-600 hover:text-gray-900"
                           title="Print"
                         >
@@ -333,6 +353,41 @@ export default function InvoicesPage() {
           </table>
         </div>
       </div>
+
+      {filteredInvoices.length === 0 && (
+        <div className="text-center py-12">
+          <FileText className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No invoices found</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            {search ? 'Try adjusting your search or filter.' : 'No invoices created yet.'}
+          </p>
+        </div>
+      )}
     </div>
   );
+}
+
+function getSampleInvoices(): Invoice[] {
+  return [
+    {
+      id: '1',
+      invoiceNumber: 'INV-2024-001',
+      company: 'ABC Logistics',
+      amount: 2500,
+      status: 'paid',
+      dueDate: '2024-01-20',
+      issueDate: '2024-01-15',
+      items: 3
+    },
+    {
+      id: '2',
+      invoiceNumber: 'INV-2024-002',
+      company: 'XYZ Shipping Co.',
+      amount: 1800,
+      status: 'pending',
+      dueDate: '2024-01-25',
+      issueDate: '2024-01-16',
+      items: 2
+    },
+  ];
 }
