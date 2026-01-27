@@ -1,7 +1,6 @@
-// app/admin/content/articles/page.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Search, 
   Plus, 
@@ -12,10 +11,12 @@ import {
   Calendar,
   Upload,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { api } from '@/lib/api';
 
 interface Article {
   id: string;
@@ -27,7 +28,7 @@ interface Article {
   author: string;
   publishedDate: string;
   views: number;
-  image: string;
+  image?: string;
 }
 
 export default function ArticlesPage() {
@@ -35,112 +36,76 @@ export default function ArticlesPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalArticles, setTotalArticles] = useState(0);
   const itemsPerPage = 10;
   
-  const [articles, setArticles] = useState<Article[]>([
-    {
-      id: '1',
-      title: 'Rail Freight Innovation Trends 2026',
-      slug: 'rail-freight-innovation-trends-2026',
-      excerpt: 'Latest trends in rail freight technology and infrastructure',
-      category: 'Rail',
-      status: 'published',
-      author: 'John Doe',
-      publishedDate: '2024-01-15',
-      views: 1245,
-      image: '/images/article1.jpg'
-    },
-    {
-      id: '2',
-      title: 'Port Automation Solutions',
-      slug: 'port-automation-solutions',
-      excerpt: 'How automation is transforming port operations',
-      category: 'Maritime',
-      status: 'published',
-      author: 'Jane Smith',
-      publishedDate: '2024-01-10',
-      views: 892,
-      image: '/images/article2.jpg'
-    },
-    {
-      id: '3',
-      title: 'Warehouse Robotics Guide',
-      slug: 'warehouse-robotics-guide',
-      excerpt: 'Complete guide to implementing warehouse robotics',
-      category: 'Warehouse',
-      status: 'draft',
-      author: 'Alex Johnson',
-      publishedDate: '2024-01-05',
-      views: 0,
-      image: '/images/article3.jpg'
-    },
-    {
-      id: '4',
-      title: 'Air Cargo Digital Transformation',
-      slug: 'air-cargo-digital-transformation',
-      excerpt: 'Digital solutions for modern air cargo operations',
-      category: 'Air',
-      status: 'published',
-      author: 'Michael Chen',
-      publishedDate: '2024-01-12',
-      views: 756,
-      image: '/images/article4.jpg'
-    },
-    {
-      id: '5',
-      title: 'Sustainable Logistics Practices',
-      slug: 'sustainable-logistics-practices',
-      excerpt: 'Implementing eco-friendly solutions in supply chain',
-      category: 'Technology',
-      status: 'published',
-      author: 'Sarah Williams',
-      publishedDate: '2024-01-08',
-      views: 1023,
-      image: '/images/article5.jpg'
-    },
-    {
-      id: '6',
-      title: 'IoT in Cold Chain Management',
-      slug: 'iot-cold-chain-management',
-      excerpt: 'IoT applications for temperature-sensitive logistics',
-      category: 'Technology',
-      status: 'draft',
-      author: 'Robert Kim',
-      publishedDate: '2024-01-03',
-      views: 0,
-      image: '/images/article6.jpg'
-    },
-    {
-      id: '7',
-      title: 'Cross-border E-commerce Logistics',
-      slug: 'cross-border-ecommerce-logistics',
-      excerpt: 'Challenges and solutions for international e-commerce shipping',
-      category: 'Maritime',
-      status: 'published',
-      author: 'Lisa Wang',
-      publishedDate: '2024-01-18',
-      views: 567,
-      image: '/images/article7.jpg'
-    },
-    {
-      id: '8',
-      title: 'Autonomous Trucking Revolution',
-      slug: 'autonomous-trucking-revolution',
-      excerpt: 'The future of self-driving trucks in logistics',
-      category: 'Technology',
-      status: 'published',
-      author: 'David Miller',
-      publishedDate: '2024-01-14',
-      views: 890,
-      image: '/images/article8.jpg'
-    }
-  ]);
-
   const categories = ['all', 'Rail', 'Maritime', 'Air', 'Warehouse', 'Technology'];
 
-  const handleDelete = (id: string) => {
+  useEffect(() => {
+    fetchArticles();
+  }, [currentPage, search, selectedCategory, selectedStatus]);
+
+  const fetchArticles = async () => {
+    try {
+      setLoading(true);
+      const params: any = {
+        page: currentPage,
+        limit: itemsPerPage
+      };
+
+      if (search) params.search = search;
+      if (selectedCategory !== 'all') params.category = selectedCategory;
+      if (selectedStatus !== 'all') params.status = selectedStatus;
+
+      const response = await api.articles.getAllArticles(params, currentPage, itemsPerPage);
+      
+      if (response.success) {
+        setArticles(response.data.articles || []);
+        setTotalArticles(response.data.total || 0);
+        setTotalPages(response.data.totalPages || 1);
+      }
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+      setError('Failed to load articles');
+      // Fallback to sample data if API fails
+      setArticles(getSampleArticles());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this article?')) {
-      setArticles(articles.filter(article => article.id !== id));
+      try {
+        const response = await api.articles.deleteArticle(id);
+        if (response.success) {
+          setArticles(articles.filter(article => article.id !== id));
+          alert('Article deleted successfully');
+        }
+      } catch (error) {
+        console.error('Error deleting article:', error);
+        alert('Failed to delete article');
+      }
+    }
+  };
+
+  const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      const response = await api.media.bulkUpload(Array.from(files));
+      if (response.success) {
+        alert('Files uploaded successfully');
+        fetchArticles();
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Upload failed');
     }
   };
 
@@ -153,13 +118,13 @@ export default function ArticlesPage() {
   });
 
   // Pagination calculations
-  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentArticles = filteredArticles.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getPageNumbers = () => {
@@ -192,6 +157,17 @@ export default function ArticlesPage() {
     return pageNumbers;
   };
 
+  if (loading && articles.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading articles...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -200,10 +176,19 @@ export default function ArticlesPage() {
           <p className="text-gray-600">Create and manage your exhibition articles</p>
         </div>
         <div className="flex space-x-3">
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <Upload className="mr-2 h-4 w-4" />
-            Import
-          </button>
+          <label className="cursor-pointer">
+            <div className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              <Upload className="mr-2 h-4 w-4" />
+              Import
+            </div>
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleBulkUpload}
+              accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+            />
+          </label>
           <Link
             href="/admin/content/articles/new"
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -227,7 +212,10 @@ export default function ArticlesPage() {
                 type="text"
                 placeholder="Search articles..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
@@ -237,7 +225,10 @@ export default function ArticlesPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setCurrentPage(1);
+              }}
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               {categories.map(category => (
@@ -252,7 +243,10 @@ export default function ArticlesPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              onChange={(e) => {
+                setSelectedStatus(e.target.value);
+                setCurrentPage(1);
+              }}
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="all">All Status</option>
@@ -426,7 +420,7 @@ export default function ArticlesPage() {
                       <span className="font-medium">
                         {Math.min(indexOfLastItem, filteredArticles.length)}
                       </span>{' '}
-                      of <span className="font-medium">{filteredArticles.length}</span> results
+                      of <span className="font-medium">{totalArticles}</span> results
                     </p>
                   </div>
                   <div>
@@ -489,4 +483,46 @@ export default function ArticlesPage() {
       </div>
     </div>
   );
+}
+
+// Fallback function for sample articles
+function getSampleArticles(): Article[] {
+  return [
+    {
+      id: '1',
+      title: 'Rail Freight Innovation Trends 2026',
+      slug: 'rail-freight-innovation-trends-2026',
+      excerpt: 'Latest trends in rail freight technology and infrastructure',
+      category: 'Rail',
+      status: 'published',
+      author: 'John Doe',
+      publishedDate: '2024-01-15',
+      views: 1245,
+      image: '/images/article1.jpg'
+    },
+    {
+      id: '2',
+      title: 'Port Automation Solutions',
+      slug: 'port-automation-solutions',
+      excerpt: 'How automation is transforming port operations',
+      category: 'Maritime',
+      status: 'published',
+      author: 'Jane Smith',
+      publishedDate: '2024-01-10',
+      views: 892,
+      image: '/images/article2.jpg'
+    },
+    {
+      id: '3',
+      title: 'Warehouse Robotics Guide',
+      slug: 'warehouse-robotics-guide',
+      excerpt: 'Complete guide to implementing warehouse robotics',
+      category: 'Warehouse',
+      status: 'draft',
+      author: 'Alex Johnson',
+      publishedDate: '2024-01-05',
+      views: 0,
+      image: '/images/article3.jpg'
+    },
+  ];
 }

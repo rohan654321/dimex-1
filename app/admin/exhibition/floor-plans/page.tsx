@@ -10,10 +10,11 @@ import {
   Ruler, MapPin, Package, Truck, AlertCircle, CheckCircle, Maximize2,
   Minimize2, Search, Scissors, Home, Filter, Settings, Menu, X,
   ChevronLeft, ChevronRight, Smartphone, Tablet, Monitor as MonitorIcon,
-  Expand, Minimize
+  Expand, Minimize, SaveAll, FolderOpen, FileText, FolderTree,
+  BookOpen, Database, CloudUpload, CloudDownload
 } from "lucide-react";
 import type { Options as Html2CanvasOptions } from "html2canvas";
-
+import { api } from "@/lib/api";
 
 type ShapeType = "rectangle" | "square" | "circle" | "ellipse" | 
                  "triangle" | "hexagon" | "octagon" | "star" | 
@@ -58,6 +59,23 @@ interface Layer {
 }
 
 type ToolMode = "select" | "draw" | "pan" | "text" | "measure";
+
+interface FloorPlanData {
+  id?: string;
+  name: string;
+  description?: string;
+  floor: string;
+  scale: number;
+  gridSize: number;
+  image?: string;
+  shapes: Shape[];
+  metadata?: {
+    createdAt: string;
+    updatedAt?: string;
+    createdBy?: string;
+    version?: string;
+  };
+}
 
 export default function ProfessionalExhibitionEditor() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -107,7 +125,7 @@ export default function ProfessionalExhibitionEditor() {
   const [measurementLine, setMeasurementLine] = useState<{x1: number, y1: number, x2: number, y2: number} | null>(null);
   const [isMeasuring, setIsMeasuring] = useState(false);
   const [measureStart, setMeasureStart] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(0.1); // 1 pixel = X meters
+  const [scale, setScale] = useState(0.1);
   const [activeLayer, setActiveLayer] = useState<string>("booths");
   const [layers, setLayers] = useState<Layer[]>([
     { id: "booths", name: "Booths", visible: true, locked: false, category: "booths" },
@@ -123,6 +141,21 @@ export default function ProfessionalExhibitionEditor() {
   const [isToolsOpen, setIsToolsOpen] = useState(true);
   const [deviceMode, setDeviceMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  // Floor plan management state
+  const [floorPlans, setFloorPlans] = useState<FloorPlanData[]>([]);
+  const [currentFloorPlan, setCurrentFloorPlan] = useState<FloorPlanData>({
+    name: "New Floor Plan",
+    description: "",
+    floor: "1",
+    scale: 0.1,
+    gridSize: 20,
+    shapes: []
+  });
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Professional color palette
   const colorPalette = [
@@ -167,60 +200,245 @@ export default function ProfessionalExhibitionEditor() {
     maintenance: "#ef4444"
   };
 
-  // Device detection
+  // Load floor plans on mount
   useEffect(() => {
-    const checkDevice = () => {
-      const width = window.innerWidth;
-      if (width < 768) {
-        setDeviceMode("mobile");
-        setIsToolsOpen(false);
-        setIsPropertiesOpen(false);
-      } else if (width < 1024) {
-        setDeviceMode("tablet");
-        setIsToolsOpen(true);
-        setIsPropertiesOpen(false);
+    loadFloorPlans();
+  }, []);
+
+  // Update shapes when current floor plan changes
+  useEffect(() => {
+    if (currentFloorPlan.shapes) {
+      setShapes(currentFloorPlan.shapes);
+      setScale(currentFloorPlan.scale || 0.1);
+      setGridSize(currentFloorPlan.gridSize || 20);
+      if (currentFloorPlan.image) {
+        setImage(currentFloorPlan.image);
+      }
+    }
+  }, [currentFloorPlan]);
+
+  // Update current floor plan when shapes change
+  useEffect(() => {
+    setCurrentFloorPlan(prev => ({
+      ...prev,
+      shapes,
+      scale,
+      gridSize
+    }));
+  }, [shapes, scale, gridSize]);
+
+  // ================= BACKEND INTEGRATION =================
+
+  const loadFloorPlans = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.floorPlans.getAllFloorPlans({}, 1, 100);
+      if (response.success && response.data.floorPlans) {
+        setFloorPlans(response.data.floorPlans);
+      }
+    } catch (error) {
+      console.error('Error loading floor plans:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveFloorPlanToBackend = async (planData: FloorPlanData) => {
+    try {
+      setIsLoading(true);
+      
+      const planToSave = {
+  ...planData,
+  shapes: planData.shapes.map(shape => ({
+    ...shape,
+    x: safeNumber(shape.x),
+    y: safeNumber(shape.y),
+    width: safeNumber(shape.width),
+    height: safeNumber(shape.height),
+  })),
+  metadata: {
+    createdAt: planData.metadata?.createdAt ?? new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: planData.metadata?.createdBy ?? "user",
+    version: "1.0",
+  },
+};
+
+
+      if (planData.id) {
+        // Update existing floor plan
+        const response = await api.floorPlans.updateFloorPlan(planData.id, planToSave);
+        if (response.success) {
+          alert('Floor plan updated successfully!');
+          await loadFloorPlans();
+          return response.data;
+        }
       } else {
-        setDeviceMode("desktop");
-        setIsToolsOpen(true);
-        setIsPropertiesOpen(true);
+        // Create new floor plan
+        const response = await api.floorPlans.createFloorPlan(planToSave);
+        if (response.success) {
+          alert('Floor plan saved successfully!');
+          await loadFloorPlans();
+          setCurrentFloorPlan(response.data);
+          return response.data;
+        }
+      }
+    } catch (error) {
+      console.error('Error saving floor plan:', error);
+      alert('Failed to save floor plan');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFloorPlanFromBackend = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const response = await api.floorPlans.getFloorPlan(id);
+      if (response.success) {
+        setCurrentFloorPlan(response.data);
+        setIsLoadDialogOpen(false);
+        alert('Floor plan loaded successfully!');
+        return response.data;
+      }
+    } catch (error) {
+      console.error('Error loading floor plan:', error);
+      alert('Failed to load floor plan');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteFloorPlanFromBackend = async (id: string) => {
+    if (confirm('Are you sure you want to delete this floor plan?')) {
+      try {
+        setIsLoading(true);
+        const response = await api.floorPlans.deleteFloorPlan(id);
+        if (response.success) {
+          alert('Floor plan deleted successfully!');
+          await loadFloorPlans();
+          // Reset to new floor plan if we deleted the current one
+          if (currentFloorPlan.id === id) {
+            setCurrentFloorPlan({
+              name: "New Floor Plan",
+              description: "",
+              floor: "1",
+              scale: 0.1,
+              gridSize: 20,
+              shapes: []
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting floor plan:', error);
+        alert('Failed to delete floor plan');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const duplicateFloorPlanInBackend = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const response = await api.floorPlans.duplicateFloorPlan(id);
+      if (response.success) {
+        alert('Floor plan duplicated successfully!');
+        await loadFloorPlans();
+        return response.data;
+      }
+    } catch (error) {
+      console.error('Error duplicating floor plan:', error);
+      alert('Failed to duplicate floor plan');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveToBackend = async () => {
+    if (!saveName.trim()) {
+      alert('Please enter a name for the floor plan');
+      return;
+    }
+
+    const planData: FloorPlanData = {
+      ...currentFloorPlan,
+      name: saveName,
+      description: currentFloorPlan.description || "",
+      floor: currentFloorPlan.floor || "1",
+      image: image || undefined,
+      shapes,
+      scale,
+      gridSize,
+      metadata: {
+        ...currentFloorPlan.metadata,
+        createdAt: currentFloorPlan.metadata?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: "user",
+        version: "1.0"
       }
     };
 
-    checkDevice();
-    window.addEventListener('resize', checkDevice);
-    return () => window.removeEventListener('resize', checkDevice);
-  }, []);
+    await saveFloorPlanToBackend(planData);
+    setIsSaveDialogOpen(false);
+    setSaveName("");
+  };
 
+  const handleAutoSave = async () => {
+    if (currentFloorPlan.id && currentFloorPlan.name !== "New Floor Plan") {
+      try {
+        await saveFloorPlanToBackend(currentFloorPlan);
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      }
+    }
+  };
+
+  // Auto-save every 30 seconds
   useEffect(() => {
-    setShapes(prev => prev.map(shape => ({
-      ...shape,
-      x: isNaN(shape.x) ? 0 : shape.x,
-      y: isNaN(shape.y) ? 0 : shape.y,
-      width: isNaN(shape.width) ? 50 : shape.width,
-      height: isNaN(shape.height) ? 50 : shape.height,
-    })));
-  }, []);
+    const interval = setInterval(() => {
+      if (currentFloorPlan.id) {
+        handleAutoSave();
+      }
+    }, 30000);
 
-  /* ================= FILE OPERATIONS ================= */
-  const handleUpload = () => {
+    return () => clearInterval(interval);
+  }, [currentFloorPlan]);
+
+  // ================= FILE OPERATIONS =================
+  
+  const handleUpload = async () => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = e => {
+    input.onchange = async e => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
+      
       setIsLoading(true);
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         const img = new Image();
-        img.onload = () => {
+        img.onload = async () => {
           setImage(reader.result as string);
           setImageDimensions({
             width: img.width,
             height: img.height
           });
-          // Center the image
           setPanOffset({ x: 50, y: 50 });
+          
+          // If we have a current floor plan, save the image
+          if (currentFloorPlan.id) {
+            try {
+              const response = await api.floorPlans.uploadFloorPlanImage(currentFloorPlan.id, file);
+              if (response.success) {
+                console.log('Image uploaded to server');
+              }
+            } catch (error) {
+              console.error('Error uploading image:', error);
+            }
+          }
+          
           setIsLoading(false);
         };
         img.src = reader.result as string;
@@ -230,53 +448,75 @@ export default function ProfessionalExhibitionEditor() {
     input.click();
   };
 
-  const handleExport = async () => {
-    if (!containerRef.current) return;
-    
-    setIsLoading(true);
-    try {
-      const html2canvas = (await import("html2canvas")).default;
+const handleExport = async (format: 'png' | 'pdf' | 'json' = 'png') => {
+  if (!containerRef.current) return;
 
-      const options: Partial<Html2CanvasOptions> = {
-        backgroundColor: "#ffffff",
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        allowTaint: true,
-        removeContainer: true,
+  setIsLoading(true);
+  try {
+    if (format === 'json') {
+      const planData = {
+        ...currentFloorPlan,
+        image,
+        shapes,
+        scale,
+        gridSize,
       };
 
-      const canvas = await html2canvas(containerRef.current!, options);
-      const link = document.createElement("a");
-      link.download = `exhibition-floor-plan-${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    } catch (error) {
-      console.error('Export failed:', error);
-      alert('Export failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      const blob = new Blob(
+        [JSON.stringify(planData, null, 2)],
+        { type: 'application/json' }
+      );
+
+      api.downloadFile(blob, `floor-plan-${currentFloorPlan.name}.json`);
+      return;
+    }
+
+    // png | pdf
+    if (currentFloorPlan.id) {
+      const blob = await api.floorPlans.exportFloorPlan(
+        currentFloorPlan.id,
+        format
+      );
+      api.downloadFile(blob, `floor-plan-${currentFloorPlan.name}.${format}`);
+      return;
+    }
+
+    // fallback PNG via html2canvas
+    const html2canvas = (await import('html2canvas')).default;
+
+    const canvas = await html2canvas(containerRef.current, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+    });
+
+    canvas.toBlob(blob => {
+      if (blob) {
+        api.downloadFile(blob, `floor-plan-${currentFloorPlan.name}.png`);
+      }
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+  const handleSave = () => {
+    if (currentFloorPlan.id && currentFloorPlan.name !== "New Floor Plan") {
+      // Auto-save existing floor plan
+      saveFloorPlanToBackend(currentFloorPlan);
+    } else {
+      // Open save dialog for new floor plan
+      setIsSaveDialogOpen(true);
+      setSaveName(currentFloorPlan.name || "New Floor Plan");
     }
   };
 
-  const handleSave = () => {
-    const data = {
-      shapes,
-      image,
-      scale,
-      createdAt: new Date().toISOString(),
-      version: "1.0"
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'exhibition-plan.json';
-    link.click();
-    URL.revokeObjectURL(url);
+  const handleLoad = () => {
+    setIsLoadDialogOpen(true);
   };
 
-  const handleLoad = () => {
+  const handleLoadFromFile = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -287,10 +527,13 @@ export default function ProfessionalExhibitionEditor() {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const data = JSON.parse(e.target?.result as string);
+          const data = JSON.parse(e.target?.result as string) as FloorPlanData;
+          setCurrentFloorPlan(data);
           setShapes(data.shapes || []);
           setImage(data.image || null);
           setScale(data.scale || 0.1);
+          setGridSize(data.gridSize || 20);
+          alert('Floor plan loaded from file!');
         } catch (error) {
           console.error('Error loading file:', error);
           alert('Error loading file. Please check the file format.');
@@ -301,7 +544,23 @@ export default function ProfessionalExhibitionEditor() {
     input.click();
   };
 
-  /* ================= UTILITY FUNCTIONS ================= */
+  const handleNewFloorPlan = () => {
+    if (confirm('Create new floor plan? Any unsaved changes will be lost.')) {
+      setCurrentFloorPlan({
+        name: "New Floor Plan",
+        description: "",
+        floor: "1",
+        scale: 0.1,
+        gridSize: 20,
+        shapes: []
+      });
+      setImage(null);
+      setShapes([]);
+      setSelectedId(null);
+    }
+  };
+
+  // ================= UTILITY FUNCTIONS =================
   const getCoordinates = (clientX: number, clientY: number) => {
     if (!containerRef.current) return { x: 0, y: 0 };
     const rect = containerRef.current.getBoundingClientRect();
@@ -316,7 +575,7 @@ export default function ProfessionalExhibitionEditor() {
     return { x, y };
   };
 
-  /* ================= DRAWING & INTERACTION - MOUSE EVENTS ================= */
+  // ================= DRAWING & INTERACTION - MOUSE EVENTS =================
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!containerRef.current) return;
@@ -461,7 +720,7 @@ export default function ProfessionalExhibitionEditor() {
     setTempShape(null);
   };
 
-  /* ================= TOUCH EVENTS FOR MOBILE ================= */
+  // ================= TOUCH EVENTS FOR MOBILE =================
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault();
     if (!containerRef.current) return;
@@ -584,7 +843,7 @@ export default function ProfessionalExhibitionEditor() {
     setTempShape(null);
   };
 
-  /* ================= SHAPE ACTIONS ================= */
+  // ================= SHAPE ACTIONS =================
   const handleShapeClick = (shapeId: string, e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     if (currentTool === "select") {
@@ -730,7 +989,7 @@ export default function ProfessionalExhibitionEditor() {
 
   const selectedShape = shapes.find(s => s.id === selectedId);
 
-  /* ================= LAYERS ================= */
+  // ================= LAYERS =================
   const toggleLayerVisibility = (layerId: string) => {
     setLayers(prev =>
       prev.map(layer =>
@@ -783,7 +1042,14 @@ export default function ProfessionalExhibitionEditor() {
     return num && !isNaN(num) ? num : 0;
   };
 
-  /* ================= KEYBOARD SHORTCUTS ================= */
+  // Filter floor plans based on search query
+  const filteredFloorPlans = floorPlans.filter(plan =>
+    plan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (plan.description && plan.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    plan.floor.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // ================= KEYBOARD SHORTCUTS =================
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -838,6 +1104,12 @@ export default function ProfessionalExhibitionEditor() {
             setIsFullscreen(!isFullscreen);
           }
           break;
+        case "n":
+          if (e.ctrlKey) {
+            e.preventDefault();
+            handleNewFloorPlan();
+          }
+          break;
       }
     };
 
@@ -856,6 +1128,217 @@ export default function ProfessionalExhibitionEditor() {
 
   const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
 
+  // ================= MODAL COMPONENTS =================
+
+  const SaveFloorPlanModal = () => (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col">
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Save Floor Plan</h3>
+            <p className="text-sm text-gray-500">Save your floor plan to the server</p>
+          </div>
+          <button
+            onClick={() => setIsSaveDialogOpen(false)}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-hidden p-6">
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm text-gray-600 mb-2 block">Floor Plan Name *</label>
+              <input
+                type="text"
+                value={saveName}
+                onChange={(e) => setSaveName(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter floor plan name"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600 mb-2 block">Description (Optional)</label>
+              <textarea
+                value={currentFloorPlan.description}
+                onChange={(e) => setCurrentFloorPlan(prev => ({ ...prev, description: e.target.value }))}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={3}
+                placeholder="Enter description"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm text-gray-600 mb-1 block">Floor</label>
+                <input
+                  type="text"
+                  value={currentFloorPlan.floor}
+                  onChange={(e) => setCurrentFloorPlan(prev => ({ ...prev, floor: e.target.value }))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., 1, 2, Ground"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-600 mb-1 block">Scale (px/m)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={scale}
+                  onChange={(e) => setScale(parseFloat(e.target.value))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsSaveDialogOpen(false)}
+                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveToBackend}
+                disabled={!saveName.trim() || isLoading}
+                className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isLoading ? <Loader2 size={16} className="animate-spin" /> : <SaveAll size={16} />}
+                {currentFloorPlan.id ? 'Update' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const LoadFloorPlanModal = () => (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Load Floor Plan</h3>
+            <p className="text-sm text-gray-500">Select a floor plan to load</p>
+          </div>
+          <button
+            onClick={() => setIsLoadDialogOpen(false)}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-gray-200">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search size={16} className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search floor plans..."
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 size={24} className="text-blue-500 animate-spin" />
+                <span className="ml-2 text-gray-600">Loading floor plans...</span>
+              </div>
+            ) : filteredFloorPlans.length === 0 ? (
+              <div className="text-center py-12">
+                <FolderTree size={48} className="mx-auto text-gray-300 mb-4" />
+                <h3 className="font-medium text-gray-700 mb-2">No floor plans found</h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  {searchQuery ? 'Try a different search term' : 'No floor plans saved yet'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {filteredFloorPlans.map((plan) => (
+                  <div
+                    key={plan.id}
+                    className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-blue-100 p-2 rounded-lg">
+                            <Building2 size={16} className="text-blue-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">{plan.name}</h4>
+                            <p className="text-sm text-gray-500">
+                              Floor {plan.floor} • {plan.shapes?.length || 0} shapes • {plan.scale} px/m
+                            </p>
+                            {plan.description && (
+                              <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => loadFloorPlanFromBackend(plan.id!)}
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center gap-2"
+                          disabled={isLoading}
+                        >
+                          <FolderOpen size={14} />
+                          Load
+                        </button>
+                        <button
+                          onClick={() => deleteFloorPlanFromBackend(plan.id!)}
+                          className="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm"
+                          disabled={isLoading}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                    {plan.metadata?.updatedAt && (
+                      <div className="text-xs text-gray-400 mt-2">
+                        Last updated: {new Date(plan.metadata.updatedAt).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex gap-3">
+              <button
+                onClick={handleLoadFromFile}
+                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium flex items-center justify-center gap-2"
+              >
+                <Upload size={16} />
+                Load from File
+              </button>
+              <button
+                onClick={loadFloorPlans}
+                className="px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium flex items-center justify-center gap-2"
+                disabled={isLoading}
+              >
+                <RotateCw size={16} className={isLoading ? 'animate-spin' : ''} />
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Main JSX remains mostly the same as your original, just with added backend functionality
   return (
     <div className={`flex flex-col h-screen bg-gray-50 ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
       {/* HEADER */}
@@ -880,21 +1363,14 @@ export default function ProfessionalExhibitionEditor() {
             </div>
           </div>
 
-          {/* Center: Stats & Status */}
-          <div className="hidden md:flex items-center gap-6">
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-gray-600">{shapes.filter(s => s.type === 'booth').length} Booths</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">{shapes.length} Objects</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span className="text-gray-600">Scale: 1px = {scale}m</span>
-              </div>
+          {/* Center: Floor Plan Info */}
+          <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
+              <Database size={14} className="text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">{currentFloorPlan.name}</span>
+              {currentFloorPlan.id && (
+                <span className="text-xs text-gray-500">(Saved)</span>
+              )}
             </div>
           </div>
 
@@ -937,17 +1413,26 @@ export default function ProfessionalExhibitionEditor() {
             {/* File Actions */}
             <div className="flex items-center gap-1">
               <button
-                onClick={handleLoad}
+                onClick={handleNewFloorPlan}
                 className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm flex items-center gap-2"
+                title="New (Ctrl+N)"
               >
-                <Save size={14} />
+                <FileText size={14} />
+                <span className="hidden sm:inline">New</span>
+              </button>
+              <button
+                onClick={handleLoad}
+                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm flex items-center gap-2"
+              >
+                <CloudDownload size={14} />
                 <span className="hidden sm:inline">Load</span>
               </button>
               <button
                 onClick={handleSave}
-                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm flex items-center gap-2"
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center gap-2"
+                title="Save (Ctrl+S)"
               >
-                <Save size={14} />
+                <CloudUpload size={14} />
                 <span className="hidden sm:inline">Save</span>
               </button>
               <button
@@ -959,7 +1444,7 @@ export default function ProfessionalExhibitionEditor() {
                 <span className="hidden sm:inline">Upload</span>
               </button>
               <button
-                onClick={handleExport}
+                onClick={() => handleExport('png')}
                 disabled={isLoading}
                 className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm flex items-center gap-2 disabled:opacity-50"
               >
@@ -2055,6 +2540,10 @@ export default function ProfessionalExhibitionEditor() {
           </div>
         </div>
       )}
+
+      {/* Modals */}
+      {isSaveDialogOpen && <SaveFloorPlanModal />}
+      {isLoadDialogOpen && <LoadFloorPlanModal />}
     </div>
   );
 }

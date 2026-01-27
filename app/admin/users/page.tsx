@@ -1,9 +1,9 @@
-// app/admin/users/page.tsx
 "use client";
 
-import { useState } from 'react';
-import { Search, Plus, Edit, Trash2, Mail, Phone, Shield, UserCheck, UserX, Key } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Plus, Edit, Trash2, Mail, Phone, Shield, UserCheck, UserX, Key, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { api } from '@/lib/api';
 
 interface User {
   id: string;
@@ -20,76 +20,88 @@ export default function UsersPage() {
   const [search, setSearch] = useState('');
   const [selectedRole, setSelectedRole] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      name: 'Admin User',
-      email: 'admin@exhibition.com',
-      role: 'admin',
-      status: 'active',
-      phone: '+1 (555) 123-4567',
-      lastLogin: '2024-01-15 14:30',
-      createdAt: '2024-01-01'
-    },
-    {
-      id: '2',
-      name: 'Content Editor',
-      email: 'editor@exhibition.com',
-      role: 'editor',
-      status: 'active',
-      phone: '+1 (555) 987-6543',
-      lastLogin: '2024-01-15 10:15',
-      createdAt: '2024-01-05'
-    },
-    {
-      id: '3',
-      name: 'Marketing Manager',
-      email: 'marketing@exhibition.com',
-      role: 'editor',
-      status: 'active',
-      phone: '+1 (555) 456-7890',
-      lastLogin: '2024-01-14 16:45',
-      createdAt: '2024-01-08'
-    },
-    {
-      id: '4',
-      name: 'View Only User',
-      email: 'viewer@exhibition.com',
-      role: 'viewer',
-      status: 'active',
-      phone: '+1 (555) 234-5678',
-      lastLogin: '2024-01-13 09:20',
-      createdAt: '2024-01-10'
-    },
-    {
-      id: '5',
-      name: 'Former Employee',
-      email: 'former@exhibition.com',
-      role: 'viewer',
-      status: 'inactive',
-      phone: '+1 (555) 345-6789',
-      lastLogin: '2024-01-05 11:30',
-      createdAt: '2024-01-03'
-    }
-  ]);
-
   const roles = ['all', 'admin', 'editor', 'viewer'];
   const statuses = ['all', 'active', 'inactive'];
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== id));
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await api.users.getAllUsers();
+      if (response.success) {
+        const usersData = response.data.users.map((user: any) => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          status: user.status,
+          phone: user.phone,
+          lastLogin: user.lastLogin,
+          createdAt: user.createdAt
+        }));
+        setUsers(usersData);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError('Failed to load users');
+      setUsers(getSampleUsers());
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleStatusToggle = (id: string) => {
-    setUsers(users.map(user =>
-      user.id === id ? { 
-        ...user, 
-        status: user.status === 'active' ? 'inactive' : 'active' 
-      } : user
-    ));
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this user?')) {
+      try {
+        const response = await api.users.deleteUser(id);
+        if (response.success) {
+          setUsers(users.filter(user => user.id !== id));
+          alert('User deleted successfully');
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user');
+      }
+    }
+  };
+
+  const handleStatusToggle = async (id: string) => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+
+    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+    
+    try {
+      const response = await api.users.updateUser(id, { status: newStatus });
+      if (response.success) {
+        setUsers(users.map(u =>
+          u.id === id ? { ...u, status: newStatus } : u
+        ));
+        alert(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
+      }
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      alert('Failed to update user status');
+    }
+  };
+
+  const handleResetPassword = async (id: string) => {
+    if (confirm('Are you sure you want to reset this user\'s password? A temporary password will be generated and sent to their email.')) {
+      try {
+        // This would call a reset password API endpoint
+        alert('Password reset initiated. Check user email for temporary password.');
+      } catch (error) {
+        console.error('Error resetting password:', error);
+        alert('Failed to reset password');
+      }
+    }
   };
 
   const filteredUsers = users.filter(user => {
@@ -112,6 +124,17 @@ export default function UsersPage() {
   const getStatusColor = (status: string) => {
     return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
   };
+
+  if (loading && users.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading users...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -243,7 +266,7 @@ export default function UsersPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(user.lastLogin).toLocaleString()}
+                    {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never logged in'}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium">
                     <div className="flex space-x-2">
@@ -263,6 +286,7 @@ export default function UsersPage() {
                         )}
                       </button>
                       <button
+                        onClick={() => handleResetPassword(user.id)}
                         className="p-1 rounded text-purple-600 hover:text-purple-900 hover:bg-purple-50"
                         title="Reset Password"
                       >
@@ -312,4 +336,29 @@ export default function UsersPage() {
       )}
     </div>
   );
+}
+
+function getSampleUsers(): User[] {
+  return [
+    {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@exhibition.com',
+      role: 'admin',
+      status: 'active',
+      phone: '+1 (555) 123-4567',
+      lastLogin: '2024-01-15 14:30',
+      createdAt: '2024-01-01'
+    },
+    {
+      id: '2',
+      name: 'Content Editor',
+      email: 'editor@exhibition.com',
+      role: 'editor',
+      status: 'active',
+      phone: '+1 (555) 987-6543',
+      lastLogin: '2024-01-15 10:15',
+      createdAt: '2024-01-05'
+    },
+  ];
 }

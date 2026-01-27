@@ -1,16 +1,16 @@
-// app/admin/financial/payments/page.tsx
 "use client";
 
-import { useState } from 'react';
-import { Search, DollarSign, CheckCircle, XCircle, Clock, Download, Filter, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, DollarSign, CheckCircle, XCircle, Clock, Download, Filter, Eye, Loader2, RefreshCw } from 'lucide-react';
+import { api, formatCurrency } from '@/lib/api';
 
 interface Payment {
   id: string;
   invoiceNumber: string;
   company: string;
   amount: number;
-  status: 'completed' | 'pending' | 'failed';
-  method: 'credit_card' | 'bank_transfer' | 'check';
+  status: 'completed' | 'pending' | 'failed' | 'refunded';
+  method: 'credit_card' | 'bank_transfer' | 'check' | 'cash' | 'online';
   date: string;
   dueDate?: string;
   processedBy: string;
@@ -18,82 +18,46 @@ interface Payment {
 
 export default function PaymentsPage() {
   const [search, setSearch] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedMethod, setSelectedMethod] = useState('all');
-  const [dateRange, setDateRange] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedMethod, setSelectedMethod] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<string>('all');
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  const [payments, setPayments] = useState<Payment[]>([
-    {
-      id: '1',
-      invoiceNumber: 'INV-2024-001',
-      company: 'ABC Logistics',
-      amount: 2500,
-      status: 'completed',
-      method: 'credit_card',
-      date: '2024-01-15',
-      processedBy: 'Auto'
-    },
-    {
-      id: '2',
-      invoiceNumber: 'INV-2024-002',
-      company: 'XYZ Shipping Co.',
-      amount: 1800,
-      status: 'pending',
-      method: 'bank_transfer',
-      date: '2024-01-14',
-      dueDate: '2024-01-21',
-      processedBy: 'Manual'
-    },
-    {
-      id: '3',
-      invoiceNumber: 'INV-2024-003',
-      company: 'Tech Logistics Inc.',
-      amount: 3200,
-      status: 'completed',
-      method: 'credit_card',
-      date: '2024-01-13',
-      processedBy: 'Auto'
-    },
-    {
-      id: '4',
-      invoiceNumber: 'INV-2024-004',
-      company: 'Warehouse Solutions Ltd.',
-      amount: 950,
-      status: 'failed',
-      method: 'credit_card',
-      date: '2024-01-12',
-      processedBy: 'Auto'
-    },
-    {
-      id: '5',
-      invoiceNumber: 'INV-2024-005',
-      company: 'Air Cargo Express',
-      amount: 2100,
-      status: 'pending',
-      method: 'check',
-      date: '2024-01-11',
-      dueDate: '2024-01-18',
-      processedBy: 'Manual'
-    }
-  ]);
-
-  const statuses = ['all', 'completed', 'pending', 'failed'];
-  const methods = ['all', 'credit_card', 'bank_transfer', 'check'];
+  const statuses = ['all', 'completed', 'pending', 'failed', 'refunded'];
+  const methods = ['all', 'credit_card', 'bank_transfer', 'check', 'cash', 'online'];
   const dateRanges = ['all', 'today', 'week', 'month', 'quarter'];
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  useEffect(() => {
+    fetchPayments();
+  }, []);
 
-  const getStatusIcon = (status: string) => {
-    switch(status) {
-      case 'completed': return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'pending': return <Clock className="h-5 w-5 text-yellow-500" />;
-      case 'failed': return <XCircle className="h-5 w-5 text-red-500" />;
-      default: return null;
+  const fetchPayments = async () => {
+    try {
+      setLoading(true);
+      const response = await api.payments.getAllPayments();
+      if (response.success) {
+        const paymentsData = response.data.payments.map((payment: any) => ({
+          id: payment.id,
+          invoiceNumber: payment.invoiceNumber || `INV-${payment.id.slice(0, 8)}`,
+          company: payment.exhibitorName || payment.company || 'Unknown Company',
+          amount: payment.amount || 0,
+          status: payment.status || 'pending',
+          method: payment.method || 'online',
+          date: payment.createdAt || new Date().toISOString(),
+          dueDate: payment.dueDate,
+          processedBy: payment.processedBy || 'Auto'
+        }));
+        setPayments(paymentsData);
+      }
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      setError('Failed to load payments. Please try again.');
+      // Fallback to sample data
+      setPayments(getSamplePayments());
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,7 +66,24 @@ export default function PaymentsPage() {
       case 'credit_card': return 'Credit Card';
       case 'bank_transfer': return 'Bank Transfer';
       case 'check': return 'Check';
-      default: return method;
+      case 'cash': return 'Cash';
+      case 'online': return 'Online';
+      default: return method.charAt(0).toUpperCase() + method.slice(1).replace('_', ' ');
+    }
+  };
+
+  const getStatusIcon = (status: Payment['status']) => {
+    switch(status) {
+      case 'completed':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'pending':
+        return <Clock className="h-5 w-5 text-yellow-500" />;
+      case 'failed':
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'refunded':
+        return <RefreshCw className="h-5 w-5 text-purple-500" />;
+      default:
+        return <Clock className="h-5 w-5 text-gray-500" />;
     }
   };
 
@@ -113,14 +94,31 @@ export default function PaymentsPage() {
     const matchesStatus = selectedStatus === 'all' || payment.status === selectedStatus;
     const matchesMethod = selectedMethod === 'all' || payment.method === selectedMethod;
     
-    // Date filtering logic (simplified)
     let matchesDate = true;
-    if (dateRange !== 'all') {
+    if (dateRange !== 'all' && payment.date) {
       const paymentDate = new Date(payment.date);
       const today = new Date();
-      const weekAgo = new Date(today.setDate(today.getDate() - 7));
-      // Simplified date logic
-      matchesDate = true; // Implement actual date filtering as needed
+      
+      switch(dateRange) {
+        case 'today':
+          matchesDate = paymentDate.toDateString() === today.toDateString();
+          break;
+        case 'week':
+          const weekAgo = new Date(today);
+          weekAgo.setDate(today.getDate() - 7);
+          matchesDate = paymentDate >= weekAgo;
+          break;
+        case 'month':
+          const monthAgo = new Date(today);
+          monthAgo.setMonth(today.getMonth() - 1);
+          matchesDate = paymentDate >= monthAgo;
+          break;
+        case 'quarter':
+          const quarterAgo = new Date(today);
+          quarterAgo.setMonth(today.getMonth() - 3);
+          matchesDate = paymentDate >= quarterAgo;
+          break;
+      }
     }
     
     return matchesSearch && matchesStatus && matchesMethod && matchesDate;
@@ -134,23 +132,100 @@ export default function PaymentsPage() {
     .filter(p => p.status === 'pending')
     .reduce((sum, p) => sum + p.amount, 0);
 
+  const refundedAmount = payments
+    .filter(p => p.status === 'refunded')
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const handleExport = async () => {
+    try {
+      const blob = await api.payments.exportPayments('csv');
+      api.downloadFile(blob, `payments-export-${new Date().toISOString().split('T')[0]}.csv`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    }
+  };
+
+  const handleStatusUpdate = async (id: string, newStatus: Payment['status']) => {
+    try {
+      const response = await api.payments.updatePaymentStatus(id, newStatus);
+      if (response.success) {
+        setPayments(payments.map(p => 
+          p.id === id ? { ...p, status: newStatus } : p
+        ));
+        alert(`Payment status updated to ${newStatus}`);
+      }
+    } catch (error) {
+      console.error('Error updating payment:', error);
+      alert('Failed to update payment status');
+    }
+  };
+
+  const handleRefund = async (id: string) => {
+    if (confirm('Are you sure you want to refund this payment?')) {
+      try {
+        const reason = prompt('Enter refund reason:') || 'Customer request';
+        const response = await api.payments.refundPayment(id, reason);
+        if (response.success) {
+          setPayments(payments.map(p => 
+            p.id === id ? { ...p, status: 'refunded' } : p
+          ));
+          alert('Payment refunded successfully');
+        }
+      } catch (error) {
+        console.error('Error refunding payment:', error);
+        alert('Failed to refund payment');
+      }
+    }
+  };
+
+  if (loading && payments.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading payments...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Payment Management</h1>
           <p className="text-gray-600">View and manage payment transactions</p>
         </div>
         <div className="flex space-x-3">
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+          <button 
+            onClick={fetchPayments}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </button>
+          <button 
+            onClick={handleExport}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+          >
             <Download className="mr-2 h-4 w-4" />
             Export
           </button>
         </div>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center">
+            <XCircle className="h-5 w-5 mr-2" />
+            {error}
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0 rounded-md p-3 bg-green-100">
@@ -183,6 +258,17 @@ export default function PaymentsPage() {
               <p className="text-2xl font-semibold text-gray-900">
                 {payments.filter(p => p.status === 'completed').length}
               </p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white shadow rounded-lg p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 rounded-md p-3 bg-purple-100">
+              <RefreshCw className="h-6 w-6 text-purple-600" />
+            </div>
+            <div className="ml-5">
+              <p className="text-sm font-medium text-gray-500">Refunded</p>
+              <p className="text-2xl font-semibold text-gray-900">{formatCurrency(refundedAmount)}</p>
             </div>
           </div>
         </div>
@@ -255,7 +341,7 @@ export default function PaymentsPage() {
       </div>
 
       {/* Payments Table */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -301,7 +387,8 @@ export default function PaymentsPage() {
                       <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         payment.status === 'completed' ? 'bg-green-100 text-green-800' :
                         payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
+                        payment.status === 'failed' ? 'bg-red-100 text-red-800' :
+                        'bg-purple-100 text-purple-800'
                       }`}>
                         {payment.status}
                       </span>
@@ -312,7 +399,11 @@ export default function PaymentsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {new Date(payment.date).toLocaleDateString()}
+                      {new Date(payment.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
                     </div>
                     {payment.dueDate && (
                       <div className="text-xs text-gray-500">
@@ -322,14 +413,44 @@ export default function PaymentsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900" title="View Details">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      {payment.status === 'pending' && (
-                        <button className="text-green-600 hover:text-green-900" title="Mark as Paid">
+                      {payment.status !== 'completed' && payment.status !== 'refunded' && (
+                        <button 
+                          onClick={() => handleStatusUpdate(payment.id, 'completed')}
+                          className="text-green-600 hover:text-green-900 px-2 py-1 rounded hover:bg-green-50"
+                          title="Mark as Completed"
+                        >
                           <CheckCircle className="h-4 w-4" />
                         </button>
                       )}
+                      {payment.status === 'completed' && (
+                        <button
+                          onClick={() => handleRefund(payment.id)}
+                          className="text-red-600 hover:text-red-900 px-2 py-1 rounded hover:bg-red-50"
+                          title="Refund"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </button>
+                      )}
+                      {payment.status === 'failed' && (
+                        <button 
+                          onClick={() => handleStatusUpdate(payment.id, 'pending')}
+                          className="text-yellow-600 hover:text-yellow-900 px-2 py-1 rounded hover:bg-yellow-50"
+                          title="Retry Payment"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          // View payment details
+                          const paymentDetails = payments.find(p => p.id === payment.id);
+                          alert(`Payment Details:\nInvoice: ${paymentDetails?.invoiceNumber}\nCompany: ${paymentDetails?.company}\nAmount: ${formatCurrency(paymentDetails?.amount || 0)}\nStatus: ${paymentDetails?.status}\nDate: ${new Date(paymentDetails?.date || '').toLocaleDateString()}`);
+                        }}
+                        className="text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50"
+                        title="View Details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -349,6 +470,67 @@ export default function PaymentsPage() {
           </p>
         </div>
       )}
+
+      {/* Summary */}
+      <div className="text-sm text-gray-500">
+        Showing {filteredPayments.length} of {payments.length} payments
+      </div>
     </div>
   );
+}
+
+function getSamplePayments(): Payment[] {
+  return [
+    {
+      id: '1',
+      invoiceNumber: 'INV-2024-001',
+      company: 'ABC Logistics',
+      amount: 2500,
+      status: 'completed',
+      method: 'credit_card',
+      date: '2024-01-15',
+      processedBy: 'Auto'
+    },
+    {
+      id: '2',
+      invoiceNumber: 'INV-2024-002',
+      company: 'XYZ Shipping Co.',
+      amount: 1800,
+      status: 'pending',
+      method: 'bank_transfer',
+      date: '2024-01-14',
+      dueDate: '2024-01-21',
+      processedBy: 'Manual'
+    },
+    {
+      id: '3',
+      invoiceNumber: 'INV-2024-003',
+      company: 'Tech Solutions Ltd.',
+      amount: 3200,
+      status: 'refunded',
+      method: 'online',
+      date: '2024-01-10',
+      processedBy: 'Auto'
+    },
+    {
+      id: '4',
+      invoiceNumber: 'INV-2024-004',
+      company: 'Global Industries',
+      amount: 4500,
+      status: 'failed',
+      method: 'credit_card',
+      date: '2024-01-12',
+      processedBy: 'Auto'
+    },
+    {
+      id: '5',
+      invoiceNumber: 'INV-2024-005',
+      company: 'Premium Services Inc.',
+      amount: 2900,
+      status: 'completed',
+      method: 'check',
+      date: '2024-01-08',
+      processedBy: 'Manual'
+    },
+  ];
 }

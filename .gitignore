@@ -8,8 +8,6 @@
 !.yarn/releases
 !.yarn/versions
 
-**/useApi.ts
-**/api.ts
 
 
 # testing
