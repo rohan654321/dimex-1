@@ -13,6 +13,7 @@
   },
   "license": "ISC",
   "author": "",
+  "type": "commonjs",
   "main": "tailwind.config.js",
   "directories": {
     "lib": "lib"
@@ -28,7 +29,6 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@react-email/components": "^1.0.4",
     "@react-email/render": "^2.0.2",
-    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.24.10",
     "gsap": "^3.14.2",
@@ -41,9 +41,7 @@
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "react-player": "^3.4.0",
-    "swiper": "^12.0.3",
-    "tailwind-merge": "^3.4.0",
-    "tailwindcss-animate": "^1.0.7"
+    "swiper": "^12.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

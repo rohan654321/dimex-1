@@ -18,32 +18,20 @@ import {
   Bell,
   User,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import toast from "react-hot-toast";
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-//   {
-//     name: "Content Management",
-//     icon: FileText,
-//     subItems: [
-//       { name: "Pages", href: "/admin/content/pages" },
-//       { name: "Articles", href: "/admin/content/articles" },
-//       { name: "Privacy Policy", href: "/admin/content/privacy" },
-//       { name: "Terms & Conditions", href: "/admin/content/terms" },
-//     ],
-//   },
   {
     name: "Exhibition Management",
     icon: Building,
     subItems: [
-    //   { name: "Sectors", href: "/admin/exhibition/sectors" },
       { name: "Exhibitors", href: "/admin/exhibition/exhibitors" },
-    //   { name: "Layout Plans", href: "/admin/exhibition/layout" },
       { name: "Floor Plans", href: "/admin/exhibition/floor-plans" },
       { name: "Exhibitor Manuals", href: "/admin/exhibition/manuals" },
     ],
   },
-//   { name: "Partners & Sponsors", href: "/admin/partners", icon: Users },
-//   { name: "Media Gallery", href: "/admin/media", icon: ImageIcon },
   {
     name: "Financial",
     icon: DollarSign,
@@ -54,15 +42,6 @@ const navigation = [
     ],
   },
   { name: "User Management", href: "/admin/users", icon: Users },
-//   {
-//     name: "Settings",
-//     icon: Settings,
-//     subItems: [
-//       { name: "Website Settings", href: "/admin/settings/website" },
-//       { name: "Email Templates", href: "/admin/settings/email" },
-//       { name: "API Keys", href: "/admin/settings/api" },
-//     ],
-//   },
 ];
 
 export default function AdminShell({
@@ -73,25 +52,11 @@ export default function AdminShell({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState<Set<string>>(new Set());
   const [mobileOpenMenus, setMobileOpenMenus] = useState<Set<string>>(new Set());
-  const [user, setUser] = useState<{ email: string; name: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
+  
+  const { user, logout, isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("admin_logged_in");
-    const userData = localStorage.getItem("admin_user");
-
-    if (!loggedIn || !userData) {
-      router.push("/admin/login");
-    } else {
-      setUser(JSON.parse(userData));
-    }
-    setIsLoading(false);
-  }, [router]);
-
-  // Close sidebar when clicking outside on mobile
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -103,6 +68,13 @@ export default function AdminShell({
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [sidebarOpen]);
+
+  // Redirect if not authenticated and not on login page
+  useEffect(() => {
+    if (!loading && !isAuthenticated && pathname !== '/admin/login') {
+      router.push('/admin/login');
+    }
+  }, [loading, isAuthenticated, pathname, router]);
 
   const toggleMenu = (name: string, isMobile: boolean = false) => {
     if (isMobile) {
@@ -116,9 +88,13 @@ export default function AdminShell({
     }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    router.push("/admin/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      toast.error('Failed to logout');
+    }
   };
 
   const handleNavigation = (href: string) => {
@@ -127,7 +103,7 @@ export default function AdminShell({
   };
 
   // Don't render anything while checking auth
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -138,17 +114,16 @@ export default function AdminShell({
     );
   }
 
-  // If user is not logged in and we're not on login page, show nothing (router will redirect)
-  if (!user && pathname !== "/admin/login") {
-    return null;
-  }
-
   // If on login page, render children directly
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
 
-  // Render admin layout for authenticated users
+  // If not authenticated, don't render
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* MOBILE SIDEBAR OVERLAY */}

@@ -21,31 +21,18 @@ const PartnersSection = () => {
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
 
-  const partners: Partner[] = [
-    { name: "", logo: "/images/image.png", link: "/partner/apace-digital-cargo" },
-    { name: "", logo: "/images/image.png", link: "/partner/cargo-insights" },
-    { name: "", logo: "/images/image.png", link: "/partner/international-coordinating-council-for-trans-eurasian-transportation" },
-    { name: "", logo: "/LOGIRUS_34da1707d5.webp", link: "/partner/logirus" },
-    { name: "", logo: "/images/image.png", link: "/partner/cargo-talk" },
-    { name: "", logo: "/images/image.png", link: "/partner/logistics-360-magazine" },
-    { name: "", logo: "/images/image.png", link: "/partner/trans-russia-partner-1" },
-    { name: "", logo: "/images/image.png", link: "/partner/logistics-ru" },
-    { name: "", logo: "/images/image.png", link: "/partner/trav-talk-me" },
-    { name: "", logo: "/images/image.png", link: "/partner/the-council-of-supply-chain-professionals" },
-    { name: "", logo: "/images/image.png", link: "/partner/trans-russia-partner-Moneta-Tanitim" },
-    { name: "", logo: "/images/image.png", link: "/partner/utikad" },
-    { name: "", logo: "/images/image.png", link: "/partner/vtb" },
-    { name: "", logo: "/images/image.png", link: "/partner/trans-russia-partner-2" },
-    { name: "", logo: "/images/image.png", link: "/partner/trans-russia-partner-WIFFA" },
-    { name: "", logo: "/images/image.png", link: "/partner/und" },
-    { name: "", logo: "/images/image.png", link: "/partner/rzd-partner" },
-    { name: "", logo: "/images/image.png", link: "/partner/rzd-business-asset" },
-    { name: "", logo: "/images/image.png", link: "/partner/asia-mh" },
-    { name: "", logo: "/images/image.png", link: "/partner/the-business-year" },
-    { name: "", logo: "/images/image.png", link: "/partner/trans-russia-partner-3" },
-    { name: "", logo: "/images/image.png", link: "/partner/ati-su" },
-    { name: "", logo: "/images/image.png", link: "/partner/acu-logo" }
-  ]
+
+const partners: Partner[] = [
+  { name: 'Partner 1', logo: '/images/partner1.png' },
+  { name: 'Partner 2', logo: '/images/partner2.png' },
+  { name: 'Partner 3', logo: '/images/partner3.png' },
+  { name: 'Partner 4', logo: '/images/partner4.png' },
+  { name: 'Partner 5', logo: '/images/partner5.png' },
+  { name: 'Partner 6', logo: '/images/partner6.png' },
+  { name: 'Partner 7', logo: '/images/partner7.png' },
+  { name: 'Partner 8', logo: '/images/partner8.png' },
+  { name: 'Partner 9', logo: '/images/partner9.png' },
+];
 
   // Duplicate partners for seamless loop
   const duplicatedPartners = [...partners, ...partners, ...partners]
