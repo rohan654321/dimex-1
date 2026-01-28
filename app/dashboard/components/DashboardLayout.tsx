@@ -1,9 +1,10 @@
-// components/DashboardLayout.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { isAuthenticated } from '@/lib/exhibitorAuth';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -11,6 +12,28 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      router.push('/login');
+    } else {
+      setLoading(false);
+    }
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

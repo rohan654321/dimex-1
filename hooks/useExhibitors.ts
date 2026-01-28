@@ -1,153 +1,120 @@
-// hooks/useExhibitors.ts
 import { useState, useEffect, useCallback } from "react";
-import {
-  exhibitorsAPI,
-  ExhibitorStatus,
-  Exhibitor,
-} from "@/lib/api/exhibitors";
+import { exhibitorsAPI, ExhibitorStatus, Exhibitor, PaginatedResponse } from "@/lib/api/exhibitors";
 
-/* =======================
-   OPTIONS TYPE
-======================= */
 interface UseExhibitorsOptions {
   search?: string;
   sector?: string;
-  status?: ExhibitorStatus;
+  status?: ExhibitorStatus | 'all';
   page?: number;
   limit?: number;
 }
 
-/* =======================
-   RETURN TYPE
-======================= */
 interface UseExhibitorsReturn {
   exhibitors: Exhibitor[];
   total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
   isLoading: boolean;
   error: string | null;
-  createExhibitor: (data: Partial<Exhibitor>) => Promise<Exhibitor>;
+  refetch: () => Promise<void>;
+  createExhibitor: (data: any) => Promise<Exhibitor & { originalPassword: string }>;
   updateExhibitor: (id: string, data: Partial<Exhibitor>) => Promise<Exhibitor>;
   deleteExhibitor: (id: string) => Promise<void>;
   bulkUpdateStatus: (ids: string[], status: ExhibitorStatus) => Promise<void>;
-  exportExhibitors: (format?: "csv" | "excel") => Promise<void>;
 }
 
-/* =======================
-   HOOK
-======================= */
-export const useExhibitors = (
-  options: UseExhibitorsOptions = {}
-): UseExhibitorsReturn => {
+export const useExhibitors = (options: UseExhibitorsOptions = {}): UseExhibitorsReturn => {
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
   const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(options.page || 1);
+  const [limit, setLimit] = useState(options.limit || 10);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  /* -------- FETCH -------- */
   const fetchExhibitors = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const params: UseExhibitorsOptions = {
+      const params = {
+        page: options.page || page,
+        limit: options.limit || limit,
         search: options.search,
         sector: options.sector,
-        status: options.status,
-        page: options.page,
-        limit: options.limit,
+        status: options.status === 'all' ? '' : options.status,
       };
 
-      // Remove undefined values safely
-      Object.keys(params).forEach((key) => {
-        if (params[key as keyof UseExhibitorsOptions] === undefined) {
-          delete params[key as keyof UseExhibitorsOptions];
-        }
-      });
-
-      const response = await exhibitorsAPI.getAll(params, true);
-
-      setExhibitors(response.data ?? []);
-      setTotal(response.total ?? 0);
+      const response = await exhibitorsAPI.getAll(params);
+      
+      setExhibitors(response.data);
+      setTotal(response.pagination.total);
+      setPage(response.pagination.page);
+      setLimit(response.pagination.limit);
+      setTotalPages(response.pagination.totalPages);
     } catch (err: any) {
-      console.error("❌ Fetch exhibitors error:", err);
       setError(err.message || "Failed to fetch exhibitors");
+      console.error("Error fetching exhibitors:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [
-    options.search,
-    options.sector,
-    options.status,
-    options.page,
-    options.limit,
-  ]);
+  }, [options.search, options.sector, options.status, options.page, options.limit, page, limit]);
 
   useEffect(() => {
     fetchExhibitors();
   }, [fetchExhibitors]);
 
-  /* -------- CREATE -------- */
-  const createExhibitor = async (
-    data: Partial<Exhibitor>
-  ): Promise<Exhibitor> => {
-    const exhibitor = await exhibitorsAPI.create(data);
-    await fetchExhibitors();
-    return exhibitor;
+  const createExhibitor = async (data: any): Promise<Exhibitor & { originalPassword: string }> => {
+    try {
+      const result = await exhibitorsAPI.create(data);
+      await fetchExhibitors();
+      return result;
+    } catch (err: any) {
+      throw new Error(err.message || "Failed to create exhibitor");
+    }
   };
 
-  /* -------- UPDATE -------- */
-  const updateExhibitor = async (
-    id: string,
-    data: Partial<Exhibitor>
-  ): Promise<Exhibitor> => {
-    const exhibitor = await exhibitorsAPI.update(id, data);
-    await fetchExhibitors();
-    return exhibitor;
+  const updateExhibitor = async (id: string, data: Partial<Exhibitor>): Promise<Exhibitor> => {
+    try {
+      const result = await exhibitorsAPI.update(id, data);
+      await fetchExhibitors();
+      return result;
+    } catch (err: any) {
+      throw new Error(err.message || "Failed to update exhibitor");
+    }
   };
 
-  /* -------- DELETE -------- */
   const deleteExhibitor = async (id: string): Promise<void> => {
-    await exhibitorsAPI.delete(id);
-    await fetchExhibitors();
+    try {
+      await exhibitorsAPI.delete(id);
+      await fetchExhibitors();
+    } catch (err: any) {
+      throw new Error(err.message || "Failed to delete exhibitor");
+    }
   };
 
-  /* -------- BULK STATUS UPDATE -------- */
-  const bulkUpdateStatus = async (
-    ids: string[],
-    status: ExhibitorStatus
-  ): Promise<void> => {
-    await exhibitorsAPI.bulkUpdateStatus(ids, status);
-    await fetchExhibitors();
-  };
-
-  /* -------- EXPORT -------- */
-  const exportExhibitors = async (
-    format: "csv" | "excel" = "csv"
-  ): Promise<void> => {
-    const blob = await exhibitorsAPI.export(format);
-
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `exhibitors_${new Date()
-      .toISOString()
-      .split("T")[0]}.${format}`;
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+  const bulkUpdateStatus = async (ids: string[], status: ExhibitorStatus): Promise<void> => {
+    try {
+      await exhibitorsAPI.bulkUpdateStatus(ids, status);
+      await fetchExhibitors();
+    } catch (err: any) {
+      throw new Error(err.message || "Failed to update status");
+    }
   };
 
   return {
     exhibitors,
     total,
+    page,
+    limit,
+    totalPages,
     isLoading,
     error,
+    refetch: fetchExhibitors,
     createExhibitor,
     updateExhibitor,
     deleteExhibitor,
     bulkUpdateStatus,
-    exportExhibitors,
   };
 };

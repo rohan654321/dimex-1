@@ -1,21 +1,64 @@
-import api from "../api";
+import axios from 'axios';
 
-/* =======================
-   STATUS TYPE (SINGLE SOURCE OF TRUTH)
-======================= */
-export type ExhibitorStatus =
-  | "active"
-  | "inactive"
-  | "pending"
-  | "approved"
-  | "rejected";
+// Create axios instance
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  timeout: 10000,
+});
 
-/* =======================
-   MAIN EXHIBITOR TYPE
-======================= */
+// Request interceptor
+api.interceptors.request.use(
+  (config) => {
+    console.log(`🌐 ${config.method?.toUpperCase()} ${config.url}`);
+    
+    // Get token from localStorage
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    
+    return config;
+  },
+  (error) => {
+    console.error('❌ Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
+api.interceptors.response.use(
+  (response) => {
+    console.log(`✅ ${response.status} ${response.config.url}`);
+    return response;
+  },
+  (error) => {
+    console.error('❌ API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    
+    // Handle 401 Unauthorized
+    if (error.response?.status === 401 && typeof window !== 'undefined') {
+      localStorage.removeItem('exhibitor_token');
+      localStorage.removeItem('exhibitor_data');
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export type ExhibitorStatus = "pending" | "active" | "inactive" | "approved" | "rejected";
+
 export interface Exhibitor {
-  [x: string]: any;
-  plainPassword: any;
   id: string;
   name: string;
   email: string;
@@ -24,198 +67,290 @@ export interface Exhibitor {
   sector: string;
   booth: string;
   status: ExhibitorStatus;
-  registrationDate: string;
-  website: string;
-  password?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  stallDetails?: any;
-}
-
-/* =======================
-   API RESPONSE TYPES
-======================= */
-export interface ExhibitorResponse {
-  data: Exhibitor[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  originalPassword?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ExhibitorStats {
   total: number;
-  byStatus: Array<{
-    _id: ExhibitorStatus;
-    count: number;
-  }>;
-  bySector: Array<{
-    _id: string;
-    count: number;
-  }>;
+  byStatus: Array<{ _id: string; count: number }>;
+  bySector: Array<{ _id: string; count: number }>;
+}
+
+export interface CreateExhibitorData {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  sector: string;
+  boothNumber: string;
+  password: string;
+  status?: ExhibitorStatus;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  message?: string;
+  error?: string;
 }
 
 interface ApiResponse<T> {
+  success: boolean;
   data: T;
   message?: string;
-  success: boolean;
+  error?: string;
 }
 
-/* =======================
-   QUERY PARAM TYPES
-======================= */
-interface GetAllParams {
-  search?: string;
-  sector?: string;
-  status?: ExhibitorStatus;
-  page?: number;
-  limit?: number;
-}
-
-/* =======================
-   API IMPLEMENTATION
-======================= */
-export const exhibitorsAPI = {
-  /* -------- GET ALL -------- */
-  getAll: async (
-    params: GetAllParams = {},
-    includePassword: boolean = false
-  ): Promise<ExhibitorResponse> => {
-    const response = await api.get<ApiResponse<any>>("/exhibitors", {
-      params: {
-        ...params,
-        includePassword: includePassword ? "true" : "false",
-      },
+// Helper function to test server connection
+export const testServerConnection = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/health', {
+      timeout: 5000
     });
-
-    const apiData = response.data.data;
-
-    let exhibitors: Exhibitor[] = [];
-    let total = 0;
-    let page = 1;
-    let limit = 10;
-    let totalPages = 0;
-
-    if (apiData) {
-      if (Array.isArray(apiData.data)) {
-        exhibitors = apiData.data;
-        total = apiData.total || 0;
-        page = apiData.page || 1;
-        limit = apiData.limit || 10;
-        totalPages = apiData.totalPages || 0;
-      } else if (Array.isArray(apiData.exhibitors)) {
-        exhibitors = apiData.exhibitors;
-        total = apiData.total || 0;
-        page = apiData.page || 1;
-        limit = apiData.limit || 10;
-        totalPages = apiData.totalPages || 0;
-      } else if (Array.isArray(apiData)) {
-        exhibitors = apiData;
-        total = apiData.length;
-      }
-    }
-
-    return {
-      data: exhibitors,
-      total,
-      page,
-      limit,
-      totalPages,
+    console.log('✅ Server connection test:', response.data);
+    return { success: true, data: response.data };
+  } catch (error: any) {
+    console.error('❌ Server connection failed:', error.message);
+    return { 
+      success: false, 
+      error: `Cannot connect to server at http://localhost:5000. Please ensure backend is running.`
     };
-  },
+  }
+};
 
-  /* -------- GET BY ID -------- */
-  getById: async (id: string): Promise<Exhibitor> => {
-    const response = await api.get<ApiResponse<Exhibitor>>(`/exhibitors/${id}`);
-    return response.data.data;
-  },
-
-  /* -------- CREATE -------- */
-  create: async (data: Partial<Exhibitor>): Promise<Exhibitor> => {
-    const response = await api.post<ApiResponse<Exhibitor>>(
-      "/exhibitors",
-      data
-    );
-    return response.data.data;
-  },
-
-  /* -------- UPDATE -------- */
-  update: async (
-    id: string,
-    data: Partial<Exhibitor>
-  ): Promise<Exhibitor> => {
-    const response = await api.put<ApiResponse<Exhibitor>>(
-      `/exhibitors/${id}`,
-      data
-    );
-    return response.data.data;
-  },
-
-  /* -------- DELETE -------- */
-  delete: async (id: string): Promise<void> => {
-    await api.delete<ApiResponse<void>>(`/exhibitors/${id}`);
-  },
-
-  /* -------- STATS -------- */
-  getStats: async (): Promise<ExhibitorStats> => {
-    const response = await api.get<ApiResponse<ExhibitorStats>>(
-      "/exhibitors/stats"
-    );
-    return response.data.data;
-  },
-
-  /* -------- BULK STATUS UPDATE -------- */
-  bulkUpdateStatus: async (
-    ids: string[],
-    status: ExhibitorStatus
-  ): Promise<void> => {
-    await api.post<ApiResponse<void>>(
-      "/exhibitors/bulk/update-status",
-      { ids, status }
-    );
-  },
-
-  /* -------- EXPORT -------- */
-  export: async (format: "csv" | "excel" = "csv"): Promise<Blob> => {
-    const response = await api.get("/exhibitors/export/data", {
-      params: { format },
-      responseType: "blob",
+// Test login endpoint
+export const testLoginEndpoint = async () => {
+  try {
+    const response = await axios.post('http://localhost:5000/api/auth/exhibitor/login', {
+      email: 'test@example.com',
+      password: 'test123'
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      timeout: 5000
     });
-    return response.data;
+    console.log('✅ Login endpoint test:', response.data);
+    return { success: true, data: response.data };
+  } catch (error: any) {
+    console.error('❌ Login endpoint test failed:', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const exhibitorsAPI = {
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sector?: string;
+    status?: string;
+  }): Promise<PaginatedResponse<Exhibitor>> => {
+    try {
+      const response = await api.get<PaginatedResponse<Exhibitor>>("/exhibitors", { params });
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to fetch exhibitors');
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching exhibitors:', error);
+      throw error;
+    }
   },
 
-  /* -------- FILTER HELPERS -------- */
-  getBySector: async (sector: string): Promise<Exhibitor[]> => {
-    const response = await api.get<ApiResponse<Exhibitor[]>>(
-      `/exhibitors/sector/${sector}`
-    );
-    return response.data.data;
+  getStats: async (): Promise<ExhibitorStats> => {
+    try {
+      const response = await api.get<ApiResponse<ExhibitorStats>>("/exhibitors/stats");
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to fetch exhibitor statistics');
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('Error fetching exhibitor stats:', error);
+      throw error;
+    }
   },
 
-  getByStatus: async (status: ExhibitorStatus): Promise<Exhibitor[]> => {
-    const response = await api.get<ApiResponse<Exhibitor[]>>(
-      `/exhibitors/status/${status}`
-    );
-    return response.data.data;
+  create: async (data: CreateExhibitorData): Promise<Exhibitor & { originalPassword: string }> => {
+    try {
+      const response = await api.post<ApiResponse<Exhibitor & { originalPassword: string }>>("/exhibitors", data);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to create exhibitor');
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('Error creating exhibitor:', error);
+      
+      if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      }
+      
+      throw error;
+    }
   },
 
-  /* -------- ASSIGN BOOTH -------- */
-  assignBooth: async (
-    id: string,
-    boothId: string
-  ): Promise<Exhibitor> => {
-    const response = await api.post<ApiResponse<Exhibitor>>(
-      `/exhibitors/${id}/assign-booth`,
-      { boothId }
-    );
-    return response.data.data;
+update: async (id: string, data: Partial<CreateExhibitorData>): Promise<Exhibitor> => {
+    try {
+      console.log('🔄 Updating exhibitor:', id, data);
+      
+      const response = await api.put<ApiResponse<Exhibitor>>(`/exhibitors/${id}`, data);
+      
+      console.log('✅ Update response:', response.data);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to update exhibitor');
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('❌ Error updating exhibitor:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      let errorMessage = 'Failed to update exhibitor';
+      
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      throw new Error(errorMessage);
+    }
   },
 
-  /* -------- STATUS OPTIONS -------- */
-  getStatusOptions: async (): Promise<ExhibitorStatus[]> => {
-    const response = await api.get<ApiResponse<ExhibitorStatus[]>>(
-      "/exhibitors/status-options"
-    );
-    return response.data.data;
+  bulkUpdateStatus: async (ids: string[], status: ExhibitorStatus): Promise<{ affectedCount: number }> => {
+    try {
+      console.log('🔄 Bulk updating status:', { ids, status });
+      
+      const response = await api.post<ApiResponse<{ affectedCount: number }>>("/exhibitors/bulk/update-status", {
+        ids,
+        status
+      });
+      
+      console.log('✅ Bulk update response:', response.data);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to update status');
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('❌ Error bulk updating status:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      throw new Error(error.message || 'Failed to update status');
+    }
   },
+
+  delete: async (id: string): Promise<void> => {
+    try {
+      const response = await api.delete<ApiResponse<void>>(`/exhibitors/${id}`);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to delete exhibitor');
+      }
+    } catch (error: any) {
+      console.error('Error deleting exhibitor:', error);
+      throw error;
+    }
+  },
+
+
+};
+
+export const authAPI = {
+  login: async (email: string, password: string): Promise<{ token: string; exhibitor: Exhibitor }> => {
+    try {
+      console.log('🔐 Attempting login for:', email);
+      
+      // First, test if server is reachable
+      const serverTest = await testServerConnection();
+      if (!serverTest.success) {
+        throw new Error(serverTest.error);
+      }
+      
+      console.log('🔄 Sending login request...');
+      
+      const response = await api.post('/auth/exhibitor/login', { 
+        email, 
+        password 
+      });
+      
+      console.log('✅ Login response:', response.data);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Login failed');
+      }
+      
+      return response.data.data;
+      
+    } catch (error: any) {
+      console.error('❌ Login error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      let errorMessage = 'Login failed';
+      
+      if (error.response?.status === 401) {
+        errorMessage = 'Invalid email or password';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'Account is not active. Please contact administrator.';
+      } else if (error.message.includes('Network Error') || error.message.includes('timeout')) {
+        errorMessage = 'Cannot connect to server. Please ensure backend is running on http://localhost:5000';
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      throw new Error(errorMessage);
+    }
+  },
+
+  getProfile: async (): Promise<Exhibitor> => {
+    try {
+      const response = await api.get<ApiResponse<Exhibitor>>("/auth/exhibitor/profile");
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to fetch profile');
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('Profile error:', error);
+      throw error;
+    }
+  },
+
+  // Test function
+  test: async () => {
+    try {
+      const response = await api.get('/auth/exhibitor/test');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 };

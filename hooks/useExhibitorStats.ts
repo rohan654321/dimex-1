@@ -24,25 +24,18 @@ export const useExhibitorStats = (): UseExhibitorStatsReturn => {
       setError(err.message || 'Failed to load exhibitor statistics');
       console.error('Exhibitor stats error:', err);
       
-      // Fallback to mock data if API fails (for development)
+      // Fallback mock data for development
       if (process.env.NODE_ENV === 'development') {
         const mockStats: ExhibitorStats = {
-          total: 150,
+          total: 0,
           byStatus: [
-            { _id: 'active', count: 120 },
-            { _id: 'pending', count: 30 },
-            { _id: 'approved', count: 100 },
-            { _id: 'rejected', count: 20 },
+            { _id: 'active', count: 0 },
+            { _id: 'pending', count: 0 },
+            { _id: 'approved', count: 0 },
+            { _id: 'rejected', count: 0 },
             { _id: 'inactive', count: 0 }
           ],
-          bySector: [
-            { _id: 'Technology', count: 45 },
-            { _id: 'Manufacturing', count: 35 },
-            { _id: 'Logistics', count: 25 },
-            { _id: 'Services', count: 20 },
-            { _id: 'Rail', count: 15 },
-            { _id: 'Maritime', count: 10 }
-          ]
+          bySector: []
         };
         setStats(mockStats);
       }
