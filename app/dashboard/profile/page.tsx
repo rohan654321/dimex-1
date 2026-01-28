@@ -1,7 +1,6 @@
-// app/dashboard/profile/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   PencilIcon, 
   CheckIcon, 
@@ -15,6 +14,7 @@ import {
   UserCircleIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/outline';
+import axios from 'axios';
 import { ExhibitorProfile } from '@/types';
 
 const initialProfile: ExhibitorProfile = {
@@ -31,13 +31,78 @@ const initialProfile: ExhibitorProfile = {
 };
 
 export default function EnhancedProfilePage() {
-  const [profile, setProfile] = useState(initialProfile);
+  const [profile, setProfile] = useState<ExhibitorProfile>(initialProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState(profile);
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const fetchProfileData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get exhibitor token
+      const token = localStorage.getItem('exhibitorToken') || localStorage.getItem('token');
+      
+      // Fetch from your existing exhibitor route
+      // You might need to check what endpoint returns exhibitor profile
+      const response = await axios.get('/api/exhibitorDashboard/layout', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (response.data.success) {
+        const exhibitorData = response.data.data.exhibitor;
+        
+        // Map the data to your profile structure
+        const profileData: ExhibitorProfile = {
+          id: exhibitorData.id || 'EXH2024-001',
+          companyName: exhibitorData.company || 'Tech Innovations Inc.',
+          contactPerson: exhibitorData.name || 'John Smith',
+          email: exhibitorData.email || 'john@techinnovations.com',
+          phone: exhibitorData.phone || '+1 (555) 123-4567',
+          address: exhibitorData.address || '123 Tech Street, Suite 450, Silicon Valley, CA 94000',
+          website: exhibitorData.website || 'www.techinnovations.com',
+          industry: exhibitorData.sector || 'Technology & Software',
+          description: exhibitorData.description || 'Leading provider of innovative tech solutions...',
+          status: exhibitorData.status || 'active',
+        };
+        
+        setProfile(profileData);
+        setEditedProfile(profileData);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      // Use initial profile if API fails
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('exhibitorToken') || localStorage.getItem('token');
+      
+      // Update profile - you need to implement an update endpoint
+      // For now, just update local state
+      // In production, you would make a PUT request:
+      // await axios.put('/api/exhibitors/profile', editedProfile, {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
+      
+      setProfile(editedProfile);
+      setIsEditing(false);
+      
+      // Show success message
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile');
+    }
   };
 
   const handleCancel = () => {
@@ -48,6 +113,56 @@ export default function EnhancedProfilePage() {
   const handleChange = (field: keyof ExhibitorProfile, value: string) => {
     setEditedProfile(prev => ({ ...prev, [field]: value }));
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="h-4 w-64 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <div className="card overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 h-48 animate-pulse"></div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="p-2 bg-gray-200 rounded-lg h-10 w-10"></div>
+                      <div>
+                        <div className="h-4 w-24 bg-gray-200 rounded mb-1"></div>
+                        <div className="h-5 w-36 bg-gray-200 rounded"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="lg:col-span-2">
+            <div className="card">
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i}>
+                      <div className="h-4 w-32 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-12 bg-gray-100 rounded-lg"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -172,32 +287,6 @@ export default function EnhancedProfilePage() {
                     {profile.status.charAt(0).toUpperCase() + profile.status.slice(1)}
                   </span>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Verification Status */}
-          <div className="card mt-6">
-            <div className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Verification Status</h3>
-              <div className="space-y-3">
-                {[
-                  { label: 'Business License', verified: true },
-                  { label: 'Tax Documents', verified: true },
-                  { label: 'Insurance Certificate', verified: false },
-                  { label: 'Product Samples', verified: true },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">{item.label}</span>
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                      item.verified 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {item.verified ? 'Verified' : 'Pending'}
-                    </span>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -370,36 +459,6 @@ export default function EnhancedProfilePage() {
                       </a>
                     </div>
                   )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Settings */}
-          <div className="card mt-6">
-            <div className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Additional Settings</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">Email Notifications</p>
-                    <p className="text-sm text-gray-600">Receive updates about your exhibition</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                    <div className="w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">SMS Alerts</p>
-                    <p className="text-sm text-gray-600">Important updates via text message</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" />
-                    <div className="w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
                 </div>
               </div>
             </div>

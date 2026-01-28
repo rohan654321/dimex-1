@@ -1,13 +1,17 @@
-// components/Header.tsx
 'use client';
 
-import { BellIcon, MagnifyingGlassIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import { BellIcon, MagnifyingGlassIcon, Bars3Icon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { logout } from '@/lib/exhibitorAuth';
 
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <header className="sticky top-0 z-10 border-b border-gray-200 bg-white shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -36,6 +40,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <button className="relative rounded-full bg-white p-1 text-gray-400 hover:text-gray-500">
             <BellIcon className="h-6 w-6" />
             <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white" />
+          </button>
+          
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            title="Logout"
+          >
+            <ArrowRightOnRectangleIcon className="h-5 w-5" />
+            <span className="hidden md:inline">Logout</span>
           </button>
           
           <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">

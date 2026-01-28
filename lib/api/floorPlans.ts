@@ -89,16 +89,28 @@ export const floorPlansAPI = {
     }
   },
 
-  // Get all floor plans
-  getAll: async (params: any = {}): Promise<ApiResponse> => {
-    try {
-      console.log('📋 Fetching floor plans with params:', params);
-      const response = await api.get('/floor-plans', { params });
-      return response.data;
-    } catch (error: any) {
-      return handleApiError(error, 'Failed to fetch floor plans');
-    }
-  },
+// Update the getAll function in floorPlansAPI
+getAll: async (params: any = {}): Promise<ApiResponse> => {
+  try {
+    console.log('📋 Fetching floor plans with params:', params);
+    const response = await api.get('/floor-plans', { params });
+    console.log('📊 Full API Response:', {
+      status: response.status,
+      headers: response.headers,
+      data: response.data,
+      config: response.config
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error('❌ API Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: error.config
+    });
+    return handleApiError(error, 'Failed to fetch floor plans');
+  }
+},
 
   // Get single floor plan
   getById: async (id: string | number): Promise<ApiResponse<FloorPlan>> => {

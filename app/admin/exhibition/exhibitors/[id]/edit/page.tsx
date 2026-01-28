@@ -1,14 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Save, X, Building, User, Mail, Phone, MapPin, Key } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  Save,
+  X,
+  Building,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Key,
+  ArrowLeft,
+} from "lucide-react";
 import toast from "react-hot-toast";
-import { exhibitorsAPI, CreateExhibitorData } from "@/lib/api/exhibitors";
+import { exhibitorsAPI, Exhibitor, CreateExhibitorData } from "@/lib/api/exhibitors";
 
-export default function NewExhibitorPage() {
+export default function EditExhibitorPage() {
+  const params = useParams();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const id = params.id as string;
+  
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   
   const [formData, setFormData] = useState<CreateExhibitorData>({
     name: "",
@@ -35,6 +49,38 @@ export default function NewExhibitorPage() {
     "Other",
   ];
 
+  useEffect(() => {
+    fetchExhibitor();
+  }, [id]);
+
+  const fetchExhibitor = async () => {
+    try {
+      setLoading(true);
+      const response = await exhibitorsAPI.getAll();
+      const exhibitor = response.data.find((e: Exhibitor) => e.id === id);
+      
+      if (exhibitor) {
+        setFormData({
+          name: exhibitor.name,
+          email: exhibitor.email,
+          phone: exhibitor.phone,
+          company: exhibitor.company,
+          sector: exhibitor.sector,
+          boothNumber: exhibitor.booth,
+          password: "", // Don't show existing password for security
+          status: exhibitor.status,
+        });
+      } else {
+        toast.error("Exhibitor not found");
+        router.push("/admin/exhibition/exhibitors");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to load exhibitor");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -42,86 +88,70 @@ export default function NewExhibitorPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setSaving(true);
 
-    try {
-      const result = await exhibitorsAPI.create(formData);
-      
-      // Show success with password
-      toast.success(
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-              <Building className="h-4 w-4 text-green-600" />
-            </div>
-            <h3 className="font-semibold text-lg">Exhibitor Created Successfully!</h3>
-          </div>
-          
-          <div className="space-y-3">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-green-800 mb-1">Login Credentials</p>
-                  <p className="font-medium">{result.email}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-green-800 mb-1">Password</p>
-                  <p className="font-mono text-lg font-bold">{result.originalPassword}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800">
-                <strong>Important:</strong> Save this password and share it securely with the exhibitor.
-              </p>
-            </div>
-          </div>
-        </div>,
-        { duration: 10000 }
-      );
-      
-      // Redirect to exhibitors list
-      setTimeout(() => {
-        router.push("/admin/exhibition/exhibitors");
-      }, 2000);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create exhibitor");
-    } finally {
-      setLoading(false);
+  try {
+    // ✅ Build payload manually (IMPORTANT)
+    const updateData: Partial<CreateExhibitorData> = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      company: formData.company,
+      sector: formData.sector,
+      boothNumber: formData.boothNumber,
+      status: formData.status,
+    };
+
+    // 🔐 ONLY send password if admin typed a new one
+    if (formData.password && formData.password.trim() !== "") {
+      updateData.password = formData.password; // plain text
     }
-  };
+
+    await exhibitorsAPI.update(id, updateData);
+    toast.success("Exhibitor updated successfully");
+    router.push(`/admin/exhibition/exhibitors/${id}`);
+  } catch (error: any) {
+    toast.error(error.message || "Failed to update exhibitor");
+  } finally {
+    setSaving(false);
+  }
+};
+
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading exhibitor details...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-              <Building className="h-6 w-6 text-blue-600" />
-            </div>
+          <button
+            onClick={() => router.push(`/admin/exhibition/exhibitors/${id}`)}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Back to Details
+          </button>
+
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Create New Exhibitor
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Edit Exhibitor
               </h1>
               <p className="text-gray-600">
-                Add a new exhibitor account to the exhibition
+                Update exhibitor information and credentials
               </p>
-            </div>
-          </div>
-          
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <Key className="h-5 w-5 text-blue-600" />
-              <div>
-                <p className="font-medium text-blue-900">Password Information</p>
-                <p className="text-sm text-blue-700">
-                  The password you set will be shown after creation. Make sure to save it!
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -150,7 +180,6 @@ export default function NewExhibitorPage() {
                   value={formData.company}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  placeholder="Enter company name"
                 />
               </div>
 
@@ -190,7 +219,6 @@ export default function NewExhibitorPage() {
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  placeholder="Full name"
                 />
               </div>
 
@@ -209,7 +237,6 @@ export default function NewExhibitorPage() {
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  placeholder="email@company.com"
                 />
               </div>
 
@@ -228,7 +255,6 @@ export default function NewExhibitorPage() {
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  placeholder="+1 (555) 123-4567"
                 />
               </div>
 
@@ -251,10 +277,10 @@ export default function NewExhibitorPage() {
             </div>
           </div>
 
-          {/* Exhibition Details Card */}
+          {/* Exhibition & Password Card */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-6 pb-4 border-b">
-              Exhibition Details
+              Exhibition Details & Password
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -273,7 +299,6 @@ export default function NewExhibitorPage() {
                   value={formData.boothNumber}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  placeholder="A-101"
                 />
               </div>
 
@@ -282,20 +307,19 @@ export default function NewExhibitorPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <div className="flex items-center gap-2">
                     <Key className="h-4 w-4" />
-                    Set Password *
+                    Change Password (Optional)
                   </div>
                 </label>
                 <input
                   type="text"
                   name="password"
-                  required
                   value={formData.password}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none font-mono"
-                  placeholder="Enter password for exhibitor"
+                  placeholder="Leave blank to keep current password"
                 />
                 <p className="text-sm text-gray-500 mt-2">
-                  This password will be shown to you after creation
+                  Only enter a new password if you want to change it
                 </p>
               </div>
             </div>
@@ -306,7 +330,7 @@ export default function NewExhibitorPage() {
             <div className="flex justify-end gap-4">
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => router.push(`/admin/exhibition/exhibitors/${id}`)}
                 className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
               >
                 <X className="h-5 w-5" />
@@ -314,11 +338,11 @@ export default function NewExhibitorPage() {
               </button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={saving}
                 className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <Save className="h-5 w-5" />
-                {loading ? "Creating..." : "Create Exhibitor"}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
