@@ -23,15 +23,42 @@ const PartnersSection = () => {
 
 
 const partners: Partner[] = [
-  { name: 'Partner 1', logo: '/images/partner1.png' },
-  { name: 'Partner 2', logo: '/images/partner2.png' },
-  { name: 'Partner 3', logo: '/images/partner3.png' },
-  { name: 'Partner 4', logo: '/images/partner4.png' },
-  { name: 'Partner 5', logo: '/images/partner5.png' },
-  { name: 'Partner 6', logo: '/images/partner6.png' },
-  { name: 'Partner 7', logo: '/images/partner7.png' },
-  { name: 'Partner 8', logo: '/images/partner8.png' },
-  { name: 'Partner 9', logo: '/images/partner9.png' },
+  {
+    name: 'Partner 1', logo: '/images/partner1.png',
+    link: ""
+  },
+  {
+    name: 'Partner 2', logo: '/images/partner2.png',
+    link: ""
+  },
+  {
+    name: 'Partner 3', logo: '/images/partner3.png',
+    link: ""
+  },
+  {
+    name: 'Partner 4', logo: '/images/partner4.png',
+    link: ""
+  },
+  {
+    name: 'Partner 5', logo: '/images/partner5.png',
+    link: ""
+  },
+  {
+    name: 'Partner 6', logo: '/images/partner6.png',
+    link: ""
+  },
+  {
+    name: 'Partner 7', logo: '/images/partner7.png',
+    link: ""
+  },
+  {
+    name: 'Partner 8', logo: '/images/partner8.png',
+    link: ""
+  },
+  {
+    name: 'Partner 9', logo: '/images/partner9.png',
+    link: ""
+  },
 ];
 
   // Duplicate partners for seamless loop
