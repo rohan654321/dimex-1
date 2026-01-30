@@ -18,7 +18,7 @@ export default function RootLayout({
   const pathname = usePathname();
 
   // 👇 Disable Nav & Footer for admin routes
-  const hideLayout = pathname.startsWith("/admin") ||  pathname.startsWith("/dashboard");
+  const hideLayout = pathname.startsWith("/admin") ||  pathname.startsWith("/dashboard") || pathname.startsWith("/login");
 
   return (
     <html lang="en" className={parabolica.variable}>
