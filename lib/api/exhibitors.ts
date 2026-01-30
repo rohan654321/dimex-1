@@ -2,12 +2,12 @@ import axios from 'axios';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://diemex-backend.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   },
-  timeout: 10000,
+  timeout: 30000,
 });
 
 // Request interceptor
@@ -112,7 +112,7 @@ interface ApiResponse<T> {
 // Helper function to test server connection
 export const testServerConnection = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/health', {
+    const response = await axios.get('https://diemex-backend.onrender.com/health', {
       timeout: 5000
     });
     console.log('✅ Server connection test:', response.data);
@@ -129,7 +129,7 @@ export const testServerConnection = async () => {
 // Test login endpoint
 export const testLoginEndpoint = async () => {
   try {
-    const response = await axios.post('http://localhost:5000/api/auth/exhibitor/login', {
+    const response = await axios.post('https://diemex-backend.onrender.com/api/auth/exhibitor/login', {
       email: 'test@example.com',
       password: 'test123'
     }, {
@@ -274,9 +274,37 @@ update: async (id: string, data: Partial<CreateExhibitorData>): Promise<Exhibito
       throw error;
     }
   },
+  resendCredentials: async (id: string): Promise<{ email: string; timestamp: string }> => {
+    try {
+      const response = await api.post<ApiResponse<{ email: string; timestamp: string }>>(
+        `/exhibitors/${id}/resend-credentials`,
+        {}, // empty body 
+        {
+          timeout: 30000 // ⬅️ SPECIFIC TIMEOUT FOR THIS ENDPOINT
+        }
+      );
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to resend credentials');
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('Error resending credentials:', error);
+      
+      // More helpful error messages
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        throw new Error('Email service is taking too long. Check if email is configured properly.');
+      }
+      
+      throw error;
+    }
+  }
 
 
 };
+
+
 
 export const authAPI = {
   login: async (email: string, password: string): Promise<{ token: string; exhibitor: Exhibitor }> => {

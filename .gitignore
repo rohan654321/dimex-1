@@ -8,10 +8,14 @@
 !.yarn/releases
 !.yarn/versions
 
-
-
 # testing
 /coverage
+
+# app routes to ignore
+/app/admin/
+/app/dashboard/
+/app/login/
+
 
 # next.js
 /.next/

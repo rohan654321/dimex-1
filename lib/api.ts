@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
 // Get the API URL from environment or use default
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://diemex-backend.onrender.com/api';
 
 // Create axios instance with minimal headers to avoid CORS issues
 const api = axios.create({

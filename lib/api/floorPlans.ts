@@ -1,62 +1,5 @@
 import api from '../api';
-
-// Define interfaces
-export interface Shape {
-  id: string;
-  type: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation: number;
-  color: string;
-  borderColor: string;
-  borderWidth: number;
-  text?: string;
-  fontSize: number;
-  zIndex: number;
-  isLocked?: boolean;
-  metadata?: {
-    boothNumber?: string;
-    companyName?: string;
-    status?: 'available' | 'booked' | 'reserved' | 'maintenance';
-    category?: string;
-    contactPerson?: string;
-    phone?: string;
-    [key: string]: any;
-  };
-}
-
-export interface FloorPlan {
-  id?: string | number;
-  name: string;
-  description?: string;
-  floor?: string;
-  version: string;
-  shapes: Shape[];
-  image?: string;
-  scale: number;
-  gridSize?: number;
-  showGrid?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  thumbnail?: string;
-  isPublic?: boolean;
-  tags?: string[];
-  createdBy?: string | number;
-  updatedBy?: string | number;
-  imagePublicId?: string;
-}
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-  total?: number;
-  page?: number;
-  totalPages?: number;
-}
+import { Shape, ShapeType, FloorPlan as FloorPlanType } from '@/lib/types';
 
 // Helper to handle API errors
 const handleApiError = (error: any, defaultMessage: string): ApiResponse => {
@@ -78,6 +21,16 @@ const handleApiError = (error: any, defaultMessage: string): ApiResponse => {
   };
 };
 
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+  total?: number;
+  page?: number;
+  totalPages?: number;
+}
+
 export const floorPlansAPI = {
   // Test API connection
   testConnection: async (): Promise<ApiResponse> => {
@@ -89,33 +42,116 @@ export const floorPlansAPI = {
     }
   },
 
-// Update the getAll function in floorPlansAPI
-getAll: async (params: any = {}): Promise<ApiResponse> => {
-  try {
-    console.log('📋 Fetching floor plans with params:', params);
-    const response = await api.get('/floor-plans', { params });
-    console.log('📊 Full API Response:', {
-      status: response.status,
-      headers: response.headers,
-      data: response.data,
-      config: response.config
-    });
-    return response.data;
-  } catch (error: any) {
-    console.error('❌ API Error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      config: error.config
-    });
-    return handleApiError(error, 'Failed to fetch floor plans');
-  }
-},
+  getAll: async (params: any = {}): Promise<ApiResponse<FloorPlanType[]>> => {
+    try {
+      console.log('📋 Fetching floor plans with params:', params);
+      const response = await api.get('/floor-plans', { params });
+      console.log('📊 Full API Response:', {
+        status: response.status,
+        headers: response.headers,
+        data: response.data,
+        config: response.config
+      });
+      
+      // Transform the response to match FloorPlanType
+      if (response.data?.data) {
+        const transformedData = response.data.data.map((plan: any): FloorPlanType => ({
+          id: String(plan.id),
+          name: plan.name || '',
+          description: plan.description || '',
+          version: plan.version || "1.0",
+          shapes: Array.isArray(plan.shapes) ? plan.shapes.map((shape: any): Shape => ({
+            id: shape.id || `shape-${Date.now()}-${Math.random()}`,
+            type: (shape.type as ShapeType) || 'rectangle',
+            x: Number(shape.x) || 0,
+            y: Number(shape.y) || 0,
+            width: Number(shape.width) || 50,
+            height: Number(shape.height) || 50,
+            rotation: Number(shape.rotation) || 0,
+            color: shape.color || "rgba(59, 130, 246, 0.3)",
+            borderColor: shape.borderColor || "#1e40af",
+            borderWidth: Number(shape.borderWidth) || 2,
+            fontSize: Number(shape.fontSize) || 12,
+            text: shape.text || '',
+            zIndex: Number(shape.zIndex) || 1,
+            isLocked: Boolean(shape.isLocked),
+            metadata: shape.metadata || {}
+          })) : [],
+          image: plan.image || undefined,
+          scale: Number(plan.scale) || 0.1,
+          tags: plan.tags || [],
+          isPublic: Boolean(plan.isPublic),
+          createdAt: plan.createdAt,
+          updatedAt: plan.updatedAt,
+          thumbnail: plan.thumbnail
+        }));
+        
+        return {
+          success: true,
+          data: transformedData,
+          total: response.data.pagination?.total,
+          page: response.data.pagination?.page,
+          totalPages: response.data.pagination?.pages
+        };
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ API Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        config: error.config
+      });
+      return handleApiError(error, 'Failed to fetch floor plans');
+    }
+  },
 
   // Get single floor plan
-  getById: async (id: string | number): Promise<ApiResponse<FloorPlan>> => {
+  getById: async (id: string | number): Promise<ApiResponse<FloorPlanType>> => {
     try {
       const response = await api.get(`/floor-plans/${id}`);
+      
+      // Transform the response
+      const plan = response.data?.data;
+      if (plan) {
+        const transformedPlan: FloorPlanType = {
+          id: String(plan.id),
+          name: plan.name || '',
+          description: plan.description || '',
+          version: plan.version || "1.0",
+          shapes: Array.isArray(plan.shapes) ? plan.shapes.map((shape: any): Shape => ({
+            id: shape.id || `shape-${Date.now()}-${Math.random()}`,
+            type: (shape.type as ShapeType) || 'rectangle',
+            x: Number(shape.x) || 0,
+            y: Number(shape.y) || 0,
+            width: Number(shape.width) || 50,
+            height: Number(shape.height) || 50,
+            rotation: Number(shape.rotation) || 0,
+            color: shape.color || "rgba(59, 130, 246, 0.3)",
+            borderColor: shape.borderColor || "#1e40af",
+            borderWidth: Number(shape.borderWidth) || 2,
+            fontSize: Number(shape.fontSize) || 12,
+            text: shape.text || '',
+            zIndex: Number(shape.zIndex) || 1,
+            isLocked: Boolean(shape.isLocked),
+            metadata: shape.metadata || {}
+          })) : [],
+          image: plan.image || undefined,
+          scale: Number(plan.scale) || 0.1,
+          tags: plan.tags || [],
+          isPublic: Boolean(plan.isPublic),
+          createdAt: plan.createdAt,
+          updatedAt: plan.updatedAt,
+          thumbnail: plan.thumbnail
+        };
+        
+        return {
+          success: true,
+          data: transformedPlan
+        };
+      }
+      
       return response.data;
     } catch (error: any) {
       return handleApiError(error, 'Floor plan not found');
@@ -123,7 +159,7 @@ getAll: async (params: any = {}): Promise<ApiResponse> => {
   },
 
   // Create floor plan
-  create: async (data: Omit<FloorPlan, 'id'>): Promise<ApiResponse<FloorPlan>> => {
+  create: async (data: Omit<FloorPlanType, 'id'>): Promise<ApiResponse<FloorPlanType>> => {
     try {
       console.log('📝 Creating floor plan:', {
         name: data.name,
@@ -143,7 +179,7 @@ getAll: async (params: any = {}): Promise<ApiResponse> => {
   },
 
   // Update floor plan
-  update: async (id: string | number, data: Partial<FloorPlan>): Promise<ApiResponse<FloorPlan>> => {
+  update: async (id: string | number, data: Partial<FloorPlanType>): Promise<ApiResponse<FloorPlanType>> => {
     try {
       console.log('✏️ Updating floor plan:', id);
       const response = await api.put(`/floor-plans/${id}`, data);
@@ -187,7 +223,7 @@ getAll: async (params: any = {}): Promise<ApiResponse> => {
   },
 
   // Quick save (auto-save)
-  quickSave: async (id: string | number, shapes: Shape[]): Promise<ApiResponse<FloorPlan>> => {
+  quickSave: async (id: string | number, shapes: Shape[]): Promise<ApiResponse<FloorPlanType>> => {
     try {
       const response = await api.patch(`/floor-plans/${id}/quick-save`, { shapes });
       return response.data;
@@ -197,7 +233,7 @@ getAll: async (params: any = {}): Promise<ApiResponse> => {
   },
 
   // Duplicate floor plan
-  duplicate: async (id: string | number, newName?: string): Promise<ApiResponse<FloorPlan>> => {
+  duplicate: async (id: string | number, newName?: string): Promise<ApiResponse<FloorPlanType>> => {
     try {
       const response = await api.post(`/floor-plans/${id}/duplicate`, { newName });
       return response.data;
