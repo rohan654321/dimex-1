@@ -243,3 +243,8 @@ body {
     @apply bg-background text-foreground;
   }
 }
+@layer utilities {
+  .font-parabolica {
+    font-family: var(--font-parabolica), system-ui, sans-serif;
+  }
+}
