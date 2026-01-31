@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function PostShowReportPage() {
   return (
-    <main className="bg-white">
+    <main className="bg-white font-parabolica">
       {/* HERO */}
       <section className="bg-[#F4FAFF] pt-40 pb-20">
         <SectionContainer>

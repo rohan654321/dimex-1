@@ -158,7 +158,7 @@ const PartnersSponsorsPage: React.FC = () => {
           boxShadow: "0 20px 40px rgba(37, 99, 235, 0.15)",
           transition: { duration: 0.3 }
         }}
-        className="flex flex-col overflow-hidden rounded-xl border border-blue-600 transition-all duration-300 lg:flex-row"
+        className="flex flex-col overflow-hidden rounded-xl border border-blue-600 transition-all duration-300 lg:flex-row "
       >
         <motion.div 
           whileHover={{ scale: 1.05 }}

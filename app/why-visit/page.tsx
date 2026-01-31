@@ -1,9 +1,18 @@
 "use client";
 
-import PartnersSection from "@/components/PartnersSection"
+import PartnersSection from "@/components/section/PartnersSection"
 import SectionContainer from "@/components/UI/SectionContainer"
 import Link from "next/link"
 import { motion } from 'framer-motion'
+import Image from "next/image";
+
+const countries = [
+  { name: 'China', flag: 'https://cdn.itegroupnews.com/Flag_icons_3e3608eca2.png' },
+  { name: 'India', flag: 'https://cdn.itegroupnews.com/India_77390bec7a.webp' },
+  { name: 'Russia', flag: 'https://cdn.itegroupnews.com/russia_dc66ea4a45.png' },
+  { name: 'Türkiye', flag: 'https://cdn.itegroupnews.com/Turkey_2818f8c3f0.png' },
+  { name: 'United Arab Emirates', flag: 'https://cdn.itegroupnews.com/UAE_b6a7e65500.png' },
+]
 
 export default function WhyVisit() {
   // Animation variants
@@ -38,9 +47,9 @@ export default function WhyVisit() {
 
   return (
     <>
-      <main className="bg-white overflow-hidden">
+      <main className="bg-white overflow-hidden font-parabolica">
         {/* Hero Section */}
-        <section className="relative min-h-[85vh] flex items-end">
+        <section className="relative min-h-[60vh] sm:min-h-[70vh] lg:min-h-[85vh] flex items-end">
           <motion.div
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
@@ -50,12 +59,12 @@ export default function WhyVisit() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/10" />
           <SectionContainer>
-            <div className="relative z-10 pb-16 lg:pb-24">
+            <div className="relative z-10 pb-8 sm:pb-12 md:pb-16 lg:pb-24 px-4 sm:px-0">
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1 }}
-                className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-6 max-w-4xl"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 sm:mb-6 max-w-4xl"
               >
                 Why Visit DIEMEX 2026
               </motion.h1>
@@ -64,25 +73,25 @@ export default function WhyVisit() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-lg lg:text-xl text-white/90 mb-8 max-w-3xl"
+                className="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-10xl"
               >
-               Discover a focused B2B platform bringing together die & mould manufacturers, tooling suppliers, and precision manufacturing technology providers. DIEMEX offers visitors the opportunity to explore new solutions, connect directly with exhibitors, and gain insights into trends shaping India’s manufacturing and automotive sectors.
+                Discover a focused B2B platform bringing together die & mould manufacturers, tooling suppliers, and precision manufacturing technology providers. DIEMEX offers visitors the opportunity to explore new solutions, connect directly with exhibitors, and gain insights into trends shaping India's manufacturing and automotive sectors.
               </motion.p>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="flex flex-wrap items-center gap-6 text-white"
+                className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-6 text-white"
               >
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-                  <span className="text-lg font-medium">08 – 10 October 2026</span>
+                  <span className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full"></span>
+                  <span className="text-sm sm:text-lg font-medium">08 – 10 October 2026</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-                  <span className="text-lg font-medium">Auto Cluster Exhibition Centre,Pune, India</span>
+                  <span className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full"></span>
+                  <span className="text-sm sm:text-lg font-medium">Auto Cluster Exhibition Centre, Pune, India</span>
                 </div>
               </motion.div>
             </div>
@@ -90,28 +99,28 @@ export default function WhyVisit() {
         </section>
 
         {/* Main Content */}
-        <div className="py-12 lg:py-20">
+        <div className="py-8 sm:py-12 lg:py-20">
           <motion.section
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-50px" }}
             variants={fadeInUp}
-            className="bg-white py-20 lg:py-28"
+            className="bg-white py-12 sm:py-16 lg:py-28"
           >
             <SectionContainer>
-              <h2 className="text-5xl lg:text-6xl font-bold mb-8 max-w-10xl leading-tight">
-                The Entire Die & Mould and Precision Manufacturing Ecosystem<br />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8 max-w-10xl leading-tight">
+                The Entire Die & Mould and Precision Manufacturing Ecosystem
                 Brought Together Under One Roof
               </h2>
 
-              <p className="text-gray-700 text-[10] max-w-7xl mb-10 leading-relaxed">
-               As India’s manufacturing sector continues to grow, DIEMEX provides a focused platform for the die & mould, tooling, and precision engineering community to connect, collaborate, and do business. The exhibition enables manufacturers, OEMs, and technology providers to meet potential partners, expand regional and international networks, exchange knowledge, and discover the latest innovations shaping the future of manufacturing.
+              <p className="text-gray-700 text-sm sm:text-base md:text-[10] max-w-10xl mb-6 sm:mb-10 leading-relaxed">
+                As India's manufacturing sector continues to grow, DIEMEX provides a focused platform for the die & mould, tooling, and precision engineering community to connect, collaborate, and do business. The exhibition enables manufacturers, OEMs, and technology providers to meet potential partners, expand regional and international networks, exchange knowledge, and discover the latest innovations shaping the future of manufacturing.
               </p>
               <Link href='/contact-us'>
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-blue-700 hover:bg-blue-800 text-white px-10 py-4 rounded-full text-lg font-medium transition-all duration-300"
+                  className="bg-blue-700 hover:bg-blue-800 text-white px-6 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 rounded-full text-sm sm:text-base md:text-lg font-medium transition-all duration-300 w-full sm:w-auto"
                 >
                   Contact Us
                 </motion.button>
@@ -120,14 +129,14 @@ export default function WhyVisit() {
           </motion.section>
 
           {/* Stats Grid */}
-          <section className="bg-blue-50 py-20">
+          <section className="bg-blue-50 py-12 sm:py-16 lg:py-20">
             <SectionContainer>
               <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={staggerContainer}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 lg:gap-16"
               >
                 {[
                   { value: "10,000", label: "Visitors" },
@@ -143,12 +152,12 @@ export default function WhyVisit() {
                       backgroundColor: "#ffffff",
                       boxShadow: "0 15px 30px rgba(0,0,0,0.1)"
                     }}
-                    className="p-6 rounded-xl transition-all duration-300 cursor-pointer"
+                    className="p-4 sm:p-6 rounded-xl transition-all duration-300 cursor-pointer"
                   >
-                    <div className="text-6xl font-bold text-blue-700 mb-4 hover:text-blue-800 transition-colors duration-300">
+                    <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-blue-700 mb-2 sm:mb-4 hover:text-blue-800 transition-colors duration-300">
                       {stat.value}
                     </div>
-                    <p className="text-lg text-gray-800 mb-6">{stat.label}</p>
+                    <p className="text-sm sm:text-base lg:text-lg text-gray-800 mb-4 sm:mb-6">{stat.label}</p>
                     <motion.div
                       initial={{ width: 0 }}
                       whileInView={{ width: "100%" }}
@@ -163,9 +172,9 @@ export default function WhyVisit() {
           </section>
 
           {/* GLOBAL LOGISTICS NETWORK */}
-          <section className="relative bg-blue-50 py-20 lg:py-28 overflow-hidden">
+          <section className="relative bg-blue-50 py-12 sm:py-16 lg:py-28 overflow-hidden">
             <div
-              className="absolute inset-0 bg-no-repeat bg-center opacity-20"
+              className="absolute inset-0 bg-no-repeat bg-center opacity-20 bg-contain sm:bg-cover"
               style={{ backgroundImage: "url(/images/world-map-dotted.png)" }}
             />
 
@@ -174,42 +183,61 @@ export default function WhyVisit() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="relative z-10 text-center max-w-4xl mx-auto"
+                className="relative z-10 text-center max-w-4xl mx-auto px-4 sm:px-0"
               >
-                <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-6 leading-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-4 sm:mb-6 leading-tight">
                   Connect with the Die & Mould Manufacturing
-                  <br />
+                  <br className="hidden sm:block" />
                   Community at DIEMEX
                 </h2>
 
-                <p className="text-gray-600 text-lg lg:text-xl mb-10 leading-relaxed">
-                 DIEMEX brings together die & mould manufacturers, tooling suppliers, and precision manufacturing solution providers from India and abroad, creating a focused platform for networking, collaboration, and business over three action-packed days.
+                <p className="text-gray-600 text-sm sm:text-base lg:text-lg xl:text-xl mb-6 sm:mb-10 leading-relaxed">
+                  DIEMEX brings together die & mould manufacturers, tooling suppliers, and precision manufacturing solution providers from India and abroad, creating a focused platform for networking, collaboration, and business over three action-packed days.
                 </p>
 
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-full text-base font-medium transition-all duration-300"
+                  className="bg-blue-700 hover:bg-blue-800 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-all duration-300 mb-6 sm:mb-0 w-full sm:w-auto"
                 >
                   Explore the Exhibitor list
                 </motion.button>
 
-                <div className="flex flex-wrap justify-center gap-4 mt-14">
-                  {[
-                    "JAPAN", "CHINA", "TAIWAN", "GERMANY", "INDIA"
-              
-                  ].map((country, index) => (
+                <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8 sm:mt-14">
+                  {countries.map((country, index) => (
                     <motion.div
-                      key={country}
+                      key={country.name}
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}
                       transition={{ delay: index * 0.05 }}
-                      whileHover={{ scale: 1.1, y: -3, backgroundColor: "#eff6ff" }}
-                      className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm text-sm text-gray-800 transition-all duration-300 cursor-pointer"
+                      whileHover={{
+                        scale: 1.08,
+                        y: -3,
+                        backgroundColor: "#eff6ff",
+                      }}
+                      className="
+                        flex items-center gap-2 sm:gap-3 
+                        bg-white px-3 sm:px-4 py-1 sm:py-2 
+                        rounded-full shadow-sm 
+                        text-xs sm:text-sm text-gray-800 
+                        transition-all duration-300 
+                        cursor-pointer
+                      "
                     >
-                      <span className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-500 to-blue-600" />
-                      {country}
+                      {/* Flag */}
+                      <div className="relative w-4 h-4 sm:w-5 sm:h-5">
+                        <Image
+                          src={`${country.flag}`}
+                          alt={country.name}
+                          fill
+                          className="rounded-full object-cover"
+                          unoptimized
+                        />
+                      </div>
+
+                      {/* Country Name */}
+                      <span className="font-parabolica whitespace-nowrap">{country.name}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -217,14 +245,14 @@ export default function WhyVisit() {
             </SectionContainer>
           </section>
 
-          {/* WHY ATTEND TRANSRUSSIA */}
-          <section className="py-20 lg:py-28 bg-white">
+          {/* WHY ATTEND DIEMEX */}
+          <section className="py-12 sm:py-16 lg:py-28 bg-white">
             <SectionContainer>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl lg:text-5xl font-bold mb-12"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 sm:mb-12 text-center sm:text-left"
               >
                 Why Attend DIEMEX 2026
               </motion.h2>
@@ -234,7 +262,7 @@ export default function WhyVisit() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={staggerContainer}
-                className="grid grid-cols-1 md:grid-cols-2 gap-8"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8"
               >
                 {[
                   {
@@ -255,7 +283,7 @@ export default function WhyVisit() {
                   {
                     image: "/images/attend-4.jpg",
                     title: "Stay Ahead of Industry Trends",
-                    text: "Gain insights into emerging technologies, market developments, and best practices through DIEMEX’s conference sessions led by industry experts."
+                    text: "Gain insights into emerging technologies, market developments, and best practices through DIEMEX's conference sessions led by industry experts."
                   }
                 ].map((card, index) => (
                   <motion.div
@@ -265,15 +293,15 @@ export default function WhyVisit() {
                       scale: 1.02,
                       boxShadow: "0 25px 50px rgba(0,0,0,0.15)"
                     }}
-                    className="relative h-[320px] lg:h-[360px] overflow-hidden rounded-lg transition-all duration-300"
+                    className="relative h-64 sm:h-[280px] lg:h-[320px] xl:h-[360px] overflow-hidden rounded-lg transition-all duration-300"
                     style={{ backgroundImage: `url(${card.image})` }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/10" />
-                    <div className="absolute bottom-0 p-6 lg:p-8 text-white max-w-md">
-                      <h3 className="text-2xl font-bold mb-3 hover:text-blue-300 transition-colors duration-300">
+                    <div className="absolute bottom-0 p-4 sm:p-6 lg:p-8 text-white max-w-md">
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 hover:text-blue-300 transition-colors duration-300">
                         {card.title}
                       </h3>
-                      <p className="text-white/90 text-base leading-relaxed">
+                      <p className="text-white/90 text-xs sm:text-sm lg:text-base leading-relaxed line-clamp-3 sm:line-clamp-4">
                         {card.text}
                       </p>
                     </div>
@@ -284,51 +312,59 @@ export default function WhyVisit() {
           </section>
 
           {/* E-Brochure Section */}
-          <motion.div
+          <motion.section
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
-            className="py-16 lg:py-24"
+            className="py-8 sm:py-12 lg:py-24"
           >
             <SectionContainer>
-              <div className="relative rounded-2xl overflow-hidden px-8 py-12 lg:px-16 lg:py-16 text-white"
+              <div
+                className="relative overflow-hidden rounded-2xl sm:rounded-3xl px-4 sm:px-6 md:px-8 lg:px-20 py-10 sm:py-14 lg:py-20 text-white"
                 style={{
-                  backgroundImage: "url(/images/brochure-bg.jpg)",
+                  backgroundImage:
+                    "url(https://cdn.itegroupnews.com/Brochure_Mockup_8_f53822fd4a.png)",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
               >
-                <div className="absolute inset-0 bg-blue-900/80"></div>
-                <div className="relative flex flex-col gap-6">
-                  <div className="max-w-4xl">
-                    <motion.h2
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className="text-4xl lg:text-5xl font-bold mb-3"
-                    >
-                      Download Your Event Brochure
-                    </motion.h2>
-                    <motion.p
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-white/80 text-lg"
-                    >
-                      Get a comprehensive look at the event's attendees, the sectors on display,
-                      and the key industry players present.
-                    </motion.p>
-                  </div>
-                  <Link href='/event-brochure'>
+                {/* Dark gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0B1B3A]/95 via-[#0B1B3A]/85 to-[#0B1B3A]/70" />
+
+                {/* Right circular accents */}
+                <div className="absolute -right-24 -top-24 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-600/20 blur-3xl" />
+                <div className="absolute -right-10 top-24 w-48 h-48 sm:w-72 sm:h-72 rounded-full bg-blue-500/20 blur-2xl" />
+
+                {/* Content */}
+                <div className="relative max-w-4xl flex flex-col gap-4 sm:gap-6">
+                  <motion.h2
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight"
+                  >
+                    Download Your Event Brochure
+                  </motion.h2>
+
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-white/80 text-sm sm:text-base lg:text-lg max-w-10xl"
+                  >
+                    Get a comprehensive look at the event's attendees, showcased sectors,
+                    and the key industry players you'll connect with.
+                  </motion.p>
+
+                  <Link href="/event-brochure">
                     <motion.button
-                      whileHover={{ 
-                        scale: 1.05,
-                        backgroundColor: "#f8fafc",
-                        boxShadow: "0 10px 25px rgba(255, 255, 255, 0.2)"
+                      whileHover={{
+                        scale: 1.06,
+                        boxShadow: "0 15px 35px rgba(255,255,255,0.25)",
                       }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-white text-blue-900 border border-white px-8 py-3 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap w-fit transition-all duration-300"
+                      className="mt-2 sm:mt-4 w-full sm:w-fit rounded-full bg-white px-6 sm:px-8 lg:px-10 py-2 sm:py-3 text-blue-900 font-semibold transition-all duration-300 hover:bg-gray-100 text-sm sm:text-base"
                     >
                       Download Now
                     </motion.button>
@@ -336,30 +372,30 @@ export default function WhyVisit() {
                 </div>
               </div>
             </SectionContainer>
-          </motion.div>
+          </motion.section>
 
           {/* Proven Success Stats */}
-          <div className="mb-16 lg:mb-20">
+          <div className="mb-12 sm:mb-16 lg:mb-20">
             <motion.section
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "-50px" }}
               variants={fadeInUp}
-              className="bg-white py-20 lg:py-28"
+              className="bg-white py-12 sm:py-16 lg:py-28"
             >
               <SectionContainer>
-                <h2 className="text-5xl lg:text-6xl font-bold mb-6 max-w-12xl leading-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 max-w-12xl leading-tight">
                   Proven Success: What Visitors Say About DIEMEX
                 </h2>
 
-                <p className="text-gray-700 text-[10] max-w-8xl mb-10 leading-relaxed">
+                <p className="text-gray-700 text-sm sm:text-base md:text-[10] max-w-8xl mb-6 sm:mb-10 leading-relaxed">
                   Here are DIEMEX 2026–aligned rewrites, keeping the same tone and intent but suited to a growing, credibility-focused exhibition. The first option is recommended.
                 </p>
                 <Link href='/post-show-report'>
                   <motion.button
                     whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-blue-700 hover:bg-blue-800 text-white px-10 py-4 rounded-full text-lg font-medium transition-all duration-300"
+                    className="bg-blue-700 hover:bg-blue-800 text-white px-6 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 rounded-full text-sm sm:text-base md:text-lg font-medium transition-all duration-300 w-full sm:w-auto"
                   >
                     Download Your Post-Show Report
                   </motion.button>
@@ -367,14 +403,14 @@ export default function WhyVisit() {
               </SectionContainer>
             </motion.section>
 
-            <section className="bg-blue-50 py-10">
+            <section className="bg-blue-50 py-8 sm:py-10">
               <SectionContainer>
                 <motion.div
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true }}
                   variants={staggerContainer}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 lg:gap-16"
                 >
                   {[
                     { value: "98%", label: "Were Satisfied with the Exhibition" },
@@ -390,12 +426,12 @@ export default function WhyVisit() {
                         backgroundColor: "#ffffff",
                         boxShadow: "0 15px 30px rgba(0,0,0,0.1)"
                       }}
-                      className="p-6 rounded-xl transition-all duration-300 cursor-pointer"
+                      className="p-4 sm:p-6 rounded-xl transition-all duration-300 cursor-pointer"
                     >
-                      <div className="text-6xl font-bold text-blue-700 mb-4 hover:text-blue-800 transition-colors duration-300">
+                      <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-blue-700 mb-2 sm:mb-4 hover:text-blue-800 transition-colors duration-300">
                         {stat.value}
                       </div>
-                      <p className="text-lg text-gray-800 mb-6">{stat.label}</p>
+                      <p className="text-sm sm:text-base lg:text-lg text-gray-800 mb-4 sm:mb-6">{stat.label}</p>
                       <motion.div
                         initial={{ width: 0 }}
                         whileInView={{ width: "100%" }}
@@ -410,14 +446,14 @@ export default function WhyVisit() {
             </section>
           </div>
 
-          {/* WHO IS TRANSRUSSIA FOR */}
-          <section className="py-20 lg:py-28 bg-white">
+          {/* WHO IS DIEMEX FOR */}
+          <section className="py-12 sm:py-16 lg:py-28 bg-white">
             <SectionContainer>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl lg:text-5xl font-bold mb-12"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 sm:mb-12 text-center sm:text-left"
               >
                 Who is DIEMEX for?
               </motion.h2>
@@ -427,7 +463,7 @@ export default function WhyVisit() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={staggerContainer}
-                className="grid grid-cols-1 md:grid-cols-3 gap-8"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
               >
                 {[
                   [
@@ -466,9 +502,9 @@ export default function WhyVisit() {
                       backgroundColor: "#eff6ff",
                       boxShadow: "0 15px 30px rgba(0,0,0,0.1)"
                     }}
-                    className="bg-blue-50 p-8 rounded-lg transition-all duration-300"
+                    className="bg-blue-50 p-4 sm:p-6 lg:p-8 rounded-lg transition-all duration-300"
                   >
-                    <ul className="space-y-4 text-gray-800">
+                    <ul className="space-y-2 sm:space-y-4 text-gray-800">
                       {list.map((item, itemIndex) => (
                         <motion.li
                           key={itemIndex}
@@ -477,10 +513,10 @@ export default function WhyVisit() {
                           viewport={{ once: true }}
                           transition={{ delay: itemIndex * 0.05 }}
                           whileHover={{ x: 5, color: "#1d4ed8" }}
-                          className="flex items-center gap-2 transition-all duration-300 cursor-pointer"
+                          className="flex items-start sm:items-center gap-2 transition-all duration-300 cursor-pointer text-sm sm:text-base"
                         >
-                          <span className="text-blue-600">▪</span>
-                          {item}
+                          <span className="text-blue-600 mt-1 sm:mt-0">▪</span>
+                          <span className="flex-1">{item}</span>
                         </motion.li>
                       ))}
                     </ul>
@@ -491,13 +527,13 @@ export default function WhyVisit() {
           </section>
 
           {/* A SNAPSHOT OF EXHIBITORS */}
-          <section className="py-16 lg:py-24">
+          <section className="py-12 sm:py-16 lg:py-24">
             <SectionContainer>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-3xl lg:text-4xl font-bold mb-8"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-6 sm:mb-8 text-center sm:text-left"
               >
                 Who You Will Meet
               </motion.h2>
@@ -507,7 +543,7 @@ export default function WhyVisit() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={staggerContainer}
-                className="grid grid-cols-4 md:grid-cols-8 gap-4 mb-6"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 sm:gap-4 mb-4 sm:mb-6"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                   <motion.div
@@ -518,7 +554,7 @@ export default function WhyVisit() {
                       backgroundColor: "#f8fafc",
                       boxShadow: "0 10px 20px rgba(0,0,0,0.1)"
                     }}
-                    className="bg-gray-100 p-4 rounded-lg h-16 flex items-center justify-center transition-all duration-300 cursor-pointer"
+                    className="bg-gray-100 p-3 sm:p-4 rounded-lg h-16 sm:h-20 flex items-center justify-center transition-all duration-300 cursor-pointer"
                   >
                     <div className="text-xs text-gray-500">Logo {i}</div>
                   </motion.div>
@@ -530,7 +566,7 @@ export default function WhyVisit() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={staggerContainer}
-                className="grid grid-cols-4 md:grid-cols-8 gap-4 mb-8"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 sm:gap-4 mb-6 sm:mb-8"
               >
                 {[9, 10, 11, 12, 13, 14, 15, 16].map((i) => (
                   <motion.div
@@ -541,164 +577,164 @@ export default function WhyVisit() {
                       backgroundColor: "#f8fafc",
                       boxShadow: "0 10px 20px rgba(0,0,0,0.1)"
                     }}
-                    className="bg-gray-100 p-4 rounded-lg h-16 flex items-center justify-center transition-all duration-300 cursor-pointer"
+                    className="bg-gray-100 p-3 sm:p-4 rounded-lg h-16 sm:h-20 flex items-center justify-center transition-all duration-300 cursor-pointer"
                   >
                     <div className="text-xs text-gray-500">Logo {i}</div>
                   </motion.div>
                 ))}
               </motion.div>
 
-              <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-base font-medium transition-all duration-300"
-              >
-                View Top 2025 Exhibitor List
-              </motion.button>
+              <div className="text-center sm:text-left">
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-all duration-300 w-full sm:w-auto"
+                >
+                  View Top 2025 Exhibitor List
+                </motion.button>
+              </div>
             </SectionContainer>
           </section>
 
-{/* EVENT SECTORS ON DISPLAY */}
-<section className="py-20 lg:py-28 bg-white">
-  <SectionContainer>
-    <motion.h2
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="text-4xl lg:text-5xl font-bold mb-12"
-    >
-      Event Sectors On Display
-    </motion.h2>
+          {/* EVENT SECTORS ON DISPLAY */}
+          <section className="py-12 sm:py-16 lg:py-28 bg-white">
+            <SectionContainer>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 sm:mb-12 text-center sm:text-left"
+              >
+                Event Sectors On Display
+              </motion.h2>
 
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={staggerContainer}
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
-    >
-      {[
- {
-  title: "Die & Mould Manufacturing – Injection moulds, die casting dies, press tools, blow moulds, extrusion dies",
-  slug: "die-mould-manufacturing",
-  image: "/images/image.png"
-},
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={staggerContainer}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16"
+              >
+                {[
+                  {
+                    title: "Die & Mould Manufacturing – Injection moulds, die casting dies, press tools, blow moulds, extrusion dies",
+                    slug: "die-mould-manufacturing",
+                    image: "/images/image.png"
+                  },
+                  { 
+                    title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders",
+                    slug: "tooling-tool-rom-technologies", 
+                    image: "/images/image.png" 
+                  },
+                  { 
+                    title: "Automation, Robotics & Smart Manufacturing - Industrial automation, robotics, Industry 4.0 solutions", 
+                    slug: "automation-robotics", 
+                    image: "/images/image.png" 
+                  },
+                  { 
+                    title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
+                    slug: "cnc-machines", 
+                    image: "/images/image.png" 
+                  },
+                  { 
+                    title: "Surface Treatment & Heat Treatment-Coatings, finishing, hardening, thermal processes", 
+                    slug: "surface-treatment", 
+                    image: "/images/image.png" 
+                  },
+                  { 
+                    title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables",
+                    slug: "materials-steels-alloys",
+                    image: "/images/image.png" 
+                  },
+                  { 
+                    title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering", 
+                    slug: "cad-cam", 
+                    image: "/images/image.png" 
+                  },
+                  { 
+                    title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
+                    slug: "die-casting", 
+                    image: "/images/image.png" 
+                  }
+                ].map((item, index) => (
+                  <Link
+                    key={`${item.slug}-${index}`} 
+                    href={`/sectors/${item.slug}`}
+                    className="block"
+                  >
+                    <motion.div
+                      variants={scaleIn}
+                      whileHover={{ 
+                        y: -5,
+                        scale: 1.02,
+                        boxShadow: "0 10px 20px rgba(0,0,0,0.1)"
+                      }}
+                      className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden transition-all duration-300 cursor-pointer h-full"
+                    >
+                      <div className="h-32 sm:h-36 lg:h-44 overflow-hidden">
+                        <motion.img
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ duration: 0.5 }}
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-3 sm:p-4">
+                        <p className="text-gray-900 text-xs sm:text-sm font-medium leading-snug hover:text-blue-600 transition-colors duration-300 line-clamp-3">
+                          {item.title}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </Link>
+                ))}
+              </motion.div>
 
-        { 
-          title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders",
- 
-          slug: "tooling-tool-rom-technologies", 
-          image: "/images/image.png" 
-        },
-        { 
-          title: "Automation, Robotics & Smart Manufacturing - Industrial automation, robotics, Industry 4.0 solutions", 
-          slug: "automation-robotics", 
-          image: "/images/image.png" 
-        },
-        { 
-          title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
-          slug: "cnc-machines", 
-          image: "/images/image.png" 
-        },
-        { 
-          title: "Surface Treatment & Heat Treatment-Coatings, finishing, hardening, thermal processes", 
-          slug: "surface-treatment", 
-          image: "/images/image.png" 
-        },
-        { 
-          title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables",
-          slug: "materials-steels-alloys", // Changed to unique slug
-          image: "/images/image.png" 
-        },
-        { 
-          title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering", 
-          slug: "cad-cam", 
-          image: "/images/image.png" 
-        },
-        { 
-          title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
-          slug: "die-casting", 
-          image: "/images/image.png" 
-        }
-      ].map((item, index) => (
-        <Link
-          key={`${item.slug}-${index}`} 
-          href={`/sectors/${item.slug}`}
-          className="block"
-        >
-          <motion.div
-            variants={scaleIn}
-            whileHover={{ 
-              y: -10,
-              scale: 1.02,
-              boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
-            }}
-            className="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 cursor-pointer h-full"
-          >
-            <div className="h-44 overflow-hidden">
-              <motion.img
-                whileHover={{ scale: 1.1 }}
-                transition={{ duration: 0.5 }}
-                src={item.image}
-                alt={item.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="p-4">
-              <p className="text-gray-900 text-sm font-medium leading-snug hover:text-blue-600 transition-colors duration-300">
-                {item.title}
-              </p>
-            </div>
-          </motion.div>
-        </Link>
-      ))}
-    </motion.div>
-
-    <div className="text-center">
-      <Link href='/sectors'>
-        <motion.button
-          whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-full text-base font-medium transition-all duration-300"
-        >
-          Explore All the Event Sectors
-        </motion.button>
-      </Link>
-    </div>
-  </SectionContainer>
-</section>
+              <div className="text-center">
+                <Link href='/sectors'>
+                  <motion.button
+                    whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-blue-700 hover:bg-blue-800 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-all duration-300 w-full sm:w-auto"
+                  >
+                    Explore All the Event Sectors
+                  </motion.button>
+                </Link>
+              </div>
+            </SectionContainer>
+          </section>
 
           {/* MORE THAN JUST AN EXHIBITION */}
-          <section className="py-20 lg:py-28 bg-white">
+          <section className="py-12 sm:py-16 lg:py-28 bg-white">
             <SectionContainer>
               <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeInUp}
-                className="flex items-start justify-between mb-12"
+                className="flex flex-col sm:flex-row items-start justify-between mb-8 sm:mb-12 gap-4 sm:gap-0"
               >
                 <div className="max-w-3xl">
-                  <h2 className="text-4xl lg:text-5xl font-bold mb-4">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
                     More Than Just an Exhibition
                   </h2>
-                  <p className="text-gray-600 text-lg">
+                  <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
                     A focused die & mould and precision manufacturing exhibition that combines live technology showcases with expert-led knowledge sharing.
                   </p>
                 </div>
 
-                <div className="hidden md:flex gap-3">
+                <div className="flex gap-3 self-start sm:self-center">
                   <motion.button
                     whileHover={{ scale: 1.1, backgroundColor: "#dbeafe" }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center transition-all duration-300"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center transition-all duration-300"
                   >
                     ←
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1, backgroundColor: "#1d4ed8" }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-10 h-10 rounded-full bg-blue-700 text-white flex items-center justify-center transition-all duration-300"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-700 text-white flex items-center justify-center transition-all duration-300"
                   >
                     →
                   </motion.button>
@@ -710,7 +746,7 @@ export default function WhyVisit() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={staggerContainer}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8"
               >
                 {[
                   {
@@ -728,20 +764,20 @@ export default function WhyVisit() {
                     key={index}
                     variants={scaleIn}
                     whileHover={{ 
-                      y: -10,
-                      boxShadow: "0 25px 50px rgba(0,0,0,0.15)"
+                      y: -5,
+                      boxShadow: "0 15px 30px rgba(0,0,0,0.15)"
                     }}
-                    className="rounded-xl overflow-hidden border border-gray-200 transition-all duration-300"
+                    className="rounded-lg sm:rounded-xl overflow-hidden border border-gray-200 transition-all duration-300"
                   >
-                    <div className="bg-blue-950 text-white p-6 lg:p-8">
-                      <h3 className="text-xl lg:text-2xl font-bold mb-3 hover:text-blue-300 transition-colors duration-300">
+                    <div className="bg-blue-950 text-white p-4 sm:p-6 lg:p-8">
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 hover:text-blue-300 transition-colors duration-300">
                         {card.title}
                       </h3>
-                      <p className="text-white/90 text-base leading-relaxed">
+                      <p className="text-white/90 text-xs sm:text-sm lg:text-base leading-relaxed line-clamp-3 sm:line-clamp-4">
                         {card.text}
                       </p>
                     </div>
-                    <div className="h-64 lg:h-72 overflow-hidden">
+                    <div className="h-48 sm:h-56 lg:h-64 xl:h-72 overflow-hidden">
                       <motion.img
                         whileHover={{ scale: 1.1 }}
                         transition={{ duration: 0.5 }}
@@ -757,13 +793,13 @@ export default function WhyVisit() {
           </section>
 
           {/* QUICK NAVIGATION */}
-          <section className="py-16 lg:py-24">
+          <section className="py-12 sm:py-16 lg:py-24">
             <SectionContainer>
               <motion.h3
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="text-sm text-blue-600 font-semibold mb-2"
+                className="text-xs sm:text-sm text-blue-600 font-semibold mb-1 sm:mb-2"
               >
                 Simplifying Your Participation Journey
               </motion.h3>
@@ -771,7 +807,7 @@ export default function WhyVisit() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-3xl lg:text-4xl font-bold mb-12"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-8 sm:mb-12"
               >
                 Quick Navigation
               </motion.h2>
@@ -781,7 +817,7 @@ export default function WhyVisit() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={staggerContainer}
-                className="grid grid-cols-1 md:grid-cols-3 gap-8"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
               >
                 {[
                   {
@@ -813,33 +849,33 @@ export default function WhyVisit() {
                     key={index}
                     variants={scaleIn}
                     whileHover={{ 
-                      y: -10,
-                      boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+                      y: -5,
+                      boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
                       backgroundColor: "#f8fafc"
                     }}
-                    className="border border-gray-200 rounded-lg p-8 transition-all duration-300 cursor-pointer"
+                    className="border border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 transition-all duration-300 cursor-pointer"
                   >
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                        <span className="text-2xl">{card.icon}</span>
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-lg sm:text-xl lg:text-2xl">{card.icon}</span>
                       </div>
                       <motion.span
                         initial={{ scale: 0.8 }}
                         whileInView={{ scale: 1 }}
-                        className="text-3xl font-bold text-gray-300"
+                        className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-300"
                       >
                         {card.number}
                       </motion.span>
                     </div>
-                    <h3 className="text-xl lg:text-2xl font-bold mb-3 hover:text-blue-600 transition-colors duration-300">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 hover:text-blue-600 transition-colors duration-300">
                       {card.title}
                     </h3>
-                    <p className="text-gray-600 text-base mb-6">{card.description}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm lg:text-base mb-4 sm:mb-6 line-clamp-3">{card.description}</p>
                     <Link href={card.href}>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium transition-all duration-300"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 rounded-full font-medium transition-all duration-300 text-sm sm:text-base"
                       >
                         {card.buttonText}
                       </motion.button>
@@ -851,27 +887,27 @@ export default function WhyVisit() {
           </section>
 
           {/* WHERE & WHEN */}
-          <section className="py-16 lg:py-24">
+          <section className="py-12 sm:py-16 lg:py-24">
             <SectionContainer>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-3xl lg:text-4xl font-bold mb-12"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-8 sm:mb-12"
               >
                 When and Where
               </motion.h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  whileHover={{ y: -5, boxShadow: "0 15px 30px rgba(37, 99, 235, 0.1)" }}
-                  className="bg-blue-50 p-8 rounded-lg transition-all duration-300"
+                  whileHover={{ y: -5, boxShadow: "0 10px 20px rgba(37, 99, 235, 0.1)" }}
+                  className="bg-blue-50 p-4 sm:p-6 lg:p-8 rounded-lg transition-all duration-300"
                 >
-                  <h3 className="text-lg lg:text-xl font-semibold text-blue-600 mb-4">Venue</h3>
-                  <p className="text-gray-800 font-medium text-lg">Auto Cluster Exhibition Centre,Pune, India</p>
+                  <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-blue-600 mb-2 sm:mb-4">Venue</h3>
+                  <p className="text-gray-800 font-medium text-sm sm:text-base lg:text-lg">Auto Cluster Exhibition Centre, Pune, India</p>
                 </motion.div>
 
                 <motion.div
@@ -879,12 +915,11 @@ export default function WhyVisit() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1 }}
-                  whileHover={{ y: -5, boxShadow: "0 15px 30px rgba(37, 99, 235, 0.1)" }}
-                  className="bg-blue-50 p-8 rounded-lg transition-all duration-300"
+                  whileHover={{ y: -5, boxShadow: "0 10px 20px rgba(37, 99, 235, 0.1)" }}
+                  className="bg-blue-50 p-4 sm:p-6 lg:p-8 rounded-lg transition-all duration-300"
                 >
-                  <h3 className="text-lg lg:text-xl font-semibold text-blue-600 mb-4">Opening Hours</h3>
-                  <p className="text-gray-800 font-medium text-lg">08-10 October 2026, 10:00 -18:00</p>
-                 
+                  <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-blue-600 mb-2 sm:mb-4">Opening Hours</h3>
+                  <p className="text-gray-800 font-medium text-sm sm:text-base lg:text-lg">08-10 October 2026, 10:00 - 18:00</p>
                 </motion.div>
               </div>
 
@@ -893,24 +928,23 @@ export default function WhyVisit() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                whileHover={{ boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}
-                className="bg-gray-200 rounded-lg h-64 lg:h-80 overflow-hidden transition-all duration-300"
+                whileHover={{ boxShadow: "0 10px 20px rgba(0,0,0,0.15)" }}
+                className="bg-gray-200 rounded-lg h-48 sm:h-56 lg:h-64 xl:h-80 overflow-hidden transition-all duration-300"
               >
-             <iframe
-  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4110.374496455856!2d73.7990458754672!3d18.638844465550328!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2b84992d04bbd%3A0x9f1c44fb853ba461!2sAuto%20Cluster%20Exhibition%20Center%2C%20Chinchwad%2C%20Pune!5e1!3m2!1sen!2sin!4v1768501548011!5m2!1sen!2sin"
-  width="100%"
-  height="450"
-  style={{ border: 0 }}
-  allowFullScreen
-  loading="lazy"
-  referrerPolicy="no-referrer-when-downgrade"
-/>
-
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4110.374496455856!2d73.7990458754672!3d18.638844465550328!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2b84992d04bbd%3A0x9f1c44fb853ba461!2sAuto%20Cluster%20Exhibition%20Center%2C%20Chinchwad%2C%20Pune!5e1!3m2!1sen!2sin!4v1768501548011!5m2!1sen!2sin"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </motion.div>
             </SectionContainer>
           </section>
 
-          <section className="py-16 lg:py-24">
+          <section className="py-12 sm:py-16 lg:py-24">
             <SectionContainer>
               <PartnersSection />
             </SectionContainer>
