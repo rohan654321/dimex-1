@@ -34,7 +34,7 @@ export default function AboutTransRussia() {
         </button>
       </div>
 
-      <main>
+      <main className='font-parabolica'>
         {/* Hero Section wrapped with SectionContainer */}
         <div className="animated-block">
           <div className="animated-block-target">
