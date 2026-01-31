@@ -3,11 +3,43 @@
 
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import PartnersSection from "@/components/PartnersSection"
+import PartnersSection from "@/components/section/PartnersSection"
 import SectionContainer from "@/components/UI/SectionContainer"
 import Image from "next/image";
 import Link from "next/link"
 import { motion } from 'framer-motion'
+const data = [
+  {
+    title: 'Want to grow internationally?',
+    text: 'Connect with buyers, OEMs, and sourcing partners from India and overseas who attend DIEMEX to discover advanced die & mould, tooling, and manufacturing solutions.',
+    image: 'https://cdn.itegroupnews.com/social_impact_16871280_aa26919271.png',
+  },
+  {
+    title: 'Struggling to Measure Exhibition ROI?',
+    text: 'DIEMEX delivers measurable results—from qualified leads and RFQs to confirmed orders and long-term partnerships.',
+    image: 'https://cdn.itegroupnews.com/buyer_2640543_cf26288352.png',
+  },
+  {
+    title: 'Facing Challenges Entering New Manufacturing Markets?',
+    text: 'Gain direct access to decision-makers, including toolroom heads, plant managers, procurement leaders, and engineering teams across India’s precision manufacturing sectors.',
+    image: 'https://cdn.itegroupnews.com/filtering_17929669_e485cd3789.png',
+  },
+  {
+    title: 'Concerned About Cost, Quality & Lead Times?',
+    text: 'Meet trusted suppliers and technology partners who help optimize tooling costs, improve quality, and reduce production cycles.',
+    image: 'https://cdn.itegroupnews.com/conversion_12914581_4afbefb14b.png',
+  },
+  {
+    title: 'Need better lead generation?',
+    text: 'Build a strong pipeline from automotive, EV, plastics, die casting, aerospace, and industrial manufacturing sectors.',
+    image: 'https://cdn.itegroupnews.com/opportunity_12031315_930cd3c845.png',
+  },
+  {
+    title: 'Is your brand struggling to get noticed?',
+    text: 'Showcase your unique technologies and capabilities to a highly targeted, decision-driven audience.',
+    image: 'https://cdn.itegroupnews.com/worldwide_750473_9e738dea0d.png',
+  },
+];
 
 export default function WhyExhibit() {
   const testimonials = [
@@ -69,56 +101,68 @@ export default function WhyExhibit() {
     <>
       <main className="bg-white overflow-hidden">
         {/* HERO SECTION */}
-        <section className="relative min-h-screen bg-cover bg-center flex items-center justify-start">
-          <motion.div
-            initial={{ scale: 1.1 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="absolute inset-0"
-            style={{
-              backgroundImage: "url(https://cdn.itegroupnews.com/Trans_Russia_heading_c711a6e7b3.webp)",
-            }}
-          />
-          <div className="absolute inset-0 bg-black/40"></div>
-          <SectionContainer>
-            <div className="relative z-10 text-white pt-32 mt-70">
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                className="font-parabolica text-5xl lg:text-6xl xl:text-5xl font-bold mb-6 leading-tight"
-              >
-                Unlock New Opportunities at DIEMEX
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="font-parabolica text-xl text-white mb-4 max-w-4xl"
-              >
-                Discover new possibilities at DIEMEX 2026—the meeting point for die & mould manufacturers, tooling experts, and precision engineering leaders to innovate, collaborate, and drive manufacturing excellence.
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="flex items-center gap-4 text-white mb-8"
-              >
-                <span className="font-parabolica flex items-center gap-2">📅 08 - 10 October 2026</span>
-                <span className="font-parabolica flex items-center gap-2">📍 Auto Cluster Exhibition Centre, Pune, India</span>
-              </motion.div>
-              <Link href="/exhibiting-enquiry">
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
-                  whileTap={{ scale: 0.95 }}
-                  className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-medium transition-all duration-300"
-                >
-                  Enquire to Exhibit
-                </motion.button>
-              </Link>
-            </div>
-          </SectionContainer>
-        </section>
+<section className="relative h-[70vh] lg:h-[75vh] overflow-hidden">
+  {/* Background */}
+  <motion.div
+    initial={{ scale: 1.1 }}
+    animate={{ scale: 1 }}
+    transition={{ duration: 1.2, ease: "easeOut" }}
+    className="absolute inset-0 bg-cover bg-center"
+    style={{
+      backgroundImage:
+        "url(https://cdn.itegroupnews.com/Trans_Russia_heading_c711a6e7b3.webp)",
+    }}
+  />
+
+  {/* Left gradient */}
+  <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-transparent" />
+
+  <SectionContainer>
+    <div className="relative z-10 h-full grid grid-cols-12 items-end pb-20 lg:pb-28">
+      
+      {/* LEFT CONTENT */}
+      <div className="col-span-12 lg:col-span-6 text-white">
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="font-parabolica text-4xl lg:text-5xl xl:text-6xl font-bold lg:whitespace-nowrap mt-80"
+        >
+          Unlock New Opportunities at DIEMEX
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mt-4 text-base lg:text-lg text-white/90 lg:whitespace-nowrap"
+        >
+          Discover new possibilities at DIEMEX 2026—where industry leaders connect, collaborate, and innovate.
+        </motion.p>
+
+        <div className="flex flex-wrap gap-6 mt-6 text-white/90">
+          <span>📅 08 – 10 October 2026</span>
+          <span>📍 Pune, India</span>
+        </div>
+
+        <Link href="/exhibiting-enquiry">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="mt-8 bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-full font-medium"
+          >
+            Enquire to Exhibit
+          </motion.button>
+        </Link>
+      </div>
+
+      <div className="hidden lg:block col-span-6" />
+    </div>
+  </SectionContainer>
+</section>
+
+
+
 
         {/* WHERE TRANSPORT COMES TOGETHER */}
         <section className="py-16 lg:py-24">
@@ -128,14 +172,14 @@ export default function WhyExhibit() {
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
               variants={fadeInUp}
-              className="grid lg:grid-cols-2 gap-12 items-center"
+              className="font-parabolica grid lg:grid-cols-2 gap-12 items-center"
             >
               <div>
-                <h2 className="text-4xl lg:text-5xl font-bold mb-6">Where the Die & Mould Industry Comes Together</h2>
-                <p className="text-gray-700 mb-6 text-lg">
+                <h2 className="text-4xl lg:text-5xl font-bold">Where the Die & Mould Industry Comes Together</h2>
+                <p className="text-[#4D4D4D] mb-6 text-lg">
                   DIEMEX is a powerful gateway to tap into India’s rapidly expanding die & mould, tooling, and precision manufacturing ecosystem—one of the world’s fastest-growing industrial markets.
                 </p>
-                <p className="text-gray-700 mb-8 text-lg">
+                <p className="text-[#4D4D4D] mb-8 text-lg">
                   With India’s strong automotive, EV, aerospace, electronics, and industrial manufacturing base, supported by large-scale localisation and “Make in India” initiatives, the country offers significant growth opportunities for companies aiming to expand operations, enter new markets, and build long-term manufacturing partnerships.
                 </p>
 
@@ -144,17 +188,17 @@ export default function WhyExhibit() {
                     <span className="text-[#4D4D4D] font-bold text-[20px] leading-none">•</span>
                     <motion.span
                       whileHover={{ scale: 1.02, x: 5 }}
-                      className="text-[#4D4D4D] text-[20px] cursor-pointer"
+                      className="text-[#4D4D4D] text-[30px] cursor-pointer"
                     >
                       <strong>10,000 Visitors</strong>
                     </motion.span>
                   </li>
 
                   <li className="flex items-start gap-3">
-                    <span className="text-[#4D4D4D] font-bold text-[20px] leading-none">•</span>
+                    <span className="text-[#4D4D4D] font-bold text-[30px] leading-none">•</span>
                     <motion.span
                       whileHover={{ scale: 1.02, x: 5 }}
-                      className="text-[#4D4D4D] text-[20px] cursor-pointer"
+                      className="text-[#4D4D4D] text-[30px] cursor-pointer"
                     >
                       <strong>200+ Exhibitors</strong>
                     </motion.span>
@@ -164,7 +208,7 @@ export default function WhyExhibit() {
                     <span className="text-[#4D4D4D] font-bold text-[20px] leading-none">•</span>
                     <motion.span
                       whileHover={{ scale: 1.02, x: 5 }}
-                      className="text-[#4D4D4D] text-[20px] cursor-pointer"
+                      className="text-[#4D4D4D] text-[30px] cursor-pointer"
                     >
                       <strong>5+ Countries</strong>
                     </motion.span>
@@ -175,7 +219,7 @@ export default function WhyExhibit() {
                   <motion.button
                     whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(37, 99, 235, 0.3)" }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-medium transition-all duration-300"
+                    className="font-parabolica bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-medium transition-all duration-300"
                   >
                     Enquire to Exhibit
                   </motion.button>
@@ -184,10 +228,10 @@ export default function WhyExhibit() {
 
               <motion.div
                 whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }}
-                className="relative h-96 rounded-lg overflow-hidden transition-all duration-300"
+                className="relative h-120 overflow-hidden transition-all duration-300"
               >
                 <img
-                  src="/images/image.png"
+                  src="https://cdn.itegroupnews.com/Trans_Russia_670_x_500_4_86ec0c31db.webp"
                   alt="Conference"
                   className="w-full h-full object-cover"
                 />
@@ -196,7 +240,7 @@ export default function WhyExhibit() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="text-white text-3xl font-bold"
+                    className="text-white font-parabolica text-3xl font-bold"
                   >
                     Conference Highlights
                   </motion.h2>
@@ -207,7 +251,7 @@ export default function WhyExhibit() {
         </section>
 
         {/* REASONS TO EXHIBIT */}
-        <section className="py-16 lg:py-24 bg-gray-50">
+        <section className="py-16 lg:py-24 bg-gray-50 font-parabolica">
           <SectionContainer>
             <motion.div
               initial="hidden"
@@ -222,66 +266,58 @@ export default function WhyExhibit() {
               </div>
             </motion.div>
 
-            <p className="text-gray-700 mb-8 max-w-7xl text-lg">
+            <p className="text-gray-700 mb-8 max-w-8xl text-lg">
               DIEMEX offers a powerful platform for die & mould manufacturers, tooling suppliers, material specialists, and advanced manufacturing solution providers to showcase innovative technologies to a highly qualified audience of OEMs, toolroom heads, engineers, and senior decision-makers.
             </p>
-            <p className="text-gray-700 mb-12 max-w-7xl text-lg">
+            <p className="text-gray-700 mb-12 max-w-8xl text-lg">
               With active capital investment and sourcing budgets focused on capacity expansion, localisation, quality improvement, and production efficiency, exhibiting at DIEMEX enables you to build high-value business connections, form long-term strategic partnerships, and accelerate growth in India’s competitive precision manufacturing market.
             </p>
 
+  <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {data.map((item, index) => (
             <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={staggerContainer}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12"
+              key={index}
+              variants={scaleIn}
+              whileHover={{
+                y: -6,
+                boxShadow: '0 12px 30px rgba(0,0,0,0.08)',
+                transition: { duration: 0.25 },
+              }}
+              className="bg-white border border-gray-200 rounded-lg p-6 flex flex-row h-full"
             >
-              {[
-                {
-                  title: "Want to grow internationally?",
-                  text: "Connect with buyers, OEMs, and sourcing partners from India and overseas who attend DIEMEX to discover advanced die & mould, tooling, and manufacturing solutions."
-                },
-                {
-                  title: "Struggling to Measure Exhibition ROI?",
-                  text: "DIEMEX delivers measurable results—from qualified leads and RFQs to confirmed orders and long-term partnerships.."
-                },
-                {
-                  title: "Facing Challenges Entering New Manufacturing Markets?",
-                  text: "Gain direct access to decision-makers, including toolroom heads, plant managers, procurement leaders, and engineering teams across India’s precision manufacturing sectors."
-                },
-                {
-                  title: "Concerned About Cost, Quality & Lead Times?",
-                  text: "Meet trusted suppliers and technology partners who help optimize tooling costs, improve quality, and reduce production cycles."
-                },
-                {
-                  title: "Need better lead generation?",
-                  text: "Build a strong pipeline from automotive, EV, plastics, die casting, aerospace, and industrial manufacturing sectors."
-                },
-                {
-                  title: "Is your brand struggling to get noticed?",
-                  text: "Showcase your unique technologies and capabilities to a highly targeted, decision-driven audience in a competitive marketplace."
-                }
-              ].map((item, index) => (
-                <motion.div
-                  key={index}
-                  variants={scaleIn}
-                  whileHover={{ 
-                    y: -10,
-                    backgroundColor: "#ffffff",
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-                    transition: { duration: 0.3 }
-                  }}
-                  className="bg-white p-8 border-gray-200 rounded-lg transition-all duration-300 cursor-pointer"
-                >
-                  <h3 className="font-bold text-xl lg:text-2xl mb-4 hover:text-blue-600 transition-colors duration-300">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-600 text-lg">
-                    {item.text}
-                  </p>
-                </motion.div>
-              ))}
+              {/* ICON */}
+
+
+              {/* TITLE */}
+              <div className="grid">
+                    <h3 className="font-semibold text-lg mb-3 text-gray-900 leading-snug">
+                {item.title}
+              </h3>
+
+              {/* DESCRIPTION */}
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {item.text}
+              </p>
+
+              </div>
+          
+                            
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-10 w-auto"
+                />
+            
             </motion.div>
+          ))}
+        </motion.div>
+
             
             <Link href='/exhibiting-enquiry'>
               <motion.button
@@ -296,7 +332,7 @@ export default function WhyExhibit() {
         </section>
 
         {/* WHY EXPAND TO DIEMEX */}
-        <section className="py-16 lg:py-24 bg-gray-50">
+        <section className="py-16 lg:py-24 bg-gray-50 font-parabolica">
           <SectionContainer>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -357,7 +393,7 @@ export default function WhyExhibit() {
         </section>
 
     {/* EVENT SECTORS */}
-<section className="py-16 lg:py-24 bg-gray-50">
+<section className="py-16 lg:py-24 bg-gray-50 font-parabolica">
   <SectionContainer>
     <motion.div
       initial="hidden"
@@ -368,7 +404,7 @@ export default function WhyExhibit() {
     >
       <div>
         <h3 className="text-sm text-blue-600 font-semibold mb-2">Event Sectors</h3>
-        <h2 className="text-4xl lg:text-6xl font-bold max-w-4xl">
+        <h2 className="text-4xl lg:text-6xl font-[450] max-w-7xl">
           Discover the Core Sectors Powering Die & Mould Manufacturing
         </h2>
       </div>
@@ -393,27 +429,33 @@ export default function WhyExhibit() {
       {[
         { 
           title: "Complex Logistics Services & Freight Forwarding", 
-          slug: "complex-logistics" 
+          slug: "complex-logistics", 
+          image:"https://cdn.itegroupnews.com/Untitled_design_16_ff2396a005.png"
         },
         { 
           title: "Maritime & Inland Waterway Transport", 
-          slug: "maritime-and-inland-waterway-transport" 
+          slug: "maritime-and-inland-waterway-transport" ,
+          image:"https://cdn.itegroupnews.com/TRU_Sectors_Images_7_c75137da32.png"
         },
         { 
           title: "Air Freight", 
-          slug: "air-freight" 
+          slug: "air-freight" ,
+          image: "https://cdn.itegroupnews.com/TRU_Sectors_Images_3_9089d75ec1.png"
         },
         { 
           title: "Rail Freight", 
-          slug: "rail-freight" 
+          slug: "rail-freight" ,
+          image: "https://cdn.itegroupnews.com/httpstransrussia_preview_prismetic_comterms_of_visiting_1200_x_490_px_a78a81f1aa.png"
         },
         { 
           title: "Road Freight Transportation", 
-          slug: "road-freight-transportation" 
+          slug: "road-freight-transportation" ,
+          image:"https://cdn.itegroupnews.com/TRU_Sectors_Images_5_46a97403ad.png"
         },
         { 
           title: "Warehouse Technology", 
-          slug: "warehouse-technology" 
+          slug: "warehouse-technology" ,
+          image:"https://cdn.itegroupnews.com/TRU_Sectors_Images_4_b89e6f82a3.png"
         },
       ].map((sector, index) => (
         <Link
@@ -431,7 +473,7 @@ export default function WhyExhibit() {
           >
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-              style={{ backgroundImage: "url(/images/image.png)" }}
+              style={{ backgroundImage: `url(${sector.image})` }}
             />
             <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -445,63 +487,72 @@ export default function WhyExhibit() {
   </SectionContainer>
 </section>
 
-        {/* DOWNLOAD BROCHURE */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-          className="py-16 lg:py-24"
+{/* DOWNLOAD BROCHURE */}
+<motion.section
+  initial="hidden"
+  whileInView="visible"
+  viewport={{ once: true }}
+  variants={fadeInUp}
+  className="py-10 lg:py-24"
+>
+  <SectionContainer>
+    <div
+      className="relative overflow-hidden rounded-3xl px-8 py-14 lg:px-20 lg:py-20 text-white"
+      style={{
+        backgroundImage:
+          "url(https://cdn.itegroupnews.com/Brochure_Mockup_8_f53822fd4a.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0B1B3A]/95 via-[#0B1B3A]/85 to-[#0B1B3A]/70" />
+
+      {/* Right circular accents */}
+      <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-blue-600/20 blur-3xl" />
+      <div className="absolute -right-10 top-24 w-72 h-72 rounded-full bg-blue-500/20 blur-2xl" />
+
+      {/* Content */}
+      <div className="relative max-w-4xl flex flex-col gap-6">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-4xl lg:text-6xl font-bold leading-tight"
         >
-          <SectionContainer>
-            <div className="relative rounded-2xl overflow-hidden px-8 py-12 lg:px-16 lg:py-16 text-white"
-              style={{
-                backgroundImage: "url(/images/brochure-bg.jpg)",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              <div className="absolute inset-0 bg-blue-900/80"></div>
-              <div className="relative flex flex-col gap-6">
-                <div className="max-w-4xl">
-                  <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-4xl lg:text-5xl font-bold mb-3"
-                  >
-                    Download Your Event Brochure
-                  </motion.h2>
-                  <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-white/80 text-lg"
-                  >
-                    Get a comprehensive look at the event's attendees, the sectors on display,
-                    and the key industry players present.
-                  </motion.p>
-                </div>
-                <Link href="/event-brochure">
-                  <motion.button
-                    whileHover={{ 
-                      scale: 1.05,
-                      backgroundColor: "#f8fafc",
-                      boxShadow: "0 10px 25px rgba(255, 255, 255, 0.2)"
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-white text-blue-900 border border-white px-8 py-3 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap w-fit transition-all duration-300"
-                  >
-                    Download Now
-                  </motion.button>
-                </Link>
-              </div>
-            </div>
-          </SectionContainer>
-        </motion.section>
+          Download Your Event Brochure
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-white/80 text-lg max-w-10xl"
+        >
+          Get a comprehensive look at the event’s attendees, showcased sectors,
+          and the key industry players you’ll connect with.
+        </motion.p>
+
+        <Link href="/event-brochure">
+          <motion.button
+            whileHover={{
+              scale: 1.06,
+              boxShadow: "0 15px 35px rgba(255,255,255,0.25)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            className="mt-4 w-fit rounded-full bg-white px-10 py-3 text-blue-900 font-semibold transition-all duration-300 hover:bg-gray-100"
+          >
+            Download Now
+          </motion.button>
+        </Link>
+      </div>
+    </div>
+  </SectionContainer>
+</motion.section>
+
 
         {/* TESTIMONIALS */}
-        <section className="py-20 lg:py-28 bg-white">
+        <section className="py-20 lg:py-28 bg-white font-parabolica">
           <SectionContainer>
             <div className="flex items-center gap-2 mb-4">
               <span className="w-4 h-4 bg-blue-600 inline-block rounded-sm" />
@@ -584,7 +635,7 @@ export default function WhyExhibit() {
         </section>
 
         {/* VISITOR PROFILE */}
-        <section className="bg-white">
+        <section className="bg-white font-parabolica">
           <div className="py-20 lg:py-28">
             <SectionContainer>
               <motion.h2
@@ -673,7 +724,7 @@ export default function WhyExhibit() {
         </section>
 
         {/* A SNAPSHOT OF EXHIBITORS */}
-        <section className="py-16 lg:py-24">
+        <section className="py-16 lg:py-24 font-parabolica">
           <SectionContainer>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -741,7 +792,7 @@ export default function WhyExhibit() {
         </section>
 
         {/* JOURNEY CTA */}
-        <section className="py-16 lg:py-24 bg-gradient-to-b from-blue-900 to-blue-800 text-white">
+        <section className="font-parabolica py-16 lg:py-24 bg-gradient-to-b from-blue-900 to-blue-800 text-white">
           <SectionContainer>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -773,7 +824,7 @@ export default function WhyExhibit() {
         </section>
 
         {/* QUICK NAVIGATION */}
-        <section className="py-16 lg:py-24">
+        <section className="font-parabolica py-16 lg:py-24">
           <SectionContainer>
             <motion.h3
               initial={{ opacity: 0, x: -20 }}
@@ -867,7 +918,7 @@ export default function WhyExhibit() {
         </section>
 
         {/* WHERE & WHEN */}
-        <section className="py-16 lg:py-24">
+        <section className="font-parabolica py-16 lg:py-24">
           <SectionContainer>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
