@@ -24,39 +24,39 @@ const PartnersSection = () => {
 
 const partners: Partner[] = [
   {
-    name: 'Partner 1', logo: '/images/partner1.png',
+    name: 'Partner 1', logo: 'https://cdn.itegroupnews.com/Industry_Outlook_675c960053.webp',
     link: ""
   },
   {
-    name: 'Partner 2', logo: '/images/partner2.png',
+    name: 'Partner 2', logo: 'https://cdn.itegroupnews.com/Plan_and_Equipment_e86fc0b547.webp',
     link: ""
   },
   {
-    name: 'Partner 3', logo: '/images/partner3.png',
+    name: 'Partner 3', logo: 'https://cdn.itegroupnews.com/International_Coordinating_for_Trans0_Eurasian_Transportation_965b26881c.webp',
     link: ""
   },
   {
-    name: 'Partner 4', logo: '/images/partner4.png',
+    name: 'Partner 4', logo: 'https://cdn.itegroupnews.com/Logisics_360_magazine_a74756752e.webp',
     link: ""
   },
   {
-    name: 'Partner 5', logo: '/images/partner5.png',
+    name: 'Partner 5', logo: 'https://cdn.itegroupnews.com/Cargo_Talk_ME_logo_final_ff5213a4fd.jpg',
     link: ""
   },
   {
-    name: 'Partner 6', logo: '/images/partner6.png',
+    name: 'Partner 6', logo: 'https://cdn.itegroupnews.com/Logo_Biz_Today_International_JPG_dd5d3adcb2.jpg',
     link: ""
   },
   {
-    name: 'Partner 7', logo: '/images/partner7.png',
+    name: 'Partner 7', logo: 'https://cdn.itegroupnews.com/Trav_Talk_6aedd6c627.webp',
     link: ""
   },
   {
-    name: 'Partner 8', logo: '/images/partner8.png',
+    name: 'Partner 8', logo: 'https://cdn.itegroupnews.com/VTB_16f0fc5875.webp',
     link: ""
   },
   {
-    name: 'Partner 9', logo: '/images/partner9.png',
+    name: 'Partner 9', logo: 'https://cdn.itegroupnews.com/Council_of_Supply_Chain_Professinoals_03e79f3b06.webp',
     link: ""
   },
 ];

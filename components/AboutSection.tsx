@@ -1,9 +1,10 @@
-// components/AboutSection.tsx - UPDATED
+// components/AboutSection.tsx - UPDATED with proper alignment only
 'use client';
 
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import SectionContainer from './UI/SectionContainer';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -128,84 +129,66 @@ export default function AboutSection() {
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden py-32">
-      {/* Navbar-aligned container */}
-      <div className="w-full px-4 sm:px-6 xl:px-10">
-        <div className={`
-          mx-auto
-          w-full
-          max-w-[1180px]
-          2xl:max-w-[1400px]
-          3xl:max-w-[1800px]
-        `}>
-          <div className="flex flex-col gap-6">
-            <h2
-              ref={titleRef}
-              className="max-w-[1400px] text-5xl lg:text-6xl font-[500] leading-[0.9] tracking-tight text-black opacity-0"
+      {/* Wrap entire content in SectionContainer for proper alignment */}
+      <SectionContainer>
+        <div className="flex flex-col gap-6">
+          <h2
+            ref={titleRef}
+            className="max-w-[1400px] text-5xl lg:text-6xl font-[500] leading-[0.9] tracking-tight text-black opacity-0"
+          >
+            India&apos;s Leading Die & Mould Manufacturing Exhibition
+          </h2>
+
+          <div className="max-w-[1500px] space-y-4">
+            <p
+              ref={addToTextRefs}
+              className="text-lg md:text-xl leading-relaxed text-black/80 opacity-0"
             >
-              India&apos;s Leading Die & Mould Manufacturing Exhibition
-            </h2>
+              DIEMEX 2026 is India&apos;s premier international exhibition for die & mould manufacturing, tooling solutions, 
+              precision engineering, and advanced manufacturing technologies. Scheduled from 8–10 October 2026 at the 
+              Auto Cluster Exhibition Centre, Pune, India, the exhibition brings together industry leaders, OEMs, 
+              toolmakers, and technology innovators from India and overseas.
+            </p>
 
-            <div className="max-w-[1050px] space-y-4">
-              <p
-                ref={addToTextRefs}
-                className="text-lg md:text-xl leading-relaxed text-black/80 opacity-0"
-              >
-                DIEMEX 2026 is India’s premier international exhibition for die & mould manufacturing, tooling solutions, 
-                precision engineering, and advanced manufacturing technologies. Scheduled from 8–10 October 2026 at the 
-                Auto Cluster Exhibition Centre, Pune, India, the exhibition brings together industry leaders, OEMs, 
-                toolmakers, and technology innovators from India and overseas.
-              </p>
-
-              <p
-                ref={addToTextRefs}
-                className="text-lg md:text-xl leading-relaxed text-black/80 opacity-0"
-              >
-              Whether you are looking to connect with new buyers, strengthen existing business partnerships, 
-              or discover next-generation die & mould technologies, DIEMEX 2026 is the definitive platform 
-              where precision manufacturing meets opportunity.
-              </p>
-            </div>
-
-            {/* BUTTON — BELOW TEXT */}
-            <a href="/about-transrussia" className="mt-4 w-fit">
-              <button
-                ref={buttonRef}
-                className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0092D7] to-[#33A8DF] px-10 py-4 text-[16px] font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#33A8DF]/30 opacity-0"
-              >
-                Learn More
-                <svg
-                  className="ml-1 h-5 w-5 transition-transform group-hover:translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
-                </svg>
-              </button>
-            </a>
+            <p
+              ref={addToTextRefs}
+              className="text-lg md:text-xl leading-relaxed text-black/80 opacity-0"
+            >
+            Whether you are looking to connect with new buyers, strengthen existing business partnerships, 
+            or discover next-generation die & mould technologies, DIEMEX 2026 is the definitive platform 
+            where precision manufacturing meets opportunity.
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* STATS SECTION - Full width */}
+          {/* BUTTON — BELOW TEXT */}
+          <a href="/about-transrussia" className="mt-4 w-fit">
+            <button
+              ref={buttonRef}
+              className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0092D7] to-[#33A8DF] px-10 py-4 text-[16px] font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#33A8DF]/30 opacity-0"
+            >
+              Learn More
+              <svg
+                className="ml-1 h-5 w-5 transition-transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
+            </button>
+          </a>
+        </div>
+      </SectionContainer>
+
+      {/* STATS SECTION - Also wrapped in SectionContainer */}
       <div className="mt-32 bg-[#F4F4F4] py-20">
-        <div className="w-full px-4 sm:px-6 xl:px-10">
-          <div className={`
-            mx-auto
-            grid
-            w-full
-            max-w-[1180px]
-            2xl:max-w-[1400px]
-            3xl:max-w-[1800px]
-            gap-10
-            sm:grid-cols-2
-            lg:grid-cols-4
-          `}>
+        <SectionContainer>
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat, index) => (
               <div
                 key={index}
@@ -223,7 +206,7 @@ export default function AboutSection() {
               </div>
             ))}
           </div>
-        </div>
+        </SectionContainer>
       </div>
     </section>
   );
