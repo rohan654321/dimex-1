@@ -11,40 +11,40 @@ export default function SectorsSection() {
       title: 'Precision Die & Mould Solutions',
 
       slug: 'precision-moulds', 
-      image: '/images/image.png',
+      image: 'https://cdn.itegroupnews.com/Untitled_design_16_ff2396a005.png',
       description: 'Comprehensive die & mould manufacturing, tooling systems, design engineering, and end-to-end production solutions supporting high-precision industrial applications.'
     },
     { 
       title: 'Tooling, Mould Bases & Standard Components',
 
       slug: 'tooling-mould-base', 
-      image: '/images/image.png',
+      image: 'https://cdn.itegroupnews.com/TRU_Sectors_Images_5_46a97403ad.png',
       description: 'High-quality mould bases, precision components, hot runner systems, and standard tooling elements supporting efficient and reliable die & mould production.'
     },
     { 
       title: 'Machining & Finishing Technologies',
 
       slug: 'machining-finishing', 
-      image: '/images/image.png',
+      image: 'https://cdn.itegroupnews.com/TRU_Sectors_Images_4_b89e6f82a3.png',
       description: 'High-precision CNC machining, EDM, wire-cut, surface finishing, and polishing solutions for toolroom operations.'
     },
     { 
       title: 'Automation & Industry 4.0 Solutions',
 
       slug: 'automation-industry', 
-      image: '/images/image.png',
+      image: 'https://cdn.itegroupnews.com/TRU_Sectors_Images_3_9089d75ec1.png',
       description: 'Smart automation, robotics, digital manufacturing, and smart factory technologies for modern die & mould production.'
     },
     { 
       title: 'Design, CAD/CAM & Engineering Software', 
       slug: 'cad-cam', 
-      image: '/images/image.png',
+      image: 'https://cdn.itegroupnews.com/TRU_Sectors_Images_7_c75137da32.png',
       description: 'Advanced design, simulation, and manufacturing software enabling accurate tooling development and reduced time-to-market.'
     },
     { 
       title: 'Tool Steel & Advanced Materials', 
       slug: 'tool-steel', 
-      image: '/images/image.png',
+      image: 'https://cdn.itegroupnews.com/httpstransrussia_preview_prismetic_comterms_of_visiting_1200_x_490_px_a78a81f1aa.png',
       description: 'High-performance tool steels, alloy steels, special metals, and advanced materials engineered for durability, precision, and long tool life in die & mould applications.'
     },
   ];
@@ -55,7 +55,7 @@ export default function SectorsSection() {
         {/* ================= HEADER ================= */}
         <div className="mb-12 lg:mb-15 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           {/* LEFT */}
-          <div className="max-w-3xl">
+          <div className="max-w-7xl">
             {/* LABEL */}
             <div className="mb-5 flex items-center gap-3">
               <img
