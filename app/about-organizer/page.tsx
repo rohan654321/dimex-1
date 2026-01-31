@@ -51,7 +51,7 @@ const slideInFromRight: Variants = {
 
   return (
     <>
-      <div className="min-h-screen bg-white overflow-hidden">
+      <div className="min-h-screen bg-white overflow-hidden font-parabolica">
         {/* Hero Section */}
         <section className="relative flex flex-col justify-end bg-gray-100">
           <SectionContainer>

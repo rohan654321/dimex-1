@@ -174,45 +174,39 @@ const partners: Partner[] = [
             <div className="flex items-stretch min-w-max">
               {duplicatedPartners.map((partner, index) => (
                 <div
-                  key={`${partner.name}-${index}`}
-                  className="min-w-[320px] max-w-[320px] px-4 shrink-0" // Fixed width for all cards
-                >
-                  <Link
-                    href={partner.link}
-                    className="group flex w-full flex-col items-center text-center transition-all hover:scale-[1.02] h-full"
-                  >
-                    {/* Card Container */}
-                    <div className="w-full rounded-lg bg-white shadow-lg transition-all group-hover:shadow-xl overflow-hidden border border-gray-100">
-                      {/* Logo Container - Fixed Height */}
-                      <div className="h-48 w-full bg-gray-50 flex items-center justify-center p-6">
-                        <div className="relative h-32 w-full">
-                          <Image
-                            src={partner.logo}
-                            alt={partner.name}
-                            fill
-                            draggable={false}
-                            className="object-contain p-2"
-                            unoptimized
-                            onError={(e) => {
-                              const img = e.currentTarget as HTMLImageElement
-                              img.src = "/images/image.png"
-                            }}
-                            sizes="(max-width: 320px) 100vw, 320px"
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Text Container - Fixed Height */}
-                      <div className="p-4 min-h-20 flex items-center justify-center border-t border-gray-100">
-                        <div className="w-full">
-                          <small className="text-sm font-medium text-gray-700 line-clamp-2 leading-tight">
-                            {truncateText(partner.name, 6)}
-                          </small>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
+  key={`${partner.name}-${index}`}
+  className="min-w-[280px] max-w-[280px] px-4 shrink-0"
+>
+  <Link
+    href={partner.link}
+    className="group block text-center transition-all hover:scale-[1.02]"
+  >
+    {/* Card */}
+    <div className="w-full rounded-lg bg-white shadow-md transition-all group-hover:shadow-lg overflow-hidden border border-gray-100">
+      
+      {/* Logo Container – REDUCED HEIGHT */}
+      <div className="h-32 w-full bg-gray-50 flex items-center justify-center p-4">
+        <div className="relative h-20 w-full">
+          <Image
+            src={partner.logo}
+            alt={partner.name}
+            fill
+            draggable={false}
+            className="object-contain"
+            unoptimized
+            sizes="(max-width: 280px) 100vw, 280px"
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* Partner Name – OUTSIDE CARD */}
+    <p className="font-parabolica mt-3 text-sm font-medium text-gray-800 leading-snug">
+      {truncateText(partner.name, 5)}
+    </p>
+  </Link>
+</div>
+
               ))}
             </div>
           </div>

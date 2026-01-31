@@ -105,7 +105,7 @@ export default function NavBar() {
   return (
     <>
       {/* ================= NAVBAR ================= */}
-      <header className="fixed top-0 left-0 right-0 z-[999]">
+      <header className="fixed top-0 left-0 right-0 z-[999] font-parabolica">
         <div className={`px-4 sm:px-6 lg:px-8 ${scrolled ? "pt-2" : "pt-4"}`}>
           <div className="mx-auto max-w-[1600px]">
             <div className="rounded-3xl bg-gradient-to-r from-[#06162f] to-[#0a2b57] text-white shadow-xl">
@@ -155,7 +155,7 @@ export default function NavBar() {
 
 
                 {/* DESKTOP NAV */}
-                <nav className="hidden lg:flex items-center gap-6">
+                <nav className="hidden lg:flex items-center gap-6 font-parabolica">
                   {navItems.map((item, i) =>
                     item.dropdown ? (
                       <div
@@ -231,7 +231,7 @@ export default function NavBar() {
 
             {/* TIMER BAR (DESKTOP ONLY) */}
             {!scrolled && (
-              <div className="hidden lg:flex justify-end mr-25 pr-8">
+              <div className="hidden lg:flex justify-end mr-25 pr-8 font-parabolica">
                 <div className="flex items-center gap-4 rounded-b-xl bg-[#0d1e3c] px-4 py-1.5 text-sm text-white">
                   <span>{timeLeft.days} Days</span>
                   <span>{timeLeft.hours} Hours</span>
@@ -247,7 +247,7 @@ export default function NavBar() {
         <div
           className="lg:hidden fixed top-[72px] left-0 right-0 z-[998]
                max-h-[calc(100vh-80px)] overflow-y-auto
-               bg-[#0d1e3c] text-white shadow-xl"
+               bg-[#0d1e3c] text-white shadow-xl font-parabolica"
         >
           <div className="px-5 py-4">
             <div className="mb-3 text-center font-mono text-xs opacity-80">
@@ -258,7 +258,7 @@ export default function NavBar() {
               {navItems.map((item, i) =>
                 item.dropdown && item.links ? (
                   <div key={i} className="group/mobile">
-                    <div className="text-sm font-semibold pb-2 border-b border-white/20 group-hover/mobile:border-blue-500 transition-colors duration-300">
+                    <div className="text-sm font-semibold font-parabolica pb-2 border-b border-white/20 group-hover/mobile:border-blue-500 transition-colors duration-300">
                       {item.title}
                     </div>
                     <div className="mt-1 ml-3 flex flex-col gap-1.5">

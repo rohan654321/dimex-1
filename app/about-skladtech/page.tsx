@@ -84,7 +84,7 @@ const slideInFromRight: Variants = {
 
   return (
     <>
-      <div className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden font-parabolica">
         {/* Hero Section */}
         <section className="relative">
           {/* Background Image */}
@@ -440,7 +440,7 @@ const slideInFromRight: Variants = {
                   boxShadow: "0 15px 30px rgba(37, 99, 235, 0.3)"
                 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex-start group w-fit gap-3 overflow-hidden rounded-full px-10 py-4 font-jakarta text-[18px] font-semibold global-transition bg-blue-700 text-white hover:bg-mainColor4 hover:shadow-xl transition-all duration-300"
+                className="flex-start group w-fit gap-3 overflow-hidden rounded-full px-10 py-4 text-[18px] font-semibold global-transition bg-blue-700 text-white hover:bg-mainColor4 hover:shadow-xl transition-all duration-300"
               >
                 View Our 2026 Exhibitor List
                 <motion.span
