@@ -76,7 +76,7 @@ export default function WhyExhibit() {
             transition={{ duration: 1.2, ease: "easeOut" }}
             className="absolute inset-0"
             style={{
-              backgroundImage: "url(/images/image.png)",
+              backgroundImage: "url(https://cdn.itegroupnews.com/Trans_Russia_heading_c711a6e7b3.webp)",
             }}
           />
           <div className="absolute inset-0 bg-black/40"></div>
@@ -86,7 +86,7 @@ export default function WhyExhibit() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1 }}
-                className="text-5xl lg:text-6xl xl:text-5xl font-bold mb-6 leading-tight"
+                className="font-parabolica text-5xl lg:text-6xl xl:text-5xl font-bold mb-6 leading-tight"
               >
                 Unlock New Opportunities at DIEMEX
               </motion.h1>
@@ -94,7 +94,7 @@ export default function WhyExhibit() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-xl text-white mb-4 max-w-4xl"
+                className="font-parabolica text-xl text-white mb-4 max-w-4xl"
               >
                 Discover new possibilities at DIEMEX 2026—the meeting point for die & mould manufacturers, tooling experts, and precision engineering leaders to innovate, collaborate, and drive manufacturing excellence.
               </motion.p>
@@ -104,8 +104,8 @@ export default function WhyExhibit() {
                 transition={{ delay: 0.4 }}
                 className="flex items-center gap-4 text-white mb-8"
               >
-                <span className="flex items-center gap-2">📅 08 - 10 October 2026</span>
-                <span className="flex items-center gap-2">📍 Auto Cluster Exhibition Centre, Pune, India</span>
+                <span className="font-parabolica flex items-center gap-2">📅 08 - 10 October 2026</span>
+                <span className="font-parabolica flex items-center gap-2">📍 Auto Cluster Exhibition Centre, Pune, India</span>
               </motion.div>
               <Link href="/exhibiting-enquiry">
                 <motion.button

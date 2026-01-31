@@ -134,7 +134,7 @@ export default function AboutSection() {
         <div className="flex flex-col gap-6">
           <h2
             ref={titleRef}
-            className="max-w-[1400px] text-5xl lg:text-6xl font-[500] leading-[0.9] tracking-tight text-black opacity-0"
+            className="max-w-[1400px] font-parabolica text-5xl lg:text-6xl font-[500] leading-[0.9] tracking-tight text-black opacity-0"
           >
             India&apos;s Leading Die & Mould Manufacturing Exhibition
           </h2>
@@ -142,7 +142,7 @@ export default function AboutSection() {
           <div className="max-w-[1500px] space-y-4">
             <p
               ref={addToTextRefs}
-              className="text-lg md:text-xl leading-relaxed text-black/80 opacity-0"
+              className="font-parabolica text-lg md:text-xl leading-relaxed text-[#4D4D4D] opacity-0"
             >
               DIEMEX 2026 is India&apos;s premier international exhibition for die & mould manufacturing, tooling solutions, 
               precision engineering, and advanced manufacturing technologies. Scheduled from 8–10 October 2026 at the 
@@ -152,7 +152,7 @@ export default function AboutSection() {
 
             <p
               ref={addToTextRefs}
-              className="text-lg md:text-xl leading-relaxed text-black/80 opacity-0"
+              className="font-parabolica text-lg md:text-xl leading-relaxed text-[#4D4D4D] opacity-0"
             >
             Whether you are looking to connect with new buyers, strengthen existing business partnerships, 
             or discover next-generation die & mould technologies, DIEMEX 2026 is the definitive platform 
@@ -196,7 +196,7 @@ export default function AboutSection() {
                 className="flex flex-col items-center opacity-0"
               >
                 <div className="border-b border-black/10 pb-5 text-center">
-                  <h3 className="mb-2 text-5xl md:text-6xl font-bold leading-none text-[#0092D7]">
+                  <h3 className="mb-2 text-5xl md:text-6xl font-parabolica font-bold leading-none text-[#0092D7]">
                     {stat.value}
                   </h3>
                   <p className="text-lg md:text-xl font-medium text-black/80">
