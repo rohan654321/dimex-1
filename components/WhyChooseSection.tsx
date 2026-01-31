@@ -89,11 +89,11 @@ export default function WhyChooseSection() {
         <SectionContainer>
           <h2
             ref={titleRef}
-            className="text-5xl lg:text-6xl xl:text-7xl font-bold text-white 
+            className="font-parabolica text-5xl lg:text-6xl xl:text-7xl font-bold text-white 
                        leading-[0.85] tracking-tight opacity-0"
           >
             Why choose{" "}
-            <span className="text-[#82c6eb]">DIEMEX 2026</span>
+            <span className="text-[#82c6eb] font-parabolica">DIEMEX 2026</span>
           </h2>
         </SectionContainer>
       </div>
@@ -118,10 +118,10 @@ export default function WhyChooseSection() {
                       {reason.number}
                     </h3>
                   </div>
-                  <h4 className="text-xl lg:text-2xl font-bold mb-4 text-gray-800">
+                  <h4 className="font-parabolica text-xl lg:text-2xl font-bold mb-4 text-gray-800">
                     {reason.title}
                   </h4>
-                  <p className="text-base lg:text-lg text-gray-600 leading-relaxed">
+                  <p className="text-base lg:text-lg text-[#4D4D4D] leading-relaxed">
                     {reason.description}
                   </p>
                 </div>
