@@ -69,7 +69,7 @@ export default function ImpactSection() {
       <SectionContainer>
         {/* ================= HEADER ================= */}
         <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between mb-16">
-          <div className="max-w-3xl">
+          <div className="max-w-6xl">
             <div className="mb-6 flex w-fit items-center gap-3">
               <img src="/images/logo-icon-3.png" alt="Numbers" className="w-6" />
               <span className="text-sm font-medium text-gray-700">Numbers</span>

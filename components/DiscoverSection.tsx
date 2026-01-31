@@ -28,12 +28,13 @@ export default function DiscoverSection() {
           </div>
 
           <div className="lg:col-span-5 grid place-content-center">
-            <img
-              src="/images/image.png"
-              alt="Brochure"
-              className="rounded-2xl shadow-2xl w-full"
-            />
-          </div>
+  <img
+    src="https://cdn.itegroupnews.com/Brochure_Mockup_2_aa4dfb491f.png"
+    alt="Brochure"
+    className="w-full max-h-[400px] object-contain rounded-2xl bg-transparent"
+  />
+</div>
+
         </div>
       </SectionContainer>
     </section>

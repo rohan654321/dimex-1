@@ -21,17 +21,22 @@ Experience continuous networking and collaboration with MOLDING TRENDS, our excl
             </a> */}
           </div>
           
-          <div className="flex items-center justify-center relative z-[-1] my-10 lg:h-full lg:my-0">
-            <img 
-              src="/images/image.png" 
-              alt="TransRussia Connect" 
-              className="size-auto max-w-md"
-            />
-            <div className="absolute inset-0 flex items-center justify-center z-[-1] aspect-square w-full scale-150">
-              <div className="absolute size-full rounded-full bg-[#0092D7] opacity-20" />
-              <div className="absolute size-2/3 rounded-full bg-[#0092D7] opacity-20" />
-            </div>
-          </div>
+      <div className="flex items-center justify-center relative z-[-1] my-10 lg:h-full lg:my-0">
+
+  <img 
+    src="https://cdn.itegroupnews.com/Trans_Russia_Connect_89c213959b.webp"
+    alt="TransRussia Connect"
+    className="relative z-10 size-auto max-w-md max-h-[250px]"
+  />
+
+  <div className="absolute inset-0 flex items-center justify-center z-[-1]">
+    <div className="absolute w-[500px] h-[500px] rounded-full bg-[#0092D7] opacity-20" />
+    <div className="absolute w-[350px] h-[350px] rounded-full bg-[#0092D7] opacity-20" />
+  </div>
+
+</div>
+
+
         </div>
       </div>
     </section>
