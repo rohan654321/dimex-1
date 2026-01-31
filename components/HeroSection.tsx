@@ -145,14 +145,14 @@ export default function HeroSection() {
             </div>
 
             {/* MAIN HEADING */}
-            <h1 className="text-[48px] font-bold leading-[0.85] tracking-tight sm:text-[70px] md:text-[100px] lg:text-[120px] xl:text-[150px] 2xl:text-[170px]">
+            <h1 className="font-parabolica text-[48px] font-bold leading-[0.85] tracking-tight sm:text-[70px] md:text-[100px] lg:text-[120px] xl:text-[150px] 2xl:text-[170px]">
               DIEMEX <span className="text-[#82C6EB]">2026</span>
             </h1>
 
             {/* CONTENT */}
             <div className="mt-6 flex flex-col gap-6 lg:mt-8 lg:flex-row lg:items-end">
               <div className="lg:max-w-5xl">
-                <h2 className="mb-3 text-xl font-bold leading-snug sm:text-2xl lg:text-3xl">
+                <h2 className="font-parabolica mb-3 text-xl font-bold leading-snug sm:text-2xl lg:text-3xl">
                   Where global die & mould leaders meet India's manufacturers.
                 </h2>
 

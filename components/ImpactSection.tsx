@@ -79,7 +79,7 @@ export default function ImpactSection() {
               DIEMEX Impact
             </h2>
 
-            <p className="text-lg text-gray-700">
+            <p className="text-lg text-[#4D4D4D]">
               Discover the scale, influence, and industry reach of DIEMEX. From leading die & mould manufacturers 
               and technology providers to thousands of qualified industry visitors, explore the key numbers that 
               define the success of India’s premier die & mould and tooling exhibition.
