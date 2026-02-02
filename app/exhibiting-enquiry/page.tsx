@@ -138,9 +138,10 @@ const TransRussiaExhibitPage: React.FC = () => {
         ↑
       </button>
 
-      <main className="page-spacing-wrapper font-parabolica">
-        {/* HERO */}
-        <div className="bg-[#F4FAFF] pt-48">
+      <main className="page-spacing-wrapper">
+
+        {/* ================= HERO ================= */}
+        <div className="relative z-[1] bg-[#F4FAFF] pt-48">
           <SectionContainer className="!pb-10">
             <h1 className="title-72 text-black">Enquiry to Exhibit</h1>
             <p className="max-w-6xl py-5">
