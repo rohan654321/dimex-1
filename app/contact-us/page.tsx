@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import PartnersSlider from "@/components/section/PartnersSection"
 import SectionContainer from "@/components/UI/SectionContainer"
+import BackToTop from "../exhibitor-resource-center/component/BackToTop"
 
 export const metadata: Metadata = {
   title: "Contact Us | TransRussia & SkladTech",
@@ -162,6 +163,7 @@ export default function ContactPage() {
           <PartnersSlider />
         </SectionContainer>
       </section>
+      <BackToTop/>
     </main>
   )
 }
