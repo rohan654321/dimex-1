@@ -1,27 +1,29 @@
 'use client'
 
+import SectionContainer from "@/components/UI/SectionContainer" // Adjust the import path
+
 export default function DelegatesPackagesPage() {
   return (
     <div className="min-h-screen font-parabolica bg-white">
 
       {/* PAGE HEADER */}
-      <section className="bg-mainColor5 pt-48 pb-10">
-        <div className="container mx-auto px-5">
+      <section className="bg-sky-50 pt-48 pb-10">
+        <SectionContainer>
           <h1 className="text-[72px] leading-none text-black">
             Become a Delegate
           </h1>
           <p className="mt-5 text-lg">
             Prices are inclusive of VAT
           </p>
-        </div>
+        </SectionContainer>
       </section>
 
       {/* PACKAGES */}
-      <section className="container mx-auto px-5 py-16">
+      <SectionContainer className="py-16">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
 
           {/* BASIC */}
-          <div className="relative min-h-[500px] bg-mainColor5 p-5 lg:p-10 flex flex-col justify-between">
+          <div className="relative min-h-[500px] bg-sky-50 p-5 lg:p-10 flex flex-col justify-between">
             <div className="space-y-5">
               <h2 className="text-[40px] font-semibold">BASIC</h2>
 
@@ -39,12 +41,12 @@ export default function DelegatesPackagesPage() {
 
             <div className="flex flex-wrap gap-5">
               <a href="/summit-basic-form/" target="_blank">
-                <button className="rounded-full bg-mainColor2 px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-mainColor4">
+                <button className="rounded-full bg-[#004D9F] px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-[#004D9F]">
                   PAY BY CARD
                 </button>
               </a>
               <a href="/summit-invoice-form/" target="_blank">
-                <button className="rounded-full bg-mainColor2 px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-mainColor4">
+                <button className="rounded-full bg-[#004D9F] px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-[#004D9F]">
                   PAY BY INVOICE
                 </button>
               </a>
@@ -52,7 +54,7 @@ export default function DelegatesPackagesPage() {
           </div>
 
           {/* BUSINESS */}
-          <div className="relative min-h-[500px] bg-mainColor5 p-5 lg:p-10 flex flex-col justify-between">
+          <div className="relative min-h-[500px] bg-sky-50 p-5 lg:p-10 flex flex-col justify-between">
             <div className="space-y-5">
               <h2 className="text-[40px] font-semibold">BUSINESS</h2>
 
@@ -77,12 +79,12 @@ export default function DelegatesPackagesPage() {
 
             <div className="flex flex-wrap gap-5">
               <a href="/summit-business-form/" target="_blank">
-                <button className="rounded-full bg-mainColor2 px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-mainColor4">
+                <button className="rounded-full bg-[#004D9F] px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-[#004D9F]">
                   PAY BY CARD
                 </button>
               </a>
               <a href="/summit-invoice-form/" target="_blank">
-                <button className="rounded-full bg-mainColor2 px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-mainColor4">
+                <button className="rounded-full bg-[#004D9F] px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-[#004D9F]">
                   PAY BY INVOICE
                 </button>
               </a>
@@ -90,7 +92,7 @@ export default function DelegatesPackagesPage() {
           </div>
 
           {/* VIP */}
-          <div className="relative min-h-[500px] bg-mainColor5 p-5 lg:p-10 flex flex-col justify-between">
+          <div className="relative min-h-[500px] bg-sky-50 p-5 lg:p-10 flex flex-col justify-between">
             <div className="space-y-5">
               <h2 className="text-[40px] font-semibold">VIP</h2>
 
@@ -125,12 +127,12 @@ export default function DelegatesPackagesPage() {
 
             <div className="flex flex-wrap gap-5">
               <a href="/summit-vip-form/" target="_blank">
-                <button className="rounded-full bg-mainColor2 px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-mainColor4">
+                <button className="rounded-full bg-[#004D9F] px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-[#004D9F]">
                   PAY BY CARD
                 </button>
               </a>
               <a href="/summit-invoice-form/" target="_blank">
-                <button className="rounded-full bg-mainColor2 px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-mainColor4">
+                <button className="rounded-full bg-[#004D9F] px-10 py-3 font-jakarta font-semibold text-white transition hover:bg-[#004D9F]">
                   PAY BY INVOICE
                 </button>
               </a>
@@ -138,7 +140,7 @@ export default function DelegatesPackagesPage() {
           </div>
 
         </div>
-      </section>
+      </SectionContainer>
     </div>
   )
 }
