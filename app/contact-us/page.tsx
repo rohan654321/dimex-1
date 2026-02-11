@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import PartnersSlider from "@/components/section/PartnersSection"
+// import PartnersSlider from "@/components/section/PartnersSection"
 import SectionContainer from "@/components/UI/SectionContainer"
 import BackToTop from "../exhibitor-resource-center/component/BackToTop"
 
@@ -158,11 +158,11 @@ export default function ContactPage() {
       </section>
 
       {/* PARTNERS SECTION */}
-      <section className="py-20 bg-gray-50">
+      {/* <section className="py-20 bg-gray-50">
         <SectionContainer>
           <PartnersSlider />
         </SectionContainer>
-      </section>
+      </section> */}
       <BackToTop/>
     </main>
   )
