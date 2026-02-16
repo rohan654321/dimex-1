@@ -39,7 +39,11 @@ import {
   Receipt,
   FileText as FileTextIcon,
   Download as DownloadIcon,
-  Ruler
+  Ruler,
+  Home,
+  Grid,
+  Maximize2,
+  Move
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -114,10 +118,13 @@ interface ExhibitorProfile {
   brochures: Brochure[];
   
   // Booth Details from Admin
+  boothNumber?: string;
   boothSize?: string;
   boothType?: string;
   boothDimensions?: string;
   boothNotes?: string;
+  boothStatus?: string;
+  boothPrice?: string;
   
   // Additional fields from API
   status: string;
@@ -266,13 +273,22 @@ const hallOptions = [
   'Hall H',
 ];
 
+// Booth type options
+const boothTypeOptions = [
+  { value: 'standard', label: 'Standard Booth (3x3m)' },
+  { value: 'double', label: 'Double Booth (6x3m)' },
+  { value: 'corner', label: 'Corner Booth' },
+  { value: 'island', label: 'Island Booth' },
+  { value: 'custom', label: 'Custom Size' },
+];
+
 export default function ExhibitorDashboard() {
-  const [activeTab, setActiveTab] = useState<'profile' | 'products' | 'brands' | 'brochures' | 'preview' | 'invoices' | 'requirements' | 'manual'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'products' | 'brands' | 'brochures' | 'booth' | 'preview' | 'invoices' | 'requirements' | 'manual'>('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showAddBrand, setShowAddBrand] = useState(false);
   const [showAddBrochure, setShowAddBrochure] = useState(false);
-  const [showAddRequirement, setShowAddRequirement] = useState(false);
+  // const [showAddRequirement, setShowAddRequirement] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -283,6 +299,7 @@ export default function ExhibitorDashboard() {
   const [floorPlan, setFloorPlan] = useState<FloorPlan | null>(null);
   const [boothDetails, setBoothDetails] = useState<BoothDetails | null>(null);
   const [manualSections, setManualSections] = useState<any[]>([]);
+  
   
   // Profile State
   const [profile, setProfile] = useState<ExhibitorProfile>({
@@ -327,10 +344,12 @@ export default function ExhibitorDashboard() {
     products: [],
     brands: [],
     brochures: [],
+    boothNumber: '',
     boothSize: '',
     boothType: '',
     boothDimensions: '',
     boothNotes: '',
+    boothStatus: 'pending',
     status: 'active',
     createdAt: '',
     updatedAt: '',
@@ -370,37 +389,118 @@ export default function ExhibitorDashboard() {
     type: '',
     description: '',
     quantity: 1,
+    price: 0
   });
 
   // New spec key/value for product
   const [newSpecKey, setNewSpecKey] = useState('');
   const [newSpecValue, setNewSpecValue] = useState('');
+  const [showAddRequirement, setShowAddRequirement] = useState(false);
+const [requirements, setRequirements] = useState<any[]>([]);
+
 
   // Load all exhibitor data
   useEffect(() => {
     fetchAllData();
   }, []);
 
+  const fetchRequirements = async () => {
+  try {
+    const result = await apiCall('/api/exhibitorDashboard/requirements');
+    if (result.success) {
+      setRequirements(result.data);
+    }
+  } catch (error) {
+    console.error('Error fetching requirements:', error);
+  }
+};
+const handleAddRequirement = async () => {
+  if (!newRequirement.type || !newRequirement.description) return;
+  
+  setSaving(true);
+  try {
+    const result = await apiCall('/api/exhibitorDashboard/requirements', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...newRequirement,
+        price: newRequirement.price || 0, // Include price in the request
+      }),
+    });
+    
+    if (result.success) {
+      setRequirements([result.data, ...requirements]);
+      setNewRequirement({ type: '', description: '', quantity: 1, price: 0 }); // Reset with price
+      setShowAddRequirement(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    }
+  } catch (error: any) {
+    console.error('Error adding requirement:', error);
+    setShowError(error.message || 'Failed to add requirement');
+  } finally {
+    setSaving(false);
+  }
+};
+const handleDeleteRequirement = async (requirementId: string) => {
+  try {
+    await apiCall(`/api/exhibitorDashboard/requirements/${requirementId}`, {
+      method: 'DELETE',
+    });
+    
+    setRequirements(requirements.filter(req => req.id !== requirementId));
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  } catch (error: any) {
+    console.error('Error deleting requirement:', error);
+    setShowError(error.message || 'Failed to delete requirement');
+  }
+};
+
+
+// Add fetchRequirements to fetchAllData
+const fetchAllData = async () => {
+  setLoading(true);
+  setShowError(null);
+  
+  try {
+    await fetchExhibitorProfile();
+    await Promise.all([
+      fetchProducts(),
+      fetchBrands(),
+      fetchBrochures(),
+      fetchDashboardLayout(),
+      fetchManual(),
+      fetchBoothDetailsFromAdmin(),
+      fetchRequirements(), // Add this line
+    ]);
+  } catch (error: any) {
+    console.error('Error fetching data:', error);
+    setShowError(error.message || 'Failed to load data');
+  } finally {
+    setLoading(false);
+  }
+};
+
   // Calculate profile completion
   useEffect(() => {
     calculateCompletionScore();
   }, [profile]);
 
-  // Helper function for API calls with auth
-  const apiCall = async (endpoint: string, options: RequestInit = {}, isFormData = false) => {
-    const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-    
-    const headers: HeadersInit = {};
-    
-    // Don't set Content-Type for FormData - browser will set it with boundary
-    if (!isFormData) {
-      headers['Content-Type'] = 'application/json';
-    }
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+const apiCall = async (endpoint: string, options: RequestInit = {}, isFormData = false) => {
+  const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+  
+  const headers: HeadersInit = {};
+  
+  // Don't set Content-Type for FormData - browser will set it with boundary
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
+  try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers: {
@@ -410,13 +510,19 @@ export default function ExhibitorDashboard() {
       credentials: 'include',
     });
 
+    const responseData = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      console.error('API Error Response:', responseData);
+      throw new Error(responseData.error || responseData.message || `HTTP error! status: ${response.status}`);
     }
 
-    return response.json();
-  };
+    return responseData;
+  } catch (error) {
+    console.error('API Call Error:', error);
+    throw error;
+  }
+};
 
   const uploadToCloudinary = async (file: File, folder: string = 'exhibitor-files') => {
     const formData = new FormData();
@@ -431,206 +537,197 @@ export default function ExhibitorDashboard() {
     return result.data; // Should return { url, publicId, format, etc. }
   };
 
-  const fetchAllData = async () => {
-    setLoading(true);
-    setShowError(null);
+
+
+const fetchBoothDetailsFromAdmin = async () => {
+  try {
+    const exhibitorId = profile.id;
     
-    try {
-      // First fetch profile to get exhibitor ID
-      await fetchExhibitorProfile();
-      
-      // Then fetch all other data in parallel
-      await Promise.all([
-        fetchProducts(),
-        fetchBrands(),
-        fetchBrochures(),
-        fetchDashboardLayout(),
-        fetchManual(),
-        fetchBoothDetailsFromAdmin() // Fetch booth details from admin panel
-      ]);
-      
-    } catch (error: any) {
-      console.error('Error fetching data:', error);
-      setShowError(error.message || 'Failed to load data');
-    } finally {
-      setLoading(false);
+    if (!exhibitorId) {
+      console.log('No exhibitor ID available for booth details');
+      return;
     }
-  };
 
-  // New function to fetch booth details from admin panel
-  const fetchBoothDetailsFromAdmin = async () => {
-    try {
-      // Get exhibitor ID from profile
-      const exhibitorId = profile.id;
+    console.log('Fetching booth details from admin for exhibitor:', exhibitorId);
+
+    const result = await apiCall(`/api/exhibitors/${exhibitorId}`, {
+      method: 'GET',
+    });
+    
+    if (result.success && result.data) {
+      const adminData = result.data;
       
-      if (!exhibitorId) {
-        console.log('No exhibitor ID available for booth details');
-        return;
+      // Parse stallDetails if it exists
+      let stallDetails = adminData.stallDetails || {};
+      if (typeof stallDetails === 'string') {
+        try {
+          stallDetails = JSON.parse(stallDetails);
+        } catch {
+          stallDetails = {};
+        }
       }
 
-      console.log('Fetching booth details from admin for exhibitor:', exhibitorId);
+      console.log('Parsed stall details:', stallDetails);
+      console.log('Price from stallDetails:', stallDetails.price);
 
-      // Fetch from admin exhibitors endpoint
-      const result = await apiCall(`/api/exhibitors/${exhibitorId}`, {
-        method: 'GET',
-      });
+      // Extract booth details from admin data with proper fallbacks
+      const boothInfo = {
+        boothNumber: adminData.boothNumber || adminData.booth || stallDetails.boothNumber || '',
+        boothSize: adminData.boothSize || stallDetails.size || stallDetails.boothSize || '3m x 3m',
+        boothType: adminData.boothType || stallDetails.type || stallDetails.boothType || 'standard',
+        boothDimensions: adminData.boothDimensions || stallDetails.dimensions || stallDetails.boothDimensions || '',
+        boothNotes: adminData.boothNotes || stallDetails.notes || stallDetails.boothNotes || '',
+        boothPrice: stallDetails.price || adminData.boothPrice || adminData.price || '', // TRY MULTIPLE SOURCES
+        status: adminData.status || 'active'
+      };
+
+      console.log('Booth details fetched from admin:', boothInfo);
+
+      // Update profile with booth details
+      setProfile(prev => ({
+        ...prev,
+        exhibition: {
+          ...prev.exhibition,
+          standNumber: boothInfo.boothNumber || prev.exhibition.standNumber,
+        },
+        boothNumber: boothInfo.boothNumber,
+        boothSize: boothInfo.boothSize,
+        boothType: boothInfo.boothType,
+        boothDimensions: boothInfo.boothDimensions,
+        boothNotes: boothInfo.boothNotes,
+        boothPrice: boothInfo.boothPrice, // THIS WILL NOW BE SET
+        boothStatus: boothInfo.status
+      }));
+    }
+  } catch (error) {
+    console.error('Error fetching booth details from admin:', error);
+  }
+};
+
+const fetchExhibitorProfile = async () => {
+  try {
+    const result = await apiCall('/api/exhibitorDashboard/profile');
+    
+    if (result.success) {
+      const apiData = result.data;
       
-      if (result.success && result.data) {
-        const adminData = result.data;
-        
-        // Parse stallDetails if it exists
-        let stallDetails = adminData.stallDetails || {};
-        if (typeof stallDetails === 'string') {
+      // Parse address if it's a string
+      let addressParts = {
+        street: '',
+        city: '',
+        state: '',
+        country: '',
+        postalCode: ''
+      };
+      
+      if (apiData.address) {
+        const parts = apiData.address.split(',').map((p: string) => p.trim());
+        addressParts.street = parts[0] || '';
+        addressParts.city = parts[1] || '';
+        addressParts.state = parts[2] || '';
+        addressParts.country = parts[3] || '';
+        addressParts.postalCode = parts[4] || '';
+      }
+      
+      // Parse social media if it's stored as JSON string or object
+      let socialMedia = {
+        website: '',
+        linkedin: '',
+        twitter: '',
+        facebook: '',
+        instagram: '',
+      };
+      
+      if (apiData.socialMedia) {
+        if (typeof apiData.socialMedia === 'string') {
           try {
-            stallDetails = JSON.parse(stallDetails);
-          } catch {
-            stallDetails = {};
+            socialMedia = JSON.parse(apiData.socialMedia);
+          } catch (e) {
+            console.error('Error parsing social media:', e);
           }
+        } else if (typeof apiData.socialMedia === 'object') {
+          socialMedia = {
+            website: apiData.socialMedia.website || apiData.website || '',
+            linkedin: apiData.socialMedia.linkedin || '',
+            twitter: apiData.socialMedia.twitter || '',
+            facebook: apiData.socialMedia.facebook || '',
+            instagram: apiData.socialMedia.instagram || '',
+          };
         }
-
-        // Extract booth details from admin data
-        const boothInfo = {
-          boothNumber: adminData.boothNumber || adminData.booth || '',
-          boothSize: adminData.boothSize || stallDetails?.size || '',
-          boothType: adminData.boothType || stallDetails?.type || 'standard',
-          boothDimensions: adminData.boothDimensions || stallDetails?.dimensions || '',
-          boothNotes: adminData.boothNotes || stallDetails?.notes || '',
-          status: adminData.status || 'active'
-        };
-
-        console.log('Booth details fetched from admin:', boothInfo);
-
-        // Update boothDetails state
-        setBoothDetails({
-          boothNumber: boothInfo.boothNumber,
-          position: { x: 0, y: 0 }, // Default position if not available
-          size: boothInfo.boothSize,
-          status: boothInfo.status,
-          type: boothInfo.boothType,
-          dimensions: boothInfo.boothDimensions,
-          notes: boothInfo.boothNotes
-        });
-
-        // Also update profile with booth details
-        setProfile(prev => ({
-          ...prev,
-          exhibition: {
-            ...prev.exhibition,
-            standNumber: boothInfo.boothNumber || prev.exhibition.standNumber,
-          },
-          boothSize: boothInfo.boothSize,
-          boothType: boothInfo.boothType,
-          boothDimensions: boothInfo.boothDimensions,
-          boothNotes: boothInfo.boothNotes
-        }));
+      } else {
+        // If no socialMedia object, try to get website directly
+        socialMedia.website = apiData.website || '';
       }
-    } catch (error) {
-      console.error('Error fetching booth details from admin:', error);
-    }
-  };
-
-  const fetchExhibitorProfile = async () => {
-    try {
-      const result = await apiCall('/api/exhibitorDashboard/profile');
       
-      if (result.success) {
-        const apiData = result.data;
-        
-        // Parse address if it's a string
-        let addressParts = {
-          street: '',
-          city: '',
-          state: '',
-          country: '',
-          postalCode: ''
-        };
-        
-        if (apiData.address) {
-          const parts = apiData.address.split(',').map((p: string) => p.trim());
-          addressParts.street = parts[0] || '';
-          addressParts.city = parts[1] || '';
-          addressParts.state = parts[2] || '';
-          addressParts.country = parts[3] || '';
-          addressParts.postalCode = parts[4] || '';
+      // ===== IMPORTANT: Parse stallDetails to get booth price =====
+      let stallDetails = apiData.stallDetails || {};
+      if (typeof stallDetails === 'string') {
+        try {
+          stallDetails = JSON.parse(stallDetails);
+        } catch (e) {
+          console.error('Error parsing stallDetails:', e);
+          stallDetails = {};
         }
-        
-        // Parse social media if it's stored as JSON string or object
-        let socialMedia = {
-          website: '',
-          linkedin: '',
-          twitter: '',
-          facebook: '',
-          instagram: '',
-        };
-        
-        if (apiData.socialMedia) {
-          if (typeof apiData.socialMedia === 'string') {
-            try {
-              socialMedia = JSON.parse(apiData.socialMedia);
-            } catch (e) {
-              console.error('Error parsing social media:', e);
-            }
-          } else if (typeof apiData.socialMedia === 'object') {
-            socialMedia = {
-              website: apiData.socialMedia.website || apiData.website || '',
-              linkedin: apiData.socialMedia.linkedin || '',
-              twitter: apiData.socialMedia.twitter || '',
-              facebook: apiData.socialMedia.facebook || '',
-              instagram: apiData.socialMedia.instagram || '',
-            };
-          }
-        } else {
-          // If no socialMedia object, try to get website directly
-          socialMedia.website = apiData.website || '';
-        }
-        
-        setProfile(prev => ({
-          ...prev,
-          id: apiData.id || '',
-          companyName: apiData.company || apiData.name || '',
-          shortName: apiData.shortName || apiData.short_name || '',
-          registrationNumber: apiData.registrationNumber || apiData.registration_number || '',
-          yearEstablished: apiData.yearEstablished || apiData.year_established || '',
-          companySize: apiData.companySize || apiData.company_size || '',
-          companyType: apiData.companyType || apiData.company_type || '',
-          contactPerson: {
-            name: apiData.contactPerson?.name || apiData.contact_name || apiData.name || '',
-            jobTitle: apiData.contactPerson?.jobTitle || apiData.contact_job_title || '',
-            email: apiData.contactPerson?.email || apiData.email || '',
-            phone: apiData.contactPerson?.phone || apiData.phone || '',
-            alternatePhone: apiData.contactPerson?.alternatePhone || apiData.alternate_phone || '',
-          },
-          exhibition: {
-            pavilion: apiData.exhibition?.pavilion || apiData.pavilion || '',
-            hall: apiData.exhibition?.hall || apiData.hall || '',
-            standNumber: apiData.exhibition?.standNumber || apiData.boothNumber || apiData.booth_number || '',
-            floorPlanUrl: apiData.exhibition?.floorPlanUrl || apiData.floor_plan_url || '',
-          },
-          address: {
-            street: addressParts.street || apiData.address_street || '',
-            city: addressParts.city || apiData.address_city || '',
-            state: addressParts.state || apiData.address_state || '',
-            country: addressParts.country || apiData.address_country || '',
-            countryCode: apiData.address_country_code || '',
-            postalCode: addressParts.postalCode || apiData.address_postal_code || '',
-          },
-          sector: apiData.sector ? 
-            (Array.isArray(apiData.sector) ? apiData.sector : apiData.sector.split(',').map((s: string) => s.trim())) 
-            : [],
-          about: apiData.about || apiData.description || '',
-          mission: apiData.mission || '',
-          vision: apiData.vision || '',
-          socialMedia: socialMedia,
-          status: apiData.status || 'active',
-          createdAt: apiData.createdAt || apiData.created_at || '',
-          updatedAt: apiData.updatedAt || apiData.updated_at || '',
-        }));
       }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      throw error;
+      
+      console.log('📦 Fetched stallDetails:', stallDetails);
+      console.log('💰 Booth price from stallDetails:', stallDetails.price);
+      
+      setProfile(prev => ({
+        ...prev,
+        id: apiData.id || '',
+        companyName: apiData.company || apiData.name || '',
+        shortName: apiData.shortName || apiData.short_name || '',
+        registrationNumber: apiData.registrationNumber || apiData.registration_number || '',
+        yearEstablished: apiData.yearEstablished || apiData.year_established || '',
+        companySize: apiData.companySize || apiData.company_size || '',
+        companyType: apiData.companyType || apiData.company_type || '',
+        contactPerson: {
+          name: apiData.contactPerson?.name || apiData.contact_name || apiData.name || '',
+          jobTitle: apiData.contactPerson?.jobTitle || apiData.contact_job_title || '',
+          email: apiData.contactPerson?.email || apiData.email || '',
+          phone: apiData.contactPerson?.phone || apiData.phone || '',
+          alternatePhone: apiData.contactPerson?.alternatePhone || apiData.alternate_phone || '',
+        },
+        exhibition: {
+          pavilion: apiData.exhibition?.pavilion || apiData.pavilion || '',
+          hall: apiData.exhibition?.hall || apiData.hall || '',
+          standNumber: apiData.exhibition?.standNumber || apiData.boothNumber || apiData.booth_number || '',
+          floorPlanUrl: apiData.exhibition?.floorPlanUrl || apiData.floor_plan_url || '',
+        },
+        address: {
+          street: addressParts.street || apiData.address_street || '',
+          city: addressParts.city || apiData.address_city || '',
+          state: addressParts.state || apiData.address_state || '',
+          country: addressParts.country || apiData.address_country || '',
+          countryCode: apiData.address_country_code || '',
+          postalCode: addressParts.postalCode || apiData.address_postal_code || '',
+        },
+        sector: apiData.sector ? 
+          (Array.isArray(apiData.sector) ? apiData.sector : apiData.sector.split(',').map((s: string) => s.trim())) 
+          : [],
+        about: apiData.about || apiData.description || '',
+        mission: apiData.mission || '',
+        vision: apiData.vision || '',
+        socialMedia: socialMedia,
+        // ===== IMPORTANT: Add booth price from stallDetails =====
+        boothNumber: apiData.boothNumber || stallDetails.boothNumber || '',
+        boothSize: apiData.boothSize || stallDetails.size || '',
+        boothType: apiData.boothType || stallDetails.type || 'standard',
+        boothDimensions: apiData.boothDimensions || stallDetails.dimensions || '',
+        boothNotes: apiData.boothNotes || stallDetails.notes || '',
+        boothPrice: stallDetails.price || apiData.boothPrice || '', // THIS IS THE KEY LINE
+        boothStatus: apiData.status || 'active',
+        status: apiData.status || 'active',
+        createdAt: apiData.createdAt || apiData.created_at || '',
+        updatedAt: apiData.updatedAt || apiData.updated_at || '',
+      }));
     }
-  };
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    throw error;
+  }
+};
 
   const fetchProducts = async () => {
     try {
@@ -785,81 +882,102 @@ export default function ExhibitorDashboard() {
     setCompletionScore(Math.round((completedFields / totalFields) * 100));
   };
 
-  const handleSaveProfile = async () => {
-    setSaving(true);
-    setShowError(null);
+const handleSaveProfile = async () => {
+  setSaving(true);
+  setShowError(null);
+  
+  try {
+    // Build address string
+    const addressParts = [
+      profile.address.street,
+      profile.address.city,
+      profile.address.state,
+      profile.address.country,
+      profile.address.postalCode
+    ].filter(part => part.trim() !== '');
     
-    try {
-      // Build address string
-      const addressParts = [
-        profile.address.street,
-        profile.address.city,
-        profile.address.state,
-        profile.address.country,
-        profile.address.postalCode
-      ].filter(part => part.trim() !== '');
+    const addressString = addressParts.join(', ');
+    
+    // Build stall details object - MAKE SURE PRICE IS INCLUDED
+const stallDetails = {
+  size: profile.boothSize || '3m x 3m',
+  type: profile.boothType || 'standard',
+  dimensions: profile.boothDimensions || '',
+  notes: profile.boothNotes || '',
+  price: profile.boothPrice || '', // Price in Indian Rupees (INR)
+  updatedAt: new Date().toISOString()
+};
+    
+    console.log('💾 Saving stall details with price:', stallDetails);
+    
+    const apiData = {
+      // Basic Info
+      company: profile.companyName,
+      name: profile.contactPerson.name,
+      email: profile.contactPerson.email,
+      phone: profile.contactPerson.phone,
+      alternatePhone: profile.contactPerson.alternatePhone,
       
-      const addressString = addressParts.join(', ');
+      // Exhibition
+      boothNumber: profile.exhibition.standNumber,
+      pavilion: profile.exhibition.pavilion,
+      hall: profile.exhibition.hall,
       
-      const apiData = {
-        // Basic Info
-        company: profile.companyName,
-        name: profile.contactPerson.name,
-        email: profile.contactPerson.email,
-        phone: profile.contactPerson.phone,
-        alternatePhone: profile.contactPerson.alternatePhone,
-        
-        // Exhibition
-        boothNumber: profile.exhibition.standNumber,
-        pavilion: profile.exhibition.pavilion,
-        hall: profile.exhibition.hall,
-        
-        // Address
-        address: addressString || undefined,
-        
-        // Business Details
-        description: profile.about,
-        mission: profile.mission,
-        vision: profile.vision,
-        sector: profile.sector.join(', '),
-        companySize: profile.companySize,
-        companyType: profile.companyType,
-        yearEstablished: profile.yearEstablished,
-        registrationNumber: profile.registrationNumber,
-        shortName: profile.shortName,
-        
-        // Social Media
-        website: profile.socialMedia.website,
-        linkedin: profile.socialMedia.linkedin,
-        twitter: profile.socialMedia.twitter,
-        facebook: profile.socialMedia.facebook,
-        instagram: profile.socialMedia.instagram,
-        
-        // You might want to send social media as a JSON object
-        socialMedia: JSON.stringify(profile.socialMedia)
-      };
+      // Address
+      address: addressString || undefined,
+      
+      // Business Details
+      description: profile.about,
+      mission: profile.mission,
+      vision: profile.vision,
+      sector: profile.sector.join(', '),
+      companySize: profile.companySize,
+      companyType: profile.companyType,
+      yearEstablished: profile.yearEstablished,
+      registrationNumber: profile.registrationNumber,
+      shortName: profile.shortName,
+      
+      // Social Media
+      website: profile.socialMedia.website,
+      linkedin: profile.socialMedia.linkedin,
+      twitter: profile.socialMedia.twitter,
+      facebook: profile.socialMedia.facebook,
+      instagram: profile.socialMedia.instagram,
+      
+      // Social media as JSON string
+      socialMedia: JSON.stringify(profile.socialMedia),
+      
+      // === IMPORTANT: Include booth details with price ===
+      stallDetails: JSON.stringify(stallDetails),
+      
+      // Individual booth fields for backward compatibility
+      boothSize: profile.boothSize,
+      boothType: profile.boothType,
+      boothDimensions: profile.boothDimensions,
+      boothNotes: profile.boothNotes,
+      boothPrice: profile.boothPrice // Include this too
+    };
 
-      const result = await apiCall('/api/exhibitorDashboard/profile', {
-        method: 'PUT',
-        body: JSON.stringify(apiData),
-      });
+    const result = await apiCall('/api/exhibitorDashboard/profile', {
+      method: 'PUT',
+      body: JSON.stringify(apiData),
+    });
+    
+    if (result.success) {
+      setShowSuccess(true);
+      setIsEditing(false);
+      setTimeout(() => setShowSuccess(false), 3000);
       
-      if (result.success) {
-        setShowSuccess(true);
-        setIsEditing(false);
-        setTimeout(() => setShowSuccess(false), 3000);
-        
-        // Refresh all data
-        await fetchAllData();
-      }
-    } catch (error: any) {
-      console.error('Error saving profile:', error);
-      setShowError(error.message || 'Failed to save profile');
-    } finally {
-      setSaving(false);
+      // Refresh all data to ensure consistency
+      await fetchAllData();
     }
-  };
-
+  } catch (error: any) {
+    console.error('Error saving profile:', error);
+    setShowError(error.message || 'Failed to save profile');
+  } finally {
+    setSaving(false);
+  }
+};
   const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.description) return;
     
@@ -1217,12 +1335,6 @@ export default function ExhibitorDashboard() {
     return types[type] || type;
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -1257,20 +1369,6 @@ export default function ExhibitorDashboard() {
             </div>
             
             <div className="flex items-center gap-3">
-              {/* Profile Completion */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                <div className="flex items-center gap-1">
-                  <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-green-500 rounded-full transition-all duration-500"
-                      style={{ width: `${completionScore}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">{completionScore}%</span>
-                </div>
-                <span className="text-xs text-gray-500">Complete</span>
-              </div>
-
               {/* Preview Button */}
               <Link
                 href={`/exhibitor/${profile.id}`}
@@ -1386,13 +1484,6 @@ export default function ExhibitorDashboard() {
                   <p className="text-sm text-gray-500">{profile.shortName}</p>
                 )}
                 
-                {profile.exhibition.standNumber && (
-                  <div className="mt-3 inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
-                    <MapPin size={12} />
-                    Stand {profile.exhibition.standNumber}
-                  </div>
-                )}
-
                 {profile.status && (
                   <div className="mt-2">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(profile.status)}`}>
@@ -1410,6 +1501,7 @@ export default function ExhibitorDashboard() {
                     { id: 'products', label: 'Products & Services', icon: Package, count: profile.products.length },
                     { id: 'brands', label: 'Brands', icon: Tag, count: profile.brands.length },
                     { id: 'brochures', label: 'Brochures', icon: FileText, count: profile.brochures.length },
+                    { id: 'booth', label: 'Booth Details', icon: Home, count: profile.boothNumber ? 1 : 0 },
                   ].map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -1440,85 +1532,6 @@ export default function ExhibitorDashboard() {
                 </div>
               </div>
 
-              {/* Booth Info - Enhanced with all details */}
-              {(boothDetails || profile.exhibition.standNumber || profile.boothSize) && (
-                <div className="p-4 border-t bg-gray-50">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                    <div className="flex items-center gap-1">
-                      <MapPin size={12} />
-                      Booth Information
-                    </div>
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Booth Number:</span>
-                      <span className="font-medium text-gray-900">
-                        {boothDetails?.boothNumber || profile.exhibition.standNumber || 'Not assigned'}
-                      </span>
-                    </div>
-                    
-                    {(boothDetails?.size || profile.boothSize) && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Size:</span>
-                        <span className="font-medium text-gray-900">
-                          {boothDetails?.size || profile.boothSize}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {(boothDetails?.type || profile.boothType) && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Type:</span>
-                        <span className="font-medium text-gray-900">
-                          {getBoothTypeLabel(boothDetails?.type || profile.boothType || '')}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {(boothDetails?.dimensions || profile.boothDimensions) && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Dimensions:</span>
-                        <span className="font-medium text-gray-900">
-                          {boothDetails?.dimensions || profile.boothDimensions}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {boothDetails?.status && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Status:</span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(boothDetails.status)}`}>
-                          {boothDetails.status}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {(boothDetails?.notes || profile.boothNotes) && (
-                      <div className="mt-2 pt-2 border-t border-gray-200">
-                        <p className="text-xs text-gray-500 mb-1">Notes:</p>
-                        <p className="text-xs text-gray-700">
-                          {boothDetails?.notes || profile.boothNotes}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Floor Plan */}
-              {floorPlan && (
-                <div className="p-4 border-t">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Floor Plan
-                  </h4>
-                  <p className="text-sm text-gray-700">{floorPlan.name}</p>
-                  {floorPlan.imageUrl && (
-                    <button className="mt-2 text-xs text-blue-600 hover:text-blue-800">
-                      View Floor Plan
-                    </button>
-                  )}
-                </div>
-              )}
 
               {/* Status */}
               <div className="p-4 border-t bg-gray-50">
@@ -1799,7 +1812,7 @@ export default function ExhibitorDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Pavilion <span className="text-red-500">*</span>
+                          Pavilion
                         </label>
                         {isEditing ? (
                           <select
@@ -1822,7 +1835,7 @@ export default function ExhibitorDashboard() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Hall <span className="text-red-500">*</span>
+                          Hall
                         </label>
                         {isEditing ? (
                           <select
@@ -1845,7 +1858,7 @@ export default function ExhibitorDashboard() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Stand Number <span className="text-red-500">*</span>
+                          Stand Number
                         </label>
                         {isEditing ? (
                           <input
@@ -2764,6 +2777,218 @@ export default function ExhibitorDashboard() {
                   )}
                 </div>
               )}
+{activeTab === 'booth' && (
+  <div className="p-6">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <Home size={20} className="text-blue-600" />
+        Booth Details
+      </h2>
+      
+      {!isEditing && (
+        <button
+          onClick={() => setIsEditing(true)}
+          className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+        >
+          <Edit size={14} />
+          Edit
+        </button>
+      )}
+    </div>
+
+    {/* Booth Information Card */}
+    <div className="bg-white border rounded-xl overflow-hidden">
+      {/* Header with stand number */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-blue-100 text-sm">Assigned Stand</p>
+            <p className="text-white text-2xl font-bold">
+              {profile.exhibition.standNumber || 'Not assigned'}
+            </p>
+          </div>
+          <div className="bg-white/20 rounded-lg px-4 py-2 text-white text-sm font-medium">
+            {profile.boothStatus || 'Pending'}
+          </div>
+        </div>
+      </div>
+
+      {/* Booth Specifications */}
+      <div className="p-6 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Booth Type */}
+          <div className="border-b pb-3">
+            <label className="block text-xs text-gray-500 mb-1">Booth Type</label>
+            {isEditing ? (
+              <select
+                value={profile.boothType || 'standard'}
+                onChange={(e) => setProfile({...profile, boothType: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="standard">Standard</option>
+                <option value="double">Double</option>
+                <option value="corner">Corner</option>
+                <option value="island">Island</option>
+                <option value="custom">Custom</option>
+              </select>
+            ) : (
+              <p className="text-gray-900 font-medium capitalize">
+                {profile.boothType || 'Standard'}
+              </p>
+            )}
+          </div>
+
+          {/* Booth Size */}
+          <div className="border-b pb-3">
+            <label className="block text-xs text-gray-500 mb-1">Booth Size</label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={profile.boothSize || ''}
+                onChange={(e) => setProfile({...profile, boothSize: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., 3m x 3m"
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">
+                {profile.boothSize || '3m x 3m'}
+              </p>
+            )}
+          </div>
+
+          {/* Dimensions */}
+          <div className="border-b pb-3">
+            <label className="block text-xs text-gray-500 mb-1">Dimensions</label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={profile.boothDimensions || ''}
+                onChange={(e) => setProfile({...profile, boothDimensions: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., 3m width x 3m depth"
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">
+                {profile.boothDimensions || 'Standard'}
+              </p>
+            )}
+          </div>
+
+          {/* Stand Number */}
+          <div className="border-b pb-3">
+            <label className="block text-xs text-gray-500 mb-1">Stand Number</label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={profile.exhibition.standNumber || ''}
+                onChange={(e) => setProfile({
+                  ...profile,
+                  exhibition: {...profile.exhibition, standNumber: e.target.value}
+                })}
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., A-1111"
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">
+                {profile.exhibition.standNumber || 'Not assigned'}
+              </p>
+            )}
+          </div>
+
+          {/* Pavilion */}
+          <div className="border-b pb-3">
+            <label className="block text-xs text-gray-500 mb-1">Pavilion</label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={profile.exhibition.pavilion || ''}
+                onChange={(e) => setProfile({
+                  ...profile,
+                  exhibition: {...profile.exhibition, pavilion: e.target.value}
+                })}
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Pavilion 1"
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">
+                {profile.exhibition.pavilion || 'Not specified'}
+              </p>
+            )}
+          </div>
+
+          {/* Hall */}
+          <div className="border-b pb-3">
+            <label className="block text-xs text-gray-500 mb-1">Hall</label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={profile.exhibition.hall || ''}
+                onChange={(e) => setProfile({
+                  ...profile,
+                  exhibition: {...profile.exhibition, hall: e.target.value}
+                })}
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Hall A"
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">
+                {profile.exhibition.hall || 'Not specified'}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Price Section - Editable by Exhibitor */}
+<div className="mt-6 pt-4 border-t-2 border-dashed">
+  <div className="flex items-center justify-between">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Booth Price (₹)
+      </label>
+      <p className="text-xs text-gray-500">
+        Set the price for your booth in Indian Rupees
+      </p>
+    </div>
+    {isEditing ? (
+      <div className="w-48">
+        <div className="relative">
+          <span className="absolute left-3 top-2.5 text-gray-500">₹</span>
+          <input
+            type="number"
+            value={profile.boothPrice || ''}
+            onChange={(e) => setProfile({...profile, boothPrice: e.target.value})}
+            className="w-full border rounded-lg pl-8 pr-4 py-2 text-lg font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="0.00"
+            min="0"
+            step="1"
+          />
+        </div>
+      </div>
+    ) : (
+      <div className="text-right">
+        {profile.boothPrice ? (
+          <p className="text-2xl font-bold text-gray-900">
+            ₹{parseFloat(profile.boothPrice).toLocaleString('en-IN')}
+          </p>
+        ) : (
+          <p className="text-gray-400 italic">Not set</p>
+        )}
+      </div>
+    )}
+  </div>
+</div>
+
+        {/* Additional Notes - Optional */}
+        {profile.boothNotes && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-500 mb-1">Additional Notes</p>
+            <p className="text-sm text-gray-700">{profile.boothNotes}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
             </div>
           </div>
         </div>
