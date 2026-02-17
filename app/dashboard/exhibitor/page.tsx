@@ -391,125 +391,123 @@ const fetchExhibitorProfile = async () => {
   try {
     const result = await apiCall('/api/exhibitorDashboard/profile');
     
-    console.log('Raw API response:', result);
+    console.log('📥 Raw API response:', result);
     
     if (result.success) {
       const apiData = result.data;
       
-      console.log('API Data all fields:', apiData);
-      
-      // Parse address string back into object
+      // Parse address components from separate fields
       let addressObj = {
-        street: '',
-        city: '',
-        state: '',
-        country: '',
-        countryCode: '',
-        postalCode: ''
+        street: apiData.address_street || '',
+        city: apiData.address_city || '',
+        state: apiData.address_state || '',
+        country: apiData.address_country || '',
+        countryCode: apiData.address_country_code || '',
+        postalCode: apiData.address_postal_code || ''
       };
       
-      if (apiData.address) {
-        if (typeof apiData.address === 'string') {
-          const parts = apiData.address.split(',').map((p: string) => p.trim());
-          addressObj = {
-            street: parts[0] || '',
-            city: parts[1] || '',
-            state: parts[2] || '',
-            country: parts[3] || '',
-            countryCode: '',
-            postalCode: parts[4] || ''
-          };
-        }
+      // If no separate fields, try to parse from combined address
+      if (!addressObj.street && apiData.address && typeof apiData.address === 'string') {
+        const parts = apiData.address.split(',').map((p: string) => p.trim());
+        addressObj = {
+          street: parts[0] || '',
+          city: parts[1] || '',
+          state: parts[2] || '',
+          country: parts[3] || '',
+          countryCode: '',
+          postalCode: parts[4] || ''
+        };
       }
       
-      // Parse sector string back into array
+      // Parse sector
       let sectorArray: string[] = [];
       if (apiData.sector) {
         if (typeof apiData.sector === 'string') {
           sectorArray = apiData.sector.split(',').map((s: string) => s.trim()).filter(Boolean);
+        } else if (Array.isArray(apiData.sector)) {
+          sectorArray = apiData.sector;
         }
       }
       
-      // Parse contact person JSON string
+      // Parse contact person
       let contactPersonObj = {
-        name: '',
-        jobTitle: '',
-        email: '',
-        phone: '',
-        alternatePhone: ''
+        name: apiData.contact_name || apiData.name || '',
+        jobTitle: apiData.contact_job_title || '',
+        email: apiData.email || '',
+        phone: apiData.phone || '',
+        alternatePhone: apiData.alternate_phone || ''
       };
       
       if (apiData.contactPerson) {
         if (typeof apiData.contactPerson === 'string') {
           try {
-            contactPersonObj = JSON.parse(apiData.contactPerson);
+            contactPersonObj = { ...contactPersonObj, ...JSON.parse(apiData.contactPerson) };
           } catch (e) {
             console.error('Error parsing contact person:', e);
-            contactPersonObj = {
-              name: apiData.contact_name || '',
-              jobTitle: apiData.contact_job_title || '',
-              email: apiData.email || '',
-              phone: apiData.phone || '',
-              alternatePhone: apiData.alternate_phone || ''
-            };
           }
+        } else if (typeof apiData.contactPerson === 'object') {
+          contactPersonObj = { ...contactPersonObj, ...apiData.contactPerson };
         }
       }
       
-      // Parse exhibition JSON string
-      let exhibitionObj = {
-        pavilion: '',
-        hall: '',
-        standNumber: '',
-        floorPlanUrl: ''
-      };
-      
-      if (apiData.exhibition) {
-        if (typeof apiData.exhibition === 'string') {
-          try {
-            exhibitionObj = JSON.parse(apiData.exhibition);
-          } catch (e) {
-            console.error('Error parsing exhibition:', e);
-            exhibitionObj = {
-              pavilion: apiData.pavilion || '',
-              hall: apiData.hall || '',
-              standNumber: apiData.boothNumber || apiData.booth_number || '',
-              floorPlanUrl: apiData.floor_plan_url || ''
-            };
-          }
-        }
-      }
-      
-      // Parse social media JSON string
+      // Parse social media
       let socialMediaObj = {
-        website: '',
-        linkedin: '',
-        twitter: '',
-        facebook: '',
-        instagram: ''
+        website: apiData.website || '',
+        linkedin: apiData.linkedin || '',
+        twitter: apiData.twitter || '',
+        facebook: apiData.facebook || '',
+        instagram: apiData.instagram || ''
       };
       
       if (apiData.socialMedia) {
         if (typeof apiData.socialMedia === 'string') {
           try {
-            socialMediaObj = JSON.parse(apiData.socialMedia);
+            socialMediaObj = { ...socialMediaObj, ...JSON.parse(apiData.socialMedia) };
           } catch (e) {
             console.error('Error parsing social media:', e);
-            socialMediaObj = {
-              website: apiData.website || '',
-              linkedin: apiData.linkedin || '',
-              twitter: apiData.twitter || '',
-              facebook: apiData.facebook || '',
-              instagram: apiData.instagram || ''
-            };
           }
+        } else if (typeof apiData.socialMedia === 'object') {
+          socialMediaObj = { ...socialMediaObj, ...apiData.socialMedia };
+        }
+      }
+      
+      // Parse exhibition
+      let exhibitionObj = {
+        pavilion: apiData.pavilion || '',
+        hall: apiData.hall || '',
+        standNumber: apiData.boothNumber || apiData.booth_number || '',
+        floorPlanUrl: apiData.floor_plan_url || ''
+      };
+      
+      if (apiData.exhibition) {
+        if (typeof apiData.exhibition === 'string') {
+          try {
+            exhibitionObj = { ...exhibitionObj, ...JSON.parse(apiData.exhibition) };
+          } catch (e) {
+            console.error('Error parsing exhibition:', e);
+          }
+        } else if (typeof apiData.exhibition === 'object') {
+          exhibitionObj = { ...exhibitionObj, ...apiData.exhibition };
+        }
+      }
+      
+      // Parse stall details for booth price
+      let boothPrice = profile.boothPrice || '';
+      if (apiData.stallDetails) {
+        try {
+          const stallDetails = typeof apiData.stallDetails === 'string' 
+            ? JSON.parse(apiData.stallDetails) 
+            : apiData.stallDetails;
+          boothPrice = stallDetails.price || stallDetails.boothPrice || boothPrice;
+        } catch (e) {
+          console.error('Error parsing stall details:', e);
         }
       }
       
       setProfile(prev => ({
         ...prev,
         id: apiData.id || '',
-        companyName: apiData.company || apiData.name || apiData.companyName || '',
+        companyName: apiData.company || apiData.companyName || '',
         shortName: apiData.shortName || apiData.short_name || '',
         registrationNumber: apiData.registrationNumber || apiData.registration_number || '',
         yearEstablished: apiData.yearEstablished || apiData.year_established || '',
@@ -526,15 +524,13 @@ const fetchExhibitorProfile = async () => {
         status: apiData.status || 'active',
         createdAt: apiData.createdAt || apiData.created_at || '',
         updatedAt: apiData.updatedAt || apiData.updated_at || '',
-        // Booth fields from API
         boothNumber: apiData.boothNumber || apiData.booth_number || exhibitionObj.standNumber || prev.boothNumber,
         boothSize: apiData.boothSize || apiData.booth_size || prev.boothSize,
         boothType: apiData.boothType || apiData.booth_type || prev.boothType,
         boothDimensions: apiData.boothDimensions || apiData.booth_dimensions || prev.boothDimensions,
         boothNotes: apiData.boothNotes || apiData.booth_notes || prev.boothNotes,
         boothStatus: apiData.boothStatus || apiData.booth_status || prev.boothStatus || 'pending',
-        // IMPORTANT: Keep the existing boothPrice since API doesn't return it
-        boothPrice: prev.boothPrice, // This preserves the price in state
+        boothPrice: boothPrice || apiData.boothPrice || apiData.booth_price || apiData.price || prev.boothPrice,
       }));
     }
   } catch (error) {
@@ -884,129 +880,93 @@ const handleSaveProfile = async () => {
   setShowError(null);
 
   try {
-    // Format address as a single string (comma-separated)
-    const formattedAddress = [
-      profile.address.street,
-      profile.address.city,
-      profile.address.state,
-      profile.address.country,
-      profile.address.postalCode
-    ].filter(Boolean).join(', ');
-    
-    // Format sector as a comma-separated string
-    const formattedSector = profile.sector.join(', ');
-    
-    // Format contact person as JSON string
-    const contactPersonString = JSON.stringify(profile.contactPerson);
-    
-    // Format exhibition as JSON string - include all fields
-    const exhibitionString = JSON.stringify({
-      pavilion: profile.exhibition.pavilion,
-      hall: profile.exhibition.hall,
-      standNumber: profile.exhibition.standNumber || profile.boothNumber,
-      floorPlanUrl: profile.exhibition.floorPlanUrl || ''
-    });
-    
-    // Format social media as JSON string
-    const socialMediaString = JSON.stringify(profile.socialMedia);
-    
-    // Create stallDetails object with all booth fields including price
-    const stallDetails = {
-      size: profile.boothSize || '',
-      type: profile.boothType || '',
-      dimensions: profile.boothDimensions || '',
-      notes: profile.boothNotes || '',
-      price: profile.boothPrice || ''  // This is the key line - save price in stallDetails
-    };
-    
-    // Ensure booth price is properly formatted as a number or null
-    const boothPriceValue = profile.boothPrice ? parseInt(profile.boothPrice.toString()) : null;
-    
+    // Create a flat object structure that matches database schema
     const payload = {
-      // Basic company info
-      company: profile.companyName,
-      companyName: profile.companyName,
-      name: profile.companyName,
-      
-      shortName: profile.shortName,
-      short_name: profile.shortName,
-      
-      registrationNumber: profile.registrationNumber,
-      registration_number: profile.registrationNumber,
-      
-      yearEstablished: profile.yearEstablished ? parseInt(profile.yearEstablished.toString()) : null,
-      year_established: profile.yearEstablished ? parseInt(profile.yearEstablished.toString()) : null,
-      
-      companySize: profile.companySize,
-      company_size: profile.companySize,
-      
-      companyType: profile.companyType,
-      company_type: profile.companyType,
-      
-      // Contact person - send as JSON string
-      contactPerson: contactPersonString,
-      contact_name: profile.contactPerson.name,
-      contact_job_title: profile.contactPerson.jobTitle,
+      // Basic company info - keep these flat
+      name: profile.contactPerson.name || profile.companyName, // Full name for name field
+      company: profile.companyName, // Company name for company field
       email: profile.contactPerson.email,
       phone: profile.contactPerson.phone,
+      
+      // Additional fields that exist in database
+      companyName: profile.companyName,
+      shortName: profile.shortName,
+      registrationNumber: profile.registrationNumber,
+      yearEstablished: profile.yearEstablished ? parseInt(profile.yearEstablished.toString()) : null,
+      companySize: profile.companySize,
+      companyType: profile.companyType,
+      
+      // Contact person fields (flattened)
+      contact_name: profile.contactPerson.name,
+      contact_job_title: profile.contactPerson.jobTitle,
       alternate_phone: profile.contactPerson.alternatePhone,
       
-      // Exhibition - send as JSON string
-      exhibition: exhibitionString,
-      pavilion: profile.exhibition.pavilion,
-      hall: profile.exhibition.hall,
+      // Booth/exhibition fields
       boothNumber: profile.exhibition.standNumber || profile.boothNumber,
-      booth_number: profile.exhibition.standNumber || profile.boothNumber,
       
-      // Address - send as single string
-      address: formattedAddress,
+      // Address fields - create separate database columns
       address_street: profile.address.street,
       address_city: profile.address.city,
       address_state: profile.address.state,
       address_country: profile.address.country,
-      address_country_code: profile.address.countryCode,
       address_postal_code: profile.address.postalCode,
       
-      // Business details - sector as string
-      sector: formattedSector,
+      // Also keep the combined address for backward compatibility
+      address: [
+        profile.address.street,
+        profile.address.city,
+        profile.address.state,
+        profile.address.country,
+        profile.address.postalCode
+      ].filter(Boolean).join(', '),
+      
+      // Sector as comma-separated string
+      sector: profile.sector.join(', '),
+      
+      // Business details
       about: profile.about,
       description: profile.about,
       mission: profile.mission,
       vision: profile.vision,
       
-      // Social media - send as JSON string
-      socialMedia: socialMediaString,
+      // Social media (flattened)
       website: profile.socialMedia.website,
       linkedin: profile.socialMedia.linkedin,
       twitter: profile.socialMedia.twitter,
       facebook: profile.socialMedia.facebook,
       instagram: profile.socialMedia.instagram,
       
-      // Booth details - send all fields including stallDetails with price
-      stallDetails: stallDetails,  // Send the complete stallDetails object
+      // Keep JSON strings for complex data that must be stored as JSON
+      contactPerson: JSON.stringify(profile.contactPerson),
+      socialMedia: JSON.stringify(profile.socialMedia),
+      exhibition: JSON.stringify({
+        pavilion: profile.exhibition.pavilion,
+        hall: profile.exhibition.hall,
+        standNumber: profile.exhibition.standNumber || profile.boothNumber,
+        floorPlanUrl: profile.exhibition.floorPlanUrl || ''
+      }),
       
-      // Also send individual fields for backward compatibility
+      // Booth details
+      stallDetails: JSON.stringify({
+        size: profile.boothSize || '',
+        type: profile.boothType || '',
+        dimensions: profile.boothDimensions || '',
+        notes: profile.boothNotes || '',
+        price: profile.boothPrice || ''
+      }),
+      
+      // Individual booth fields
       boothType: profile.boothType,
-      booth_type: profile.boothType,
       boothSize: profile.boothSize,
-      booth_size: profile.boothSize,
       boothDimensions: profile.boothDimensions,
-      booth_dimensions: profile.boothDimensions,
       boothNotes: profile.boothNotes,
-      booth_notes: profile.boothNotes,
       boothStatus: profile.boothStatus || 'pending',
-      booth_status: profile.boothStatus || 'pending',
-      
-      // Try to send price in multiple formats (in case backend adds it)
-      boothPrice: boothPriceValue,
-      booth_price: boothPriceValue,
-      price: boothPriceValue,
-      amount: boothPriceValue,
+      boothPrice: profile.boothPrice ? parseInt(profile.boothPrice.toString()) : null,
       
       status: profile.status
     };
 
-    console.log('Sending payload with stallDetails:', JSON.stringify(payload.stallDetails, null, 2));
+    console.log('📤 Sending payload:', payload);
 
     const result = await apiCall(
       "/api/exhibitorDashboard/profile",
@@ -1020,15 +980,16 @@ const handleSaveProfile = async () => {
       setShowSuccess(true);
       setIsEditing(false);
       
-      // Refresh the profile data
-      await fetchExhibitorProfile();
-      
-      setTimeout(() => setShowSuccess(false), 3000);
+      // CRITICAL: Wait a moment then refresh the profile data
+      setTimeout(async () => {
+        await fetchExhibitorProfile();
+        setShowSuccess(false);
+      }, 1500);
     } else {
       throw new Error(result.message || 'Failed to save profile');
     }
   } catch (error: any) {
-    console.error("Error saving profile:", error);
+    console.error("❌ Error saving profile:", error);
     setShowError(error.message || "Failed to save profile. Please check your connection and try again.");
   } finally {
     setSaving(false);

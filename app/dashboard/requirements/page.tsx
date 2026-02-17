@@ -29,10 +29,14 @@ import {
   MinusIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  PhotoIcon
+  PhotoIcon,
+  ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
 import { MenuIcon } from 'lucide-react';
 import Image from 'next/image';
+
+// ============= API CONFIGURATION =============
+const API_BASE_URL = 'https://diemex-backend.onrender.com';
 
 // ============= INTERFACES =============
 interface GeneralInfo {
@@ -47,24 +51,25 @@ interface GeneralInfo {
   gstNumber: string;
 }
 
-interface LocationDetails {
-  hallNo: string;
-  boothNo: string;
-  boothType: 'Shell Scheme' | 'Raw Space' | 'Island' | 'Corner' | 'Inline';
-  boothSize: {
-    length: string;
-    width: string;
-    area: string;
-  };
-  preferredLocation1: string;
-  preferredLocation2: string;
-  preferredLocation3: string;
-  specialRequirements: string;
-  access24x7: boolean;
-  forkliftRequired: boolean;
-  craneRequired: boolean;
-  vehicleEntry: boolean;
-}
+// COMMENTED OUT LOCATION INTERFACE
+// interface LocationDetails {
+//   hallNo: string;
+//   boothNo: string;
+//   boothType: 'Shell Scheme' | 'Raw Space' | 'Island' | 'Corner' | 'Inline';
+//   boothSize: {
+//     length: string;
+//     width: string;
+//     area: string;
+//   };
+//   preferredLocation1: string;
+//   preferredLocation2: string;
+//   preferredLocation3: string;
+//   specialRequirements: string;
+//   access24x7: boolean;
+//   forkliftRequired: boolean;
+//   craneRequired: boolean;
+//   vehicleEntry: boolean;
+// }
 
 interface BoothDetails {
   boothNo: string;
@@ -245,6 +250,8 @@ export default function RequirementsPage() {
   const [showPayment, setShowPayment] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Form 1 - General Information
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
@@ -259,21 +266,22 @@ export default function RequirementsPage() {
     gstNumber: ''
   });
 
+  // COMMENTED OUT LOCATION DETAILS STATE
   // Form 2 - Location Details
-  const [locationDetails, setLocationDetails] = useState<LocationDetails>({
-    hallNo: '',
-    boothNo: '',
-    boothType: 'Shell Scheme',
-    boothSize: { length: '', width: '', area: '' },
-    preferredLocation1: '',
-    preferredLocation2: '',
-    preferredLocation3: '',
-    specialRequirements: '',
-    access24x7: false,
-    forkliftRequired: false,
-    craneRequired: false,
-    vehicleEntry: false
-  });
+  // const [locationDetails, setLocationDetails] = useState<LocationDetails>({
+  //   hallNo: '',
+  //   boothNo: '',
+  //   boothType: 'Shell Scheme',
+  //   boothSize: { length: '', width: '', area: '' },
+  //   preferredLocation1: '',
+  //   preferredLocation2: '',
+  //   preferredLocation3: '',
+  //   specialRequirements: '',
+  //   access24x7: false,
+  //   forkliftRequired: false,
+  //   craneRequired: false,
+  //   vehicleEntry: false
+  // });
 
   // Form 3 - Booth Details
   const [boothDetails, setBoothDetails] = useState<BoothDetails>({
@@ -405,6 +413,350 @@ export default function RequirementsPage() {
     uploadedReceipt: null
   });
 
+  // ============= API FUNCTIONS =============
+  const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+    const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers: {
+          ...headers,
+          ...options.headers,
+        },
+        credentials: 'include',
+      });
+
+      const responseData = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        console.error('API Error Response:', responseData);
+        throw new Error(responseData.error || responseData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return responseData;
+    } catch (error) {
+      console.error('API Call Error:', error);
+      throw error;
+    }
+  };
+
+  // Fetch exhibitor profile data
+  const fetchExhibitorProfile = async () => {
+    try {
+      setLoading(true);
+      setApiError(null);
+      
+      const result = await apiCall('/api/exhibitorDashboard/profile');
+      
+      console.log('Raw API response:', result);
+      
+      if (result.success) {
+        const apiData = result.data;
+        
+        console.log('API Data contactPerson:', apiData.contactPerson);
+        
+        // Initialize contact person object
+        let contactPersonObj = {
+          name: '',
+          jobTitle: '',
+          email: '',
+          phone: '',
+          alternatePhone: ''
+        };
+        
+        // Parse contact person data
+        if (apiData.contactPerson) {
+          if (typeof apiData.contactPerson === 'string') {
+            try {
+              contactPersonObj = JSON.parse(apiData.contactPerson);
+            } catch (e) {
+              console.error('Error parsing contact person:', e);
+            }
+          } else if (typeof apiData.contactPerson === 'object') {
+            contactPersonObj = apiData.contactPerson;
+          }
+        }
+        
+        // Also check for direct fields if contactPerson is empty
+        if (!contactPersonObj.name && apiData.name) {
+          contactPersonObj.name = apiData.name;
+        }
+        if (!contactPersonObj.email && apiData.email) {
+          contactPersonObj.email = apiData.email;
+        }
+        if (!contactPersonObj.phone && apiData.phone) {
+          contactPersonObj.phone = apiData.phone;
+        }
+        if (!contactPersonObj.jobTitle && apiData.contact_job_title) {
+          contactPersonObj.jobTitle = apiData.contact_job_title;
+        }
+        
+        console.log('Parsed contact person:', contactPersonObj);
+        
+        // Parse name into title, first name, last name
+        let title: 'Mr' | 'Mrs' | 'Ms' | 'Dr' | 'Prof' = 'Mr';
+        let firstName = '';
+        let lastName = '';
+        
+        if (contactPersonObj.name) {
+          const fullName = contactPersonObj.name;
+          console.log('Full name from contact person:', fullName);
+          
+          // Try to detect title
+          if (fullName.includes('Dr.')) title = 'Dr';
+          else if (fullName.includes('Prof.')) title = 'Prof';
+          else if (fullName.includes('Mrs.')) title = 'Mrs';
+          else if (fullName.includes('Ms.')) title = 'Ms';
+          
+          // Remove title from name if present
+          let nameWithoutTitle = fullName
+            .replace(/^(Dr\.|Prof\.|Mrs\.|Ms\.|Mr\.)\s*/i, '')
+            .trim();
+          
+          const nameParts = nameWithoutTitle.split(' ');
+          if (nameParts.length > 0) {
+            firstName = nameParts[0] || '';
+            lastName = nameParts.slice(1).join(' ') || '';
+          }
+        }
+        
+        // If we still don't have first name, try to use exhibitor name from company
+        if (!firstName && apiData.name) {
+          const nameParts = apiData.name.split(' ');
+          firstName = nameParts[0] || '';
+          lastName = nameParts.slice(1).join(' ') || '';
+        }
+        
+        console.log('Parsed name - Title:', title, 'First:', firstName, 'Last:', lastName);
+        
+        // Update general info with ALL contact person details
+        setGeneralInfo(prev => ({
+          ...prev,
+          title,
+          firstName,
+          lastName,
+          designation: contactPersonObj.jobTitle || prev.designation || '',
+          mobile: contactPersonObj.phone || apiData.phone || prev.mobile || '',
+          email: contactPersonObj.email || apiData.email || prev.email || '',
+          companyName: apiData.company || apiData.companyName || prev.companyName || '',
+          businessNature: apiData.sector ? 
+            (typeof apiData.sector === 'string' ? apiData.sector.split(',')[0] : apiData.sector[0]) : 
+            prev.businessNature,
+          gstNumber: apiData.registrationNumber || apiData.gstNumber || prev.gstNumber || ''
+        }));
+        
+        // Parse address
+        let addressObj = {
+          street: '',
+          city: '',
+          state: '',
+          country: '',
+          countryCode: '',
+          postalCode: ''
+        };
+        
+        if (apiData.address) {
+          if (typeof apiData.address === 'string') {
+            const parts = apiData.address.split(',').map((p: string) => p.trim());
+            addressObj = {
+              street: parts[0] || '',
+              city: parts[1] || '',
+              state: parts[2] || '',
+              country: parts[3] || '',
+              countryCode: '',
+              postalCode: parts[4] || ''
+            };
+          }
+        }
+        
+        // Parse sector string back into array
+        let sectorArray: string[] = [];
+        if (apiData.sector) {
+          if (typeof apiData.sector === 'string') {
+            sectorArray = apiData.sector.split(',').map((s: string) => s.trim()).filter(Boolean);
+          } else if (Array.isArray(apiData.sector)) {
+            sectorArray = apiData.sector;
+          }
+        }
+        
+        // Parse exhibition JSON string
+        let exhibitionObj = {
+          pavilion: '',
+          hall: '',
+          standNumber: '',
+          floorPlanUrl: ''
+        };
+        
+        if (apiData.exhibition) {
+          if (typeof apiData.exhibition === 'string') {
+            try {
+              exhibitionObj = JSON.parse(apiData.exhibition);
+            } catch (e) {
+              console.error('Error parsing exhibition:', e);
+              exhibitionObj = {
+                pavilion: apiData.pavilion || '',
+                hall: apiData.hall || '',
+                standNumber: apiData.boothNumber || apiData.booth_number || '',
+                floorPlanUrl: apiData.floor_plan_url || ''
+              };
+            }
+          } else if (typeof apiData.exhibition === 'object') {
+            exhibitionObj = apiData.exhibition;
+          }
+        }
+        
+        // Parse stallDetails for booth info
+        let boothSize = '';
+        let boothType = '';
+        let boothDimensions = '';
+        let boothPrice = '';
+        
+        if (apiData.stallDetails) {
+          const stallDetails = typeof apiData.stallDetails === 'string'
+            ? JSON.parse(apiData.stallDetails)
+            : apiData.stallDetails;
+          
+          boothSize = stallDetails.size || '';
+          boothType = stallDetails.type || '';
+          boothDimensions = stallDetails.dimensions || '';
+          boothPrice = stallDetails.price || '';
+        }
+        
+        // COMMENTED OUT LOCATION DETAILS UPDATE
+        // Update location details
+        // setLocationDetails(prev => ({
+        //   ...prev,
+        //   hallNo: exhibitionObj.hall || prev.hallNo,
+        //   boothNo: exhibitionObj.standNumber || apiData.boothNumber || prev.boothNo
+        // }));
+        
+        // Parse booth size if available
+        // if (boothDimensions || boothSize) {
+        //   const dimensions = boothDimensions || boothSize;
+        //   const dimensionParts = dimensions.match(/(\d+(?:\.\d+)?)/g);
+        //   if (dimensionParts && dimensionParts.length >= 2) {
+        //     const length = dimensionParts[0];
+        //     const width = dimensionParts[1];
+        //     const area = (parseFloat(length) * parseFloat(width)).toFixed(2);
+            
+        //     setLocationDetails(prev => ({
+        //       ...prev,
+        //       boothSize: {
+        //         length,
+        //         width,
+        //         area
+        //       }
+        //     }));
+        //   }
+        // }
+        
+        // Update booth details with all contact info
+        setBoothDetails(prev => ({
+          ...prev,
+          boothNo: exhibitionObj.standNumber || apiData.boothNumber || prev.boothNo,
+          exhibitorName: contactPersonObj.name || `${title} ${firstName} ${lastName}`.trim() || prev.exhibitorName,
+          sqMtrBooked: boothSize || prev.sqMtrBooked,
+          organisation: apiData.company || apiData.companyName || prev.organisation,
+          contactPerson: contactPersonObj.name || `${firstName} ${lastName}`.trim() || prev.contactPerson,
+          designation: contactPersonObj.jobTitle || prev.designation,
+          mobile: contactPersonObj.phone || apiData.phone || prev.mobile,
+          email: contactPersonObj.email || apiData.email || prev.email
+        }));
+        
+        // Update company details
+        setCompanyDetails(prev => ({
+          ...prev,
+          companyName: apiData.company || apiData.companyName || prev.companyName,
+          address: addressObj.street || prev.address,
+          telephone: apiData.telephone || prev.telephone,
+          mobile: contactPersonObj.phone || apiData.phone || prev.mobile,
+          email: contactPersonObj.email || apiData.email || prev.email,
+          website: apiData.website || prev.website,
+          contactPerson: contactPersonObj.name || `${firstName} ${lastName}`.trim() || prev.contactPerson,
+          designation: contactPersonObj.jobTitle || prev.designation,
+          productsServices: sectorArray.join(', ') || prev.productsServices
+        }));
+        
+        // Update first personnel entry
+        setPersonnel(prev => {
+          const updated = [...prev];
+          if (updated.length > 0) {
+            updated[0] = {
+              ...updated[0],
+              name: contactPersonObj.name || `${firstName} ${lastName}`.trim() || updated[0].name,
+              designation: contactPersonObj.jobTitle || updated[0].designation,
+              organisation: apiData.company || apiData.companyName || updated[0].organisation
+            };
+          }
+          return updated;
+        });
+      }
+    } catch (error: any) {
+      console.error('Error fetching exhibitor profile:', error);
+      setApiError(error.message || 'Failed to load profile data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // COMMENTED OUT FETCH BOOTH DATA FUNCTION
+  // Fetch booth data from separate endpoint
+  // const fetchBoothData = async () => {
+  //   try {
+  //     const result = await apiCall('/api/exhibitorDashboard/booth', {
+  //       method: 'GET',
+  //     }).catch(() => null);
+      
+  //     if (result && result.success) {
+  //       const boothData = result.data;
+  //       console.log('Booth data from separate endpoint:', boothData);
+        
+  //       // Check if price is in stallDetails
+  //       let boothPrice = '';
+  //       if (boothData.stallDetails) {
+  //         const stallDetails = typeof boothData.stallDetails === 'string'
+  //           ? JSON.parse(boothData.stallDetails)
+  //           : boothData.stallDetails;
+  //         boothPrice = stallDetails.price || stallDetails.boothPrice || '';
+  //       }
+        
+  //       setLocationDetails(prev => ({
+  //         ...prev,
+  //         hallNo: boothData.hall || prev.hallNo,
+  //         boothNo: boothData.boothNumber || boothData.number || prev.boothNo,
+  //         boothType: (boothData.boothType || boothData.type || prev.boothType) as any
+  //       }));
+        
+  //       setBoothDetails(prev => ({
+  //         ...prev,
+  //         boothNo: boothData.boothNumber || boothData.number || prev.boothNo,
+  //         sqMtrBooked: boothData.boothSize || boothData.size || prev.sqMtrBooked
+  //       }));
+  //     }
+  //   } catch (error) {
+  //     console.log('No separate booth endpoint found or error fetching booth data');
+  //   }
+  // };
+
+  // Fetch all data on component mount
+  useEffect(() => {
+    const loadAllData = async () => {
+      await fetchExhibitorProfile();
+      // await fetchBoothData(); // COMMENTED OUT
+    };
+    
+    loadAllData();
+  }, []);
+
   // ============= AUTO-FILL EFFECT =============
   useEffect(() => {
     // Auto-update booth details when general info changes
@@ -498,22 +850,23 @@ export default function RequirementsPage() {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleLocationChange = (field: keyof LocationDetails, value: any) => {
-    if (field === 'boothSize') {
-      const updatedSize = { ...locationDetails.boothSize, ...value };
-      let area = '';
-      if (updatedSize.length && updatedSize.width) {
-        const areaValue = parseFloat(updatedSize.length) * parseFloat(updatedSize.width);
-        area = areaValue.toFixed(2);
-      }
-      setLocationDetails(prev => ({
-        ...prev,
-        boothSize: { ...updatedSize, area }
-      }));
-    } else {
-      setLocationDetails(prev => ({ ...prev, [field]: value }));
-    }
-  };
+  // COMMENTED OUT LOCATION HANDLER
+  // const handleLocationChange = (field: keyof LocationDetails, value: any) => {
+  //   if (field === 'boothSize') {
+  //     const updatedSize = { ...locationDetails.boothSize, ...value };
+  //     let area = '';
+  //     if (updatedSize.length && updatedSize.width) {
+  //       const areaValue = parseFloat(updatedSize.length) * parseFloat(updatedSize.width);
+  //       area = areaValue.toFixed(2);
+  //     }
+  //     setLocationDetails(prev => ({
+  //       ...prev,
+  //       boothSize: { ...updatedSize, area }
+  //     }));
+  //   } else {
+  //     setLocationDetails(prev => ({ ...prev, [field]: value }));
+  //   }
+  // };
 
   const handleFurnitureQuantity = (index: number, quantity: number) => {
     const updated = [...furnitureItems];
@@ -629,7 +982,7 @@ export default function RequirementsPage() {
     try {
       const formData = new FormData();
       formData.append('generalInfo', JSON.stringify(generalInfo));
-      formData.append('locationDetails', JSON.stringify(locationDetails));
+      // formData.append('locationDetails', JSON.stringify(locationDetails)); // COMMENTED OUT
       formData.append('boothDetails', JSON.stringify(boothDetails));
       formData.append('securityDeposit', JSON.stringify(securityDeposit));
       formData.append('machines', JSON.stringify(machines.filter(m => m.machineName)));
@@ -694,25 +1047,57 @@ export default function RequirementsPage() {
 
   // ============= RENDER FUNCTIONS =============
 
+  // UPDATED STEPS - REMOVED LOCATION (STEP 2) AND RENUMBERED
   const steps = [
     { number: 1, name: 'Basic Info', icon: UserIcon, mobileName: 'Basic' },
-    { number: 2, name: 'Location', icon: MapPinIcon, mobileName: 'Loc' },
-    { number: 3, name: 'Booth', icon: BuildingOfficeIcon, mobileName: 'Booth' },
-    { number: 4, name: 'Security', icon: BanknotesIcon, mobileName: 'Deposit' },
-    { number: 5, name: 'Machines', icon: CubeIcon, mobileName: 'Mach' },
-    { number: 6, name: 'Personnel', icon: UserIcon, mobileName: 'Staff' },
-    { number: 7, name: 'Company', icon: BuildingOfficeIcon, mobileName: 'Co' },
-    { number: 8, name: 'Electrical', icon: BoltIcon, mobileName: 'Elec' },
-    { number: 9, name: 'Furniture', icon: ComputerDesktopIcon, mobileName: 'Furn' },
-    { number: 10, name: 'Hostess', icon: SparklesIcon, mobileName: 'Host' },
-    { number: 11, name: 'Air', icon: WrenchScrewdriverIcon, mobileName: 'Air' },
-    { number: 12, name: 'Water', icon: TruckIcon, mobileName: 'Water' },
-    { number: 13, name: 'Security', icon: ShieldCheckIcon, mobileName: 'Guard' },
-    { number: 14, name: 'AV Rentals', icon: ComputerDesktopIcon, mobileName: 'Rentals' },
-    { number: 15, name: 'Housekeeping', icon: SparklesIcon, mobileName: 'House' }
+    // { number: 2, name: 'Location', icon: MapPinIcon, mobileName: 'Loc' }, // COMMENTED OUT
+    { number: 2, name: 'Booth', icon: BuildingOfficeIcon, mobileName: 'Booth' },
+    { number: 3, name: 'Security', icon: BanknotesIcon, mobileName: 'Deposit' },
+    { number: 4, name: 'Machines', icon: CubeIcon, mobileName: 'Mach' },
+    { number: 5, name: 'Personnel', icon: UserIcon, mobileName: 'Staff' },
+    { number: 6, name: 'Company', icon: BuildingOfficeIcon, mobileName: 'Co' },
+    { number: 7, name: 'Electrical', icon: BoltIcon, mobileName: 'Elec' },
+    { number: 8, name: 'Furniture', icon: ComputerDesktopIcon, mobileName: 'Furn' },
+    { number: 9, name: 'Hostess', icon: SparklesIcon, mobileName: 'Host' },
+    { number: 10, name: 'Air', icon: WrenchScrewdriverIcon, mobileName: 'Air' },
+    { number: 11, name: 'Water', icon: TruckIcon, mobileName: 'Water' },
+    { number: 12, name: 'Security', icon: ShieldCheckIcon, mobileName: 'Guard' },
+    { number: 13, name: 'AV Rentals', icon: ComputerDesktopIcon, mobileName: 'Rentals' },
+    { number: 14, name: 'Housekeeping', icon: SparklesIcon, mobileName: 'House' }
   ];
 
   const totalSteps = steps.length;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-medium">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (apiError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
+          <ExclamationCircleIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Failed to Load Data</h2>
+          <p className="text-gray-600 mb-6">{apiError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ============= FORM 1: GENERAL INFO =============
   const renderGeneralInfo = () => (
@@ -736,7 +1121,7 @@ export default function RequirementsPage() {
               <label className="block text-xs font-medium text-gray-600 mb-1">Title</label>
               <select
                 value={generalInfo.title}
-                onChange={(e) => handleGeneralInfoChange('title', e.target.value)}
+                onChange={(e) => handleGeneralInfoChange('title', e.target.value as any)}
                 className="w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 <option value="Mr">Mr.</option>
@@ -852,170 +1237,16 @@ export default function RequirementsPage() {
         </div>
 
         <p className="text-xs text-gray-500 italic">
-          * Additional company details can be filled in the Company section (Step 7)
+          * Additional company details can be filled in the Company section (Step 6)
         </p>
       </div>
     </div>
   );
 
-  // ============= FORM 2: LOCATION DETAILS =============
-  const renderLocationDetails = () => (
-    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-      <div className="flex items-center mb-6">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <MapPinIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-        </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Location Details</h2>
-      </div>
+  // ============= FORM 2: LOCATION DETAILS (COMMENTED OUT) =============
+  // const renderLocationDetails = () => ( ... ); // COMMENTED OUT
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hall No.</label>
-            <input
-              type="text"
-              value={locationDetails.hallNo}
-              onChange={(e) => handleLocationChange('hallNo', e.target.value)}
-              className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter hall number"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Booth No.</label>
-            <input
-              type="text"
-              value={locationDetails.boothNo}
-              onChange={(e) => handleLocationChange('boothNo', e.target.value)}
-              className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter booth number"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Booth Type</label>
-            <select
-              value={locationDetails.boothType}
-              onChange={(e) => handleLocationChange('boothType', e.target.value)}
-              className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="Shell Scheme">Shell Scheme</option>
-              <option value="Raw Space">Raw Space</option>
-              <option value="Island">Island</option>
-              <option value="Corner">Corner</option>
-              <option value="Inline">Inline</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Booth Size (in meters)</label>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <input
-                type="number"
-                value={locationDetails.boothSize.length}
-                onChange={(e) => handleLocationChange('boothSize', { length: e.target.value })}
-                className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-                placeholder="Length"
-              />
-            </div>
-            <div>
-              <input
-                type="number"
-                value={locationDetails.boothSize.width}
-                onChange={(e) => handleLocationChange('boothSize', { width: e.target.value })}
-                className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-                placeholder="Width"
-              />
-            </div>
-            <div>
-              <input
-                type="text"
-                value={locationDetails.boothSize.area}
-                className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-50"
-                placeholder="Area (sq.m)"
-                readOnly
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Location 1</label>
-            <input
-              type="text"
-              value={locationDetails.preferredLocation1}
-              onChange={(e) => handleLocationChange('preferredLocation1', e.target.value)}
-              className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="Optional"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Location 2</label>
-            <input
-              type="text"
-              value={locationDetails.preferredLocation2}
-              onChange={(e) => handleLocationChange('preferredLocation2', e.target.value)}
-              className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="Optional"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Special Requirements</label>
-          <textarea
-            value={locationDetails.specialRequirements}
-            onChange={(e) => handleLocationChange('specialRequirements', e.target.value)}
-            rows={2}
-            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-            placeholder="Any special requirements..."
-          />
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={locationDetails.access24x7}
-              onChange={(e) => handleLocationChange('access24x7', e.target.checked)}
-              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-700">24x7 Access</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={locationDetails.forkliftRequired}
-              onChange={(e) => handleLocationChange('forkliftRequired', e.target.checked)}
-              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-700">Forklift</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={locationDetails.craneRequired}
-              onChange={(e) => handleLocationChange('craneRequired', e.target.checked)}
-              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-700">Crane</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={locationDetails.vehicleEntry}
-              onChange={(e) => handleLocationChange('vehicleEntry', e.target.checked)}
-              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-700">Vehicle</span>
-          </label>
-        </div>
-      </div>
-    </div>
-  );
-
-  // ============= FORM 3: BOOTH & CONTRACTOR DETAILS =============
+  // ============= FORM 3: BOOTH & CONTRACTOR DETAILS (NOW STEP 2) =============
   const renderBoothDetails = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -1045,7 +1276,7 @@ export default function RequirementsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Exhibitor Name</label>
               <input
                 type="text"
-                value={boothDetails.exhibitorName || `${generalInfo.title} ${generalInfo.firstName} ${generalInfo.lastName}`.trim()}
+                value={boothDetails.exhibitorName}
                 onChange={(e) => setBoothDetails({...boothDetails, exhibitorName: e.target.value})}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from basic info"
@@ -1068,7 +1299,7 @@ export default function RequirementsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Organisation</label>
               <input
                 type="text"
-                value={boothDetails.organisation || generalInfo.companyName}
+                value={boothDetails.organisation}
                 onChange={(e) => setBoothDetails({...boothDetails, organisation: e.target.value})}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from company name"
@@ -1081,7 +1312,7 @@ export default function RequirementsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
               <input
                 type="text"
-                value={boothDetails.contactPerson || `${generalInfo.firstName} ${generalInfo.lastName}`.trim()}
+                value={boothDetails.contactPerson}
                 onChange={(e) => setBoothDetails({...boothDetails, contactPerson: e.target.value})}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from name"
@@ -1094,7 +1325,7 @@ export default function RequirementsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
               <input
                 type="text"
-                value={boothDetails.designation || generalInfo.designation}
+                value={boothDetails.designation}
                 onChange={(e) => setBoothDetails({...boothDetails, designation: e.target.value})}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from designation"
@@ -1107,7 +1338,7 @@ export default function RequirementsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
               <input
                 type="tel"
-                value={boothDetails.mobile || generalInfo.mobile}
+                value={boothDetails.mobile}
                 onChange={(e) => setBoothDetails({...boothDetails, mobile: e.target.value})}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from contact"
@@ -1120,7 +1351,7 @@ export default function RequirementsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Email ID</label>
               <input
                 type="email"
-                value={boothDetails.email || generalInfo.email}
+                value={boothDetails.email}
                 onChange={(e) => setBoothDetails({...boothDetails, email: e.target.value})}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from contact"
@@ -1282,7 +1513,7 @@ export default function RequirementsPage() {
     </div>
   );
 
-  // ============= FORM 4: SECURITY DEPOSIT =============
+  // ============= FORM 4: SECURITY DEPOSIT (NOW STEP 3) =============
   const renderSecurityDeposit = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -1412,7 +1643,7 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
     </div>
   );
 
-  // ============= FORM 5: MACHINES =============
+  // ============= FORM 5: MACHINES (NOW STEP 4) =============
  const renderMachines = () => (
   <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
     <div className="flex items-center justify-between mb-6">
@@ -1557,7 +1788,7 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
   </div>
 );
 
-  // ============= FORM 6: PERSONNEL =============
+  // ============= FORM 6: PERSONNEL (NOW STEP 5) =============
  const renderPersonnel = () => (
   <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
     <div className="flex items-center justify-between mb-6">
@@ -1606,7 +1837,7 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
               <td className="px-3 py-2">
                 <input
                   type="text"
-                  value={person.name || (index === 0 ? `${generalInfo.firstName} ${generalInfo.lastName}`.trim() : '')}
+                  value={person.name}
                   onChange={(e) => {
                     const updated = [...personnel];
                     updated[index].name = e.target.value;
@@ -1623,7 +1854,7 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
               <td className="px-3 py-2">
                 <input
                   type="text"
-                  value={person.designation || (index === 0 ? generalInfo.designation : '')}
+                  value={person.designation}
                   onChange={(e) => {
                     const updated = [...personnel];
                     updated[index].designation = e.target.value;
@@ -1637,7 +1868,7 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
               <td className="px-3 py-2">
                 <input
                   type="text"
-                  value={person.organisation || (index === 0 ? generalInfo.companyName : '')}
+                  value={person.organisation}
                   onChange={(e) => {
                     const updated = [...personnel];
                     updated[index].organisation = e.target.value;
@@ -1671,7 +1902,7 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
   </div>
 );
 
-  // ============= FORM 7: COMPANY DETAILS =============
+  // ============= FORM 7: COMPANY DETAILS (NOW STEP 6) =============
 const renderCompanyDetails = () => (
   <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
     <div className="flex items-center mb-6">
@@ -1695,7 +1926,7 @@ const renderCompanyDetails = () => (
         </label>
         <input
           type="text"
-          value={companyDetails.companyName || generalInfo.companyName}
+          value={companyDetails.companyName}
           onChange={(e) =>
             setCompanyDetails({
               ...companyDetails,
@@ -1752,7 +1983,7 @@ const renderCompanyDetails = () => (
         </label>
         <input
           type="tel"
-          value={companyDetails.mobile || generalInfo.mobile}
+          value={companyDetails.mobile}
           onChange={(e) =>
             setCompanyDetails({
               ...companyDetails,
@@ -1773,7 +2004,7 @@ const renderCompanyDetails = () => (
         </label>
         <input
           type="email"
-          value={companyDetails.email || generalInfo.email}
+          value={companyDetails.email}
           onChange={(e) =>
             setCompanyDetails({
               ...companyDetails,
@@ -1812,7 +2043,7 @@ const renderCompanyDetails = () => (
         </label>
         <input
           type="text"
-          value={companyDetails.contactPerson || `${generalInfo.firstName} ${generalInfo.lastName}`.trim()}
+          value={companyDetails.contactPerson}
           onChange={(e) =>
             setCompanyDetails({
               ...companyDetails,
@@ -1833,7 +2064,7 @@ const renderCompanyDetails = () => (
         </label>
         <input
           type="text"
-          value={companyDetails.designation || generalInfo.designation}
+          value={companyDetails.designation}
           onChange={(e) =>
             setCompanyDetails({
               ...companyDetails,
@@ -1883,7 +2114,7 @@ const renderCompanyDetails = () => (
   </div>
 );
 
-  // ============= FORM 8: ELECTRICAL LOAD =============
+  // ============= FORM 8: ELECTRICAL LOAD (NOW STEP 7) =============
   const renderElectricalLoad = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -2006,7 +2237,7 @@ const renderCompanyDetails = () => (
     </div>
   );
 
-  // ============= FORM 9: FURNITURE (WITH IMAGES) =============
+  // ============= FORM 9: FURNITURE (NOW STEP 8) =============
   const renderFurniture = () => {
     const furnitureTotal = furnitureItems.reduce((sum, item) => sum + item.cost, 0);
     
@@ -2080,7 +2311,7 @@ const renderCompanyDetails = () => (
     );
   };
 
-  // ============= FORM 10: HOSTESS =============
+  // ============= FORM 10: HOSTESS (NOW STEP 9) =============
 const renderHostess = () => {
   const hostessTotal = hostessRequirements.reduce((sum, h) => sum + h.amount, 0);
 
@@ -2177,7 +2408,7 @@ const renderHostess = () => {
   );
 };
 
-  // ============= FORM 11: COMPRESSED AIR =============
+  // ============= FORM 11: COMPRESSED AIR (NOW STEP 10) =============
   const renderCompressedAir = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -2237,7 +2468,7 @@ const renderHostess = () => {
     </div>
   );
 
-  // ============= FORM 12: WATER CONNECTION =============
+  // ============= FORM 12: WATER CONNECTION (NOW STEP 11) =============
   const renderWaterConnection = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -2269,7 +2500,7 @@ const renderHostess = () => {
     </div>
   );
 
-  // ============= FORM 13: SECURITY GUARD =============
+  // ============= FORM 13: SECURITY GUARD (NOW STEP 12) =============
 const renderSecurityGuard = () => (
   <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
     <div className="flex items-center mb-6">
@@ -2349,7 +2580,7 @@ const renderSecurityGuard = () => (
   </div>
 );
 
-  // ============= FORM 14: RENTAL ITEMS (AV & IT) =============
+  // ============= FORM 14: RENTAL ITEMS (AV & IT) (NOW STEP 13) =============
   const renderRentalItems = () => {
     const rentalTotal = Object.values(rentalItems).reduce((sum, item) => sum + item.totalCost, 0);
     
@@ -2411,7 +2642,7 @@ const renderSecurityGuard = () => (
     );
   };
 
-  // ============= FORM 15: HOUSEKEEPING STAFF =============
+  // ============= FORM 15: HOUSEKEEPING STAFF (NOW STEP 14) =============
 const renderHousekeepingStaff = () => {
   return (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
@@ -2553,12 +2784,11 @@ const renderHousekeepingStaff = () => {
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
                   <MapPinIcon className="h-4 w-4 mr-2 text-blue-600" />
-                  Location
+                  Booth
                 </h3>
                 <div className="space-y-1 text-xs">
-                  <p><span className="font-medium">Booth:</span> {locationDetails.boothNo || boothDetails.boothNo}</p>
-                  <p><span className="font-medium">Hall:</span> {locationDetails.hallNo}</p>
-                  <p><span className="font-medium">Size:</span> {locationDetails.boothSize.area || boothDetails.sqMtrBooked} sq.m</p>
+                  <p><span className="font-medium">Booth:</span> {boothDetails.boothNo}</p>
+                  <p><span className="font-medium">Size:</span> {boothDetails.sqMtrBooked} sq.m</p>
                 </div>
               </div>
             </div>
@@ -2813,7 +3043,7 @@ const renderHousekeepingStaff = () => {
           <span className="sm:hidden">Preview</span>
         </button>
         
-        {/* Only show Next button if not on last step (15) */}
+        {/* Only show Next button if not on last step (14) */}
         {currentStep < totalSteps && (
           <button
             onClick={() => setCurrentStep(Math.min(totalSteps, currentStep + 1))}
@@ -2920,20 +3150,19 @@ const renderHousekeepingStaff = () => {
         {/* Render Forms Based on Current Step */}
         <div className="mt-4">
           {currentStep === 1 && renderGeneralInfo()}
-          {currentStep === 2 && renderLocationDetails()}
-          {currentStep === 3 && renderBoothDetails()}
-          {currentStep === 4 && renderSecurityDeposit()}
-          {currentStep === 5 && renderMachines()}
-          {currentStep === 6 && renderPersonnel()}
-          {currentStep === 7 && renderCompanyDetails()}
-          {currentStep === 8 && renderElectricalLoad()}
-          {currentStep === 9 && renderFurniture()}
-          {currentStep === 10 && renderHostess()}
-          {currentStep === 11 && renderCompressedAir()}
-          {currentStep === 12 && renderWaterConnection()}
-          {currentStep === 13 && renderSecurityGuard()}
-          {currentStep === 14 && renderRentalItems()}
-          {currentStep === 15 && renderHousekeepingStaff()}
+          {currentStep === 2 && renderBoothDetails()}
+          {currentStep === 3 && renderSecurityDeposit()}
+          {currentStep === 4 && renderMachines()}
+          {currentStep === 5 && renderPersonnel()}
+          {currentStep === 6 && renderCompanyDetails()}
+          {currentStep === 7 && renderElectricalLoad()}
+          {currentStep === 8 && renderFurniture()}
+          {currentStep === 9 && renderHostess()}
+          {currentStep === 10 && renderCompressedAir()}
+          {currentStep === 11 && renderWaterConnection()}
+          {currentStep === 12 && renderSecurityGuard()}
+          {currentStep === 13 && renderRentalItems()}
+          {currentStep === 14 && renderHousekeepingStaff()}
         </div>
 
         {/* Navigation - Bottom */}
