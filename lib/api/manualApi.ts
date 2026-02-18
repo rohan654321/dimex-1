@@ -48,9 +48,29 @@ export class ApiError extends Error {
 
 class ManualApi {
   private baseURL: string;
+  private token: string | null = null;
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://diemex-backend.onrender.com';
+  }
+
+  // Set auth token for subsequent requests
+  setAuthToken(token: string | null) {
+    this.token = token;
+    console.log('🔑 ManualApi token set:', token ? 'Token present' : 'null');
+  }
+
+  // Get headers with authorization if token exists
+  private getHeaders(includeAuth: boolean = true): HeadersInit {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (includeAuth && this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    
+    return headers;
   }
 
   // Get all manuals (combines text sections and PDFs)
@@ -74,9 +94,7 @@ class ManualApi {
       }
 
       const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getHeaders(false), // Public endpoint, no auth needed
       });
 
       if (!response.ok) {
@@ -98,9 +116,7 @@ class ManualApi {
   async getStatistics(): Promise<ApiResponse<ManualStatistics>> {
     try {
       const response = await fetch(`${this.baseURL}/api/manuals/admin/statistics`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getHeaders(false), // Public endpoint, no auth needed
       });
 
       if (!response.ok) {
@@ -138,12 +154,10 @@ class ManualApi {
 
   // Create manual (for PDF uploads)
   async createManual(formData: FormData): Promise<ApiResponse<Manual>> {
-    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-    
     const response = await fetch(`${this.baseURL}/api/manuals`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${this.token}`, // Use stored token
       },
       body: formData,
     });
@@ -158,14 +172,9 @@ class ManualApi {
 
   // Create text section
   async createSection(data: { title: string; content: string; category: string }): Promise<ApiResponse<Manual>> {
-    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-    
     const response = await fetch(`${this.baseURL}/api/manuals/sections`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: this.getHeaders(true), // Include auth
       body: JSON.stringify(data),
     });
 
@@ -179,12 +188,10 @@ class ManualApi {
 
   // Update manual
   async updateManual(id: string, formData: FormData): Promise<ApiResponse<Manual>> {
-    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-    
     const response = await fetch(`${this.baseURL}/api/manuals/${id}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${this.token}`, // Use stored token
       },
       body: formData,
     });
@@ -199,13 +206,9 @@ class ManualApi {
 
   // Delete manual
   async deleteManual(id: string): Promise<ApiResponse<null>> {
-    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-    
     const response = await fetch(`${this.baseURL}/api/manuals/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: this.getHeaders(true), // Include auth
     });
 
     if (!response.ok) {
@@ -218,13 +221,9 @@ class ManualApi {
 
   // Delete section
   async deleteSection(id: string): Promise<ApiResponse<null>> {
-    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-    
     const response = await fetch(`${this.baseURL}/api/manuals/sections/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: this.getHeaders(true), // Include auth
     });
 
     if (!response.ok) {
@@ -234,14 +233,33 @@ class ManualApi {
 
     return response.json();
   }
+  // Add this method to your ManualApi class
+async getManual(id: string): Promise<ApiResponse<Manual>> {
+  try {
+    const response = await fetch(`${this.baseURL}/api/manuals/${id}`, {
+      headers: this.getHeaders(false), // Public endpoint, no auth needed for viewing
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new ApiError(404, 'Manual not found');
+      }
+      throw new ApiError(response.status, await response.text());
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching manual:', error);
+    throw error;
+  }
+}
 
   // Download manual
   async downloadManual(id: string): Promise<{ success: boolean; downloadUrl?: string }> {
     try {
       const response = await fetch(`${this.baseURL}/api/manuals/${id}/download`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getHeaders(false), // Public endpoint, no auth needed
       });
 
       if (!response.ok) {
