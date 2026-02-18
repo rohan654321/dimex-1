@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  PlusIcon, 
-  CheckCircleIcon, 
-  ClockIcon, 
+import {
+  PlusIcon,
+  CheckCircleIcon,
+  ClockIcon,
   XCircleIcon,
   BuildingOfficeIcon,
   UserIcon,
@@ -50,26 +50,6 @@ interface GeneralInfo {
   businessNature: string;
   gstNumber: string;
 }
-
-// COMMENTED OUT LOCATION INTERFACE
-// interface LocationDetails {
-//   hallNo: string;
-//   boothNo: string;
-//   boothType: 'Shell Scheme' | 'Raw Space' | 'Island' | 'Corner' | 'Inline';
-//   boothSize: {
-//     length: string;
-//     width: string;
-//     area: string;
-//   };
-//   preferredLocation1: string;
-//   preferredLocation2: string;
-//   preferredLocation3: string;
-//   specialRequirements: string;
-//   access24x7: boolean;
-//   forkliftRequired: boolean;
-//   craneRequired: boolean;
-//   vehicleEntry: boolean;
-// }
 
 interface BoothDetails {
   boothNo: string;
@@ -252,6 +232,7 @@ export default function RequirementsPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Form 1 - General Information
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
@@ -266,24 +247,7 @@ export default function RequirementsPage() {
     gstNumber: ''
   });
 
-  // COMMENTED OUT LOCATION DETAILS STATE
-  // Form 2 - Location Details
-  // const [locationDetails, setLocationDetails] = useState<LocationDetails>({
-  //   hallNo: '',
-  //   boothNo: '',
-  //   boothType: 'Shell Scheme',
-  //   boothSize: { length: '', width: '', area: '' },
-  //   preferredLocation1: '',
-  //   preferredLocation2: '',
-  //   preferredLocation3: '',
-  //   specialRequirements: '',
-  //   access24x7: false,
-  //   forkliftRequired: false,
-  //   craneRequired: false,
-  //   vehicleEntry: false
-  // });
-
-  // Form 3 - Booth Details
+  // Form 2 - Booth Details
   const [boothDetails, setBoothDetails] = useState<BoothDetails>({
     boothNo: '',
     exhibitorName: '',
@@ -301,7 +265,7 @@ export default function RequirementsPage() {
     contractorPAN: ''
   });
 
-  // Form 4 - Security Deposit
+  // Form 3 - Security Deposit
   const [securityDeposit, setSecurityDeposit] = useState<SecurityDeposit>({
     boothSq: '',
     amountINR: 0,
@@ -313,21 +277,21 @@ export default function RequirementsPage() {
     amountWords: ''
   });
 
-  // Form 5 - Machine Display
+  // Form 4 - Machine Display (Optional)
   const [machines, setMachines] = useState<MachineDisplay[]>([
     { srNo: 1, machineName: '', width: '', length: '', height: '', weight: '' },
     { srNo: 2, machineName: '', width: '', length: '', height: '', weight: '' },
     { srNo: 3, machineName: '', width: '', length: '', height: '', weight: '' }
   ]);
 
-  // Form 6 - Personnel
+  // Form 5 - Personnel (Required)
   const [personnel, setPersonnel] = useState<Personnel[]>([
     { srNo: 1, name: '', designation: '', organisation: '' },
     { srNo: 2, name: '', designation: '', organisation: '' },
     { srNo: 3, name: '', designation: '', organisation: '' }
   ]);
 
-  // Form 7 - Company Details
+  // Form 6 - Company Details (Required)
   const [companyDetails, setCompanyDetails] = useState<CompanyDetails>({
     companyName: '',
     address: '',
@@ -340,7 +304,7 @@ export default function RequirementsPage() {
     productsServices: ''
   });
 
-  // Form 8 - Electrical Load
+  // Form 7 - Electrical Load (Optional)
   const [electricalLoad, setElectricalLoad] = useState<ElectricalLoad>({
     temporaryLoad: '',
     exhibitionLoad: '',
@@ -348,16 +312,16 @@ export default function RequirementsPage() {
     exhibitionTotal: 0
   });
 
-  // Form 9 - Furniture
+  // Form 8 - Furniture (Optional)
   const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>(furnitureCatalog);
 
-  // Form 10 - Hostess
+  // Form 9 - Hostess (Optional)
   const [hostessRequirements, setHostessRequirements] = useState<HostessRequirement[]>([
     { category: 'A', quantity: 0, noOfDays: 0, amount: 0 },
     { category: 'B', quantity: 0, noOfDays: 0, amount: 0 }
   ]);
 
-  // Form 11 - Compressed Air
+  // Form 10 - Compressed Air (Optional)
   const [compressedAir, setCompressedAir] = useState<CompressedAir>({
     selected: '',
     cfmRange: '',
@@ -368,21 +332,21 @@ export default function RequirementsPage() {
     totalCost: 0
   });
 
-  // Form 12 - Water Connection
+  // Form 11 - Water Connection (Optional)
   const [waterConnection, setWaterConnection] = useState<WaterConnection>({
     connections: 0,
     costPerConnection: 15000,
     totalCost: 0
   });
 
-  // Form 13 - Security Guard
+  // Form 12 - Security Guard (Optional)
   const [securityGuard, setSecurityGuard] = useState<SecurityGuard>({
     quantity: 0,
     noOfDays: 0,
     totalCost: 0
   });
 
-  // Form 14 - Rental Items (AV & IT)
+  // Form 13 - Rental Items (AV & IT) (Optional)
   const [rentalItems, setRentalItems] = useState<RentalItems>({
     lcdProjector: { description: 'LCD Projector (XGA 3000 ASNI Lumens)', costFor3Days: 20000, quantity: 0, totalCost: 0 },
     laptop: { description: 'Laptop with Accessories', costFor3Days: 4000, quantity: 0, totalCost: 0 },
@@ -394,7 +358,7 @@ export default function RequirementsPage() {
     tv55: { description: 'LCD / LED TV 55"', costFor3Days: 25000, quantity: 0, totalCost: 0 }
   });
 
-  // Form 15 - Housekeeping Staff
+  // Form 14 - Housekeeping Staff (Optional)
   const [housekeepingStaff, setHousekeepingStaff] = useState<HousekeepingStaff>({
     quantity: 0,
     category: 'Housekeeping',
@@ -413,14 +377,152 @@ export default function RequirementsPage() {
     uploadedReceipt: null
   });
 
+  // ============= VALIDATION FUNCTIONS =============
+  const validateStep = (step: number): { isValid: boolean; message: string } => {
+    switch (step) {
+      case 1: // Basic Info
+        if (!generalInfo.firstName?.trim()) {
+          return { isValid: false, message: 'Please enter your first name' };
+        }
+        if (!generalInfo.lastName?.trim()) {
+          return { isValid: false, message: 'Please enter your last name' };
+        }
+        if (!generalInfo.mobile?.trim()) {
+          return { isValid: false, message: 'Please enter your mobile number' };
+        }
+        if (!generalInfo.email?.trim()) {
+          return { isValid: false, message: 'Please enter your email address' };
+        }
+        if (!generalInfo.companyName?.trim()) {
+          return { isValid: false, message: 'Please enter your company name' };
+        }
+        return { isValid: true, message: '' };
+
+      case 2: // Booth Details
+        if (!boothDetails.boothNo?.trim()) {
+          return { isValid: false, message: 'Please enter booth number' };
+        }
+        if (!boothDetails.exhibitorName?.trim()) {
+          return { isValid: false, message: 'Please enter exhibitor name' };
+        }
+        if (!boothDetails.sqMtrBooked?.trim()) {
+          return { isValid: false, message: 'Please enter square meters booked' };
+        }
+        if (!boothDetails.organisation?.trim()) {
+          return { isValid: false, message: 'Please enter organisation name' };
+        }
+        if (!boothDetails.contactPerson?.trim()) {
+          return { isValid: false, message: 'Please enter contact person name' };
+        }
+        if (!boothDetails.designation?.trim()) {
+          return { isValid: false, message: 'Please enter designation' };
+        }
+        if (!boothDetails.mobile?.trim()) {
+          return { isValid: false, message: 'Please enter mobile number' };
+        }
+        if (!boothDetails.email?.trim()) {
+          return { isValid: false, message: 'Please enter email address' };
+        }
+        if (!boothDetails.contractorCompany?.trim()) {
+          return { isValid: false, message: 'Please enter contractor company name' };
+        }
+        if (!boothDetails.contractorPerson?.trim()) {
+          return { isValid: false, message: 'Please enter contractor person name' };
+        }
+        if (!boothDetails.contractorMobile?.trim()) {
+          return { isValid: false, message: 'Please enter contractor mobile number' };
+        }
+        if (!boothDetails.contractorEmail?.trim()) {
+          return { isValid: false, message: 'Please enter contractor email' };
+        }
+        if (!boothDetails.contractorGST?.trim()) {
+          return { isValid: false, message: 'Please enter contractor GST number' };
+        }
+        return { isValid: true, message: '' };
+
+      case 3: // Security Deposit
+        if (!securityDeposit.boothSq) {
+          return { isValid: false, message: 'Please select a security deposit amount' };
+        }
+        return { isValid: true, message: '' };
+
+      case 4: // Machines (Optional)
+        return { isValid: true, message: '' };
+
+      case 5: // Personnel (Required)
+        // At least one personnel with name is required
+        const hasValidPersonnel = personnel.some(p => p.name?.trim());
+        if (!hasValidPersonnel) {
+          return { isValid: false, message: 'Please add at least one personnel/exhibitor' };
+        }
+        return { isValid: true, message: '' };
+
+      case 6: // Company Details (Required)
+        if (!companyDetails.companyName?.trim()) {
+          return { isValid: false, message: 'Please enter company name' };
+        }
+        if (!companyDetails.address?.trim()) {
+          return { isValid: false, message: 'Please enter company address' };
+        }
+        if (!companyDetails.productsServices?.trim()) {
+          return { isValid: false, message: 'Please enter products/services for exhibitor guide' };
+        }
+        return { isValid: true, message: '' };
+
+      case 7: // Electrical Load (Optional)
+        return { isValid: true, message: '' };
+
+      case 8: // Furniture (Optional)
+        return { isValid: true, message: '' };
+
+      case 9: // Hostess (Optional)
+        return { isValid: true, message: '' };
+
+      case 10: // Compressed Air (Optional)
+        return { isValid: true, message: '' };
+
+      case 11: // Water Connection (Optional)
+        return { isValid: true, message: '' };
+
+      case 12: // Security Guard (Optional)
+        return { isValid: true, message: '' };
+
+      case 13: // Rental Items (Optional)
+        return { isValid: true, message: '' };
+
+      case 14: // Housekeeping (Optional)
+        return { isValid: true, message: '' };
+
+      default:
+        return { isValid: true, message: '' };
+    }
+  };
+
+  const handleNextStep = () => {
+    const validation = validateStep(currentStep);
+    if (!validation.isValid) {
+      setValidationError(validation.message);
+      // Auto-hide error after 5 seconds
+      setTimeout(() => setValidationError(null), 5000);
+      return;
+    }
+    setValidationError(null);
+    setCurrentStep(Math.min(totalSteps, currentStep + 1));
+  };
+
+  const handlePreviousStep = () => {
+    setValidationError(null);
+    setCurrentStep(Math.max(1, currentStep - 1));
+  };
+
   // ============= API FUNCTIONS =============
   const apiCall = async (endpoint: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-    
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
-    
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -454,16 +556,16 @@ export default function RequirementsPage() {
     try {
       setLoading(true);
       setApiError(null);
-      
+
       const result = await apiCall('/api/exhibitorDashboard/profile');
-      
+
       console.log('Raw API response:', result);
-      
+
       if (result.success) {
         const apiData = result.data;
-        
+
         console.log('API Data contactPerson:', apiData.contactPerson);
-        
+
         // Initialize contact person object
         let contactPersonObj = {
           name: '',
@@ -472,7 +574,7 @@ export default function RequirementsPage() {
           phone: '',
           alternatePhone: ''
         };
-        
+
         // Parse contact person data
         if (apiData.contactPerson) {
           if (typeof apiData.contactPerson === 'string') {
@@ -485,7 +587,7 @@ export default function RequirementsPage() {
             contactPersonObj = apiData.contactPerson;
           }
         }
-        
+
         // Also check for direct fields if contactPerson is empty
         if (!contactPersonObj.name && apiData.name) {
           contactPersonObj.name = apiData.name;
@@ -499,45 +601,45 @@ export default function RequirementsPage() {
         if (!contactPersonObj.jobTitle && apiData.contact_job_title) {
           contactPersonObj.jobTitle = apiData.contact_job_title;
         }
-        
+
         console.log('Parsed contact person:', contactPersonObj);
-        
+
         // Parse name into title, first name, last name
         let title: 'Mr' | 'Mrs' | 'Ms' | 'Dr' | 'Prof' = 'Mr';
         let firstName = '';
         let lastName = '';
-        
+
         if (contactPersonObj.name) {
           const fullName = contactPersonObj.name;
           console.log('Full name from contact person:', fullName);
-          
+
           // Try to detect title
           if (fullName.includes('Dr.')) title = 'Dr';
           else if (fullName.includes('Prof.')) title = 'Prof';
           else if (fullName.includes('Mrs.')) title = 'Mrs';
           else if (fullName.includes('Ms.')) title = 'Ms';
-          
+
           // Remove title from name if present
           let nameWithoutTitle = fullName
             .replace(/^(Dr\.|Prof\.|Mrs\.|Ms\.|Mr\.)\s*/i, '')
             .trim();
-          
+
           const nameParts = nameWithoutTitle.split(' ');
           if (nameParts.length > 0) {
             firstName = nameParts[0] || '';
             lastName = nameParts.slice(1).join(' ') || '';
           }
         }
-        
+
         // If we still don't have first name, try to use exhibitor name from company
         if (!firstName && apiData.name) {
           const nameParts = apiData.name.split(' ');
           firstName = nameParts[0] || '';
           lastName = nameParts.slice(1).join(' ') || '';
         }
-        
+
         console.log('Parsed name - Title:', title, 'First:', firstName, 'Last:', lastName);
-        
+
         // Update general info with ALL contact person details
         setGeneralInfo(prev => ({
           ...prev,
@@ -548,12 +650,12 @@ export default function RequirementsPage() {
           mobile: contactPersonObj.phone || apiData.phone || prev.mobile || '',
           email: contactPersonObj.email || apiData.email || prev.email || '',
           companyName: apiData.company || apiData.companyName || prev.companyName || '',
-          businessNature: apiData.sector ? 
-            (typeof apiData.sector === 'string' ? apiData.sector.split(',')[0] : apiData.sector[0]) : 
+          businessNature: apiData.sector ?
+            (typeof apiData.sector === 'string' ? apiData.sector.split(',')[0] : apiData.sector[0]) :
             prev.businessNature,
           gstNumber: apiData.registrationNumber || apiData.gstNumber || prev.gstNumber || ''
         }));
-        
+
         // Parse address
         let addressObj = {
           street: '',
@@ -563,7 +665,7 @@ export default function RequirementsPage() {
           countryCode: '',
           postalCode: ''
         };
-        
+
         if (apiData.address) {
           if (typeof apiData.address === 'string') {
             const parts = apiData.address.split(',').map((p: string) => p.trim());
@@ -577,7 +679,7 @@ export default function RequirementsPage() {
             };
           }
         }
-        
+
         // Parse sector string back into array
         let sectorArray: string[] = [];
         if (apiData.sector) {
@@ -587,7 +689,7 @@ export default function RequirementsPage() {
             sectorArray = apiData.sector;
           }
         }
-        
+
         // Parse exhibition JSON string
         let exhibitionObj = {
           pavilion: '',
@@ -595,7 +697,7 @@ export default function RequirementsPage() {
           standNumber: '',
           floorPlanUrl: ''
         };
-        
+
         if (apiData.exhibition) {
           if (typeof apiData.exhibition === 'string') {
             try {
@@ -613,52 +715,24 @@ export default function RequirementsPage() {
             exhibitionObj = apiData.exhibition;
           }
         }
-        
+
         // Parse stallDetails for booth info
         let boothSize = '';
         let boothType = '';
         let boothDimensions = '';
         let boothPrice = '';
-        
+
         if (apiData.stallDetails) {
           const stallDetails = typeof apiData.stallDetails === 'string'
             ? JSON.parse(apiData.stallDetails)
             : apiData.stallDetails;
-          
+
           boothSize = stallDetails.size || '';
           boothType = stallDetails.type || '';
           boothDimensions = stallDetails.dimensions || '';
           boothPrice = stallDetails.price || '';
         }
-        
-        // COMMENTED OUT LOCATION DETAILS UPDATE
-        // Update location details
-        // setLocationDetails(prev => ({
-        //   ...prev,
-        //   hallNo: exhibitionObj.hall || prev.hallNo,
-        //   boothNo: exhibitionObj.standNumber || apiData.boothNumber || prev.boothNo
-        // }));
-        
-        // Parse booth size if available
-        // if (boothDimensions || boothSize) {
-        //   const dimensions = boothDimensions || boothSize;
-        //   const dimensionParts = dimensions.match(/(\d+(?:\.\d+)?)/g);
-        //   if (dimensionParts && dimensionParts.length >= 2) {
-        //     const length = dimensionParts[0];
-        //     const width = dimensionParts[1];
-        //     const area = (parseFloat(length) * parseFloat(width)).toFixed(2);
-            
-        //     setLocationDetails(prev => ({
-        //       ...prev,
-        //       boothSize: {
-        //         length,
-        //         width,
-        //         area
-        //       }
-        //     }));
-        //   }
-        // }
-        
+
         // Update booth details with all contact info
         setBoothDetails(prev => ({
           ...prev,
@@ -671,7 +745,7 @@ export default function RequirementsPage() {
           mobile: contactPersonObj.phone || apiData.phone || prev.mobile,
           email: contactPersonObj.email || apiData.email || prev.email
         }));
-        
+
         // Update company details
         setCompanyDetails(prev => ({
           ...prev,
@@ -685,7 +759,7 @@ export default function RequirementsPage() {
           designation: contactPersonObj.jobTitle || prev.designation,
           productsServices: sectorArray.join(', ') || prev.productsServices
         }));
-        
+
         // Update first personnel entry
         setPersonnel(prev => {
           const updated = [...prev];
@@ -708,52 +782,12 @@ export default function RequirementsPage() {
     }
   };
 
-  // COMMENTED OUT FETCH BOOTH DATA FUNCTION
-  // Fetch booth data from separate endpoint
-  // const fetchBoothData = async () => {
-  //   try {
-  //     const result = await apiCall('/api/exhibitorDashboard/booth', {
-  //       method: 'GET',
-  //     }).catch(() => null);
-      
-  //     if (result && result.success) {
-  //       const boothData = result.data;
-  //       console.log('Booth data from separate endpoint:', boothData);
-        
-  //       // Check if price is in stallDetails
-  //       let boothPrice = '';
-  //       if (boothData.stallDetails) {
-  //         const stallDetails = typeof boothData.stallDetails === 'string'
-  //           ? JSON.parse(boothData.stallDetails)
-  //           : boothData.stallDetails;
-  //         boothPrice = stallDetails.price || stallDetails.boothPrice || '';
-  //       }
-        
-  //       setLocationDetails(prev => ({
-  //         ...prev,
-  //         hallNo: boothData.hall || prev.hallNo,
-  //         boothNo: boothData.boothNumber || boothData.number || prev.boothNo,
-  //         boothType: (boothData.boothType || boothData.type || prev.boothType) as any
-  //       }));
-        
-  //       setBoothDetails(prev => ({
-  //         ...prev,
-  //         boothNo: boothData.boothNumber || boothData.number || prev.boothNo,
-  //         sqMtrBooked: boothData.boothSize || boothData.size || prev.sqMtrBooked
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     console.log('No separate booth endpoint found or error fetching booth data');
-  //   }
-  // };
-
   // Fetch all data on component mount
   useEffect(() => {
     const loadAllData = async () => {
       await fetchExhibitorProfile();
-      // await fetchBoothData(); // COMMENTED OUT
     };
-    
+
     loadAllData();
   }, []);
 
@@ -797,7 +831,7 @@ export default function RequirementsPage() {
   }, [generalInfo]);
 
   // ============= CALCULATIONS =============
-  
+
   const calculateTotals = () => {
     const furnitureTotal = furnitureItems.reduce((sum, item) => sum + item.cost, 0);
     const hostessTotal = hostessRequirements.reduce((sum, h) => sum + h.amount, 0);
@@ -812,7 +846,7 @@ export default function RequirementsPage() {
     const depositAmount = securityDeposit.amountINR || 0;
 
     // Subtotal (WITHOUT GST)
-    const subtotal =
+    const servicesTotal =
       furnitureTotal +
       hostessTotal +
       electricalTotal +
@@ -823,10 +857,13 @@ export default function RequirementsPage() {
       housekeepingTotal;
 
     // GST @ 18%
-    const gst = subtotal * 0.18;
+    const gst = servicesTotal * 0.18;
 
-    // Grand Total (Subtotal + GST + Deposit)
-    const grandTotal = subtotal + gst + depositAmount;
+    // Subtotal INCLUDING GST
+    const subtotal = servicesTotal + gst;
+
+    // Final Grand Total (Add Security Deposit)
+    const grandTotal = subtotal + depositAmount;
 
     return {
       furniture: furnitureTotal,
@@ -838,35 +875,18 @@ export default function RequirementsPage() {
       rental: rentalTotal,
       housekeeping: housekeepingTotal,
       deposit: depositAmount,
-      subtotal,
+      servicesTotal,
       gst,
+      subtotal,
       total: grandTotal
     };
   };
 
   // ============= HANDLERS =============
-  
+
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: any) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
-
-  // COMMENTED OUT LOCATION HANDLER
-  // const handleLocationChange = (field: keyof LocationDetails, value: any) => {
-  //   if (field === 'boothSize') {
-  //     const updatedSize = { ...locationDetails.boothSize, ...value };
-  //     let area = '';
-  //     if (updatedSize.length && updatedSize.width) {
-  //       const areaValue = parseFloat(updatedSize.length) * parseFloat(updatedSize.width);
-  //       area = areaValue.toFixed(2);
-  //     }
-  //     setLocationDetails(prev => ({
-  //       ...prev,
-  //       boothSize: { ...updatedSize, area }
-  //     }));
-  //   } else {
-  //     setLocationDetails(prev => ({ ...prev, [field]: value }));
-  //   }
-  // };
 
   const handleFurnitureQuantity = (index: number, quantity: number) => {
     const updated = [...furnitureItems];
@@ -908,7 +928,7 @@ export default function RequirementsPage() {
 
   const handleCompressedAirSelect = (option: any) => {
     const totalCost = option.costPerConnection + (option.powerKW * 3500);
-    
+
     setCompressedAir({
       ...compressedAir,
       selected: option.cfmRange,
@@ -923,7 +943,7 @@ export default function RequirementsPage() {
   const handleElectricalLoadChange = (type: 'temporary' | 'exhibition', value: string) => {
     const loadValue = parseFloat(value) || 0;
     const total = loadValue * 3500;
-    
+
     if (type === 'temporary') {
       setElectricalLoad(prev => ({
         ...prev,
@@ -978,11 +998,10 @@ export default function RequirementsPage() {
 
   const handleSubmitApplication = async () => {
     setIsSubmitting(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('generalInfo', JSON.stringify(generalInfo));
-      // formData.append('locationDetails', JSON.stringify(locationDetails)); // COMMENTED OUT
       formData.append('boothDetails', JSON.stringify(boothDetails));
       formData.append('securityDeposit', JSON.stringify(securityDeposit));
       formData.append('machines', JSON.stringify(machines.filter(m => m.machineName)));
@@ -997,18 +1016,18 @@ export default function RequirementsPage() {
       formData.append('rentalItems', JSON.stringify(rentalItems));
       formData.append('housekeepingStaff', JSON.stringify(housekeepingStaff));
       formData.append('paymentDetails', JSON.stringify({ ...paymentDetails, uploadedReceipt: null }));
-      
+
       if (paymentDetails.uploadedReceipt) {
         formData.append('receipt', paymentDetails.uploadedReceipt);
       }
 
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       console.log('Application submitted successfully');
       alert('Your exhibition registration has been submitted successfully!');
-      
+
       window.location.href = '/dashboard/requirements/success';
-      
+
     } catch (error) {
       console.error('Submission failed:', error);
       alert('Failed to submit application. Please try again.');
@@ -1049,21 +1068,20 @@ export default function RequirementsPage() {
 
   // UPDATED STEPS - REMOVED LOCATION (STEP 2) AND RENUMBERED
   const steps = [
-    { number: 1, name: 'Basic Info', icon: UserIcon, mobileName: 'Basic' },
-    // { number: 2, name: 'Location', icon: MapPinIcon, mobileName: 'Loc' }, // COMMENTED OUT
-    { number: 2, name: 'Booth', icon: BuildingOfficeIcon, mobileName: 'Booth' },
-    { number: 3, name: 'Security', icon: BanknotesIcon, mobileName: 'Deposit' },
-    { number: 4, name: 'Machines', icon: CubeIcon, mobileName: 'Mach' },
-    { number: 5, name: 'Personnel', icon: UserIcon, mobileName: 'Staff' },
-    { number: 6, name: 'Company', icon: BuildingOfficeIcon, mobileName: 'Co' },
-    { number: 7, name: 'Electrical', icon: BoltIcon, mobileName: 'Elec' },
-    { number: 8, name: 'Furniture', icon: ComputerDesktopIcon, mobileName: 'Furn' },
-    { number: 9, name: 'Hostess', icon: SparklesIcon, mobileName: 'Host' },
-    { number: 10, name: 'Air', icon: WrenchScrewdriverIcon, mobileName: 'Air' },
-    { number: 11, name: 'Water', icon: TruckIcon, mobileName: 'Water' },
-    { number: 12, name: 'Security', icon: ShieldCheckIcon, mobileName: 'Guard' },
-    { number: 13, name: 'AV Rentals', icon: ComputerDesktopIcon, mobileName: 'Rentals' },
-    { number: 14, name: 'Housekeeping', icon: SparklesIcon, mobileName: 'House' }
+    { number: 1, name: 'Basic Info', icon: UserIcon, mobileName: 'Basic', required: true },
+    { number: 2, name: 'Booth', icon: BuildingOfficeIcon, mobileName: 'Booth', required: true },
+    { number: 3, name: 'Security', icon: BanknotesIcon, mobileName: 'Deposit', required: true },
+    { number: 4, name: 'Machines', icon: CubeIcon, mobileName: 'Mach', required: false },
+    { number: 5, name: 'Personnel', icon: UserIcon, mobileName: 'Staff', required: true },
+    { number: 6, name: 'Company', icon: BuildingOfficeIcon, mobileName: 'Co', required: true },
+    { number: 7, name: 'Electrical', icon: BoltIcon, mobileName: 'Elec', required: false },
+    { number: 8, name: 'Furniture', icon: ComputerDesktopIcon, mobileName: 'Furn', required: false },
+    { number: 9, name: 'Hostess', icon: SparklesIcon, mobileName: 'Host', required: false },
+    { number: 10, name: 'Air', icon: WrenchScrewdriverIcon, mobileName: 'Air', required: false },
+    { number: 11, name: 'Water', icon: TruckIcon, mobileName: 'Water', required: false },
+    { number: 12, name: 'Security', icon: ShieldCheckIcon, mobileName: 'Guard', required: false },
+    { number: 13, name: 'AV Rentals', icon: ComputerDesktopIcon, mobileName: 'Rentals', required: false },
+    { number: 14, name: 'Housekeeping', icon: SparklesIcon, mobileName: 'House', required: false }
   ];
 
   const totalSteps = steps.length;
@@ -1107,6 +1125,9 @@ export default function RequirementsPage() {
           <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Basic Information</h2>
+        {steps[0].required && (
+          <span className="ml-3 bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">Required</span>
+        )}
       </div>
 
       <div className="space-y-6">
@@ -1132,7 +1153,7 @@ export default function RequirementsPage() {
               </select>
             </div>
             <div className="col-span-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">First Name</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">First Name *</label>
               <input
                 type="text"
                 value={generalInfo.firstName}
@@ -1142,7 +1163,7 @@ export default function RequirementsPage() {
               />
             </div>
             <div className="col-span-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Last Name</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Last Name *</label>
               <input
                 type="text"
                 value={generalInfo.lastName}
@@ -1152,7 +1173,7 @@ export default function RequirementsPage() {
               />
             </div>
             <div className="col-span-2 lg:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Designation</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Designation *</label>
               <input
                 type="text"
                 value={generalInfo.designation}
@@ -1173,7 +1194,7 @@ export default function RequirementsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Mobile</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Mobile *</label>
                 <input
                   type="tel"
                   value={generalInfo.mobile}
@@ -1183,7 +1204,7 @@ export default function RequirementsPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Email *</label>
                 <input
                   type="email"
                   value={generalInfo.email}
@@ -1204,7 +1225,7 @@ export default function RequirementsPage() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Company Name</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Company Name *</label>
               <input
                 type="text"
                 value={generalInfo.companyName}
@@ -1243,10 +1264,7 @@ export default function RequirementsPage() {
     </div>
   );
 
-  // ============= FORM 2: LOCATION DETAILS (COMMENTED OUT) =============
-  // const renderLocationDetails = () => ( ... ); // COMMENTED OUT
-
-  // ============= FORM 3: BOOTH & CONTRACTOR DETAILS (NOW STEP 2) =============
+  // ============= FORM 2: BOOTH & CONTRACTOR DETAILS =============
   const renderBoothDetails = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -1254,8 +1272,11 @@ export default function RequirementsPage() {
           <BuildingOfficeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">REGISTRATION OF CONTRACTOR
-<br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>FOR BARE SPACE EXHIBITORS (MANDATORY)</span>
-</h2>
+          <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>FOR BARE SPACE EXHIBITORS (MANDATORY)</span>
+        </h2>
+        {steps[1].required && (
+          <span className="ml-3 bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">Required</span>
+        )}
       </div>
 
       <div className="space-y-6">
@@ -1263,21 +1284,21 @@ export default function RequirementsPage() {
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Booth Details</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Booth No.</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Booth No. *</label>
               <input
                 type="text"
                 value={boothDetails.boothNo}
-                onChange={(e) => setBoothDetails({...boothDetails, boothNo: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, boothNo: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter booth number"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Exhibitor Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Exhibitor Name *</label>
               <input
                 type="text"
                 value={boothDetails.exhibitorName}
-                onChange={(e) => setBoothDetails({...boothDetails, exhibitorName: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, exhibitorName: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from basic info"
               />
@@ -1286,21 +1307,21 @@ export default function RequirementsPage() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sq. Mtr Booked</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Sq. Mtr Booked *</label>
               <input
                 type="text"
                 value={boothDetails.sqMtrBooked}
-                onChange={(e) => setBoothDetails({...boothDetails, sqMtrBooked: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, sqMtrBooked: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter square meters"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Organisation</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Organisation *</label>
               <input
                 type="text"
                 value={boothDetails.organisation}
-                onChange={(e) => setBoothDetails({...boothDetails, organisation: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, organisation: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from company name"
               />
@@ -1309,11 +1330,11 @@ export default function RequirementsPage() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person *</label>
               <input
                 type="text"
                 value={boothDetails.contactPerson}
-                onChange={(e) => setBoothDetails({...boothDetails, contactPerson: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, contactPerson: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from name"
               />
@@ -1322,11 +1343,11 @@ export default function RequirementsPage() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Designation *</label>
               <input
                 type="text"
                 value={boothDetails.designation}
-                onChange={(e) => setBoothDetails({...boothDetails, designation: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, designation: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from designation"
               />
@@ -1335,11 +1356,11 @@ export default function RequirementsPage() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number *</label>
               <input
                 type="tel"
                 value={boothDetails.mobile}
-                onChange={(e) => setBoothDetails({...boothDetails, mobile: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, mobile: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from contact"
               />
@@ -1348,11 +1369,11 @@ export default function RequirementsPage() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email ID</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email ID *</label>
               <input
                 type="email"
                 value={boothDetails.email}
-                onChange={(e) => setBoothDetails({...boothDetails, email: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, email: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Auto-filled from contact"
               />
@@ -1367,51 +1388,51 @@ export default function RequirementsPage() {
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Contractor Details</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Company</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Company *</label>
               <input
                 type="text"
                 value={boothDetails.contractorCompany}
-                onChange={(e) => setBoothDetails({...boothDetails, contractorCompany: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, contractorCompany: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter contractor company"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Person</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Person *</label>
               <input
                 type="text"
                 value={boothDetails.contractorPerson}
-                onChange={(e) => setBoothDetails({...boothDetails, contractorPerson: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, contractorPerson: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter contractor name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Mobile</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Mobile *</label>
               <input
                 type="tel"
                 value={boothDetails.contractorMobile}
-                onChange={(e) => setBoothDetails({...boothDetails, contractorMobile: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, contractorMobile: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter contractor mobile"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Email *</label>
               <input
                 type="email"
                 value={boothDetails.contractorEmail}
-                onChange={(e) => setBoothDetails({...boothDetails, contractorEmail: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, contractorEmail: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter contractor email"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor GST</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contractor GST *</label>
               <input
                 type="text"
                 value={boothDetails.contractorGST}
-                onChange={(e) => setBoothDetails({...boothDetails, contractorGST: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, contractorGST: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter GST number"
               />
@@ -1421,7 +1442,7 @@ export default function RequirementsPage() {
               <input
                 type="text"
                 value={boothDetails.contractorPAN}
-                onChange={(e) => setBoothDetails({...boothDetails, contractorPAN: e.target.value})}
+                onChange={(e) => setBoothDetails({ ...boothDetails, contractorPAN: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter PAN number"
               />
@@ -1430,90 +1451,90 @@ export default function RequirementsPage() {
         </div>
       </div>
       {/* Booth Fabrication Guidelines */}
-<div className="mt-10 border-t border-gray-200 pt-8">
-  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-    Booth Fabrication Guidelines & Regulations
-  </h3>
+      <div className="mt-10 border-t border-gray-200 pt-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Booth Fabrication Guidelines & Regulations
+        </h3>
 
-  <div className="bg-gray-50 rounded-xl p-5 space-y-4 text-sm text-gray-700 leading-relaxed">
-    
-    <ul className="list-disc pl-5 space-y-2">
-      <li>
-        <span className="font-semibold">Height Limit:</span> The maximum allowable height for fabricated booths,
-        including platform height, is 4 meters.
-      </li>
+        <div className="bg-gray-50 rounded-xl p-5 space-y-4 text-sm text-gray-700 leading-relaxed">
 
-      <li>
-        <span className="font-semibold">Carpet Requirement:</span> Fabricators must lay a single-use carpet
-        over the entire booth area before starting construction. Failure to comply will result
-        in forfeiture of the refundable security deposit.
-      </li>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>
+              <span className="font-semibold">Height Limit:</span> The maximum allowable height for fabricated booths,
+              including platform height, is 4 meters.
+            </li>
 
-      <li>
-        <span className="font-semibold">No Storage Space:</span> Storing or retaining materials behind
-        the booth is prohibited. Violating this rule will result in forfeiture of the performance bond.
-      </li>
+            <li>
+              <span className="font-semibold">Carpet Requirement:</span> Fabricators must lay a single-use carpet
+              over the entire booth area before starting construction. Failure to comply will result
+              in forfeiture of the refundable security deposit.
+            </li>
 
-      <li>
-        <span className="font-semibold">Housekeeping:</span> Organizers will not provide booth cleaning
-        services during setup or show days. Fabricators must arrange their own housekeeping personnel
-        to ensure final booth cleaning.
-      </li>
+            <li>
+              <span className="font-semibold">No Storage Space:</span> Storing or retaining materials behind
+              the booth is prohibited. Violating this rule will result in forfeiture of the performance bond.
+            </li>
 
-      <li>
-        <span className="font-semibold">Fire Extinguishers:</span> Each booth must have fire extinguishers.
-        This requirement must be incorporated into the booth design for approval.
-      </li>
-    </ul>
-  </div>
-</div>
+            <li>
+              <span className="font-semibold">Housekeeping:</span> Organizers will not provide booth cleaning
+              services during setup or show days. Fabricators must arrange their own housekeeping personnel
+              to ensure final booth cleaning.
+            </li>
 
-{/* Damage & Performance Bond */}
-<div className="mt-8">
-  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-    Damage & Performance Bond
-  </h3>
+            <li>
+              <span className="font-semibold">Fire Extinguishers:</span> Each booth must have fire extinguishers.
+              This requirement must be incorporated into the booth design for approval.
+            </li>
+          </ul>
+        </div>
+      </div>
 
-  <div className="bg-red-50 border border-red-100 rounded-xl p-5 space-y-4 text-sm text-gray-700 leading-relaxed">
-    
-    <ul className="list-disc pl-5 space-y-2">
-      <li>
-        <span className="font-semibold">Payment:</span> Booth contractors must pay a Damage & Performance
-        Bond via demand draft to the organizers, <span className="font-medium">“Maxx Business Media Pvt. Ltd.”</span>,
-        upon registering at the exhibition site. The bond covers potential venue damages and
-        disposal of booth construction waste. Any breach may result in forfeiture of the bond.
-      </li>
+      {/* Damage & Performance Bond */}
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Damage & Performance Bond
+        </h3>
 
-      <li>
-        <span className="font-semibold">Waste Removal:</span> Contractors are responsible for removing
-        all packing and waste materials during move-in and move-out. Decoration waste must not be
-        discarded into aisles. All materials must be safely removed. Non-compliance will result
-        in forfeiture of the bond.
-      </li>
+        <div className="bg-red-50 border border-red-100 rounded-xl p-5 space-y-4 text-sm text-gray-700 leading-relaxed">
 
-      <li>
-        <span className="font-semibold">Refund of Security Deposit:</span> The Security Deposit DD will
-        be refunded upon presentation of the receipt after the exhibition, provided the site
-        is cleared without damage or garbage recorded by the exhibition centre management.
-      </li>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>
+              <span className="font-semibold">Payment:</span> Booth contractors must pay a Damage & Performance
+              Bond via demand draft to the organizers, <span className="font-medium">“Maxx Business Media Pvt. Ltd.”</span>,
+              upon registering at the exhibition site. The bond covers potential venue damages and
+              disposal of booth construction waste. Any breach may result in forfeiture of the bond.
+            </li>
 
-      <li>
-        <span className="font-semibold">Deductions:</span> Organizers reserve the right to deduct amounts
-        for damages caused during build-up, show days, or dismantling. Additional claims may be
-        made if damages exceed the bond amount.
-      </li>
+            <li>
+              <span className="font-semibold">Waste Removal:</span> Contractors are responsible for removing
+              all packing and waste materials during move-in and move-out. Decoration waste must not be
+              discarded into aisles. All materials must be safely removed. Non-compliance will result
+              in forfeiture of the bond.
+            </li>
 
-      <li>
-        <span className="font-semibold">Contractor Access:</span> Upon submission of the form and deposit,
-        CONTRACTOR BANDS will be issued. Only individuals with CONTRACTOR BANDS will be granted access.
-      </li>
-    </ul>
-  </div>
-</div>
+            <li>
+              <span className="font-semibold">Refund of Security Deposit:</span> The Security Deposit DD will
+              be refunded upon presentation of the receipt after the exhibition, provided the site
+              is cleared without damage or garbage recorded by the exhibition centre management.
+            </li>
+
+            <li>
+              <span className="font-semibold">Deductions:</span> Organizers reserve the right to deduct amounts
+              for damages caused during build-up, show days, or dismantling. Additional claims may be
+              made if damages exceed the bond amount.
+            </li>
+
+            <li>
+              <span className="font-semibold">Contractor Access:</span> Upon submission of the form and deposit,
+              CONTRACTOR BANDS will be issued. Only individuals with CONTRACTOR BANDS will be granted access.
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 
-  // ============= FORM 4: SECURITY DEPOSIT (NOW STEP 3) =============
+  // ============= FORM 3: SECURITY DEPOSIT =============
   const renderSecurityDeposit = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -1521,14 +1542,17 @@ export default function RequirementsPage() {
           <BanknotesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">CONTRACTOR SECURITY
-DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>FORM 2 FOR BARE SPACE EXHIBITORS
-(MANDATORY)</span>
-</h2>
+          DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>FORM 2 FOR BARE SPACE EXHIBITORS
+            (MANDATORY)</span>
+        </h2>
+        {steps[2].required && (
+          <span className="ml-3 bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">Required</span>
+        )}
       </div>
 
       <div className="space-y-6">
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Security Deposit Amount</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Security Deposit Amount *</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead>
@@ -1550,7 +1574,8 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
                     <input
                       type="radio"
                       name="securityDeposit"
-                      onChange={() => setSecurityDeposit({...securityDeposit, boothSq: '0-36', amountINR: 25000, amountUSD: 3})}
+                      checked={securityDeposit.boothSq === '0-36'}
+                      onChange={() => setSecurityDeposit({ ...securityDeposit, boothSq: '0-36', amountINR: 25000, amountUSD: 3 })}
                       className="h-4 w-4 text-blue-600"
                     />
                   </td>
@@ -1564,7 +1589,8 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
                     <input
                       type="radio"
                       name="securityDeposit"
-                      onChange={() => setSecurityDeposit({...securityDeposit, boothSq: '37-100', amountINR: 50000, amountUSD: 6})}
+                      checked={securityDeposit.boothSq === '37-100'}
+                      onChange={() => setSecurityDeposit({ ...securityDeposit, boothSq: '37-100', amountINR: 50000, amountUSD: 6 })}
                       className="h-4 w-4 text-blue-600"
                     />
                   </td>
@@ -1578,7 +1604,8 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
                     <input
                       type="radio"
                       name="securityDeposit"
-                      onChange={() => setSecurityDeposit({...securityDeposit, boothSq: '101+', amountINR: 75000, amountUSD: 9})}
+                      checked={securityDeposit.boothSq === '101+'}
+                      onChange={() => setSecurityDeposit({ ...securityDeposit, boothSq: '101+', amountINR: 75000, amountUSD: 9 })}
                       className="h-4 w-4 text-blue-600"
                     />
                   </td>
@@ -1589,532 +1616,541 @@ DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>F
         </div>
 
         {/* Important Notes Section */}
-<div className="mt-8 border-t border-gray-200 pt-6">
-  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-    Important Notes
-  </h3>
+        <div className="mt-8 border-t border-gray-200 pt-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Important Notes
+          </h3>
 
-  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
-    <ul className="list-disc pl-5 space-y-3">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
+            <ul className="list-disc pl-5 space-y-3">
 
-      <li>
-        The Security Deposit should be submitted only by <span className="font-semibold">Demand Draft</span>.
-        No other mode of payment will be accepted.
-      </li>
+              <li>
+                The Security Deposit should be submitted only by <span className="font-semibold">Demand Draft</span>.
+                No other mode of payment will be accepted.
+              </li>
 
-      <li>
-        Refundable Security Deposit must be paid by Demand Draft in the name of 
-        <span className="font-semibold"> “Maxx Business Media Pvt. Ltd.”</span>.
-      </li>
+              <li>
+                Refundable Security Deposit must be paid by Demand Draft in the name of
+                <span className="font-semibold"> “Maxx Business Media Pvt. Ltd.”</span>.
+              </li>
 
-      <li>
-        If the contractor fails to submit the Security Deposit by Demand Draft,
-        booth possession will not be given. No cash will be accepted as Security Deposit.
-        In exceptional cases, if cash is accepted, a service charge of 
-        <span className="font-semibold"> INR 5,000 / USD 63 + 18% GST </span>
-        will be applicable and deducted from the Security Deposit.
-      </li>
+              <li>
+                If the contractor fails to submit the Security Deposit by Demand Draft,
+                booth possession will not be given. No cash will be accepted as Security Deposit.
+                In exceptional cases, if cash is accepted, a service charge of
+                <span className="font-semibold"> INR 5,000 / USD 63 + 18% GST </span>
+                will be applicable and deducted from the Security Deposit.
+              </li>
 
-      <li>
-        The Security Deposit must be paid by the <span className="font-semibold">booth contractor</span>
-        and NOT the exhibitor, unless the exhibitor is undertaking their own stand fabrication.
-      </li>
+              <li>
+                The Security Deposit must be paid by the <span className="font-semibold">booth contractor</span>
+                and NOT the exhibitor, unless the exhibitor is undertaking their own stand fabrication.
+              </li>
 
-      <li>
-        If the booth contractor fails to meet the deadline for final completion of booth
-        building or dismantling, the complete Security Deposit will be 
-        <span className="font-semibold text-red-600"> fully forfeited </span>
-        as penalty charges for non-completion on time.
-      </li>
+              <li>
+                If the booth contractor fails to meet the deadline for final completion of booth
+                building or dismantling, the complete Security Deposit will be
+                <span className="font-semibold text-red-600"> fully forfeited </span>
+                as penalty charges for non-completion on time.
+              </li>
 
-      <li>
-        Kindly bring <span className="font-semibold">2 copies</span> of this form at the time of possession
-        with authorized signature and company stamp.
-      </li>
+              <li>
+                Kindly bring <span className="font-semibold">2 copies</span> of this form at the time of possession
+                with authorized signature and company stamp.
+              </li>
 
-      <li>
-        Submit the signed copy of this form while collecting your Security Deposit.
-      </li>
+              <li>
+                Submit the signed copy of this form while collecting your Security Deposit.
+              </li>
 
-    </ul>
-  </div>
-</div>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
 
-  // ============= FORM 5: MACHINES (NOW STEP 4) =============
- const renderMachines = () => (
-  <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center">
+  // ============= FORM 4: MACHINES (OPTIONAL) =============
+  const renderMachines = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <CubeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
+            NAME ON FASCIA
+            <br />
+            <span className="text-[#4D4D4D] font-semibold text-[15px]">
+              (OPTIONAL)
+            </span>
+          </h2>
+          {!steps[3].required && (
+            <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAddMachine}
+          className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition"
+        >
+          <PlusIcon className="h-4 w-4" />
+          Add Machine
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sr.</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Machine Name</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Width (m)</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Length (m)</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Height (m)</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Weight (Tons)</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+            </tr>
+          </thead>
+
+          <tbody className="bg-white divide-y divide-gray-200">
+            {machines.map((machine, index) => (
+              <tr key={machine.srNo} className="hover:bg-gray-50">
+                <td className="px-3 py-2 text-sm text-gray-900 font-medium">
+                  {machine.srNo}
+                </td>
+
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={machine.machineName}
+                    onChange={(e) => {
+                      const updated = [...machines];
+                      updated[index].machineName = e.target.value;
+                      setMachines(updated);
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter machine name"
+                  />
+                </td>
+
+                <td className="px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={machine.width}
+                    onChange={(e) => {
+                      const updated = [...machines];
+                      updated[index].width = e.target.value;
+                      setMachines(updated);
+                    }}
+                    className="w-24 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="W"
+                  />
+                </td>
+
+                <td className="px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={machine.length}
+                    onChange={(e) => {
+                      const updated = [...machines];
+                      updated[index].length = e.target.value;
+                      setMachines(updated);
+                    }}
+                    className="w-24 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="L"
+                  />
+                </td>
+
+                <td className="px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={machine.height}
+                    onChange={(e) => {
+                      const updated = [...machines];
+                      updated[index].height = e.target.value;
+                      setMachines(updated);
+                    }}
+                    className="w-24 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="H"
+                  />
+                </td>
+
+                <td className="px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={machine.weight}
+                    onChange={(e) => {
+                      const updated = [...machines];
+                      updated[index].weight = e.target.value;
+                      setMachines(updated);
+                    }}
+                    className="w-24 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Tons"
+                  />
+                </td>
+
+                <td className="px-3 py-2">
+                  {machines.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveMachine(index)}
+                      className="text-red-500 hover:text-red-700 text-xs font-medium"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="text-xs text-gray-500 mt-4 italic">
+        * Add all machines that will be displayed at your booth. (Optional)
+      </p>
+    </div>
+  );
+
+  // ============= FORM 5: PERSONNEL (REQUIRED) =============
+  const renderPersonnel = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
+            EXHIBITOR PASSES
+            <br />
+            <span className="text-[#4D4D4D] font-semibold text-[15px]">
+              (MANDATORY)
+            </span>
+          </h2>
+          {steps[4].required && (
+            <span className="ml-3 bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">Required</span>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAddPersonnel}
+          className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition"
+        >
+          <PlusIcon className="h-4 w-4" />
+          Add Exhibitor
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sr.</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name *</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Designation</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Organisation</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+            </tr>
+          </thead>
+
+          <tbody className="bg-white divide-y divide-gray-200">
+            {personnel.map((person, index) => (
+              <tr key={person.srNo} className="hover:bg-gray-50">
+                <td className="px-3 py-2 text-sm font-medium text-gray-900">
+                  {person.srNo}
+                </td>
+
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={person.name}
+                    onChange={(e) => {
+                      const updated = [...personnel];
+                      updated[index].name = e.target.value;
+                      setPersonnel(updated);
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder={index === 0 ? "Auto-filled from basic info" : "Enter name"}
+                  />
+                  {index === 0 && !person.name && generalInfo.firstName && (
+                    <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
+                  )}
+                </td>
+
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={person.designation}
+                    onChange={(e) => {
+                      const updated = [...personnel];
+                      updated[index].designation = e.target.value;
+                      setPersonnel(updated);
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder={index === 0 ? "Auto-filled" : "Designation"}
+                  />
+                </td>
+
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={person.organisation}
+                    onChange={(e) => {
+                      const updated = [...personnel];
+                      updated[index].organisation = e.target.value;
+                      setPersonnel(updated);
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder={index === 0 ? "Auto-filled" : "Organisation"}
+                  />
+                </td>
+
+                <td className="px-3 py-2">
+                  {personnel.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePersonnel(index)}
+                      className="text-red-500 hover:text-red-700 text-xs font-medium"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="text-xs text-gray-500 mt-4 italic">
+        * Please enter all representatives who require exhibitor passes. At least one person is required.
+      </p>
+    </div>
+  );
+
+  // ============= FORM 6: COMPANY DETAILS (REQUIRED) =============
+  const renderCompanyDetails = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center mb-6">
         <div className="bg-blue-100 p-2 rounded-lg">
-          <CubeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+          <BuildingOfficeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-          NAME ON FASCIA
+          DATA FOR EXHIBITOR'S GUIDE
           <br />
           <span className="text-[#4D4D4D] font-semibold text-[15px]">
             (MANDATORY)
           </span>
         </h2>
+        {steps[5].required && (
+          <span className="ml-3 bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">Required</span>
+        )}
       </div>
 
-      <button
-        type="button"
-        onClick={handleAddMachine}
-        className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition"
-      >
-        <PlusIcon className="h-4 w-4" />
-        Add Machine
-      </button>
-    </div>
-
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sr.</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Machine Name</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Width (m)</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Length (m)</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Height (m)</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Weight (Tons)</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-          </tr>
-        </thead>
-
-        <tbody className="bg-white divide-y divide-gray-200">
-          {machines.map((machine, index) => (
-            <tr key={machine.srNo} className="hover:bg-gray-50">
-              <td className="px-3 py-2 text-sm text-gray-900 font-medium">
-                {machine.srNo}
-              </td>
-
-              <td className="px-3 py-2">
-                <input
-                  type="text"
-                  value={machine.machineName}
-                  onChange={(e) => {
-                    const updated = [...machines];
-                    updated[index].machineName = e.target.value;
-                    setMachines(updated);
-                  }}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter machine name"
-                />
-              </td>
-
-              <td className="px-3 py-2">
-                <input
-                  type="number"
-                  min="0"
-                  value={machine.width}
-                  onChange={(e) => {
-                    const updated = [...machines];
-                    updated[index].width = e.target.value;
-                    setMachines(updated);
-                  }}
-                  className="w-24 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
-                  placeholder="W"
-                />
-              </td>
-
-              <td className="px-3 py-2">
-                <input
-                  type="number"
-                  min="0"
-                  value={machine.length}
-                  onChange={(e) => {
-                    const updated = [...machines];
-                    updated[index].length = e.target.value;
-                    setMachines(updated);
-                  }}
-                  className="w-24 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
-                  placeholder="L"
-                />
-              </td>
-
-              <td className="px-3 py-2">
-                <input
-                  type="number"
-                  min="0"
-                  value={machine.height}
-                  onChange={(e) => {
-                    const updated = [...machines];
-                    updated[index].height = e.target.value;
-                    setMachines(updated);
-                  }}
-                  className="w-24 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
-                  placeholder="H"
-                />
-              </td>
-
-              <td className="px-3 py-2">
-                <input
-                  type="number"
-                  min="0"
-                  value={machine.weight}
-                  onChange={(e) => {
-                    const updated = [...machines];
-                    updated[index].weight = e.target.value;
-                    setMachines(updated);
-                  }}
-                  className="w-24 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
-                  placeholder="Tons"
-                />
-              </td>
-
-              <td className="px-3 py-2">
-                {machines.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveMachine(index)}
-                    className="text-red-500 hover:text-red-700 text-xs font-medium"
-                  >
-                    Remove
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    <p className="text-xs text-gray-500 mt-4 italic">
-      * Add all machines that will be displayed at your booth.
-    </p>
-  </div>
-);
-
-  // ============= FORM 6: PERSONNEL (NOW STEP 5) =============
- const renderPersonnel = () => (
-  <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+      {/* Form Fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Company Name *
+          </label>
+          <input
+            type="text"
+            value={companyDetails.companyName}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                companyName: e.target.value,
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Auto-filled from basic info"
+          />
+          {!companyDetails.companyName && generalInfo.companyName && (
+            <p className="text-xs text-green-600 mt-1">✓ Auto-filled from basic info</p>
+          )}
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-          EXHIBITOR PASSES
-          <br />
-          <span className="text-[#4D4D4D] font-semibold text-[15px]">
-            (MANDATORY)
-          </span>
-        </h2>
+
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Address *
+          </label>
+          <textarea
+            value={companyDetails.address}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                address: e.target.value,
+              })
+            }
+            rows={2}
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter complete address"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Telephone
+          </label>
+          <input
+            type="tel"
+            value={companyDetails.telephone}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                telephone: e.target.value,
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter telephone"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Mobile
+          </label>
+          <input
+            type="tel"
+            value={companyDetails.mobile}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                mobile: e.target.value,
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Auto-filled from contact"
+          />
+          {!companyDetails.mobile && generalInfo.mobile && (
+            <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
+          <input
+            type="email"
+            value={companyDetails.email}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                email: e.target.value,
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Auto-filled from contact"
+          />
+          {!companyDetails.email && generalInfo.email && (
+            <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Website
+          </label>
+          <input
+            type="url"
+            value={companyDetails.website}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                website: e.target.value,
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="www.example.com"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Contact Person
+          </label>
+          <input
+            type="text"
+            value={companyDetails.contactPerson}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                contactPerson: e.target.value,
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Auto-filled from name"
+          />
+          {!companyDetails.contactPerson && generalInfo.firstName && (
+            <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Designation
+          </label>
+          <input
+            type="text"
+            value={companyDetails.designation}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                designation: e.target.value,
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Auto-filled from designation"
+          />
+          {!companyDetails.designation && generalInfo.designation && (
+            <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
+          )}
+        </div>
+
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Products / Services *
+          </label>
+          <textarea
+            value={companyDetails.productsServices}
+            onChange={(e) =>
+              setCompanyDetails({
+                ...companyDetails,
+                productsServices: e.target.value,
+              })
+            }
+            rows={3}
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter products or services to be displayed in the Exhibitor's Guide"
+          />
+        </div>
       </div>
-
-      <button
-        type="button"
-        onClick={handleAddPersonnel}
-        className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition"
-      >
-        <PlusIcon className="h-4 w-4" />
-        Add Exhibitor
-      </button>
-    </div>
-
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sr.</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Designation</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Organisation</th>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-          </tr>
-        </thead>
-
-        <tbody className="bg-white divide-y divide-gray-200">
-          {personnel.map((person, index) => (
-            <tr key={person.srNo} className="hover:bg-gray-50">
-              <td className="px-3 py-2 text-sm font-medium text-gray-900">
-                {person.srNo}
-              </td>
-
-              <td className="px-3 py-2">
-                <input
-                  type="text"
-                  value={person.name}
-                  onChange={(e) => {
-                    const updated = [...personnel];
-                    updated[index].name = e.target.value;
-                    setPersonnel(updated);
-                  }}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
-                  placeholder={index === 0 ? "Auto-filled from basic info" : "Enter name"}
-                />
-                {index === 0 && !person.name && generalInfo.firstName && (
-                  <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
-                )}
-              </td>
-
-              <td className="px-3 py-2">
-                <input
-                  type="text"
-                  value={person.designation}
-                  onChange={(e) => {
-                    const updated = [...personnel];
-                    updated[index].designation = e.target.value;
-                    setPersonnel(updated);
-                  }}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
-                  placeholder={index === 0 ? "Auto-filled" : "Designation"}
-                />
-              </td>
-
-              <td className="px-3 py-2">
-                <input
-                  type="text"
-                  value={person.organisation}
-                  onChange={(e) => {
-                    const updated = [...personnel];
-                    updated[index].organisation = e.target.value;
-                    setPersonnel(updated);
-                  }}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
-                  placeholder={index === 0 ? "Auto-filled" : "Organisation"}
-                />
-              </td>
-
-              <td className="px-3 py-2">
-                {personnel.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePersonnel(index)}
-                    className="text-red-500 hover:text-red-700 text-xs font-medium"
-                  >
-                    Remove
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    <p className="text-xs text-gray-500 mt-4 italic">
-      * Please enter all representatives who require exhibitor passes.
-    </p>
-  </div>
-);
-
-  // ============= FORM 7: COMPANY DETAILS (NOW STEP 6) =============
-const renderCompanyDetails = () => (
-  <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-    <div className="flex items-center mb-6">
-      <div className="bg-blue-100 p-2 rounded-lg">
-        <BuildingOfficeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-      </div>
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-        DATA FOR EXHIBITOR'S GUIDE
-        <br />
-        <span className="text-[#4D4D4D] font-semibold text-[15px]">
-          (MANDATORY)
-        </span>
-      </h2>
-    </div>
-
-    {/* Form Fields */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="sm:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Company Name
-        </label>
-        <input
-          type="text"
-          value={companyDetails.companyName}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              companyName: e.target.value,
-            })
-          }
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="Auto-filled from basic info"
-        />
-        {!companyDetails.companyName && generalInfo.companyName && (
-          <p className="text-xs text-green-600 mt-1">✓ Auto-filled from basic info</p>
-        )}
-      </div>
-
-      <div className="sm:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Address
-        </label>
-        <textarea
-          value={companyDetails.address}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              address: e.target.value,
-            })
-          }
-          rows={2}
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter complete address"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Telephone
-        </label>
-        <input
-          type="tel"
-          value={companyDetails.telephone}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              telephone: e.target.value,
-            })
-          }
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter telephone"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Mobile
-        </label>
-        <input
-          type="tel"
-          value={companyDetails.mobile}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              mobile: e.target.value,
-            })
-          }
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="Auto-filled from contact"
-        />
-        {!companyDetails.mobile && generalInfo.mobile && (
-          <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email
-        </label>
-        <input
-          type="email"
-          value={companyDetails.email}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              email: e.target.value,
-            })
-          }
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="Auto-filled from contact"
-        />
-        {!companyDetails.email && generalInfo.email && (
-          <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Website
-        </label>
-        <input
-          type="url"
-          value={companyDetails.website}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              website: e.target.value,
-            })
-          }
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="www.example.com"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Contact Person
-        </label>
-        <input
-          type="text"
-          value={companyDetails.contactPerson}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              contactPerson: e.target.value,
-            })
-          }
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="Auto-filled from name"
-        />
-        {!companyDetails.contactPerson && generalInfo.firstName && (
-          <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
-        )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Designation
-        </label>
-        <input
-          type="text"
-          value={companyDetails.designation}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              designation: e.target.value,
-            })
-          }
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="Auto-filled from designation"
-        />
-        {!companyDetails.designation && generalInfo.designation && (
-          <p className="text-xs text-green-600 mt-1">✓ Auto-filled</p>
-        )}
-      </div>
-
-      <div className="sm:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Products / Services
-        </label>
-        <textarea
-          value={companyDetails.productsServices}
-          onChange={(e) =>
-            setCompanyDetails({
-              ...companyDetails,
-              productsServices: e.target.value,
-            })
-          }
-          rows={3}
-          className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter products or services to be displayed in the Exhibitor's Guide"
-        />
+      {/* Exhibitor Guide Information Notice */}
+      <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
+        <p>
+          <span className="font-semibold">Maxx Business Media Pvt. Ltd.</span> will be publishing an
+          <span className="font-semibold"> Exhibitor's Guide </span> for visitors of the Exhibition.
+          This Guide will contain information about the Exhibitors, their products & services, and
+          other relevant details.
+        </p>
+        <p className="mt-2">
+          These Guides will be made available to the visitors for their reference.
+          Kindly ensure that the information provided below is accurate and complete,
+          as it will be used for publication.
+        </p>
       </div>
     </div>
-        {/* Exhibitor Guide Information Notice */}
-    <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
-      <p>
-        <span className="font-semibold">Maxx Business Media Pvt. Ltd.</span> will be publishing an 
-        <span className="font-semibold"> Exhibitor's Guide </span> for visitors of the Exhibition. 
-        This Guide will contain information about the Exhibitors, their products & services, and 
-        other relevant details.
-      </p>
-      <p className="mt-2">
-        These Guides will be made available to the visitors for their reference. 
-        Kindly ensure that the information provided below is accurate and complete, 
-        as it will be used for publication.
-      </p>
-    </div>
-  </div>
-);
+  );
 
-  // ============= FORM 8: ELECTRICAL LOAD (NOW STEP 7) =============
+  // ============= FORM 7: ELECTRICAL LOAD (OPTIONAL) =============
   const renderElectricalLoad = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -2122,6 +2158,9 @@ const renderCompanyDetails = () => (
           <BoltIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Electrical Load</h2>
+        {!steps[6].required && (
+          <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+        )}
       </div>
 
       <div className="space-y-6">
@@ -2169,78 +2208,78 @@ const renderCompanyDetails = () => (
         </div>
 
         {/* Important Notes & Electrical Rules */}
-<div className="mt-8 border-t border-gray-200 pt-6 space-y-6">
+        <div className="mt-8 border-t border-gray-200 pt-6 space-y-6">
 
-  {/* General Note */}
-  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
-    <p className="font-semibold text-yellow-800 mb-2">Important Note:</p>
-    <p>
-      All prices are current and subject to change without prior notice.
-      Electrical requirements can be serviced only if the order is placed
-      on or before <span className="font-semibold">7th November 2025</span>.
-      There is no provision for last-minute / onsite requests after
-      7th November 2025.
-    </p>
-    <p className="mt-2">
-      Orders are valid only when accompanied by full remittance along with
-      <span className="font-semibold"> 18% GST</span>.
-    </p>
-  </div>
+          {/* General Note */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
+            <p className="font-semibold text-yellow-800 mb-2">Important Note:</p>
+            <p>
+              All prices are current and subject to change without prior notice.
+              Electrical requirements can be serviced only if the order is placed
+              on or before <span className="font-semibold">7th November 2025</span>.
+              There is no provision for last-minute / onsite requests after
+              7th November 2025.
+            </p>
+            <p className="mt-2">
+              Orders are valid only when accompanied by full remittance along with
+              <span className="font-semibold"> 18% GST</span>.
+            </p>
+          </div>
 
-  {/* Rules Section */}
-  <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
-    <p className="font-semibold text-red-800 mb-3">Rules for Electrical Work</p>
+          {/* Rules Section */}
+          <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
+            <p className="font-semibold text-red-800 mb-3">Rules for Electrical Work</p>
 
-    <p className="mb-3">
-      Exhibitors are required to make payment for electrical work 
-      <span className="font-semibold"> 20 days before the show</span>, 
-      along with the form submission. The cheque or demand draft should be made payable to 
-      <span className="font-semibold"> "Maxx Business Media Pvt. Ltd."</span>
-    </p>
+            <p className="mb-3">
+              Exhibitors are required to make payment for electrical work
+              <span className="font-semibold"> 20 days before the show</span>,
+              along with the form submission. The cheque or demand draft should be made payable to
+              <span className="font-semibold"> "Maxx Business Media Pvt. Ltd."</span>
+            </p>
 
-    <ul className="list-decimal pl-5 space-y-2">
-      <li>
-        All exhibitors must hire a licensed electrical contractor to perform
-        internal wiring within their stands and submit a photocopy of the
-        contractor's license to the organizers.
-      </li>
+            <ul className="list-decimal pl-5 space-y-2">
+              <li>
+                All exhibitors must hire a licensed electrical contractor to perform
+                internal wiring within their stands and submit a photocopy of the
+                contractor's license to the organizers.
+              </li>
 
-      <li>
-        Only ISI-marked new materials must be used. Wires should be PVC copper
-        insulated with a voltage rating of 1100 V.
-      </li>
+              <li>
+                Only ISI-marked new materials must be used. Wires should be PVC copper
+                insulated with a voltage rating of 1100 V.
+              </li>
 
-      <li>
-        For lighting circuits, 3x2.5 sq mm PVC insulated copper wire must be used.
-        For 16A power points, 3x4 sq mm PVC insulated copper wire is required.
-      </li>
+              <li>
+                For lighting circuits, 3x2.5 sq mm PVC insulated copper wire must be used.
+                For 16A power points, 3x4 sq mm PVC insulated copper wire is required.
+              </li>
 
-      <li>
-        Wires must be safely routed through conduits or casing capping.
-        No loose hanging wires are allowed. All terminations must use crimping lugs.
-      </li>
+              <li>
+                Wires must be safely routed through conduits or casing capping.
+                No loose hanging wires are allowed. All terminations must use crimping lugs.
+              </li>
 
-      <li>
-        LED lights must be used. If halogen lights are used,
-        they must be equipped with a transformer.
-      </li>
+              <li>
+                LED lights must be used. If halogen lights are used,
+                they must be equipped with a transformer.
+              </li>
 
-      <li>
-        The load connected to the power point must be appropriate
-        for the socket rating.
-      </li>
-    </ul>
-  </div>
+              <li>
+                The load connected to the power point must be appropriate
+                for the socket rating.
+              </li>
+            </ul>
+          </div>
 
-</div>
+        </div>
       </div>
     </div>
   );
 
-  // ============= FORM 9: FURNITURE (NOW STEP 8) =============
+  // ============= FORM 8: FURNITURE (OPTIONAL) =============
   const renderFurniture = () => {
     const furnitureTotal = furnitureItems.reduce((sum, item) => sum + item.cost, 0);
-    
+
     return (
       <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
         <div className="flex items-center mb-6">
@@ -2248,6 +2287,9 @@ const renderCompanyDetails = () => (
             <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Furniture</h2>
+          {!steps[7].required && (
+            <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+          )}
         </div>
 
         <div className="overflow-x-auto max-h-96 overflow-y-auto">
@@ -2269,8 +2311,8 @@ const renderCompanyDetails = () => (
                   <td className="px-2 py-1.5">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center">
                       {item.image ? (
-                        <img 
-                          src={item.image} 
+                        <img
+                          src={item.image}
                           alt={item.description}
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -2311,104 +2353,107 @@ const renderCompanyDetails = () => (
     );
   };
 
-  // ============= FORM 10: HOSTESS (NOW STEP 9) =============
-const renderHostess = () => {
-  const hostessTotal = hostessRequirements.reduce((sum, h) => sum + h.amount, 0);
+  // ============= FORM 9: HOSTESS (OPTIONAL) =============
+  const renderHostess = () => {
+    const hostessTotal = hostessRequirements.reduce((sum, h) => sum + h.amount, 0);
 
-  return (
-    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-      <div className="flex items-center mb-6">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+    return (
+      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+        <div className="flex items-center mb-6">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
+            Temporary Staff / Hostess
+          </h2>
+          {!steps[8].required && (
+            <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+          )}
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-          Temporary Staff / Hostess
-        </h2>
-      </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Rate/Day</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Days</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {hostessRequirements.map((hostess, index) => (
-              <tr key={hostess.category}>
-                <td className="px-3 py-2 text-sm">Category {hostess.category}</td>
-                <td className="px-3 py-2 text-sm">
-                  ₹{hostess.category === 'A' ? '5,000' : '4,000'}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Rate/Day</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Days</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hostessRequirements.map((hostess, index) => (
+                <tr key={hostess.category}>
+                  <td className="px-3 py-2 text-sm">Category {hostess.category}</td>
+                  <td className="px-3 py-2 text-sm">
+                    ₹{hostess.category === 'A' ? '5,000' : '4,000'}
+                  </td>
+                  <td className="px-3 py-2">
+                    <input
+                      type="number"
+                      min="0"
+                      value={hostess.quantity || ''}
+                      onChange={(e) =>
+                        handleHostessChange(index, 'quantity', parseInt(e.target.value) || 0)
+                      }
+                      className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <input
+                      type="number"
+                      min="0"
+                      value={hostess.noOfDays || ''}
+                      onChange={(e) =>
+                        handleHostessChange(index, 'noOfDays', parseInt(e.target.value) || 0)
+                      }
+                      className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
+                    />
+                  </td>
+                  <td className="px-3 py-2 text-sm font-semibold">
+                    ₹{hostess.amount.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot className="bg-gray-50">
+              <tr>
+                <td colSpan={4} className="px-3 py-2 text-right text-sm font-semibold">
+                  Total:
                 </td>
-                <td className="px-3 py-2">
-                  <input
-                    type="number"
-                    min="0"
-                    value={hostess.quantity || ''}
-                    onChange={(e) =>
-                      handleHostessChange(index, 'quantity', parseInt(e.target.value) || 0)
-                    }
-                    className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
-                  />
-                </td>
-                <td className="px-3 py-2">
-                  <input
-                    type="number"
-                    min="0"
-                    value={hostess.noOfDays || ''}
-                    onChange={(e) =>
-                      handleHostessChange(index, 'noOfDays', parseInt(e.target.value) || 0)
-                    }
-                    className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
-                  />
-                </td>
-                <td className="px-3 py-2 text-sm font-semibold">
-                  ₹{hostess.amount.toLocaleString()}
+                <td className="px-3 py-2 text-sm font-bold text-blue-600">
+                  ₹{hostessTotal.toLocaleString()}
                 </td>
               </tr>
-            ))}
-          </tbody>
-          <tfoot className="bg-gray-50">
-            <tr>
-              <td colSpan={4} className="px-3 py-2 text-right text-sm font-semibold">
-                Total:
-              </td>
-              <td className="px-3 py-2 text-sm font-bold text-blue-600">
-                ₹{hostessTotal.toLocaleString()}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+            </tfoot>
+          </table>
+        </div>
 
-      {/* Important Notes Section */}
-      <div className="mt-8 border-t border-gray-200 pt-6">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
-          <p className="font-semibold text-yellow-800 mb-3">
-            Please Note:
-          </p>
+        {/* Important Notes Section */}
+        <div className="mt-8 border-t border-gray-200 pt-6">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed">
+            <p className="font-semibold text-yellow-800 mb-3">
+              Please Note:
+            </p>
 
-          <ul className="list-decimal pl-5 space-y-2">
-            <li>All prices are current and subject to change without prior notice.</li>
-            <li>The working hour for service is 8 hrs./person/day.</li>
-            <li>The duration of service is 10:00 - 18:00 hrs.</li>
-            <li>On-site orders MUST be paid immediately via RTGS / UPI along with the order form.</li>
-            <li>No refund for any cancellation once the order is placed.</li>
-            <li>Temporary Staff must not be entrusted with handling of cash or valuables.</li>
-            <li>Exhibitors will be responsible for the temporary staff in their stands during the show.</li>
-            <li>Organiser will not be responsible for any damage caused by temporary staff.</li>
-          </ul>
+            <ul className="list-decimal pl-5 space-y-2">
+              <li>All prices are current and subject to change without prior notice.</li>
+              <li>The working hour for service is 8 hrs./person/day.</li>
+              <li>The duration of service is 10:00 - 18:00 hrs.</li>
+              <li>On-site orders MUST be paid immediately via RTGS / UPI along with the order form.</li>
+              <li>No refund for any cancellation once the order is placed.</li>
+              <li>Temporary Staff must not be entrusted with handling of cash or valuables.</li>
+              <li>Exhibitors will be responsible for the temporary staff in their stands during the show.</li>
+              <li>Organiser will not be responsible for any damage caused by temporary staff.</li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
-  // ============= FORM 11: COMPRESSED AIR (NOW STEP 10) =============
+  // ============= FORM 10: COMPRESSED AIR (OPTIONAL) =============
   const renderCompressedAir = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -2416,6 +2461,9 @@ const renderHostess = () => {
           <WrenchScrewdriverIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Compressed Air</h2>
+        {!steps[9].required && (
+          <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+        )}
       </div>
 
       <div className="overflow-x-auto">
@@ -2442,6 +2490,7 @@ const renderHostess = () => {
                   <input
                     type="radio"
                     name="compressedAir"
+                    checked={compressedAir.selected === option.cfmRange}
                     onChange={() => handleCompressedAirSelect(option)}
                     className="h-4 w-4 text-blue-600"
                   />
@@ -2468,7 +2517,7 @@ const renderHostess = () => {
     </div>
   );
 
-  // ============= FORM 12: WATER CONNECTION (NOW STEP 11) =============
+  // ============= FORM 11: WATER CONNECTION (OPTIONAL) =============
   const renderWaterConnection = () => (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
@@ -2476,6 +2525,9 @@ const renderHostess = () => {
           <TruckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Water Connection</h2>
+        {!steps[10].required && (
+          <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+        )}
       </div>
 
       <div className="max-w-md">
@@ -2486,7 +2538,7 @@ const renderHostess = () => {
               type="number"
               min="0"
               value={waterConnection.connections || ''}
-              onChange={(e) => setWaterConnection({...waterConnection, connections: parseInt(e.target.value) || 0})}
+              onChange={(e) => setWaterConnection({ ...waterConnection, connections: parseInt(e.target.value) || 0 })}
               className="w-24 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -2500,90 +2552,93 @@ const renderHostess = () => {
     </div>
   );
 
-  // ============= FORM 13: SECURITY GUARD (NOW STEP 12) =============
-const renderSecurityGuard = () => (
-  <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-    <div className="flex items-center mb-6">
-      <div className="bg-blue-100 p-2 rounded-lg">
-        <ShieldCheckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-      </div>
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-        Security Guard
-      </h2>
-    </div>
-
-    <div className="max-w-lg space-y-6">
-
-      <div className="flex flex-col sm:flex-row gap-6">
-
-        {/* Quantity */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            No. of Guards
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={securityGuard.quantity || ''}
-            onChange={(e) =>
-              setSecurityGuard({
-                ...securityGuard,
-                quantity: parseInt(e.target.value) || 0
-              })
-            }
-            className="w-32 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-            placeholder="Guards"
-          />
+  // ============= FORM 12: SECURITY GUARD (OPTIONAL) =============
+  const renderSecurityGuard = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <ShieldCheckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
-
-        {/* Days */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            No. of Days
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={securityGuard.noOfDays || ''}
-            onChange={(e) =>
-              setSecurityGuard({
-                ...securityGuard,
-                noOfDays: parseInt(e.target.value) || 0
-              })
-            }
-            className="w-32 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-            placeholder="Days"
-          />
-        </div>
-
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
+          Security Guard
+        </h2>
+        {!steps[11].required && (
+          <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+        )}
       </div>
 
-      {/* Summary */}
-      {securityGuard.quantity > 0 && securityGuard.noOfDays > 0 && (
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-700">
-            Rate per guard per day: <span className="font-semibold">₹2,500</span>
-          </p>
+      <div className="max-w-lg space-y-6">
 
-          <div className="mt-3 space-y-1 text-sm">
-            <p>
-              Total Cost: <span className="font-semibold">₹{securityGuard.totalCost.toLocaleString()}</span>
-            </p>
-            <p className="text-xs text-blue-600 mt-2">
-              * GST @ 18% will be added in final summary
-            </p>
+        <div className="flex flex-col sm:flex-row gap-6">
+
+          {/* Quantity */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              No. of Guards
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={securityGuard.quantity || ''}
+              onChange={(e) =>
+                setSecurityGuard({
+                  ...securityGuard,
+                  quantity: parseInt(e.target.value) || 0
+                })
+              }
+              className="w-32 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+              placeholder="Guards"
+            />
           </div>
+
+          {/* Days */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              No. of Days
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={securityGuard.noOfDays || ''}
+              onChange={(e) =>
+                setSecurityGuard({
+                  ...securityGuard,
+                  noOfDays: parseInt(e.target.value) || 0
+                })
+              }
+              className="w-32 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+              placeholder="Days"
+            />
+          </div>
+
         </div>
-      )}
 
+        {/* Summary */}
+        {securityGuard.quantity > 0 && securityGuard.noOfDays > 0 && (
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-700">
+              Rate per guard per day: <span className="font-semibold">₹2,500</span>
+            </p>
+
+            <div className="mt-3 space-y-1 text-sm">
+              <p>
+                Total Cost: <span className="font-semibold">₹{securityGuard.totalCost.toLocaleString()}</span>
+              </p>
+              <p className="text-xs text-blue-600 mt-2">
+                * GST @ 18% will be added in final summary
+              </p>
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
-  </div>
-);
+  );
 
-  // ============= FORM 14: RENTAL ITEMS (AV & IT) (NOW STEP 13) =============
+  // ============= FORM 13: RENTAL ITEMS (AV & IT) (OPTIONAL) =============
   const renderRentalItems = () => {
     const rentalTotal = Object.values(rentalItems).reduce((sum, item) => sum + item.totalCost, 0);
-    
+
     return (
       <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
@@ -2592,6 +2647,9 @@ const renderSecurityGuard = () => (
               <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals</h2>
+            {!steps[12].required && (
+              <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+            )}
           </div>
           <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1.5 rounded-full">For 3 Days</span>
         </div>
@@ -2642,116 +2700,119 @@ const renderSecurityGuard = () => (
     );
   };
 
-  // ============= FORM 15: HOUSEKEEPING STAFF (NOW STEP 14) =============
-const renderHousekeepingStaff = () => {
-  return (
-    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+  // ============= FORM 14: HOUSEKEEPING STAFF (OPTIONAL) =============
+  const renderHousekeepingStaff = () => {
+    return (
+      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <div className="bg-blue-100 p-2 rounded-lg">
+              <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
+              Housekeeping Staff
+            </h2>
+            {!steps[13].required && (
+              <span className="ml-3 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Optional</span>
+            )}
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-            Housekeeping Staff
-          </h2>
+          <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full">
+            Per Shift (10 Hrs)
+          </span>
         </div>
-        <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full">
-          Per Shift (10 Hrs)
-        </span>
-      </div>
 
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                Category
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                Charges per Shift
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                No. of Staff
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                No. of Days
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                Total Cost
-              </th>
-            </tr>
-          </thead>
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
+                  Category
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
+                  Charges per Shift
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
+                  No. of Staff
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
+                  No. of Days
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
+                  Total Cost
+                </th>
+              </tr>
+            </thead>
 
-          <tbody className="bg-white divide-y divide-gray-200">
-            <tr className="hover:bg-gray-50 transition-colors">
-              <td className="px-4 py-4 text-sm font-medium text-gray-900">
-                Housekeeping
-              </td>
+            <tbody className="bg-white divide-y divide-gray-200">
+              <tr className="hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                  Housekeeping
+                </td>
 
-              <td className="px-4 py-4 text-sm text-gray-900">
-                ₹{housekeepingStaff.chargesPerShift.toLocaleString()}
-              </td>
+                <td className="px-4 py-4 text-sm text-gray-900">
+                  ₹{housekeepingStaff.chargesPerShift.toLocaleString()}
+                </td>
 
-              {/* Quantity */}
-              <td className="px-4 py-4">
-                <input
-                  type="number"
-                  min="0"
-                  value={housekeepingStaff.quantity || ""}
-                  onChange={(e) =>
-                    setHousekeepingStaff({
-                      ...housekeepingStaff,
-                      quantity: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="0"
-                />
-              </td>
+                {/* Quantity */}
+                <td className="px-4 py-4">
+                  <input
+                    type="number"
+                    min="0"
+                    value={housekeepingStaff.quantity || ""}
+                    onChange={(e) =>
+                      setHousekeepingStaff({
+                        ...housekeepingStaff,
+                        quantity: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="0"
+                  />
+                </td>
 
-              {/* Days */}
-              <td className="px-4 py-4">
-                <input
-                  type="number"
-                  min="0"
-                  value={housekeepingStaff.noOfDays || ""}
-                  onChange={(e) =>
-                    setHousekeepingStaff({
-                      ...housekeepingStaff,
-                      noOfDays: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="0"
-                />
-              </td>
+                {/* Days */}
+                <td className="px-4 py-4">
+                  <input
+                    type="number"
+                    min="0"
+                    value={housekeepingStaff.noOfDays || ""}
+                    onChange={(e) =>
+                      setHousekeepingStaff({
+                        ...housekeepingStaff,
+                        noOfDays: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="0"
+                  />
+                </td>
 
-              <td className="px-4 py-4 text-sm font-semibold text-blue-600">
-                ₹{housekeepingStaff.totalCost.toLocaleString()}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {housekeepingStaff.quantity > 0 && housekeepingStaff.noOfDays > 0 && (
-        <div className="mt-4 bg-blue-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-700">
-            Subtotal: <span className="font-semibold text-blue-700">₹{housekeepingStaff.totalCost.toLocaleString()}</span>
-          </p>
-          <p className="text-xs text-blue-600 mt-1">
-            * GST @ 18% will be added in final summary
-          </p>
+                <td className="px-4 py-4 text-sm font-semibold text-blue-600">
+                  ₹{housekeepingStaff.totalCost.toLocaleString()}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      )}
-    </div>
-  );
-};
+
+        {housekeepingStaff.quantity > 0 && housekeepingStaff.noOfDays > 0 && (
+          <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-700">
+              Subtotal: <span className="font-semibold text-blue-700">₹{housekeepingStaff.totalCost.toLocaleString()}</span>
+            </p>
+            <p className="text-xs text-blue-600 mt-1">
+              * GST @ 18% will be added in final summary
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // ============= PREVIEW MODAL =============
   const renderPreviewModal = () => {
     const totals = calculateTotals();
-    
+
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
         <div className="relative top-10 sm:top-20 mx-3 sm:mx-auto p-4 sm:p-6 border w-full sm:w-11/12 max-w-4xl shadow-lg rounded-lg bg-white">
@@ -2774,23 +2835,78 @@ const renderHousekeepingStaff = () => {
                   Exhibitor
                 </h3>
                 <div className="space-y-1 text-xs">
-                  <p><span className="font-medium">Name:</span> {generalInfo.title} {generalInfo.firstName} {generalInfo.lastName}</p>
-                  <p><span className="font-medium">Company:</span> {generalInfo.companyName}</p>
-                  <p><span className="font-medium">Email:</span> {generalInfo.email}</p>
-                  <p><span className="font-medium">Mobile:</span> {generalInfo.mobile}</p>
+                  <p>
+                    <span className="font-medium">Name:</span>{" "}
+                    {`${generalInfo.title || ""} ${generalInfo.firstName || ""} ${generalInfo.lastName || ""}`.trim() || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Company:</span>{" "}
+                    {generalInfo.companyName || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Email:</span>{" "}
+                    {generalInfo.email || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Mobile:</span>{" "}
+                    {generalInfo.mobile || "—"}
+                  </p>
+
                 </div>
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
                   <MapPinIcon className="h-4 w-4 mr-2 text-blue-600" />
-                  Booth
+                  Booth Details
                 </h3>
+
                 <div className="space-y-1 text-xs">
-                  <p><span className="font-medium">Booth:</span> {boothDetails.boothNo}</p>
-                  <p><span className="font-medium">Size:</span> {boothDetails.sqMtrBooked} sq.m</p>
+                  <p>
+                    <span className="font-medium">Booth No:</span>{" "}
+                    {boothDetails.boothNo || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Size:</span>{" "}
+                    {boothDetails.sqMtrBooked ? `${boothDetails.sqMtrBooked} sq.m` : "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Exhibitor Name:</span>{" "}
+                    {boothDetails.exhibitorName || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Organisation:</span>{" "}
+                    {boothDetails.organisation || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Contact Person:</span>{" "}
+                    {boothDetails.contactPerson || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Designation:</span>{" "}
+                    {boothDetails.designation || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Mobile:</span>{" "}
+                    {boothDetails.mobile || "—"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium">Email:</span>{" "}
+                    {boothDetails.email || "—"}
+                  </p>
                 </div>
               </div>
+
             </div>
 
             {/* Cost Summary */}
@@ -2800,10 +2916,6 @@ const renderHousekeepingStaff = () => {
               </div>
               <table className="min-w-full divide-y divide-gray-200">
                 <tbody className="divide-y divide-gray-200">
-                  <tr>
-                    <td className="px-4 py-2 text-xs">Security Deposit</td>
-                    <td className="px-4 py-2 text-xs text-right">₹{totals.deposit.toLocaleString()}</td>
-                  </tr>
                   <tr>
                     <td className="px-4 py-2 text-xs">Furniture</td>
                     <td className="px-4 py-2 text-xs text-right">₹{totals.furniture.toLocaleString()}</td>
@@ -2836,33 +2948,43 @@ const renderHousekeepingStaff = () => {
                     <td className="px-4 py-2 text-xs font-semibold">Housekeeping Staff</td>
                     <td className="px-4 py-2 text-xs font-semibold text-right">₹{totals.housekeeping.toLocaleString()}</td>
                   </tr>
-                 <tr className="bg-gray-50">
-  <td className="px-4 py-2 text-xs font-semibold">Subtotal (Without GST)</td>
-  <td className="px-4 py-2 text-xs text-right">
-    ₹{totals.subtotal.toLocaleString()}
-  </td>
-</tr>
+                  <tr>
+                    <td className="px-4 py-2 text-xs">Services Total</td>
+                    <td className="px-4 py-2 text-xs text-right">
+                      ₹{totals.servicesTotal.toLocaleString()}
+                    </td>
+                  </tr>
 
-<tr>
-  <td className="px-4 py-2 text-xs font-semibold">GST (18%)</td>
-  <td className="px-4 py-2 text-xs text-right">
-    ₹{totals.gst.toLocaleString()}
-  </td>
-</tr>
+                  <tr>
+                    <td className="px-4 py-2 text-xs">GST (18%)</td>
+                    <td className="px-4 py-2 text-xs text-right">
+                      ₹{totals.gst.toLocaleString()}
+                    </td>
+                  </tr>
 
-<tr>
-  <td className="px-4 py-2 text-xs font-semibold">Security Deposit</td>
-  <td className="px-4 py-2 text-xs text-right">
-    ₹{totals.deposit.toLocaleString()}
-  </td>
-</tr>
+                  <tr className="bg-gray-50">
+                    <td className="px-4 py-2 text-xs font-semibold">
+                      Subtotal (Including GST)
+                    </td>
+                    <td className="px-4 py-2 text-xs text-right">
+                      ₹{totals.subtotal.toLocaleString()}
+                    </td>
+                  </tr>
 
-<tr className="bg-blue-50">
-  <td className="px-4 py-2 text-sm font-bold">Grand Total</td>
-  <td className="px-4 py-2 text-sm font-bold text-blue-700 text-right">
-    ₹{totals.total.toLocaleString()}
-  </td>
-</tr>
+                  <tr>
+                    <td className="px-4 py-2 text-xs font-semibold">Security Deposit</td>
+                    <td className="px-4 py-2 text-xs text-right">
+                      ₹{totals.deposit.toLocaleString()}
+                    </td>
+                  </tr>
+
+                  <tr className="bg-blue-50">
+                    <td className="px-4 py-2 text-sm font-bold">Grand Total</td>
+                    <td className="px-4 py-2 text-sm font-bold text-blue-700 text-right">
+                      ₹{totals.total.toLocaleString()}
+                    </td>
+                  </tr>
+
                 </tbody>
               </table>
             </div>
@@ -2893,7 +3015,7 @@ const renderHousekeepingStaff = () => {
   // ============= PAYMENT MODAL =============
   const renderPaymentModal = () => {
     const totals = calculateTotals();
-    
+
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
         <div className="relative top-10 sm:top-20 mx-3 sm:mx-auto p-4 sm:p-6 border w-full sm:w-11/12 max-w-2xl shadow-lg rounded-lg bg-white">
@@ -2939,7 +3061,7 @@ const renderHousekeepingStaff = () => {
                   <label className="block text-xs font-medium text-gray-700 mb-1">Payment Mode</label>
                   <select
                     value={paymentDetails.paymentMode}
-                    onChange={(e) => setPaymentDetails({...paymentDetails, paymentMode: e.target.value as any})}
+                    onChange={(e) => setPaymentDetails({ ...paymentDetails, paymentMode: e.target.value as any })}
                     className="w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="RTGS">RTGS</option>
@@ -2955,7 +3077,7 @@ const renderHousekeepingStaff = () => {
                   <input
                     type="text"
                     value={paymentDetails.transactionId}
-                    onChange={(e) => setPaymentDetails({...paymentDetails, transactionId: e.target.value})}
+                    onChange={(e) => setPaymentDetails({ ...paymentDetails, transactionId: e.target.value })}
                     className="w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="UTR / Transaction ID"
                   />
@@ -2965,7 +3087,7 @@ const renderHousekeepingStaff = () => {
                   <input
                     type="number"
                     value={paymentDetails.amount || ''}
-                    onChange={(e) => setPaymentDetails({...paymentDetails, amount: parseFloat(e.target.value) || 0})}
+                    onChange={(e) => setPaymentDetails({ ...paymentDetails, amount: parseFloat(e.target.value) || 0 })}
                     className="w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter amount"
                   />
@@ -2975,7 +3097,7 @@ const renderHousekeepingStaff = () => {
                   <input
                     type="date"
                     value={paymentDetails.transactionDate}
-                    onChange={(e) => setPaymentDetails({...paymentDetails, transactionDate: e.target.value})}
+                    onChange={(e) => setPaymentDetails({ ...paymentDetails, transactionDate: e.target.value })}
                     className="w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -3025,14 +3147,14 @@ const renderHousekeepingStaff = () => {
   const renderNavigation = () => (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-6">
       <button
-        onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+        onClick={handlePreviousStep}
         disabled={currentStep === 1}
         className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center text-sm"
       >
         <ChevronLeftIcon className="h-4 w-4 mr-1" />
         Previous
       </button>
-      
+
       <div className="flex gap-3 w-full sm:w-auto">
         <button
           onClick={() => setShowPreview(true)}
@@ -3042,17 +3164,26 @@ const renderHousekeepingStaff = () => {
           <span className="hidden sm:inline">Preview & Totals</span>
           <span className="sm:hidden">Preview</span>
         </button>
-        
-        {/* Only show Next button if not on last step (14) */}
+
+        {/* Show Next button if not on last step */}
         {currentStep < totalSteps && (
           <button
-            onClick={() => setCurrentStep(Math.min(totalSteps, currentStep + 1))}
-            disabled={currentStep === totalSteps}
-            className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center text-sm"
+            onClick={handleNextStep}
+            className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center text-sm"
           >
             <span className="sm:hidden">Next</span>
             <span className="hidden sm:inline">Next</span>
             <ChevronRightIcon className="h-4 w-4 ml-1" />
+          </button>
+        )}
+
+        {/* Show Submit button on last step */}
+        {currentStep === totalSteps && (
+          <button
+            onClick={() => setShowPreview(true)}
+            className="flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center text-sm font-semibold"
+          >
+            Review & Submit
           </button>
         )}
       </div>
@@ -3067,12 +3198,13 @@ const renderHousekeepingStaff = () => {
         <div className="flex items-center justify-between">
           {steps.map((step, idx) => (
             <div key={step.number} className="flex items-center">
-              <div 
+              <div
                 className={`
                   flex items-center justify-center w-8 h-8 rounded-full border-2 text-xs font-medium
-                  ${currentStep > step.number ? 'bg-green-600 border-green-600 text-white' : 
-                    currentStep === step.number ? 'bg-blue-600 border-blue-600 text-white' : 
-                    'border-gray-300 bg-white text-gray-400'}
+                  ${currentStep > step.number ? 'bg-green-600 border-green-600 text-white' :
+                    currentStep === step.number ? 'bg-blue-600 border-blue-600 text-white' :
+                      'border-gray-300 bg-white text-gray-400'}
+                  ${step.required && currentStep <= step.number ? 'ring-2 ring-red-200' : ''}
                 `}
               >
                 {currentStep > step.number ? '✓' : step.number}
@@ -3085,7 +3217,10 @@ const renderHousekeepingStaff = () => {
         </div>
         <div className="flex justify-between mt-2">
           {steps.map(step => (
-            <span key={step.number} className="text-xs text-gray-600">{step.name}</span>
+            <span key={step.number} className="text-xs text-gray-600">
+              {step.name}
+              {step.required && <span className="text-red-500 ml-1">*</span>}
+            </span>
           ))}
         </div>
       </div>
@@ -3093,18 +3228,21 @@ const renderHousekeepingStaff = () => {
       {/* Mobile View */}
       <div className="sm:hidden">
         <div className="flex items-center justify-between">
-          <button 
+          <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="flex items-center text-blue-600"
           >
             <MenuIcon className="h-5 w-5 mr-2" />
-            <span className="font-medium text-sm">Step {currentStep}: {steps[currentStep-1]?.mobileName}</span>
+            <span className="font-medium text-sm">
+              Step {currentStep}: {steps[currentStep - 1]?.mobileName}
+              {steps[currentStep - 1]?.required && <span className="text-red-500 ml-1">*</span>}
+            </span>
           </button>
           <div className="text-sm text-gray-600">
             {currentStep} / {totalSteps}
           </div>
         </div>
-        
+
         {isMobileMenuOpen && (
           <div className="mt-4 grid grid-cols-4 gap-2">
             {steps.map((step) => (
@@ -3115,13 +3253,16 @@ const renderHousekeepingStaff = () => {
                   setIsMobileMenuOpen(false);
                 }}
                 className={`
-                  p-2 rounded-lg text-xs font-medium
-                  ${currentStep === step.number 
-                    ? 'bg-blue-600 text-white' 
+                  p-2 rounded-lg text-xs font-medium relative
+                  ${currentStep === step.number
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700'}
                 `}
               >
                 {step.mobileName}
+                {step.required && (
+                  <span className="absolute -top-1 -right-1 text-red-500">*</span>
+                )}
               </button>
             ))}
           </div>
@@ -3134,12 +3275,23 @@ const renderHousekeepingStaff = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-        
+
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Exhibition Registration</h1>
-          <p className="mt-1 text-sm sm:text-base text-gray-600">Complete all sections to register your participation</p>
+          <p className="mt-1 text-sm sm:text-base text-gray-600">
+            Complete all required sections to register your participation.
+            <span className="text-red-500 ml-1">*</span> = Required
+          </p>
         </div>
+
+        {/* Validation Error Message */}
+        {validationError && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+            <ExclamationCircleIcon className="h-5 w-5 mr-2 text-red-500" />
+            <span className="text-sm font-medium">{validationError}</span>
+          </div>
+        )}
 
         {/* Progress Tracker */}
         {renderProgressTracker()}
