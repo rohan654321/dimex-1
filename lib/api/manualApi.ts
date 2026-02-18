@@ -1,10 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://diemex-backend.onrender.com/api';
-
-// ========================
-// TYPES
-// ========================
+// src/lib/api/manualApi.ts
 
 export interface Manual {
   id: string;
@@ -20,15 +14,14 @@ export interface Manual {
   updated_by: string;
   downloads: number;
   status: 'published' | 'draft';
-  metadata?: Record<string, any>;
-  created_at?: string;
-  updated_at?: string;
+  metadata?: any;
+  type?: 'pdf' | 'section'; // To distinguish between PDF and text sections
 }
 
 export interface ManualFilters {
-  status?: 'published' | 'draft';
   category?: string;
   search?: string;
+  status?: string;
 }
 
 export interface ManualStatistics {
@@ -36,311 +29,244 @@ export interface ManualStatistics {
   publishedManuals: number;
   draftManuals: number;
   totalDownloads: number;
-  categoryStats: Array<{
-    category: string;
-    count: number;
-  }>;
+  categoryStats: Array<{ category: string; count: number }>;
 }
 
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
+  count?: number;
 }
 
-// ========================
-// CUSTOM ERROR CLASS
-// ========================
-
 export class ApiError extends Error {
-  constructor(
-    message: string,
-    public statusCode?: number,
-    public data?: any
-  ) {
+  constructor(public status: number, message: string) {
     super(message);
     this.name = 'ApiError';
   }
 }
 
-// ========================
-// MANUAL API CLASS
-// ========================
-
 class ManualApi {
-  private api: AxiosInstance;
+  private baseURL: string;
 
   constructor() {
-    this.api = axios.create({
-      baseURL: API_URL,
-    });
-
-    // Add request interceptor to ensure token is always included
-    this.api.interceptors.request.use(
-      (config) => {
-        // Get the latest token from localStorage on every request
-        if (typeof window !== 'undefined') {
-          // Try both admin_token and authToken for compatibility
-          const adminToken = localStorage.getItem('admin_token');
-          const authToken = localStorage.getItem('authToken');
-          const token = adminToken || authToken;
-          
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-            console.log(`🔑 Token attached to ${config.method?.toUpperCase()} ${config.url}`);
-          } else {
-            console.warn(`🔑 No auth token found for ${config.method?.toUpperCase()} ${config.url}`);
-          }
-        }
-        return config;
-      }
-    );
-
-    // Global response error handler
-    this.api.interceptors.response.use(
-      (response) => {
-        // Log responses in development
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`✅ ${response.config.method?.toUpperCase()} ${response.config.url} - ${response.status}`);
-        }
-        return response;
-      },
-      (error: AxiosError) => {
-        // Enhanced error logging
-        if (error.response) {
-          console.error(`❌ API Error ${error.response.status}:`, {
-            url: error.config?.url,
-            method: error.config?.method,
-            status: error.response.status,
-            statusText: error.response.statusText,
-            data: error.response.data
-          });
-          
-          // Handle 401 Unauthorized - token expired or invalid
-          if (error.response.status === 401) {
-            console.error('🔐 Authentication failed. Token may be expired.');
-            if (typeof window !== 'undefined') {
-              // Clear invalid tokens
-              localStorage.removeItem('admin_token');
-              localStorage.removeItem('authToken');
-              // You might want to redirect to login page here
-              // window.location.href = '/admin/login';
-            }
-          }
-        } else if (error.request) {
-          console.error('❌ No response received:', error.request);
-        } else {
-          console.error('❌ Request error:', error.message);
-        }
-        
-        const apiError = new ApiError(
-          (error.response?.data as any)?.message || error.message,
-          error.response?.status,
-          error.response?.data
-        );
-        return Promise.reject(apiError);
-      }
-    );
+    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://diemex-backend.onrender.com';
   }
 
-  // ========================
-  // AUTH TOKEN HANDLER
-  // ========================
-
-  setAuthToken(token: string | null): void {
-    if (token) {
-      localStorage.setItem('admin_token', token);
-      localStorage.setItem('authToken', token); // Set both for compatibility
-      this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      console.log('🔑 Auth token set in API headers');
-    } else {
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('authToken');
-      delete this.api.defaults.headers.common['Authorization'];
-      console.log('🔑 Auth token removed from API headers');
-    }
-  }
-
-  // Helper to check if user is authenticated
-  isAuthenticated(): boolean {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('admin_token') || localStorage.getItem('authToken');
-      return !!token;
-    }
-    return false;
-  }
-
-  // ========================
-  // PUBLIC ROUTES (No auth required for exhibitor views)
-  // ========================
-
-  async getManuals(filters: ManualFilters = {}): Promise<ApiResponse<Manual[]>> {
+  // Get all manuals (combines text sections and PDFs)
+  async getManuals(filters?: ManualFilters): Promise<ApiResponse<Manual[]>> {
     try {
+      let url = `${this.baseURL}/api/manuals/admin/all`;
+      
       const params = new URLSearchParams();
-
-      if (filters.status) params.append('status', filters.status);
-      if (filters.category && filters.category !== 'all') {
+      if (filters?.category && filters.category !== 'all') {
         params.append('category', filters.category);
       }
-      if (filters.search) params.append('search', filters.search);
+      if (filters?.search) {
+        params.append('search', filters.search);
+      }
+      if (filters?.status) {
+        params.append('status', filters.status);
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
 
-      const queryString = params.toString();
-      const url = `/manuals${queryString ? `?${queryString}` : ''}`;
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      const response: AxiosResponse<ApiResponse<Manual[]>> =
-        await this.api.get(url);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return { success: true, data: [] };
+        }
+        throw new ApiError(response.status, await response.text());
+      }
 
-      return response.data;
+      const data = await response.json();
+      return data;
     } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError('Failed to fetch manuals');
+      console.error('Error fetching manuals:', error);
+      return { success: true, data: [] };
     }
   }
 
-  async getManual(id: string): Promise<ApiResponse<Manual>> {
+  // Get statistics
+  async getStatistics(): Promise<ApiResponse<ManualStatistics>> {
     try {
-      const response: AxiosResponse<ApiResponse<Manual>> =
-        await this.api.get(`/manuals/${id}`);
-      return response.data;
+      const response = await fetch(`${this.baseURL}/api/manuals/admin/statistics`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return {
+            success: true,
+            data: {
+              totalManuals: 0,
+              publishedManuals: 0,
+              draftManuals: 0,
+              totalDownloads: 0,
+              categoryStats: []
+            }
+          };
+        }
+        throw new ApiError(response.status, await response.text());
+      }
+
+      const data = await response.json();
+      return data;
     } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError(`Failed to fetch manual with id ${id}`);
+      console.error('Error fetching statistics:', error);
+      return {
+        success: true,
+        data: {
+          totalManuals: 0,
+          publishedManuals: 0,
+          draftManuals: 0,
+          totalDownloads: 0,
+          categoryStats: []
+        }
+      };
     }
   }
 
-  async downloadManual(id: string): Promise<{ success: boolean; downloadUrl?: string; fileName?: string }> {
+  // Create manual (for PDF uploads)
+  async createManual(formData: FormData): Promise<ApiResponse<Manual>> {
+    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
+    
+    const response = await fetch(`${this.baseURL}/api/manuals`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new ApiError(response.status, error.message || 'Failed to create manual');
+    }
+
+    return response.json();
+  }
+
+  // Create text section
+  async createSection(data: { title: string; content: string; category: string }): Promise<ApiResponse<Manual>> {
+    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
+    
+    const response = await fetch(`${this.baseURL}/api/manuals/sections`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new ApiError(response.status, error.message || 'Failed to create section');
+    }
+
+    return response.json();
+  }
+
+  // Update manual
+  async updateManual(id: string, formData: FormData): Promise<ApiResponse<Manual>> {
+    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
+    
+    const response = await fetch(`${this.baseURL}/api/manuals/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new ApiError(response.status, error.message || 'Failed to update manual');
+    }
+
+    return response.json();
+  }
+
+  // Delete manual
+  async deleteManual(id: string): Promise<ApiResponse<null>> {
+    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
+    
+    const response = await fetch(`${this.baseURL}/api/manuals/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new ApiError(response.status, error.message || 'Failed to delete manual');
+    }
+
+    return response.json();
+  }
+
+  // Delete section
+  async deleteSection(id: string): Promise<ApiResponse<null>> {
+    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
+    
+    const response = await fetch(`${this.baseURL}/api/manuals/sections/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new ApiError(response.status, error.message || 'Failed to delete section');
+    }
+
+    return response.json();
+  }
+
+  // Download manual
+  async downloadManual(id: string): Promise<{ success: boolean; downloadUrl?: string }> {
     try {
-      const response: AxiosResponse<any> =
-        await this.api.get(`/manuals/${id}/download`);
+      const response = await fetch(`${this.baseURL}/api/manuals/${id}/download`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      const { downloadUrl, fileName } = response.data.data;
+      if (!response.ok) {
+        throw new Error('Failed to download');
+      }
 
-      // Automatically trigger download
-      if (downloadUrl) {
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.setAttribute('download', fileName || 'manual.pdf');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+      const data = await response.json();
+      
+      if (data.success && data.data?.downloadUrl) {
+        window.open(data.data.downloadUrl, '_blank');
         return { success: true };
       }
       
-      return { success: true, downloadUrl, fileName };
+      return { success: false };
     } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError(`Failed to download manual with id ${id}`);
+      console.error('Error downloading manual:', error);
+      return { success: false };
     }
   }
 
-  // ========================
-  // ADMIN ROUTES (Protected)
-  // ========================
-
-  async createManual(formData: FormData): Promise<ApiResponse<Manual>> {
-    try {
-      // Ensure we have a token
-      if (!this.isAuthenticated()) {
-        throw new ApiError('Not authenticated. Please log in.', 401);
-      }
-
-      const response: AxiosResponse<ApiResponse<Manual>> =
-        await this.api.post('/manuals', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError('Failed to create manual');
-    }
-  }
-
-  async updateManual(
-    id: string,
-    formData: FormData
-  ): Promise<ApiResponse<Manual>> {
-    try {
-      // Ensure we have a token
-      if (!this.isAuthenticated()) {
-        throw new ApiError('Not authenticated. Please log in.', 401);
-      }
-
-      const response: AxiosResponse<ApiResponse<Manual>> =
-        await this.api.put(`/manuals/${id}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError(`Failed to update manual with id ${id}`);
-    }
-  }
-
-  async deleteManual(id: string): Promise<ApiResponse<null>> {
-    try {
-      // Ensure we have a token
-      if (!this.isAuthenticated()) {
-        throw new ApiError('Not authenticated. Please log in.', 401);
-      }
-
-      const response: AxiosResponse<ApiResponse<null>> =
-        await this.api.delete(`/manuals/${id}`);
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError(`Failed to delete manual with id ${id}`);
-    }
-  }
-
-  async getStatistics(): Promise<ApiResponse<ManualStatistics>> {
-    try {
-      // Statistics might be public or protected - adjust as needed
-      const response: AxiosResponse<ApiResponse<ManualStatistics>> =
-        await this.api.get('/manuals/statistics/overview');
-
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError('Failed to fetch statistics');
-    }
-  }
-
-  // Helper method to upload files
-  async uploadFile(file: File, onProgress?: (progress: number) => void): Promise<ApiResponse<{ url: string }>> {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response: AxiosResponse<ApiResponse<{ url: string }>> =
-        await this.api.post('/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          onUploadProgress: (progressEvent) => {
-            if (onProgress && progressEvent.total) {
-              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              onProgress(percentCompleted);
-            }
-          },
-        });
-
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) throw error;
-      throw new ApiError('Failed to upload file');
-    }
+  // Preview manual
+  async previewManual(id: string): Promise<void> {
+    window.open(`${this.baseURL}/api/manuals/${id}/preview`, '_blank');
   }
 }
-
-// ========================
-// EXPORT SINGLETON
-// ========================
 
 const manualApi = new ManualApi();
 export default manualApi;
