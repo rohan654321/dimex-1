@@ -179,6 +179,7 @@ interface RentalItem {
   quantity: number;
   totalCost: number;
   image?: string;
+  imageUrl?: string;
   category?: string;
   inStock?: boolean;
 }
@@ -217,6 +218,7 @@ interface SecurityGuardConfig {
 }
 
 interface WaterConnectionConfig {
+  costPerConnection: number;
   ratePerConnection: number;
 }
 
@@ -383,6 +385,7 @@ export default function RequirementsPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
 
   // Form 1 - General Information
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
@@ -573,23 +576,37 @@ if (furnitureRes.status === 'fulfilled' && furnitureRes.value.success) {
 }
 
         // Process Rental Items
-        if (rentalItemsRes.status === 'fulfilled' && rentalItemsRes.value.success) {
-          const items = rentalItemsRes.value.data;
-          const rentalItemsMap: RentalItems = {};
-          
-          items.forEach(item => {
-            if (item.id) {
-              rentalItemsMap[item.id] = {
-                ...item,
-                quantity: 0,
-                totalCost: 0
-              };
-            }
-          });
-          
-          setRentalItems(rentalItemsMap);
-        }
-
+ // Process Rental Items
+if (rentalItemsRes.status === 'fulfilled' && rentalItemsRes.value.success) {
+  console.log('Rental Items API Response:', rentalItemsRes.value.data);
+  const items = rentalItemsRes.value.data;
+  const rentalItemsMap: RentalItems = {};
+  
+  items.forEach(item => {
+    if (item.id) {
+      // Construct full image URL if imageUrl exists
+      let imageUrl = '';
+      if (item.imageUrl) {
+        // If it's already a full URL, use it as is, otherwise prepend the base URL
+        imageUrl = item.imageUrl.startsWith('http') 
+          ? item.imageUrl 
+          : `${API_BASE_URL}${item.imageUrl}`;
+      }
+      
+      rentalItemsMap[item.id] = {
+        id: item.id,
+        description: item.description,
+        costFor3Days: item.costFor3Days,
+        category: item.category,
+        image: imageUrl,  // Map imageUrl to image
+        quantity: 0,
+        totalCost: 0
+      };
+    }
+  });
+  
+  setRentalItems(rentalItemsMap);
+}
         // Process Hostess Categories
         if (hostessCategoriesRes.status === 'fulfilled' && hostessCategoriesRes.value.success) {
           const categories = hostessCategoriesRes.value.data;
@@ -613,13 +630,19 @@ if (furnitureRes.status === 'fulfilled' && furnitureRes.value.success) {
           // Update rate if needed
         }
 
-        // Process Water Connection Config
-        if (waterConnectionConfigRes.status === 'fulfilled' && waterConnectionConfigRes.value.success) {
-          setWaterConnection(prev => ({
-            ...prev,
-            costPerConnection: waterConnectionConfigRes.value.data.ratePerConnection
-          }));
-        }
+// Process Water Connection Config
+if (waterConnectionConfigRes.status === 'fulfilled' && waterConnectionConfigRes.value.success) {
+  console.log('Water Connection Config Response:', waterConnectionConfigRes.value.data);
+  
+  // Check if data exists and has costPerConnection
+  const configData = waterConnectionConfigRes.value.data;
+  const ratePerConnection = configData?.costPerConnection || 15000;
+  
+  setWaterConnection(prev => ({
+    ...prev,
+    costPerConnection: ratePerConnection
+  }));
+}
 
         // Process Housekeeping Config
         if (housekeepingConfigRes.status === 'fulfilled' && housekeepingConfigRes.value.success) {
@@ -2367,23 +2390,33 @@ const renderFurniture = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {furnitureItems.map((item, index) => (
               <tr key={item.code || index} className="hover:bg-gray-50">
-                <td className="px-2 py-1.5">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center">
-                    {/* Check both image and imageUrl fields */}
-                    {(item.image || item.imageUrl) ? (
-                      <img
-                        src={item.image || item.imageUrl || ''}
-                        alt={item.description || 'Furniture item'}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/furniture/placeholder.jpg';
-                        }}
-                      />
-                    ) : (
-                      <PhotoIcon className="h-6 w-6 text-gray-400" />
-                    )}
-                  </div>
-                </td>
+               <td className="px-2 py-1.5">
+  <div 
+    className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+    onClick={() => {
+      const imageUrl = item.image || item.imageUrl;
+      if (imageUrl) {
+        setSelectedImage({
+          src: imageUrl,
+          alt: item.description || 'Furniture item'
+        });
+      }
+    }}
+  >
+    {(item.image || item.imageUrl) ? (
+      <img
+        src={item.image || item.imageUrl || ''}
+        alt={item.description || 'Furniture item'}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = '/furniture/placeholder.jpg';
+        }}
+      />
+    ) : (
+      <PhotoIcon className="h-6 w-6 text-gray-400" />
+    )}
+  </div>
+</td>
                 <td className="px-2 py-1.5 text-xs font-mono text-blue-600">{item.code || 'N/A'}</td>
                 <td className="px-2 py-1.5 text-xs">{item.description || 'No description'}</td>
                 <td className="px-2 py-1.5 text-xs">
@@ -2612,36 +2645,58 @@ const renderFurniture = () => {
   };
 
   // ============= FORM 11: WATER CONNECTION (OPTIONAL) =============
-  const renderWaterConnection = () => (
+const renderWaterConnection = () => {
+  const connections = waterConnection?.connections ?? 0;
+  const costPerConnection = waterConnection?.costPerConnection ?? 0;
+  const totalCost = waterConnection?.totalCost ?? 0;
+
+  return (
     <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
       <div className="flex items-center mb-6">
         <div className="bg-blue-100 p-2 rounded-lg">
           <TruckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Water Connection</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
+          Water Connection
+        </h2>
       </div>
 
       <div className="max-w-md">
         <div className="flex items-center gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">No. of Connections</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              No. of Connections
+            </label>
             <input
               type="number"
               min="0"
-              value={waterConnection.connections || ''}
-              onChange={(e) => setWaterConnection({ ...waterConnection, connections: parseInt(e.target.value) || 0 })}
+              value={connections || ''}
+              onChange={(e) =>
+                setWaterConnection({
+                  ...waterConnection,
+                  connections: parseInt(e.target.value) || 0
+                })
+              }
               className="w-24 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
           <div className="text-sm">
-            <p className="text-gray-600">Cost per connection: ₹{waterConnection.costPerConnection.toLocaleString()}</p>
-            <p className="font-semibold text-blue-600 mt-1">Total: ₹{waterConnection.totalCost.toLocaleString()}</p>
-            <p className="text-xs text-gray-500">Excluding GST (will be added in final summary)</p>
+            <p className="text-gray-600">
+              Cost per connection: ₹{costPerConnection.toLocaleString()}
+            </p>
+            <p className="font-semibold text-blue-600 mt-1">
+              Total: ₹{totalCost.toLocaleString()}
+            </p>
+            <p className="text-xs text-gray-500">
+              Excluding GST (will be added in final summary)
+            </p>
           </div>
         </div>
       </div>
     </div>
   );
+};
 
   // ============= FORM 12: SECURITY GUARD (OPTIONAL) =============
   const renderSecurityGuard = () => (
@@ -2722,101 +2777,149 @@ const renderFurniture = () => {
       </div>
     </div>
   );
+  const renderImageModal = () => {
+  if (!selectedImage) return null;
 
-  // ============= FORM 13: RENTAL ITEMS (AV & IT) (OPTIONAL) =============
-  const renderRentalItems = () => {
-    const rentalTotal = Object.values(rentalItems).reduce((sum, item) => sum + item.totalCost, 0);
-
-    if (Object.keys(rentalItems).length === 0) {
-      return (
-        <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-          <div className="flex items-center mb-6">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals</h2>
-          </div>
-          <div className="text-center py-8 text-gray-500">
-            No rental items available at the moment.
-          </div>
+  return (
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-90 z-[100] flex items-center justify-center p-4"
+      onClick={() => setSelectedImage(null)}
+    >
+      <button
+        onClick={() => setSelectedImage(null)}
+        className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+      >
+        <XCircleIcon className="h-8 w-8" />
+      </button>
+      
+      <div 
+        className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <img
+          src={selectedImage.src}
+          alt={selectedImage.alt}
+          className="max-w-full max-h-full object-contain"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/furniture/placeholder.jpg';
+          }}
+        />
+        
+        {/* Image info */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg text-sm">
+          {selectedImage.alt}
         </div>
-      );
-    }
+      </div>
+    </div>
+  );
+};
+  // ============= FORM 13: RENTAL ITEMS (AV & IT) (OPTIONAL) =============
+const renderRentalItems = () => {
+  const rentalTotal = Object.values(rentalItems).reduce((sum, item) => sum + (item.totalCost || 0), 0);
 
+  if (Object.keys(rentalItems).length === 0) {
     return (
       <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals</h2>
+        <div className="flex items-center mb-6">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
           </div>
-          <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1.5 rounded-full">For 3 Days</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals</h2>
         </div>
-
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Image</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Description</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Cost for 3 Days</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Quantity</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Total Cost</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {Object.entries(rentalItems).map(([key, item]) => (
-                <tr key={key} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center">
-                      {item.image ? (
-                        <img
-                          src={item.image.startsWith('http') ? item.image : `${API_BASE_URL}${item.image}`}
-                          alt={item.description}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/rentals/placeholder.jpg';
-                          }}
-                        />
-                      ) : (
-                        <PhotoIcon className="h-6 w-6 text-gray-400" />
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{item.description}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">₹{item.costFor3Days.toLocaleString()}</td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="number"
-                      min="0"
-                      value={item.quantity || ''}
-                      onChange={(e) => handleRentalQuantity(key, parseInt(e.target.value) || 0)}
-                      className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
-                      placeholder="0"
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-sm font-semibold text-blue-600">₹{item.totalCost.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot className="bg-gray-50">
-              <tr>
-                <td colSpan={4} className="px-4 py-3 text-right text-sm font-bold text-gray-900">Total Rental Cost:</td>
-                <td className="px-4 py-3 text-sm font-bold text-blue-600">₹{rentalTotal.toLocaleString()}</td>
-              </tr>
-              <tr>
-                <td colSpan={5} className="px-4 py-2 text-xs text-gray-500 italic">
-                  * GST @ 18% will be applied to the total rental cost in the final summary
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+        <div className="text-center py-8 text-gray-500">
+          No rental items available at the moment.
         </div>
       </div>
     );
-  };
+  }
+
+  return (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals</h2>
+        </div>
+        <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1.5 rounded-full">For 3 Days</span>
+      </div>
+
+      <div className="overflow-x-auto border border-gray-200 rounded-lg">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Image</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Description</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Cost for 3 Days</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Quantity</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Total Cost</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {Object.entries(rentalItems).map(([key, item]) => (
+              <tr key={key} className="hover:bg-gray-50 transition-colors">
+               <td className="px-4 py-3">
+  <div 
+    className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+    onClick={() => {
+      if (item.image) {
+        setSelectedImage({
+          src: item.image,
+          alt: item.description
+        });
+      }
+    }}
+  >
+    {item.image ? (
+      <img
+        src={item.image}
+        alt={item.description}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          console.log('Failed to load image:', item.image);
+          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'2\' y=\'2\' width=\'20\' height=\'20\' rx=\'2.18\' ry=\'2.18\'%3E%3C/rect%3E%3Cline x1=\'9\' y1=\'2\' x2=\'9\' y2=\'22\'%3E%3C/line%3E%3Cline x1=\'15\' y1=\'2\' x2=\'15\' y2=\'22\'%3E%3C/line%3E%3C/svg%3E';
+        }}
+      />
+    ) : (
+      <PhotoIcon className="h-6 w-6 text-gray-400" />
+    )}
+  </div>
+</td>
+                <td className="px-4 py-3 text-sm text-gray-900">{item.description}</td>
+                <td className="px-4 py-3 text-sm text-gray-900">₹{(item.costFor3Days || 0).toLocaleString()}</td>
+                <td className="px-4 py-3">
+                  <input
+                    type="number"
+                    min="0"
+                    value={item.quantity || ''}
+                    onChange={(e) => handleRentalQuantity(key, parseInt(e.target.value) || 0)}
+                    className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="0"
+                  />
+                </td>
+                <td className="px-4 py-3 text-sm font-semibold text-blue-600">
+                  ₹{(item.totalCost || 0).toLocaleString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot className="bg-gray-50">
+            <tr>
+              <td colSpan={4} className="px-4 py-3 text-right text-sm font-bold text-gray-900">Total Rental Cost:</td>
+              <td className="px-4 py-3 text-sm font-bold text-blue-600">₹{(rentalTotal || 0).toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td colSpan={5} className="px-4 py-2 text-xs text-gray-500 italic">
+                * GST @ 18% will be applied to the total rental cost in the final summary
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  );
+};
 
   // ============= FORM 14: HOUSEKEEPING STAFF (OPTIONAL) =============
 // ============= FORM 14: HOUSEKEEPING STAFF (OPTIONAL) =============
@@ -3406,6 +3509,7 @@ const renderHousekeepingStaff = () => {
 
         {/* Navigation - Top */}
         {renderNavigation()}
+        {renderImageModal()}
 
         {/* Render Forms Based on Current Step */}
         <div className="mt-4">
