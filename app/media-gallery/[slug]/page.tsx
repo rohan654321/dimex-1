@@ -74,7 +74,7 @@ const mediaDetails = [
     title: "Diemex 2023 Inauguration",
     shortText: "Diemex2023 Inauguration Ceremony",
     images: [
-      { src: "/images/media-gallery/2023IN_1.JPG", alt: "Diemex 2023 Inauguration" },
+      { src: "/images/media-gallery/20205IN_29.JPG", alt: "Diemex 2023 Inauguration" },
       // Add more 2023 images based on your actual files
     ]
   },
@@ -84,7 +84,7 @@ const mediaDetails = [
     title: "Diemex 2023 Exhibition",
     shortText: "Diemex2023 Exhibition Highlights",
     images: [
-      { src: "/images/media-gallery/2023EX_1.JPG", alt: "Diemex 2023 Exhibition" },
+      { src: "/images/media-gallery/20205IN_27.JPG", alt: "Diemex 2023 Exhibition" },
       // Add more 2023 images based on your actual files
     ]
   },
@@ -94,7 +94,7 @@ const mediaDetails = [
     title: "Diemex 2023 Awards Ceremony",
     shortText: "Diemex2023 Awards Ceremony",
     images: [
-      { src: "/images/media-gallery/2023AW_1.JPG", alt: "Diemex 2023 Awards" },
+      { src: "/images/media-gallery/20205IN_27.JPG", alt: "Diemex 2023 Awards" },
       // Add more 2023 images based on your actual files
     ]
   }
