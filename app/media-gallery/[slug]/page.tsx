@@ -41,6 +41,7 @@ const mediaDetails = [
       { src: "/images/media-gallery/20205IN_27.JPG", alt: "Diemex©25 Inauguration" }, 
       { src: "/images/media-gallery/20205IN_28.JPG", alt: "Diemex©25 Inauguration" },
       { src: "/images/media-gallery/20205IN_29.JPG", alt: "Diemex©25 Inauguration" },
+       { src: "/images/media-gallery/20205IN_30.JPG", alt: "Diemex©25 Inauguration" },
     ]
   },
   {
