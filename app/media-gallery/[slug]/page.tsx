@@ -182,8 +182,31 @@ const mediaDetails = [
     shortText: "Diemex2025 Awards Ceremony",
     images: [
       // You'll need to check what your awards files are named
-      { src: "/images/media-gallery/20205IN_1.JPG", alt: "Diemex 2025 Awards" },
-      { src: "/images/media-gallery/20205IN_2.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_1.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_2.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_3.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_4.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_5.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_6.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_7.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_8.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_9.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_10.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_11.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_12.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_13.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_14.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_15.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_16.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_17.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_18.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_19.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_20.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_21.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_22.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_23.JPG", alt: "Diemex 2025 Awards" },
+      { src: "/images/media-gallery/AW_24.JPG", alt: "Diemex 2025 Awards" },
+      
     ]
   },
   // For 2023 galleries, you'll need to check those filenames too
