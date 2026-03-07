@@ -481,7 +481,7 @@ const mediaDetails = [
        { src: "/images/media-gallery/EX23_168.JPG", alt: "Diemex 2023 Inauguration" },
        { src: "/images/media-gallery/EX23_169.JPG", alt: "Diemex 2023 Inauguration" },
        { src: "/images/media-gallery/EX23_170.JPG", alt: "Diemex 2023 Inauguration" },
-
+       
 
 
 
