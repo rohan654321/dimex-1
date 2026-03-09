@@ -748,7 +748,7 @@ export default function WhyExhibit() {
             >
               <div className="relative w-full h-[320px] lg:h-[380px] rounded-lg overflow-hidden shadow-lg">
                 <Image
-                  src="/images/image.png"
+                  src="/images/exhibitors.png"
                   alt="Exhibitors showcase"
                   fill
                   className="object-cover"
