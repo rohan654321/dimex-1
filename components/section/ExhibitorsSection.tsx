@@ -17,7 +17,7 @@ const ExhibitorsSection = () => {
 
       {/* Single Banner Image with All Logos */}
     <div className="relative w-full mb-12 lg:mb-16 overflow-hidden rounded-2xl shadow-xl">
-  <div className="relative w-full h-[500px] lg:h-[550px]">
+  <div className="relative w-full h-[600px] lg:h-[650px]">
     <Image
       src="/images/exhibitors.png"
       alt="Our Past Exhibitors Banner"
