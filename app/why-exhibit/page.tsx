@@ -746,7 +746,7 @@ export default function WhyExhibit() {
               transition={{ duration: 0.6 }}
               className="mb-8"
             >
-              <div className="relative w-full h-[320px] lg:h-[380px] rounded-lg overflow-hidden shadow-lg">
+              <div className="relative w-full h-[520px] lg:h-[580px] rounded-lg overflow-hidden shadow-lg">
                 <Image
                   src="/images/exhibitors.png"
                   alt="Exhibitors showcase"
