@@ -574,7 +574,7 @@ export default function WhyExhibit() {
               </motion.h2>
 
               <div className="absolute -top-10 right-0 text-[180px] text-blue-100 leading-none select-none pointer-events-none">
-                " "
+                
               </div>
 
               <motion.div
