@@ -49,15 +49,51 @@ export default function WhyExhibit() {
   const testimonials = [
     {
       logo: "🎯",
-      text: "We participate and will continue to participate at TransRussia because of the year-on-year growth",
-      author: "ALEXEY KRAVCHENKO",
-      company: "Sales Director, FESCO",
+      text: "DIEMEX provides an excellent platform for tooling manufacturers to connect with serious buyers from the automotive, electronics, and engineering sectors.",
+    author: "RAJESH SHARMA",
+    company: "Managing Director, Precision Tooling Pvt Ltd",
     },
     {
       logo: "🚢",
-      text: "TransRussia delivers consistent high-quality leads and long-term partnerships.",
-      author: "IVAN PETROV",
-      company: "Head of Logistics, GlobalTrans",
+      text: "We gained valuable business leads and met key decision-makers from major manufacturing companies. DIEMEX is becoming an important event for the tooling industry.",
+    author: "MICHAEL TAN",
+    company: "Regional Sales Manager, GlobalMold Technologies",
+    },
+     {
+      logo: "🚢",
+      text: "The quality of visitors and industry professionals attending DIEMEX is impressive. It’s a great opportunity to showcase our latest die and mould innovations.",
+    author: "ARVIND KUMAR",
+    company: "Director, Apex Die & Mould Solutions",
+    },
+     {
+      logo: "🚢",
+     text: "DIEMEX helps us demonstrate advanced automation and machining solutions directly to manufacturers looking to upgrade their tool rooms.",
+    author: "DAVID CHEN",
+    company: "Sales Director, SmartMach CNC Systems",
+    },
+     {
+      logo: "🚢",
+     text: "The exhibition brings together the entire die and mould ecosystem — from raw materials and cutting tools to advanced machining and metrology solutions.",
+    author: "PRIYA MENON",
+    company: "Business Head, TechTool Engineering",
+    },
+     {
+      logo: "🚢",
+       text: "Participating at DIEMEX helped us expand our market presence and connect with OEM manufacturers across multiple industries.",
+    author: "SURESH PATIL",
+    company: "CEO, ProMold Manufacturing",
+    },
+     {
+      logo: "🚢",
+     text: "DIEMEX is an excellent platform for networking, discovering new technologies, and building partnerships within the die and mould industry.",
+    author: "THOMAS MULLER",
+    company: "Export Manager, EuroTool Systems",
+    },
+     {
+      logo: "🚢",
+      text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
+    author: "ANIL DESAI",
+    company: "Director, Advanced Tool Room Pvt Ltd",
     },
   ]
 
