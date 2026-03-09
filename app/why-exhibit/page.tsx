@@ -736,7 +736,7 @@ export default function WhyExhibit() {
               viewport={{ once: true }}
               className="text-3xl lg:text-4xl font-bold mb-8"
             >
-              A Snapshot of Our Exhibitors
+              A Snapshot of Our Key Exhibitors
             </motion.h2>
 
             <motion.div
