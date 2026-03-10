@@ -787,7 +787,7 @@ For toolrooms and mould makers facing tight deadlines and budget constraints, th
 Exhibitors demonstrate the latest in multi-axis machining, high-speed cutting, and wire EDM technologies that enable complex geometries and fine details. Visitors can also explore finishing processes—from manual polishing to automated surface treatments—that determine the final quality of tooling surfaces and, ultimately, the parts they produce.
 
 For toolmakers and precision machinists, this sector offers hands-on exposure to equipment that can expand capabilities, improve efficiency, and achieve tighter tolerances. Whether you're investing in new machinery or optimizing existing processes, the technologies showcased here represent the state of the art in precision machining and finishing.`,
-    heroImage: '/images/sectors/pic3.jpg',
+    heroImage: '/images/sectors/pic4.jpg',
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
