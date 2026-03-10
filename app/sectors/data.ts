@@ -964,7 +964,7 @@ For tool designers, engineers, and programmers, this sector offers insights into
 Exhibitors showcase the full range of tool steels—from conventional grades to powder metallurgy products—as well as advanced materials like carbides, ceramics, and surface treatments that extend tool life and improve performance. Visitors can explore material properties, heat treatment options, and the latest developments in materials that resist wear, withstand heat, and maintain dimensional stability under demanding conditions.
 
 For tool designers and manufacturing engineers, this sector provides essential information for material selection decisions that impact tool performance, production efficiency, and total cost of ownership. Whether you're selecting materials for high-volume production or challenging applications, the expertise and products showcased here support informed material choices.`,
-    heroImage: 'https://cdn.itegroupnews.com/httpstransrussia_preview_prismetic_comterms_of_visiting_1200_x_490_px_a78a81f1aa.png',
+    heroImage: '/images/sectors/pic7.jpg',
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
