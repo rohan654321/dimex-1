@@ -15,7 +15,7 @@ Whether you are an OEM seeking reliable tooling partners or a manufacturer aimin
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -669,7 +669,7 @@ For businesses seeking to reduce stockouts, minimize excess inventory, or improv
 From injection moulds that produce millions of plastic parts to complex die-casting tools that form metal components under extreme pressure, exhibitors demonstrate how precision engineering drives modern manufacturing. Visitors can explore innovations in mould design, material selection, cooling systems, and ejection mechanisms that improve part quality while reducing cycle times.
 
 For manufacturers seeking to launch new products or optimize existing production, this sector offers access to tooling expertise that can make the difference between success and failure. Whether you need prototype tooling for market testing or high-volume production tools designed for maximum efficiency, the Precision Die & Mould sector connects you with partners who understand the critical role that quality tooling plays in competitive manufacturing.`,
-    heroImage: 'https://cdn.itegroupnews.com/Untitled_design_16_ff2396a005.png',
+    heroImage: '/images/sectors/pic1.jpg',
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
@@ -1508,7 +1508,7 @@ export const diemexSectors = [
     id: 1, 
     title: 'Precision Die & Mould Solutions',
     slug: 'precision-moulds', 
-    image: 'https://cdn.itegroupnews.com/Untitled_design_16_ff2396a005.png',
+    image: '/images/sectors/pic1.jpg',
     description: 'Comprehensive die & mould manufacturing, tooling systems, design engineering, and end-to-end production solutions supporting high-precision industrial applications.'
   },
   { 
