@@ -202,10 +202,10 @@ const TransRussiaPage: React.FC<TransRussiaPageProps> = ({
                     Get Your Visitor Pass
                   </span>
                   <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
-                    Register for TransRussia 2026
+                    Register for Diemex 2026
                   </h2>
                   <p className="text-gray-600 text-lg">
-                    Join 30,500+ industry professionals and 600+ exhibitors at the heart of Eurasia's logistics innovation.
+                    Join 10,000+ industry professionals and 200+ exhibitors at the heart of Pune's Auto Cluster Exhibition Centre.
                   </p>
                 </div>
 
@@ -421,7 +421,7 @@ const TransRussiaPage: React.FC<TransRussiaPageProps> = ({
                         className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-0.5 cursor-pointer"
                       />
                       <label htmlFor="terms" className="ml-3 text-sm text-gray-600 cursor-pointer select-none">
-                        I agree to receive marketing communications, updates, and promotional materials from TransRussia. 
+                        I agree to receive marketing communications, updates, and promotional materials from Diemex Exhibition. 
                         I can unsubscribe anytime by clicking the "unsubscribe" link in emails. 
                         For more information on how we handle your data, please refer to our{' '}
                         <a 

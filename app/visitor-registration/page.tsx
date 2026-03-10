@@ -65,7 +65,7 @@ const pageData = {
       {
         id: "13",
         Title: "About",
-        LinkTo: "about-transrussia",
+        LinkTo: "about-Diemex 2026",
         MenuAttached: true,
         Links: [
           { id: "230", Text: "About TransRussia", LinkTo: "about-transrussia", NewTab: false },
