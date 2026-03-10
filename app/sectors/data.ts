@@ -67,7 +67,7 @@ Whether you are an OEM seeking reliable tooling partners or a manufacturer aimin
 
 From injection moulds and progressive press tools to die casting dies and multi-cavity systems, exhibitors showcase durable, repeatable, and cost-efficient manufacturing capabilities enhanced by CAD/CAM integration and high-speed machining technologies.`,
     heroImage: '/images/sectors/die-mould.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Connect with OEMs & Tier Manufacturers", icon: "🤝", description: "Engage decision-makers sourcing precision tooling partners." },
       { title: "Showcase Advanced Tooling Capabilities", icon: "⚙️", description: "Demonstrate injection moulds, progressive dies, and precision die systems." },
@@ -88,7 +88,7 @@ From injection moulds and progressive press tools to die casting dies and multi-
     description: 'High-performance cutting tools and precision tooling systems for advanced machining.',
     mainDescription: `Tooling performance directly impacts productivity and profitability. This sector features carbide inserts, end mills, drills, reamers, and tool holders designed for high-speed and high-precision machining applications across industries.`,
     heroImage: '/images/sectors/tooling.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Meet High-Volume Manufacturers", icon: "🔧", description: "Connect with production-driven companies seeking efficiency." },
       { title: "Showcase Tool Innovations", icon: "🛠️", description: "Present advanced coatings and optimized geometries." },
@@ -109,7 +109,7 @@ From injection moulds and progressive press tools to die casting dies and multi-
     description: 'CNC systems, EDM, multi-axis machining, and high-precision manufacturing technologies.',
     mainDescription: `Modern manufacturing depends on advanced machining capabilities. This sector features CNC machining centers, EDM systems, 5-axis machines, grinding solutions, and IoT-enabled production equipment designed for precision and efficiency.`,
     heroImage: '/images/sectors/machine-tools.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Demonstrate Live Capabilities", icon: "🏭", description: "Show real-time machining performance." },
       { title: "Target Expanding Investments", icon: "📈", description: "Connect with companies upgrading production facilities." },
@@ -130,7 +130,7 @@ From injection moulds and progressive press tools to die casting dies and multi-
     description: 'Industrial automation and robotics driving smart factory transformation.',
     mainDescription: `Automation is redefining productivity. This sector features industrial robots, cobots, material handling systems, and AI-powered manufacturing technologies that enhance efficiency, precision, and safety.`,
     heroImage: '/images/sectors/automation.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Engage Digital Manufacturers", icon: "🤖", description: "Connect with smart factory adopters." },
       { title: "Demonstrate Efficiency Gains", icon: "⚡", description: "Show measurable productivity improvements." },
@@ -158,7 +158,7 @@ Visitors can explore innovative tooling strategies that support hard machining, 
     stats: {
      visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -215,7 +215,7 @@ Visitors can experience live demonstrations, production simulations, and smart m
     stats: {
     visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -272,7 +272,7 @@ Visitors can explore scalable automation models suitable for tool rooms, die & m
     stats: {
    visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -321,7 +321,7 @@ Visitors can explore scalable automation models suitable for tool rooms, die & m
     description: 'Advanced 3D printing technologies for tooling and production innovation.',
     mainDescription: `Additive manufacturing accelerates prototyping and tooling development. This sector showcases metal 3D printing, hybrid manufacturing, and conformal cooling solutions that reduce lead times and enable complex designs.`,
     heroImage: '/images/sectors/additive.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Promote Rapid Innovation", icon: "🚀", description: "Highlight faster time-to-market capabilities." },
       { title: "Showcase Complex Geometries", icon: "🧩", description: "Demonstrate design flexibility." }
@@ -340,7 +340,7 @@ Visitors can explore scalable automation models suitable for tool rooms, die & m
     description: 'Precision measurement systems ensuring zero-defect production.',
     mainDescription: `Quality defines competitiveness. This sector features CMM machines, optical inspection systems, and advanced metrology technologies ensuring dimensional accuracy and compliance with global standards.`,
     heroImage: '/images/sectors/metrology.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Support Zero-Defect Manufacturing", icon: "📏", description: "Showcase precision measurement technologies." }
     ],
@@ -358,7 +358,7 @@ Visitors can explore scalable automation models suitable for tool rooms, die & m
     description: 'High-performance materials engineered for durability and precision.',
     mainDescription: `Premium tool steels, carbides, coatings, and specialty alloys form the backbone of die & mould performance. This sector highlights materials engineered for strength, wear resistance, and thermal stability.`,
     heroImage: '/images/sectors/materials.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Target Tool Manufacturers", icon: "🔩", description: "Connect with die & mould producers seeking advanced materials." }
     ],
@@ -375,7 +375,7 @@ Visitors can explore scalable automation models suitable for tool rooms, die & m
     description: 'Surface engineering solutions enhancing durability and performance.',
     mainDescription: `Surface treatment technologies such as PVD/CVD coatings, nitriding, polishing, and texturing significantly extend tool life and performance.`,
     heroImage: '/images/sectors/surface.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Enhance Tool Performance", icon: "✨", description: "Showcase coatings and hardening technologies." }
     ],
@@ -393,7 +393,7 @@ Visitors can explore scalable automation models suitable for tool rooms, die & m
     description: 'Connected, data-driven factory technologies.',
     mainDescription: `Industry 4.0 is transforming production with IoT-enabled machines, AI analytics, ERP/MES integration, and predictive maintenance platforms that improve efficiency and visibility.`,
     heroImage: '/images/sectors/smart.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Enable Digital Transformation", icon: "🌐", description: "Showcase IoT and AI-driven solutions." }
     ],
@@ -421,7 +421,7 @@ Whether you are an OEM seeking outsourced engineering support or a growing manuf
   stats: {
     visitors: '10,000+',
     exhibitors: '200+',
-    countries: '10+'
+    countries: '5+'
   },
 
   whyExhibit: [
@@ -482,7 +482,7 @@ For warehouse operators, logistics managers, and facility planners, this sector 
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -524,7 +524,7 @@ For operations managers seeking to improve throughput, reduce labor costs, and e
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -561,7 +561,7 @@ For forward-thinking logistics professionals, this sector provides a window into
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -598,7 +598,7 @@ For operations managers seeking to optimize packaging processes, reduce material
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -635,7 +635,7 @@ For businesses seeking to reduce stockouts, minimize excess inventory, or improv
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -673,7 +673,7 @@ For manufacturers seeking to launch new products or optimize existing production
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -728,11 +728,11 @@ For manufacturers seeking to launch new products or optimize existing production
 From precision-ground guide pillars and bushings to complex hot runner manifolds with sequential valve gating, exhibitors demonstrate how standardized components can reduce lead times, improve reliability, and simplify maintenance. Visitors can explore catalogues of off-the-shelf solutions that can be customized for specific applications, as well as specialized components designed for demanding molding conditions.
 
 For toolrooms and mould makers facing tight deadlines and budget constraints, this sector offers access to components that can accelerate production without compromising quality. Whether you're building new tools or maintaining existing ones, the standardized solutions showcased here provide the foundation for efficient, reliable tooling operations.`,
-    heroImage: 'https://cdn.itegroupnews.com/TRU_Sectors_Images_5_46a97403ad.png',
+    heroImage: '/images/sectors/pic3.jpg',
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -791,7 +791,7 @@ For toolmakers and precision machinists, this sector offers hands-on exposure to
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -850,7 +850,7 @@ For manufacturers seeking to remain competitive in an increasingly digital world
     stats: {
      visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -909,7 +909,7 @@ For tool designers, engineers, and programmers, this sector offers insights into
     stats: {
     visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -968,7 +968,7 @@ For tool designers and manufacturing engineers, this sector provides essential i
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -1027,7 +1027,7 @@ For companies seeking tooling partners—whether for new product launches, capac
     stats: {
      visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -1086,7 +1086,7 @@ For manufacturing engineers, machinists, and tool room managers, this sector pro
     stats: {
      visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -1145,7 +1145,7 @@ For manufacturers investing in new capabilities or replacing aging equipment, th
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -1198,7 +1198,7 @@ For manufacturers investing in new capabilities or replacing aging equipment, th
 
 From injection moulds and progressive press tools to die casting dies and multi-cavity systems, exhibitors showcase durable, repeatable, and cost-efficient manufacturing capabilities enhanced by CAD/CAM integration and high-speed machining technologies.`,
     heroImage: '/images/sectors/die-mould.jpg',
-    stats: { visitors: '10,000+', exhibitors: '200+', countries: '10+' },
+    stats: { visitors: '10,000+', exhibitors: '200+', countries: '5+' },
     whyExhibit: [
       { title: "Connect with OEMs & Tier Manufacturers", icon: "🤝", description: "Engage decision-makers sourcing precision tooling partners." },
       { title: "Showcase Advanced Tooling Capabilities", icon: "⚙️", description: "Demonstrate injection moulds, progressive dies, and precision die systems." },
@@ -1226,7 +1226,7 @@ For manufacturers seeking to improve product performance or reduce warranty cost
     stats: {
     visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -1285,7 +1285,7 @@ For design engineers, procurement specialists, and manufacturing professionals, 
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
@@ -1344,7 +1344,7 @@ For production managers, process engineers, and manufacturing executives, this s
     stats: {
      visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
