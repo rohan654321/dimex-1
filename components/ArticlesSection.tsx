@@ -21,7 +21,7 @@ export default function ArticlesSection() {
       title: 'How Smart Manufacturing Is Reshaping the Tooling Industry',
       slug: 'what-s-next-for-large-complex-tooling-mould-manufacturing',
       excerpt: 'Smart manufacturing technologies are reshaping the global die and mould industry.',
-      image: '/images/article4.jpgg',
+      image: '/images/article4.jpg',
       date: 'November 5, 2025',
     },
   ]
