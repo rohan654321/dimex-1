@@ -11,7 +11,7 @@ const BrochureSection = () => {
         
         {/* TOP-RIGHT BROCHURE IMAGE */}
         <img
-          src="https://cdn.itegroupnews.com/Brochure_Mockup_8_f53822fd4a.png"
+          src="/images/Why-Exhibit/brochure.png"
           alt="Event Brochure"
           width={420}
           height={420}
