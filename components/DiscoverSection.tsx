@@ -29,7 +29,7 @@ export default function DiscoverSection() {
 
           <div className="lg:col-span-5 grid place-content-center">
   <img
-    src="https://cdn.itegroupnews.com/Brochure_Mockup_2_aa4dfb491f.png"
+    src="/images/Why-Exhibit/brochure.png"
     alt="Brochure"
     className="w-full max-h-[400px] object-contain rounded-2xl bg-transparent"
   />
