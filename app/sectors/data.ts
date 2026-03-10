@@ -905,7 +905,7 @@ For manufacturers seeking to remain competitive in an increasingly digital world
 Exhibitors demonstrate the latest in 3D modeling, mold flow analysis, multi-axis CAM programming, and the simulation tools that verify programs and prevent costly errors. Visitors can explore how integrated CAD/CAM/CAE workflows reduce development time, improve first-shot success, and enable the design of increasingly complex parts.
 
 For tool designers, engineers, and programmers, this sector offers insights into software solutions that can expand capabilities and improve efficiency. Whether you're designing simple molds or complex multi-cavity tools with intricate cooling and ejection systems, the software showcased here provides the digital foundation for successful toolmaking.`,
-    heroImage: 'https://cdn.itegroupnews.com/TRU_Sectors_Images_7_c75137da32.png',
+    heroImage: '/images/sectors/pic6.jpg',
     stats: {
     visitors: '10,000+',
       exhibitors: '200+',
