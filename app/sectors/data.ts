@@ -268,7 +268,7 @@ Visitors can experience live demonstrations, production simulations, and smart m
 From robotic tool loading and automated mould change systems to fully integrated smart assembly lines, this sector highlights solutions that reduce human error, improve precision, and enhance production throughput.
 
 Visitors can explore scalable automation models suitable for tool rooms, die & mould shops, and high-volume manufacturing plants.`,
-    heroImage: '/images/image.png',
+    heroImage: '/images/sectors/pic5.jpg',
     stats: {
    visitors: '10,000+',
       exhibitors: '200+',
