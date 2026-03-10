@@ -14,7 +14,7 @@ export default function VideoSection() {
           <iframe
             className="absolute inset-0 w-full h-full"
             src={embedUrl}
-            title="2nd Edition DIEMEX International Die & Mould Exhibition 2025"
+            title="1st Edition DIEMEX International Die & Mould Exhibition 2023"
             frameBorder="0"
             allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
