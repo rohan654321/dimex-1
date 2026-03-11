@@ -239,7 +239,7 @@ export default function NavBar() {
 
 
             {/* ================= DESKTOP NAV BAR (UNCHANGED) ================= */}
-            <div className="hidden lg:block rounded-xl sm:rounded-2xl lg:rounded-3xl bg-gradient-to-r from-[#06162f] to-[#0a2b57] text-white shadow-xl">
+            <div className="hidden lg:block rounded-xl sm:rounded-2xl lg:rounded-3xl bg-gradient-to-r from-[#030558] to-[#030558] text-white shadow-xl">
               <div className="flex items-center justify-between gap-1 sm:gap-2 md:gap-3 lg:gap-4 px-2 sm:px-3 md:px-4 lg:px-5 py-1.5 sm:py-2 md:py-2.5 lg:py-3">
 
                 {/* ================= LOGO SECTION ================= */}
