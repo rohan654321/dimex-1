@@ -463,26 +463,49 @@ const HotelComponent: React.FC<HotelItem & { index: number }> = ({
 const HotelsSection: React.FC = () => {
   const hotels: HotelItem[] = [
     {
-      name: "Art Moscow 4*",
-      description: `The modern Hotel Art Moscow Voykovskaya 4* is a 25-minute drive from Crocus Expo, Sheremetyevo Airport, and the city center. The Voykovskaya metro station, Baltiyskaya MCC, Krasny Baltiets MCC are a 10-minute walk away.
-The hotel has a stylish interior and an elaborate infrastructure, including a restaurant, a bar and conference rooms. Buffet breakfast, free Wi-Fi and parking are at guests' disposal. All rooms are equipped with all the amenities you need for maximum comfort, including a mini-fridge and LCD TV, a tea station and toiletries. Book a room at Art Moscow and experience an atmosphere of coziness and inspiration.`,
-      imageSrc: "/images/image.png",
-      bookingLink: "https://artmoscowhotel.ru/en/",
-      locationLink: "https://yandex.ru/maps/org/art_moskva/88116514898/?ll=37.511617%2C55.815313&source=wizbiz_new_map_single&z=14"
+      name: "DoubleTree by Hilton Hotel Pune 5*",
+      description: `Find us in Pune’s automobile and industrial belt, less than 15 minutes from leading names like Tata Motors and Bajaj Auto. Pimpri Chinchwad Science Park and Planetarium is just one kilometer away. We offer a fitness center, a penthouse Executive Lounge, and an outdoor pool. Dine at our Japanese specialty restaurant, and unwind at the rooftop bar.`,
+      imageSrc: "/images/hilton.png",
+      bookingLink: "https://www.hilton.com/en/book/reservation/rates/",
+      locationLink: "https://maps.app.goo.gl/omkXtsE1Q6ctu4sXA"
     },
     {
-      name: "Penta Hotel",
-      description: `The hotel is located in the famous building "The Book", 2 km from the Red Square, 500 m from Arbatskaya metro station, direct metro line to Crocus Expo. In the hotel: 228 designer rooms with panoramic views of the Old and New Arbat Streets; buffet breakfast at Pentaloft Art Restaurant (24/7 room service); Pentalounge with bar, a la carte restaurant and billiards; a full range of conference services in contemporary spaces; free Wi-Fi throughout the hotel; free gym for hotel guests and a cozy library for business talks. Pentahotel Arbat is your home away from home.`,
-      imageSrc: "/images/image.png",
-      bookingLink: "https://reservations.pentahotels.com/108144?identifier=EXPO#/guestsandrooms",
-      locationLink: "https://yandex.ru/maps/org/pentahotel_moscow_arbat/17323657526/?ll=37.592512%2C55.752185&source=wizbiz_new_map_single&z=16"
+      name: "Keys Prima by Lemon Tree Hotels 4*",
+      description: `Keys Select By Lemon Tree Hotels Pimpri, Pune, sits in the heart of the city's bustling business district. The prime location of the hotel in PCMC puts you close to the major business establishments and industry headquarters - within walking distance or a short ride away.
+
+Being situated in the center of the business district means you can spend less time commuting and more time on what matters most – your work or exploring the city. Car lovers will also appreciate the closeness of the hotel in Pimpri, Chinchwad, to Pune's talked-about auto industry hub. Whether you are in town for a business meeting or to explore Pune's automotive and natural scene, Keys Select By Lemon Tree Hotels Pimpri, Pune, serves as the perfect base camp.`,
+      imageSrc: "/images/prisma.jpg",
+      bookingLink: "https://www.lemontreehotels.com/keys-prima-hotel/pune/hotel-pimpri-pune",
+      locationLink: "https://maps.app.goo.gl/DaFunwNyphXSfQXd9"
     },
     {
-      name: "Hotel Peter I - 5*",
-      description: `Hotel Peter I is located in the historical center of Moscow, within walking distance of Red Square, Bolshoi, and Maly Theaters, as well as stores - TSUM and GUM. The hotel offers room service, wi-fi, a club floor, a Romanov restaurant with Russian and European cuisine, conference halls, a fitness center with a swimming pool, a Jacuzzi, and a Turkish bath. Several metro stations are within walking distance from the hotel: Kuznetsky Most, Okhotny Ryad, Teatralnaya, Ploshchad Revolutsii, and Trubnaya.`,
-      imageSrc: "/images/image.png",
-      bookingLink: "https://www.hotel-peter1.ru/",
-      locationLink: "https://yandex.ru/maps/org/petr_i/1014459869/?ll=37.619774%2C55.763544&source=wizbiz_new_map_single&z=14"
+      name: "Spree Shivai Hotel Pune - 3*",
+      description: `We are a leading brand that reinforced its benchmark in the hospitality sector by offering exquisite top-notch services. With a significant presence across various attractions, we aim to redefine the hospitality concepts by providing optimal satisfaction to our valuable guests. Overall, we simply employ advanced technologies to premium amenities to make your stay extraordinary while ensuring the optimal balance between comfort and affordability.`,
+      imageSrc: "/images/Spree-Shivai.webp",
+      bookingLink: "https://www.spreehotels.com/spree-shivai/",
+      locationLink: "https://maps.app.goo.gl/birgg3ZKHxi57YW38"
+    },
+
+        {
+      name: "Ginger Pune Pimpri 3*",
+      description: `Embrace the spirit of Pune while staying at Ginger Hotel Pimpri, one of the top budget hotels in Pune. Conveniently situated near both the railway station and airport, our hotel features 97 stylishly designed rooms equipped with all the modern amenities you need for a comfortable stay. Pune boasts a rich cultural heritage and a bustling atmosphere, with the best time to visit being from November to February, when the weather is pleasantly cool. Experience the perfect blend of convenience and comfort, making Ginger Hotel Pimpri your ideal base to explore this dynamic city.`,
+      imageSrc: "/images/Ginger.webp",
+      bookingLink: "https://www.gingerhotels.com/hotels/ginger-pune-pimpri",
+      locationLink: "https://maps.app.goo.gl/tQ6NWyjVopMwN4R4A"
+    },
+    {
+      name: "Regenta Central, Grand Exotica, Pune 3*",
+      description: `Regenta Central, Grand Exotica, Pune, is a peaceful retreat surrounded by lush greenery. The hotel is conveniently located 45 minutes away from the airport and 30 minutes from Pune Railway Station. With 72 rooms and suites offering city and green landscape views adorned with artworks by artists across the country`,
+      imageSrc: "/images/Regenta-Central-Grand.webp",
+      bookingLink: "https://www.royalorchidhotels.com/regenta-central-grand-exotica-pune/overview",
+      locationLink: "https://maps.app.goo.gl/a48euAwMkyx2RMfNA"
+    },
+    {
+      name: "Holiday Inn Express Pune Pimpri - 3*",
+      description: `Holiday Inn Express Pune Pimpri is a thoughtfully designed hotel located in Pune’s vibrant industrial hub. Surrounded by key zones such as Bhosari, PCMC, Talwade, and Chakan MIDC, it offers unmatched convenience for business and leisure travelers alike.`,
+      imageSrc: "/images/Holiday-Inn.webp",
+      bookingLink: "https://www.ihg.com/holidayinnexpress/hotels/us/en/pune-pimpri/pnqpp/hoteldetail",
+      locationLink: "https://maps.app.goo.gl/fRyHLBoWicaXBq6m9"
     },
   ];
 
@@ -497,7 +520,7 @@ The hotel has a stylish interior and an elaborate infrastructure, including a re
       <SectionContainer>
         <div>
           <h2 className="title-72 text-black">
-            Special discounted accommodation rates are available for DIEMEX 2026 participants when booking through our partner hotels.
+            Nearby Hotels and Accommodation Options
           </h2>
           <motion.div
             initial={{ width: 0 }}
