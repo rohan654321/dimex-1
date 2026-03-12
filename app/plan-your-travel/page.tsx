@@ -267,11 +267,12 @@ const GuideItemComponent: React.FC<GuideItem & { index: number }> = ({
       transition={{ duration: 0.3 }}
       className="grid grid-cols-1 items-center gap-5 rounded-xl p-6 xl:grid-cols-7 hover:scale-[1.01]"
     >
-      <div className="flex-center size-[250px] xl:col-span-2">
-        <Image
+      <div className="flex-center size-[250px] xl:col-span-2 bg-gray-50 rounded-lg overflow-hidden">
+        <img
           src={imageSrc}
           alt={title}
-          className="size-full object-contain"
+          className="w-full h-full object-cover"
+          style={{ color: 'transparent' }}
         />
       </div>
       <h5 className="title-24 text-black xl:col-span-2 hover:text-blue-600 transition-colors duration-300">
@@ -339,13 +340,13 @@ const GuideSection: React.FC = () => {
     {
       title: "Travel & Accommodation",
       content: "Find the best travel options and accommodation deals for your stay in Pune. From flight bookings to local transportation, we've got you covered.",
-      imageSrc: "/images/travel.jpg",
+      imageSrc: "/images/freight.jpg",
       link: "/terms-of-visiting"
     },
     {
       title: "Visitor Registration",
       content: "Pre-register as a visitor to get quick access to the exhibition, receive updates about the event, and avail special offers from exhibitors.",
-      imageSrc: "/images/registration.jpg",
+      imageSrc: "/images/checklist.jpg",
       link: "/visitor-registration"
     }
   ];
