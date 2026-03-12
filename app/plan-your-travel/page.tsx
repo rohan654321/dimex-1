@@ -340,7 +340,7 @@ const GuideSection: React.FC = () => {
       title: "Travel & Accommodation",
       content: "Find the best travel options and accommodation deals for your stay in Pune. From flight bookings to local transportation, we've got you covered.",
       imageSrc: "/images/travel.jpg",
-      link: "/hotels"
+      link: "/terms-of-visiting"
     },
     {
       title: "Visitor Registration",

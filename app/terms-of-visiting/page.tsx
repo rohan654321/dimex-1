@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import SectionContainer from "@/components/UI/SectionContainer";
 
 // Types
 interface Partner {
@@ -162,7 +163,7 @@ const termsOfVisitingPageData = {
           `,
           Button1: null,
           Button2: null,
-          BackgroundColor: "#d32929",
+          BackgroundColor: "#F3F9FF",
           Image: { data: null },
         },
       ],
@@ -234,34 +235,34 @@ export default function TermsOfVisitingPage() {
   }
 
   return (
-    <div className="page-spacing-wrapper">
+    <div className="page-spacing-wrapper font-parabolica">
       {/* Hero Section */}
-      <div className="relative z-1 flex flex-col justify-end bg-[#f5f7fa] pt-48!">
-        <div className="container flex flex-col justify-end pt-0! pb-10!">
+      <div className="relative z-1 flex flex-col justify-end bg-[#F3F9FF] pt-48!">
+        <SectionContainer className="flex flex-col justify-end pt-0! pb-10!">
           <h2 className="title-72 text-black">{termsOfVisitingPageData.hero.title}</h2>
           <p className="max-w-6xl whitespace-pre-line py-5">
             {termsOfVisitingPageData.hero.description}
           </p>
-        </div>
+        </SectionContainer>
       </div>
 
       {/* Terms Content Block */}
       <div className="animated-block">
         <div className="animated-block-target">
-          <div className="container">
-            <div className="grid size-full grid-cols-1 gap-5">
+          <SectionContainer>
+            <div className="grid size-full grid-cols-1 gap-5 mt-5">
               {termsOfVisitingPageData.blocks[0]?.DynamicTextBlockData?.map((block) => (
                 <div
                   key={block.id}
-                  className="z-1 relative flex size-full min-h-[500px] flex-col p-5 lg:p-10"
+                  className="z-1 relative flex size-full min-h-[500px] flex-col p-5 lg:p-10 text-gray-500"
                   style={block.BackgroundColor ? { backgroundColor: block.BackgroundColor } : {}}
                 >
                   <div className="flex flex-col z-1 gap-5">
                     {block.Title && (
-                      <h2 className="title-40 font-semibold title-40">{block.Title}</h2>
+                      <h2 className="title-40 font-semibold title-40 text-gray-500">{block.Title}</h2>
                     )}
                     {block.Content && (
-                      <div className="rte-style lg:[&_h1]:text-4xl lg:[&_h2]:text-3xl lg:[&_h3]:text-2xl [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:underline [&_blockquote]:relative [&_blockquote]:italic [&_blockquote]:bg-[#f9f9f9] [&_blockquote]:text-xl [&_blockquote]:w-fit [&_blockquote]:border-l-4 [&_blockquote]:border-black [&_blockquote]:p-5 [&_blockquote]:ml-5">
+                      <div className="rte-style text-gray-500 lg:[&_h1]:text-4xl lg:[&_h2]:text-3xl lg:[&_h3]:text-2xl [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:underline [&_a]:text-gray-500 [&_blockquote]:relative [&_blockquote]:italic [&_blockquote]:bg-[#e6f0ff] [&_blockquote]:text-gray-500 [&_blockquote]:w-fit [&_blockquote]:border-l-4 [&_blockquote]:border-gray-500 [&_blockquote]:p-5 [&_blockquote]:ml-5">
                         <RenderHTML html={block.Content} />
                       </div>
                     )}
@@ -272,7 +273,7 @@ export default function TermsOfVisitingPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </SectionContainer>
         </div>
       </div>
     </div>
