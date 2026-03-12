@@ -195,7 +195,7 @@ export default function VisaPage() {
                       <>
                         <img
                           src={block.Image.data.attributes.url}
-                          alt="TransRussia Visa Support"
+                          alt="Diemex 2026 Expo Visa Support"
                           className="absolute inset-0 size-full object-cover"
                           sizes="(max-width: 768px) 100vw, 50vw"
                         />
