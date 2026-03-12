@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import SectionContainer from "@/components/UI/SectionContainer";
 
 // Types
 interface Partner {
@@ -166,34 +167,35 @@ export default function VisaPage() {
   }
 
   return (
-    <div className="page-spacing-wrapper">
-      {/* Hero Section */}
+    <div className="page-spacing-wrapper font-parabolica">
+      {/* Hero Section - Full width with background */}
       <div className="relative z-1 flex flex-col justify-end bg-[#F3F9FF] pt-48!">
-        <div className="container flex flex-col justify-end pt-0! pb-10!">
-          <h2 className="title-72 text-black">{visaPageData.hero.title}</h2>
-          <p className="max-w-6xl whitespace-pre-line py-5">
-            {visaPageData.hero.description}
-          </p>
-        </div>
+        <SectionContainer>
+          <div className="flex flex-col justify-end pt-0! pb-10!">
+            <h2 className="title-72 text-black">{visaPageData.hero.title}</h2>
+            <p className="max-w-6xl whitespace-pre-line py-5">
+              {visaPageData.hero.description}
+            </p>
+          </div>
+        </SectionContainer>
       </div>
 
       {/* First Block - Support Info */}
       <div className="animated-block">
         <div className="animated-block-target">
-          <div className="container">
-            <div className="grid size-full grid-cols-1 gap-5 md:grid-cols-2">
+          <SectionContainer>
+            <div className="grid size-full grid-cols-1 gap-5 md:grid-cols-2 mt-5">
               {visaPageData.blocks[0]?.DynamicTextBlockData?.map(
                 (block, index) => (
                   <div
                     key={block.id || index}
-                    className="z-1 relative flex size-full min-h-[500px] flex-col p-5 lg:p-10 bg-[#f5f7fa]"
+                    className="z-1 relative flex size-full min-h-[500px] flex-col p-5 lg:p-10 bg-[#F3F9FF]"
                   >
                     {block.Image?.data && index === 1 ? (
                       <>
                         <img
                           src={block.Image.data.attributes.url}
                           alt="TransRussia Visa Support"
-                          
                           className="absolute inset-0 size-full object-cover"
                           sizes="(max-width: 768px) 100vw, 50vw"
                         />
@@ -240,14 +242,14 @@ export default function VisaPage() {
                 )
               )}
             </div>
-          </div>
+          </SectionContainer>
         </div>
       </div>
 
       {/* Second Block - Invitations */}
       <div className="animated-block">
         <div className="animated-block-target">
-          <div className="container">
+          <SectionContainer>
             {visaPageData.blocks[1]?.DynamicTextBlockTitle && (
               <h2 className="title-72 text-black mb-10">
                 {visaPageData.blocks[1].DynamicTextBlockTitle}
@@ -293,7 +295,7 @@ export default function VisaPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </SectionContainer>
         </div>
       </div>
     </div>
