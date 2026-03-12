@@ -107,24 +107,42 @@ export default function SectorsPage() {
 }
 
 // SectorGrid Component
-function SectorGrid({ sectors }: { sectors: Array<{id: number, title: string, slug: string, image: string, description: string}> }) {
+function SectorGrid({
+  sectors,
+}: {
+  sectors: Array<{
+    id: number
+    title: string
+    slug: string
+    image: string
+    description: string
+  }>
+}) {
   return (
-    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {sectors.map((sector) => (
         <Link
           key={sector.id}
           href={`/sectors/${sector.slug}`}
-          className="group relative h-80 w-full overflow-hidden rounded-xl text-center shadow-lg transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl"
+          className="group relative h-[320px] overflow-hidden rounded-lg"
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10"></div>
-          <div 
-            className="h-full w-full bg-cover bg-center"
+          {/* Image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
             style={{ backgroundImage: `url(${sector.image})` }}
-          ></div>
-          <div className="absolute inset-0 z-20 flex items-end justify-center">
-            <h3 className="w-full bg-white py-5 text-lg font-semibold transition-all duration-300 ease-in-out group-hover:bg-blue-50">
+          />
+
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition duration-300"></div>
+
+          {/* Content */}
+          <div className="absolute bottom-6 left-6 right-6 z-10 text-white">
+            <h3 className="text-xl font-semibold leading-snug">
               {sector.title}
             </h3>
+
+            {/* Blue underline */}
+            <div className="mt-3 h-[3px] w-10 bg-blue-500 group-hover:w-16 transition-all duration-300"></div>
           </div>
         </Link>
       ))}
