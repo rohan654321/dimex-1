@@ -60,7 +60,7 @@ const visaPageData = {
           Button1: {
             Text: "Visit our Travel Partner Website",
             Theme: "Primary",
-            LinkTo: "https://visa-russian.ru/index_eng.php",
+            LinkTo: "#",
             Target: "New_Tab",
           },
           Button2: null,
@@ -101,7 +101,7 @@ const visaPageData = {
           Button1: {
             Text: "Visit our Travel Partner Website",
             Theme: "Primary",
-            LinkTo: "https://visa-russian.ru/index_eng.php",
+            LinkTo: "#",
             Target: "New_Tab",
           },
           Button2: null,
