@@ -54,44 +54,8 @@ const DiemexSectors = [
                 },
   ]
 
-const skladTechSectors = [
-  { 
-    id: 1, 
-    title: 'Warehousing Systems', 
-    slug: 'warehousing-systems', 
-    image: '/images/image.png',
-    description: 'Storage systems, racking, and warehouse infrastructure solutions.'
-  },
-  { 
-    id: 2, 
-    title: 'Material Handling', 
-    slug: 'material-handling', 
-    image: '/images/image.png',
-    description: 'Forklifts, conveyors, and material handling equipment.'
-  },
-  { 
-    id: 3, 
-    title: 'Automation & Robotics', 
-    slug: 'automation-robotics', 
-    image: '/images/image.png',
-    description: 'Automated storage, robotics, and smart warehouse solutions.'
-  },
-  { 
-    id: 4, 
-    title: 'Packaging Systems', 
-    slug: 'packaging-systems', 
-    image: '/images/image.png',
-    description: 'Packaging equipment, labeling, and packing solutions.'
-  },
-  { 
-    id: 5, 
-    title: 'Inventory Management', 
-    slug: 'inventory-management', 
-    image: '/images/image.png',
-    description: 'Inventory control, stock management, and tracking solutions.'
-  },
-]
 
+  
 export default function SectorsPage() {
   return (
     <>
