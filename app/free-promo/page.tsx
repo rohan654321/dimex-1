@@ -95,12 +95,7 @@ export default function ExhibitorPromotionPage() {
               <li>✔ News & Digest additions – Boost attendance</li>
             </ul>
 
-            <a
-              href="mailto:pad@diemex.in"
-              className="inline-block mt-10 rounded-full bg-[#004D9F] px-12 py-4 text-lg font-semibold text-white hover:bg-mainColor4 transition"
-            >
-              Request Promo Code
-            </a>
+            
           </div>
 
           {/* IMAGE */}
