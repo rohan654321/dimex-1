@@ -303,6 +303,7 @@ const GuideItemComponent: React.FC<GuideItem & { index: number }> = ({
 };
 
 // Guide Section with Tabs
+// Guide Section with Tabs
 const GuideSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'exhibitors' | 'visitors'>('exhibitors');
 
@@ -325,6 +326,27 @@ const GuideSection: React.FC = () => {
       imageSrc: "/images/checklist.jpg",
       link: "/exhibitor-resource-center",
       linkText: "Checklist"
+    }
+  ];
+
+  const visitorItems: GuideItem[] = [
+    {
+      title: "Visa",
+      content: "A standard business visa is appropriate for international visitors travelling to India to attend exhibitions, conferences, business meetings, and related professional events.",
+      imageSrc: "/images/visa.jpg",
+      link: "/visa"
+    },
+    {
+      title: "Travel & Accommodation",
+      content: "Find the best travel options and accommodation deals for your stay in Pune. From flight bookings to local transportation, we've got you covered.",
+      imageSrc: "/images/travel.jpg",
+      link: "/hotels"
+    },
+    {
+      title: "Visitor Registration",
+      content: "Pre-register as a visitor to get quick access to the exhibition, receive updates about the event, and avail special offers from exhibitors.",
+      imageSrc: "/images/registration.jpg",
+      link: "/visitor-registration"
     }
   ];
 
@@ -392,8 +414,12 @@ const GuideSection: React.FC = () => {
           viewport={{ once: true }}
           className="grid gap-10 md:grid-cols-2 xl:grid-cols-1"
         >
-          {activeTab === 'exhibitors' && (
+          {activeTab === 'exhibitors' ? (
             exhibitorItems.map((item, index) => (
+              <GuideItemComponent key={index} {...item} index={index} />
+            ))
+          ) : (
+            visitorItems.map((item, index) => (
               <GuideItemComponent key={index} {...item} index={index} />
             ))
           )}
