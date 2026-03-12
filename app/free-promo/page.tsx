@@ -137,7 +137,7 @@ export default function ExhibitorPromotionPage() {
               </p>
 
               <a
-                href=""
+                href="/images/Invitation_Diemex2026.docx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-auto inline-flex w-fit rounded-full bg-[#004D9F] px-10 py-4 text-lg font-semibold text-white hover:bg-mainColor4 transition"
