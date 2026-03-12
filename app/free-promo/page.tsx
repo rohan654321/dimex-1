@@ -205,7 +205,7 @@ export default function ExhibitorPromotionPage() {
               </p>
 
               <a
-                href="https://cdn-ite.prismetic.com/Trans_Russia_Sklad_Tech_2025_news_en_5830ff14f4.pdf"
+                href="/images/Diemex_2026_news.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-auto inline-flex w-fit rounded-full bg-[#004D9F] px-10 py-4 text-lg font-semibold text-white hover:bg-mainColor4 transition"
