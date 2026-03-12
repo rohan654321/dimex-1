@@ -67,7 +67,7 @@ const visaPageData = {
           Image: {
             data: {
               attributes: {
-                url: "/images/Visa.jpg",
+                url: "/images/visa_1.jpg",
               },
             },
           },
@@ -81,7 +81,7 @@ const visaPageData = {
           Image: {
             data: {
               attributes: {
-                url: "/images/Visa.jpg",
+                url: "/images/visa_1.jpg",
               },
             },
           },
