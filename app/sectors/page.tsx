@@ -8,75 +8,51 @@ import BackToTop from "../exhibitor-resource-center/component/BackToTop"
 const DiemexSectors = [
   { 
     id: 1, 
-    title: 'Die & Mould Manufacturing', 
-    slug: 'complex-logistics', 
-    image: '/images/sector1.jpg',
-    description: 'Manufacturers of injection moulds, press tools, die casting dies, extrusion dies, and precision mould bases serving automotive, aerospace, electronics, medical, and consumer industries.'
-  },
+    title: 'Precision Die & Mould Solutions',
+
+    slug: 'precision-moulds',
+     image: '/images/precision.jpg',
+     description: 'Comprehensive die & mould manufacturing, tooling systems, design engineering, and end-to-end production solutions supporting high-precision industrial applications.'
+     },
   { 
     id: 2, 
-    title: 'Tooling & Cutting Tools', 
-    slug: 'maritime-and-inland-waterway-transport', 
-    image: '/images/sector2.jpg',
-    description: 'Advanced cutting tools, carbide inserts, end mills, drills, tool holders, and high-performance tooling solutions designed for precision machining and high-efficiency production.'
-  },
+     title: 'Tooling, Mould Bases & Standard Components',
+
+                  slug: 'tooling-mould-base',
+                  image: '/images/mouldbase.jpg',
+                  description: 'High-quality mould bases, precision components, hot runner systems, and standard tooling elements supporting efficient and reliable die & mould production.'
+                },
   { 
     id: 3, 
-    title: 'Machine Tools & Advanced Machining', 
-    slug: 'die-mould', 
-    image: '/images/sector3.jpg',
-    description: 'CNC machining centers, EDM, wire cutting, grinding machines, high-speed milling, and 5-axis machining technologies enabling precision die and mould production.'
-  },
+   title: 'Machining & Finishing Technologies',
+
+                  slug: 'machining-finishing',
+                  image: '/images/finishing.jpg',
+                  description: 'High-precision CNC machining, EDM, wire-cut, surface finishing, and polishing solutions for toolroom operations.'
+                },
   { 
     id: 4, 
-    title: 'Automation & Robotics', 
-    slug: 'rail-freight', 
-    image: '/images/sector4.jpg',
-    description: 'Industrial robots, cobots, automated loading/unloading systems, palletizing solutions, and smart factory automation technologies for improved productivity and efficiency.'
-  },
+     title: 'Automation & Industry 4.0 Solutions',
+
+                  slug: 'automation-industry',
+                  image: '/images/automation.jpg',
+                  description: 'Smart automation, robotics, digital manufacturing, and smart factory technologies for modern die & mould production.'
+                },
   { 
     id: 5, 
-    title: 'Additive Manufacturing & 3D Printing', 
-    slug: 'road-freight-transportation', 
-    image: '/images/sector5.jpg',
-    description: 'Metal and polymer 3D printing systems, rapid prototyping solutions, conformal cooling innovations, and hybrid manufacturing technologies for tool and mould development.'
-  },
+    title: 'Design, CAD/CAM & Engineering Software',
+                  slug: 'cad-cam',
+                  image: '/images/cad.jpg',
+                  description: 'Advanced design, simulation, and manufacturing software enabling accurate tooling development and reduced time-to-market.'
+                },
   { 
     id: 6, 
-    title: 'Metrology & Quality Control', 
-    slug: 'ports-and-terminals-freight-handling-services-in-ports', 
-    image: '/images/sector6.jpg',
-    description: 'CMM machines, optical measurement systems, 3D scanners, testing equipment, and precision inspection solutions ensuring dimensional accuracy and quality assurance.'
-  },
-  { 
-    id: 7, 
-    title: 'Raw Materials & Tool Steel', 
-    slug: 'warehouse-technology', 
-    image: '/images/sector7.jpg',
-    description: 'Tool steels, alloy steels, special steels, aluminium blocks, mould bases, and advanced materials engineered for durability, strength, and high-performance tooling applications.'
-  },
-  { 
-    id: 8, 
-    title: 'Surface Treatment & Finishing', 
-    slug: 'it-solutions', 
-    image: '/images/sector8.jpg',
-    description: 'Heat treatment, coatings, polishing technologies, surface texturing, plating, and finishing solutions that enhance tool life, wear resistance, and product aesthetics.'
-  },
-  { 
-    id: 9, 
-    title: 'Smart Manufacturing & Industry 4.0', 
-    slug: 'ecommerce-logistics', 
-    image: '/images/sector9.jpg',
-    description: 'Digital manufacturing solutions including IoT integration, MES systems, AI-driven production monitoring, data analytics, and smart factory technologies for connected manufacturing.'
-  },
-  { 
-    id: 10, 
-    title: 'Industrial Services & Engineering Solutions', 
-    slug: 'heavy-lift-carriage', 
-    image: '/images/sector10.jpg',
-    description: 'Design engineering, CAD/CAM software, reverse engineering, simulation services, maintenance support, retrofitting, and turnkey project solutions for the die and mould industry.'
-  },
-]
+    title: 'Tool Steel & Advanced Materials',
+                  slug: 'tool-steel',
+                  image: '/images/toolsteel.jpg',
+                  description: 'High-performance tool steels, alloy steels, special metals, and advanced materials engineered for durability, precision, and long tool life in die & mould applications.'
+                },
+  ]
 
 const skladTechSectors = [
   { 
