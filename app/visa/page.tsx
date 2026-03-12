@@ -67,7 +67,7 @@ const visaPageData = {
           Image: {
             data: {
               attributes: {
-                url: "https://cdn.itegroupnews.com/Visa_5bceffab8a.webp",
+                url: "/images/Visa.jpg",
               },
             },
           },
@@ -81,7 +81,7 @@ const visaPageData = {
           Image: {
             data: {
               attributes: {
-                url: "https://cdn.itegroupnews.com/Visa_5bceffab8a.webp",
+                url: "/images/Visa.jpg",
               },
             },
           },
