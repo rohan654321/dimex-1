@@ -44,7 +44,7 @@ const visaPageData = {
   hero: {
     title: "Visa Support",
     description:
-      "Here is everything you need to know about visa information. Our official travel partner offers a comprehensive range of services to foreign exhibitors, partners, and visitors.",
+      "Here International exhibitors, partners, and visitors attending DIEMEX 2026 can find important information here regarding visa requirements and travel to India.",
   },
   blocks: [
     {
@@ -56,7 +56,7 @@ const visaPageData = {
           id: "736",
           Title: "How can our Official Travel Partner Support You?",
           Content:
-            '<p>You should contact the Russian consulate in your country of residence to determine if you need a visa to visit Russia.<br />&nbsp;</p><p>If a visa is necessary, please contact our official partner, <a href="https://visa-russian.ru/index_eng.php">Visa-Russian.ru</a>, for guidance on the appropriate type of invitation and visa for your visit and the latest entry requirements for Russia.<br />&nbsp;</p><p>Exhibitors and visitors typically apply for a business or tourist invitation. Once the invitation is prepared, you can independently apply for a Russian visa at your local consulate.<br />&nbsp;</p><p>Your document package should also include medical insurance covering your entire stay in the Russian Federation, which can also be obtained through <a href="https://visa-russian.ru/index_eng.php">Visa-Russian.ru</a>.</p><p>&nbsp;</p>',
+            '<p>International exhibitors and visitors are advised to check with the Indian Embassy or Consulate in their country of residence to determine whether a visa is required to travel to India for DIEMEX 2026.<br />&nbsp;</p><p>Most international travelers can apply for an Indian e-Visa online through the official Government of India visa portal. Applicants should ensure that their passport is valid for at least six months from the date of arrival and that all required documents are submitted during the application process., <a href="https://visa-russian.ru/index_eng.php">Visa-Russian.ru</a>, Exhibitors and visitors attending DIEMEX typically apply for a Business Visa or Tourist Visa, depending on the purpose of their visit. It is recommended to apply well in advance to avoid delays.<br />&nbsp;</p><p>Exhibitors and visitors typically apply for a business or tourist invitation. Once the invitation is prepared, you can independently apply for a Russian visa at your local consulate.<br />&nbsp;</p><p>Visitors should also ensure they have valid travel and medical insurance covering the duration of their stay in India.<a href="https://visa-russian.ru/index_eng.php">Visa-Russian.ru</a>.</p><p>&nbsp;</p>',
           Button1: {
             Text: "Visit our Travel Partner Website",
             Theme: "Primary",
