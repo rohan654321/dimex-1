@@ -114,7 +114,7 @@ function SectorGrid({ sectors }: { sectors: Array<{id: number, title: string, sl
         <Link
           key={sector.id}
           href={`/sectors/${sector.slug}`}
-          className="mt-16 lg:mt-24 bg-[#004D9F] hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-all duration-300"
+          className="group relative h-80 w-full overflow-hidden rounded-xl text-center shadow-lg transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl"
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10"></div>
           <div 
