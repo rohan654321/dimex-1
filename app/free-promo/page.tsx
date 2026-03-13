@@ -137,7 +137,7 @@ export default function ExhibitorPromotionPage() {
               </p>
 
               <a
-                href="/images/Invitation_Diemex2026.docx"
+                href="/images/Exhibitor_Promotion/Invitation_Diemex2026.docx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-auto inline-flex w-fit rounded-full bg-[#004D9F] px-10 py-4 text-lg font-semibold text-white hover:bg-mainColor4 transition"
@@ -182,7 +182,7 @@ export default function ExhibitorPromotionPage() {
               </p>
 
               <a
-                href="/images/Announcement_Temp_Diemex_2026.docx"
+                href="/images/Exhibitor_Promotion/Announcement_Temp_Diemex_2026.docx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-auto inline-flex w-fit rounded-full bg-[#004D9F] px-10 py-4 text-lg font-semibold text-white hover:bg-mainColor4 transition"
@@ -205,7 +205,7 @@ export default function ExhibitorPromotionPage() {
               </p>
 
               <a
-                href="/images/Diemex_2026_news.pdf"
+                href="/images/Exhibitor_Promotion/Diemex_2026_news.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-auto inline-flex w-fit rounded-full bg-[#004D9F] px-10 py-4 text-lg font-semibold text-white hover:bg-mainColor4 transition"
