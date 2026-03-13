@@ -175,7 +175,7 @@ export default function NavBar() {
 
 
                   {/* LOGO */}
-                  <div className="relative w-[80px] h-[47px]">
+                  <div className="relative w-[180px] h-[147px]">
                     <Image
                       src="/images/logo-diemex2.png"
                       alt="DIEMEX 2026 Logo"
