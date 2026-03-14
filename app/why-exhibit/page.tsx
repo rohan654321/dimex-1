@@ -468,7 +468,7 @@ export default function WhyExhibit() {
                   whileTap={{ scale: 0.95 }}
                   className="mt-16 lg:mt-24 bg-[#004D9F] hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-all duration-300"
                 >
-                  Explore Our 13 Sectors
+                  Explore Event Sectors
                 </motion.button>
               </Link>
             </motion.div>
