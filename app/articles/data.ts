@@ -62,7 +62,7 @@ export const articles: Article[] = [
 
     <p>Industry platforms such as <strong>DIEMEX – International Die & Mould Expo</strong> showcase the latest automation solutions helping tool rooms move toward Industry 4.0 manufacturing.</p>
     `,
-    PublishedDate: "2026-02-15T03:30:00.000Z",
+    PublishedDate: "2026-02-25T03:30:00.000Z",
     Image: {
       data: {
         attributes: {
@@ -131,7 +131,7 @@ export const articles: Article[] = [
     <h2>Future Opportunities</h2>
     <p>India is becoming a preferred sourcing destination for global OEMs seeking cost-effective and high-quality tooling solutions. Continued investment in automation and digital manufacturing will further strengthen the country’s global competitiveness.</p>
     `,
-    PublishedDate: "2025-11-20T03:30:00.000Z",
+    PublishedDate: "2026-01-20T03:30:00.000Z",
     Image: {
       data: {
         attributes: {
@@ -164,7 +164,7 @@ export const articles: Article[] = [
 
     <p>These technologies are helping tooling companies improve manufacturing precision while reducing production costs.</p>
     `,
-    PublishedDate: "2025-11-05T04:15:00.000Z",
+    PublishedDate: "2025-12-25T04:15:00.000Z",
     Image: {
       data: {
         attributes: {
@@ -197,7 +197,7 @@ export const articles: Article[] = [
 
     <p><strong>DIEMEX 2026 – International Die & Mould Expo</strong> will showcase these technologies and connect global tooling suppliers with buyers and manufacturers.</p>
     `,
-    PublishedDate: "2025-12-24T06:00:00.000Z",
+    PublishedDate: "2025-12-05T06:00:00.000Z",
     Image: {
       data: {
         attributes: {
