@@ -15,8 +15,8 @@ export default function ContactInformation() {
           <div className="rounded-2xl bg-[#F3F9FC] p-8 flex flex-col justify-between">
             <div>
               <p className="text-lg leading-relaxed text-black/80 mb-6">
-                For questions related to ordering ceiling hangers, please
-                contact our technical manager:
+                For stall design approvals of RAW Space Exhibitors, please
+                contact our  manager:
               </p>
 
               <p className="text-xl font-semibold text-black">
