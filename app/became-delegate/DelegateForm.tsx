@@ -304,7 +304,7 @@ export default function DelegateForm() {
                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
                        outline-none transition hover:border-blue-300 bg-white cursor-pointer"
           >
-            <option value="">Choose a package</option>
+            <option value="">Choose Delegate Category</option>
             <option value="student">STUDENT - ₹3,500</option>
             <option value="general">GENERAL - ₹6,000</option>
             <option value="group">GROUP 3 - ₹15,000</option>
