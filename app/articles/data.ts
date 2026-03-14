@@ -197,7 +197,7 @@ export const articles: Article[] = [
 
     <p><strong>DIEMEX 2026 – International Die & Mould Expo</strong> will showcase these technologies and connect global tooling suppliers with buyers and manufacturers.</p>
     `,
-    PublishedDate: "2025-12-05T06:00:00.000Z",
+    PublishedDate: "2025-12-15T06:00:00.000Z",
     Image: {
       data: {
         attributes: {
@@ -230,7 +230,7 @@ export const articles: Article[] = [
 
     <p>International industry events such as <strong>DIEMEX</strong> provide a platform for manufacturers and technology providers to explore new partnerships and innovations.</p>
     `,
-    PublishedDate: "2025-12-26T09:15:00.000Z",
+    PublishedDate: "2025-12-05T09:15:00.000Z",
     Image: {
       data: {
         attributes: {
