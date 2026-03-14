@@ -37,7 +37,7 @@ const EcosystemSection = () => {
 - Access curated content, including industry news, technical insights, exhibitor updates, and market trends.
 - Schedule meetings, manage contacts, and follow up on business leads seamlessly through a single digital platform.`,
       image: "/images/tooling-about-diemex.png",
-      link: "toolingtrends.com",
+      link: "https://toolingtrends.com",
       buttonText: "Join Tooling Trends",
     },
   ]
