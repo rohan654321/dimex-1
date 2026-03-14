@@ -50,14 +50,14 @@ export default function WhyExhibit() {
     {
       logo: "🎯",
       text: "DIEMEX provides an excellent platform for tooling manufacturers to connect with serious buyers from the automotive, electronics, and engineering sectors.",
-    author: "RAJESH SHARMA",
-    company: "Managing Director, Precision Tooling Pvt Ltd",
+    author: "RAJ HUGHAR",
+    company: "Managing Director, Raj Tools & Stampings Pvt Ltd",
     },
     {
       logo: "🚢",
       text: "We gained valuable business leads and met key decision-makers from major manufacturing companies. DIEMEX is becoming an important event for the tooling industry.",
-    author: "MICHAEL TAN",
-    company: "Regional Sales Manager, GlobalMold Technologies",
+    author: "MSUCHEENDRAN KUNDUVARAVALAPIL",
+    company: "Managing Director , The Tooling Trove",
     },
      {
       logo: "🚢",
@@ -68,32 +68,32 @@ export default function WhyExhibit() {
      {
       logo: "🚢",
      text: "DIEMEX helps us demonstrate advanced automation and machining solutions directly to manufacturers looking to upgrade their tool rooms.",
-    author: "DAVID CHEN",
+    author: "RANJITH",
     company: "Sales Director, SmartMach CNC Systems",
     },
      {
       logo: "🚢",
      text: "The exhibition brings together the entire die and mould ecosystem — from raw materials and cutting tools to advanced machining and metrology solutions.",
-    author: "PRIYA MENON",
-    company: "Business Head, TechTool Engineering",
+    author: "RANJITH",
+    company: "Manager, Vasantha Tool Craft Pvt. Ltd. ",
     },
      {
       logo: "🚢",
        text: "Participating at DIEMEX helped us expand our market presence and connect with OEM manufacturers across multiple industries.",
     author: "SURESH PATIL",
-    company: "CEO, ProMold Manufacturing",
+    company: "CEO, Pawan Precisions",
     },
      {
       logo: "🚢",
      text: "DIEMEX is an excellent platform for networking, discovering new technologies, and building partnerships within the die and mould industry.",
     author: "THOMAS MULLER",
-    company: "Export Manager, EuroTool Systems",
+    company: "Managing Director, Shohbhi Kohgei ( Phil) Ltd ",
     },
      {
       logo: "🚢",
       text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
     author: "ANIL DESAI",
-    company: "Director, Advanced Tool Room Pvt Ltd",
+    company: "Director, Rajamane Solutions,
     },
   ]
 
