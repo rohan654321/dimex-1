@@ -425,7 +425,7 @@ const TransRussiaPage: React.FC<TransRussiaPageProps> = ({
                         I can unsubscribe anytime by clicking the "unsubscribe" link in emails. 
                         For more information on how we handle your data, please refer to our{' '}
                         <a 
-                          href="https://ite.group/en/privacy/" 
+                          href="https://dimex-ruby.vercel.app/privacy-policy" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline"
