@@ -9,13 +9,13 @@ const standOptions = [
   {
     title: 'Individual Construction',
     description: 'Choosing an individual project stand is highly recommended as it allows for an effective presentation of your company, highlights your high status, emphasizes your unique style, and attracts more clients.',
-    image: '/images/image.png',
+    image: '/images/raw.jpg',
     link: '/exhibiting-enquiry',
   },
   {
     title: 'Standard Shell Scheme',
     description: 'Standard Shell Scheme is suitable for the construction of the exhibition area from 9 to 36 sq. m. The stand kit depends on the construction area. Standard Shell Scheme may be amended with standard decorative elements.',
-    image: '/images/image.png',
+    image: '/images/shell.jpg',
     link: '/exhibiting-enquiry',
   },
   
