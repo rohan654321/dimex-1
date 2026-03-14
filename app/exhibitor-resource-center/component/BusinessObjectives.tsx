@@ -6,32 +6,32 @@ const objectives = [
   {
     title: 'Find New Prospects',
     description: 'It should be easy to read the company\'s direction and name. Important details that you want to communicate to potential clients should be obvious and easy to remember.',
-    icon: '/images/image.png',
+    icon: '/images/new.png',
   },
   {
     title: 'Improve Existing Relationships',
     description: 'You need a spacious recreational area, negotiation tables, and an enclosed utility room where you will store/prepare coffee and snacks.',
-    icon: '/images/image.png',
+    icon: '/images/relationships.png',
   },
   {
     title: 'Conduct Meetings',
     description: 'Your stand should have an ideal meeting area. You can separate one "meeting room" from another or plan a couple of closed rooms where the exhibition atmosphere will not distract from the business conversation.',
-    icon: '/images/image.png',
+    icon: '/images/talk.png',
   },
   {
     title: 'Increase Brand Identity',
     description: 'An interesting stand design solution, supported by a high-quality demonstration of the best products will help.',
-    icon: '/images/image.png',
+    icon: '/images/branding.png',
   },
   {
     title: 'Competitor Research',
     description: 'A small stand is enough, but it is worth placing it next to the business program sites to be in the thick of industry events.',
-    icon: '/images/image.png',
+    icon: '/images/competitive_analysis.png',
   },
   {
     title: 'Showcase New Launches',
     description: 'An interesting and bright design solution, perhaps navigation in the hall, will help. The invitation and presentation schedule should be large, informative, and located in the most visible place.',
-    icon: '/images/image.png',
+    icon: '/images/search.png',
   },
 ];
 
