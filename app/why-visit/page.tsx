@@ -563,7 +563,7 @@ export default function WhyVisit() {
                   { 
                     title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
                     slug: "cnc-machines", 
-                    image: "/images/image.png" 
+                    image: "/images/vmc.jpg" 
                   },
                   { 
                     title: "Surface Treatment & Heat Treatment-Coatings, finishing, hardening, thermal processes", 
@@ -583,7 +583,7 @@ export default function WhyVisit() {
                   { 
                     title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
                     slug: "die-casting", 
-                    image: "/images/image.png" 
+                    image: "/images/casting.jpg" 
                   }
                 ].map((item, index) => (
                   <Link
