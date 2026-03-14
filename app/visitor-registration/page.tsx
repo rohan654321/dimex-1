@@ -89,7 +89,7 @@ const pageData = {
     Copyright: "©Transrussia - 2025. All Right Reserved",
     EndLinks: [
       { id: "397", Text: "Terms of Use", LinkTo: "https://ite.group/en/terms-of-use", NewTab: true },
-      { id: "396", Text: "Privacy Policy", LinkTo: "https://ite.group/en/privacy", NewTab: true },
+      { id: "396", Text: "Privacy Policy", LinkTo: "https://dimex-ruby.vercel.app/privacy-policy", NewTab: true },
       { id: "395", Text: "Cookie Policy", LinkTo: "https://ite.group/en/cookies/", NewTab: true },
       { id: "550", Text: "Sitemap", LinkTo: "https://trstexpo.com/sitemap.xml", NewTab: true }
     ]
@@ -248,7 +248,7 @@ const pageData = {
     CopyrightText: "©Transrussia - 2025. All Right Reserved",
     EndLinks: [
       { id: "397", Text: "Terms of Use", LinkTo: "https://ite.group/en/terms-of-use", NewTab: true },
-      { id: "396", Text: "Privacy Policy", LinkTo: "https://ite.group/en/privacy", NewTab: true },
+      { id: "396", Text: "Privacy Policy", LinkTo:"https://dimex-ruby.vercel.app/privacy-policy", NewTab: true },
       { id: "395", Text: "Cookie Policy", LinkTo: "https://ite.group/en/cookies/", NewTab: true },
       { id: "550", Text: "Sitemap", LinkTo: "https://trstexpo.com/sitemap.xml", NewTab: true }
     ]
