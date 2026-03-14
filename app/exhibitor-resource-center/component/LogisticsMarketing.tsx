@@ -90,8 +90,8 @@ export default function LogisticsMarketing() {
       </p>
 
       <Link
-        href="/sponsorship-enquiry"
-        target="_blank"
+        href="/contact-us"
+        target="contact-us"
         rel="noopener noreferrer"
       >
         <button className="inline-flex items-center justify-center rounded-full 
