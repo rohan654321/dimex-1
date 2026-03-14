@@ -63,7 +63,7 @@ export default function ExploreMoscowPage() {
               <div className="flex justify-between items-start">
                 <div className="mb-5 w-16 h-16 rounded-full overflow-hidden">
                   <img
-                    src="/images/image.png"
+                    src="/images/landmark.avif"
                     alt="Travel exploration"
                     width={64}
                     height={64}
@@ -101,8 +101,8 @@ export default function ExploreMoscowPage() {
               <div className="flex justify-between items-start">
                 <div className="mb-5 w-16 h-16 rounded-full overflow-hidden">
                   <img
-                    src="/images/image.png"
-                    alt="People walking in Red Square"
+                    src="/images/culture.jpg"
+                    alt="Pune's Culture"
                     width={64}
                     height={64}
                     className="w-full h-full object-cover"
@@ -132,13 +132,13 @@ export default function ExploreMoscowPage() {
               </Link>
             </div>
 
-            {/* Card 3: Savor Moscow's Culinary Delights */}
+            {/* Card 3: Savor Pune's Culinary Delights */}
             <div className="group flex flex-col gap-5 rounded-2xl border border-black/10 bg-white p-5 xl:p-7 transition-all duration-300 hover:shadow-xl hover:border-blue-200">
               <div className="flex justify-between items-start">
                 <div className="mb-5 w-16 h-16 rounded-full overflow-hidden">
                   <img
-                    src="/images/image.png"
-                    alt="Russian soup"
+                    src="/images/culinary.png"
+                    alt="Pune Vada Pav"
                     width={64}
                     height={64}
                     className="w-full h-full object-cover"
@@ -172,7 +172,7 @@ export default function ExploreMoscowPage() {
               <div className="flex justify-between items-start">
                 <div className="mb-5 w-16 h-16 rounded-full overflow-hidden">
                   <img
-                    src="images/image.png"
+                    src="images/shop.jpg"
                     alt="Shopping in Pune"
                     width={64}
                     height={64}
