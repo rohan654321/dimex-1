@@ -105,11 +105,11 @@ function getDefaultSectorContent(slug: string, displayName: string) {
 Visitors can explore cutting-edge solutions, connect with experts, and discover new opportunities for growth and efficiency. From established players to innovative startups, this sector represents the complete ecosystem of ${displayName.toLowerCase()} solutions.
 
 Whether you're looking for new partnerships, seeking to optimize your operations, or exploring the latest trends, the ${displayName} sector provides unparalleled access to the people and technologies driving the industry forward.`,
-    heroImage: '/images/image.png',
+    heroImage: '/images/precision.jpg',
     stats: {
       visitors: '10,000+',
       exhibitors: '200+',
-      countries: '10+'
+      countries: '5+'
     },
     whyExhibit: [
       {
