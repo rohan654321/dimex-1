@@ -548,17 +548,17 @@ export default function WhyVisit() {
                   {
                     title: "Die & Mould Manufacturing – Injection moulds, die casting dies, press tools, blow moulds, extrusion dies",
                     slug: "die-mould-manufacturing",
-                    image: "/images/image.png"
+                    image: "/images/precision.jpg"
                   },
                   { 
                     title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders",
                     slug: "tooling-tool-rom-technologies", 
-                    image: "/images/image.png" 
+                    image: "/images/mouldbase.jpg" 
                   },
                   { 
                     title: "Automation, Robotics & Smart Manufacturing - Industrial automation, robotics, Industry 4.0 solutions", 
                     slug: "automation-robotics", 
-                    image: "/images/image.png" 
+                    image: "/images/automation.jpg" 
                   },
                   { 
                     title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
@@ -568,17 +568,17 @@ export default function WhyVisit() {
                   { 
                     title: "Surface Treatment & Heat Treatment-Coatings, finishing, hardening, thermal processes", 
                     slug: "surface-treatment", 
-                    image: "/images/image.png" 
+                    image: "/images/finishing.jpg" 
                   },
                   { 
                     title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables",
                     slug: "materials-steels-alloys",
-                    image: "/images/image.png" 
+                    image: "/images/toolsteel.jpg" 
                   },
                   { 
                     title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering", 
                     slug: "cad-cam", 
-                    image: "/images/image.png" 
+                    image: "/images/cad.jpg" 
                   },
                   { 
                     title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
