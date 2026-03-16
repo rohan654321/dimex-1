@@ -537,54 +537,61 @@ export default function WhyVisit() {
                 Event Sectors On Display
               </motion.h2>
 
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={staggerContainer}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16"
-              >
+        <motion.div
+  initial="hidden"
+  whileInView="visible"
+  viewport={{ once: true }}
+  variants={staggerContainer}
+  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16"
+>
                 {[
-  {
-    title: "Die & Mould Manufacturing – Injection moulds, die casting dies, press tools, blow moulds, extrusion dies",
-    slug: "die-mould-manufacturing",
-    image: "/images/precision.jpg"
-  },
   { 
-    title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders",
-    slug: "tooling-tool-rom-technologies", 
-    image: "/images/mouldbase.jpg" 
-  },
+    id: 1, 
+    title: 'Precision Die & Mould Solutions',
+
+    slug: 'precision-moulds',
+     image: '/images/precision.jpg',
+     description: 'Comprehensive die & mould manufacturing, tooling systems, design engineering, and end-to-end production solutions supporting high-precision industrial applications.'
+     },
   { 
-    title: "Automation, Robotics & Smart Manufacturing - Industrial automation, robotics, Industry 4.0 solutions", 
-    slug: "automation-robotics", 
-    image: "/images/automation.jpg" 
-  },
+    id: 2, 
+     title: 'Tooling, Mould Bases & Standard Components',
+
+                  slug: 'tooling-mould-base',
+                  image: '/images/mouldbase.jpg',
+                  description: 'High-quality mould bases, precision components, hot runner systems, and standard tooling elements supporting efficient and reliable die & mould production.'
+                },
   { 
-    title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
-    slug: "cnc-machines", 
-    image: "/images/vmc.jpg" 
-  },
+    id: 3, 
+   title: 'Machining & Finishing Technologies',
+
+                  slug: 'machining-finishing',
+                  image: '/images/finishing.jpg',
+                  description: 'High-precision CNC machining, EDM, wire-cut, surface finishing, and polishing solutions for toolroom operations.'
+                },
   { 
-    title: "Surface Treatment & Heat Treatment-Coatings, finishing, hardening, thermal processes", 
-    slug: "surface-treatment", 
-    image: "/images/finishing.jpg" 
-  },
+    id: 4, 
+     title: 'Automation & Industry 4.0 Solutions',
+
+                  slug: 'automation-industry',
+                  image: '/images/automation.jpg',
+                  description: 'Smart automation, robotics, digital manufacturing, and smart factory technologies for modern die & mould production.'
+                },
   { 
-    title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables",
-    slug: "materials-steels-alloys",
-    image: "/images/toolsteel.jpg" 
-  },
+    id: 5, 
+    title: 'Design, CAD/CAM & Engineering Software',
+                  slug: 'cad-cam',
+                  image: '/images/cad.jpg',
+                  description: 'Advanced design, simulation, and manufacturing software enabling accurate tooling development and reduced time-to-market.'
+                },
   { 
-    title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering", 
-    slug: "cad-cam", 
-    image: "/images/cad.jpg" 
-  },
-  { 
-    title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
-    slug: "die-casting", 
-    image: "/images/casting.jpg" 
-  }
+    id: 6, 
+    title: 'Tool Steel & Advanced Materials',
+                  slug: 'tool-steel',
+                  image: '/images/toolsteel.jpg',
+                  description: 'High-performance tool steels, alloy steels, special metals, and advanced materials engineered for durability, precision, and long tool life in die & mould applications.'
+                },
+  
 ].map((sector, index) => (
   <Link
     key={index}
