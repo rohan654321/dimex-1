@@ -93,7 +93,7 @@ export default function WhyExhibit() {
       logo: "🚢",
       text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
     author: "ANIL DESAI",
-    company: "Director, Rajamane Solutions,
+    company: "Director, Rajamane Solutions",
     },
   ]
 
