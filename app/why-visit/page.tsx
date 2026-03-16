@@ -8,6 +8,7 @@ import Image from "next/image";
 import { HiOutlineCalendar, HiOutlineLocationMarker } from "react-icons/hi"
 import BrochureSection from "@/components/section/BrochureSection";
 import BackToTop from "../exhibitor-resource-center/component/BackToTop";
+import PartnersSection from "@/components/section/PartnersSection";
 
   const countries = [
     { name: 'China', flag: '/images/China.png' },
@@ -891,12 +892,7 @@ export default function WhyVisit() {
               </motion.div>
             </SectionContainer>
           </section>
-
-          {/* <section className="py-12 sm:py-16 lg:py-24">
-            <SectionContainer>
-              <PartnersSection />
-            </SectionContainer>
-          </section> */}
+          <PartnersSection/>
         </div>
       </main>
       <BackToTop/>

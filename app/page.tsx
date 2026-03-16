@@ -12,7 +12,7 @@ import ConnectSection from '@/components/ConnectSection'
 import ArticlesSection from '@/components/ArticlesSection'
 import NewsletterSection from '@/components/NewsletterSection'
 import ExploreMoscowSection from '@/components/ExploreMoscowSection'
-// import PartnersSection from '@/components/section/PartnersSection'
+import PartnersSection from '@/components/section/PartnersSection'
 import VideoSection from '@/components/videoSection';
 import BackToTop from './exhibitor-resource-center/component/BackToTop';
 
@@ -32,6 +32,7 @@ export default function Home() {
       <ArticlesSection />
       <NewsletterSection />
       <ExploreMoscowSection />
+      <PartnersSection />
       {/* <div>
          <div className="flex items-center gap-3 bg-white rounded-full px-4 py-2 w-fit mx-auto shadow-sm">
             <img
