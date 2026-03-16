@@ -86,7 +86,7 @@ export default function PostShowReportPage() {
               <div className="mt-14 flex justify-center">
                 <div className="relative w-full max-w-md">
                   <img
-                    src="https://cdn.itegroupnews.com/image_20_55bd04064d.png"
+                    src="/images/Why_exhibit/brochure.png"
                     alt="Post Show Report"
                     className="w-full rounded-xl shadow-xl"
                   />
