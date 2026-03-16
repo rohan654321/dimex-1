@@ -36,10 +36,7 @@ const BrochureSection = () => {
         </div>
 
         {/* DECORATIVE CIRCLES */}
-        <div className="absolute bottom-0 right-0">
-          <div className="absolute bottom-[-40px] right-[-40px] w-44 h-44 rounded-full bg-[#0092D7]/20" />
-          <div className="absolute bottom-6 right-6 w-32 h-32 rounded-full bg-[#0092D7]/30" />
-        </div>
+     
 
       </div>
     </SectionContainer>
