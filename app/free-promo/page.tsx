@@ -245,7 +245,7 @@ export default function ExhibitorPromotionPage() {
                   </p>
 
                   <img
-                    src="/images/exhibitor-promo/logo_diemex.png"
+                    src="/images/exhibitor-promo/Diemex_2026_logos.zip"
                     alt="Diemex logo"
                     className="max-w-[260px]"
                   />
