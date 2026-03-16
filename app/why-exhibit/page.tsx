@@ -50,26 +50,26 @@ export default function WhyExhibit() {
     {
       logo: "🎯",
       text: "DIEMEX provides an excellent platform for tooling manufacturers to connect with serious buyers from the automotive, electronics, and engineering sectors.",
-    author: "RAJ HUGHAR",
+    author: "RAJSHEKAR HUGHAR",
     company: "Managing Director, Raj Tools & Stampings Pvt Ltd",
     },
     {
       logo: "🚢",
       text: "We gained valuable business leads and met key decision-makers from major manufacturing companies. DIEMEX is becoming an important event for the tooling industry.",
-    author: "MSUCHEENDRAN KUNDUVARAVALAPIL",
+    author: "SUCHEENDRAN KUNDUVARAVALAPIL",
     company: "Managing Director , The Tooling Trove",
     },
      {
       logo: "🚢",
       text: "The quality of visitors and industry professionals attending DIEMEX is impressive. It’s a great opportunity to showcase our latest die and mould innovations.",
-    author: "ARVIND KUMAR",
-    company: "Director, Apex Die & Mould Solutions",
+    author: "AMIT A, DHARURKAR",
+    company: "Marketing Engineer, Pawan Precisions Pvt. Ltd.",
     },
      {
       logo: "🚢",
      text: "DIEMEX helps us demonstrate advanced automation and machining solutions directly to manufacturers looking to upgrade their tool rooms.",
-    author: "RANJITH",
-    company: "Sales Director, SmartMach CNC Systems",
+    author: "ABHIJEET C KHOLLAM",
+    company: "Chief Operating Officer, Rich Cam Auto Engg (I) Pvt. Ltd",
     },
      {
       logo: "🚢",
@@ -80,8 +80,8 @@ export default function WhyExhibit() {
      {
       logo: "🚢",
        text: "Participating at DIEMEX helped us expand our market presence and connect with OEM manufacturers across multiple industries.",
-    author: "SURESH PATIL",
-    company: "CEO, Pawan Precisions",
+    author: "MAHESH RAJAMANE",
+    company: "CEO, Rajamane Solutions",
     },
      {
       logo: "🚢",
@@ -92,9 +92,25 @@ export default function WhyExhibit() {
      {
       logo: "🚢",
       text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
-    author: "ANIL DESAI",
-    company: "Director, Rajamane Solutions",
+    author: "NAVEEN",
+    company: "Managing Director, Prenac Tools",
     },
+{
+      logo: "🚢",
+      text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
+    author: "MOHAMMED FAHEMUDAIN",
+    company: "Managing Director, Hottip India",
+    },
+    {
+      logo: "🚢",
+      text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
+    author: "SANTHOSH RAI",
+    company: "Director,  Jai Ambay Etching Process",
+    },
+    
+
+
+
   ]
 
   const [testimonialIndex, setTestimonialIndex] = useState(0)
