@@ -545,78 +545,72 @@ export default function WhyVisit() {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16"
               >
                 {[
-                  {
-                    title: "Die & Mould Manufacturing – Injection moulds, die casting dies, press tools, blow moulds, extrusion dies",
-                    slug: "die-mould-manufacturing",
-                    image: "/images/precision.jpg"
-                  },
-                  { 
-                    title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders",
-                    slug: "tooling-tool-rom-technologies", 
-                    image: "/images/mouldbase.jpg" 
-                  },
-                  { 
-                    title: "Automation, Robotics & Smart Manufacturing - Industrial automation, robotics, Industry 4.0 solutions", 
-                    slug: "automation-robotics", 
-                    image: "/images/automation.jpg" 
-                  },
-                  { 
-                    title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
-                    slug: "cnc-machines", 
-                    image: "/images/vmc.jpg" 
-                  },
-                  { 
-                    title: "Surface Treatment & Heat Treatment-Coatings, finishing, hardening, thermal processes", 
-                    slug: "surface-treatment", 
-                    image: "/images/finishing.jpg" 
-                  },
-                  { 
-                    title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables",
-                    slug: "materials-steels-alloys",
-                    image: "/images/toolsteel.jpg" 
-                  },
-                  { 
-                    title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering", 
-                    slug: "cad-cam", 
-                    image: "/images/cad.jpg" 
-                  },
-                  { 
-                    title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
-                    slug: "die-casting", 
-                    image: "/images/casting.jpg" 
-                  }
-                ].map((item, index) => (
-                  <Link
-                    key={`${item.slug}-${index}`} 
-                    href={`/sectors/${item.slug}`}
-                    className="block"
-                  >
-                    <motion.div
-                      variants={scaleIn}
-                      whileHover={{ 
-                        y: -5,
-                        scale: 1.02,
-                        boxShadow: "0 10px 20px rgba(0,0,0,0.1)"
-                      }}
-                      className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden transition-all duration-300 cursor-pointer h-full"
-                    >
-                      <div className="h-32 sm:h-36 lg:h-44 overflow-hidden">
-                        <motion.img
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.5 }}
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="p-3 sm:p-4">
-                        <p className="text-gray-900 text-xs sm:text-sm font-medium leading-snug hover:text-blue-600 transition-colors duration-300 line-clamp-3">
-                          {item.title}
-                        </p>
-                      </div>
-                    </motion.div>
-                  </Link>
-                ))}
+  {
+    title: "Die & Mould Manufacturing – Injection moulds, die casting dies, press tools, blow moulds, extrusion dies",
+    slug: "die-mould-manufacturing",
+    image: "/images/precision.jpg"
+  },
+  { 
+    title: "Tooling & Tool Room Technologies - Cutting tools, jigs & fixtures, gauges, tool holders",
+    slug: "tooling-tool-rom-technologies", 
+    image: "/images/mouldbase.jpg" 
+  },
+  { 
+    title: "Automation, Robotics & Smart Manufacturing - Industrial automation, robotics, Industry 4.0 solutions", 
+    slug: "automation-robotics", 
+    image: "/images/automation.jpg" 
+  },
+  { 
+    title: "CNC Machines & Precision Engineering - Machining centres, turning, grinding, EDM, VMCs & HMCs", 
+    slug: "cnc-machines", 
+    image: "/images/vmc.jpg" 
+  },
+  { 
+    title: "Surface Treatment & Heat Treatment-Coatings, finishing, hardening, thermal processes", 
+    slug: "surface-treatment", 
+    image: "/images/finishing.jpg" 
+  },
+  { 
+    title: "Materials, Steels & Alloys - Tool steels, special alloys, polymers, consumables",
+    slug: "materials-steels-alloys",
+    image: "/images/toolsteel.jpg" 
+  },
+  { 
+    title: "CAD / CAM / CAE & Design Solutions - Design software, simulation, reverse engineering", 
+    slug: "cad-cam", 
+    image: "/images/cad.jpg" 
+  },
+  { 
+    title: "Injection Moulding & Casting Technologies - Plastics, rubber, die casting, metal forming solutions",
+    slug: "die-casting", 
+    image: "/images/casting.jpg" 
+  }
+].map((sector, index) => (
+  <Link
+    key={index}
+    href={`/sectors/${sector.slug}`}
+    className="group relative h-[320px] overflow-hidden"
+  >
+    {/* Background Image */}
+    <div
+      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+      style={{ backgroundImage: `url(${sector.image})` }}
+    />
+
+    {/* Dark Overlay */}
+    <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition duration-300"></div>
+
+    {/* Content */}
+    <div className="absolute bottom-6 left-6 right-6 z-10 text-white">
+      <h3 className="text-xl font-semibold leading-snug">
+        {sector.title}
+      </h3>
+
+      {/* Blue underline */}
+      <div className="mt-3 h-[3px] w-10 bg-blue-500 group-hover:w-16 transition-all duration-300"></div>
+    </div>
+  </Link>
+))}
               </motion.div>
 
               <div className="text-center">
