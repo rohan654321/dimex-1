@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { mockPageData } from './data';
-// import PartnersSection from '@/components/section/PartnersSection';
+import PartnersSection from '@/components/section/PartnersSection';
 import BackToTop from '../exhibitor-resource-center/component/BackToTop';
 import SectionContainer from '@/components/UI/SectionContainer';
 
@@ -189,7 +189,7 @@ export default function ArticlesPage() {
           </div>
         </SectionContainer>
         
-        {/* <PartnersSection/> */}
+        <PartnersSection/>
         <BackToTop/>
       </main>
     </div>
