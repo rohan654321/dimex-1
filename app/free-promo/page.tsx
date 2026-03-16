@@ -245,7 +245,7 @@ export default function ExhibitorPromotionPage() {
                   </p>
 
                   <img
-                    src="/images/exhibitor-promo/Diemex_2026_logos.zip"
+                    src="/images/exhibitor-promo/logo_diemex.png"
                     alt="Diemex logo"
                     className="max-w-[260px]"
                   />
@@ -268,7 +268,7 @@ export default function ExhibitorPromotionPage() {
 
                 {/* BUTTON */}
                 <a
-                  href="/images/exhibitor-promo/exhibitor.JPG"
+                  href="/images/exhibitor-promo/Diemex_2026_logos"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-6 inline-flex w-fit rounded-full bg-[#004D9F] px-12 py-4 text-lg font-semibold text-white hover:bg-mainColor4 transition"
