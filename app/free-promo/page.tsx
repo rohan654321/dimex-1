@@ -160,7 +160,7 @@ export default function ExhibitorPromotionPage() {
               </p>
 
               <a
-                href="https://cdn-ite.prismetic.com/Trans_Russia_Personalized_Banners_2aafdd6055.pdf"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-auto inline-flex w-fit rounded-full bg-[#004D9F] px-10 py-4 text-lg font-semibold text-white hover:bg-mainColor4 transition"
