@@ -28,35 +28,35 @@ const partners: Partner[] = [
     link: ""
   },
   {
-    name: 'Partner 2', logo: '',
+    name: '', logo: '#',
     link: ""
   },
   {
-    name: 'Partner 3', logo: '',
+    name: '', logo: '#',
     link: ""
   },
   {
-    name: 'Partner 4', logo: '',
+    name: '', logo: '#',
     link: ""
   },
   {
-    name: 'Partner 5', logo: '',
+    name: '', logo: '#',
     link: ""
   },
   {
-    name: 'Partner 6', logo: '',
+    name: '', logo: '#',
     link: ""
   },
   {
-    name: 'Partner 7', logo: '',
+    name: '', logo: '#',
     link: ""
   },
   {
-    name: 'Partner 8', logo: '',
+    name: '', logo: '#',
     link: ""
   },
   {
-    name: 'Partner 9', logo: '',
+    name: '', logo: '#',
     link: ""
   },
 ];
