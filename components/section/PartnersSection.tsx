@@ -24,7 +24,7 @@ const PartnersSection = () => {
 
 const partners: Partner[] = [
   {
-    name: 'Partner 1', logo: '',
+    name: '', logo: '#',
     link: ""
   },
   {
