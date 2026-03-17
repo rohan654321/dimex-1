@@ -48,69 +48,65 @@ const data = [
 export default function WhyExhibit() {
   const testimonials = [
     {
-        logo: "/images/Why-Exhibit/raj.png",
+      logo: "/images/Why-Exhibit/raj.png",
       text: "DIEMEX provides an excellent platform for tooling manufacturers to connect with serious buyers from the automotive, electronics, and engineering sectors.",
-    author: "RAJSHEKAR HUGHAR",
-    company: "Managing Director, Raj Tools & Stampings Pvt Ltd",
+      author: "RAJSHEKAR HUGHAR",
+      company: "Managing Director, Raj Tools & Stampings Pvt Ltd",
     },
     {
-       logo: "/images/Why-Exhibit/trove.png",
+      logo: "/images/Why-Exhibit/trove.png",
       text: "We gained valuable business leads and met key decision-makers from major manufacturing companies. DIEMEX is becoming an important event for the tooling industry.",
-    author: "SUCHEENDRAN KUNDUVARAVALAPIL",
-    company: "Managing Director , The Tooling Trove",
+      author: "SUCHEENDRAN KUNDUVARAVALAPIL",
+      company: "Managing Director , The Tooling Trove",
     },
-     {
-        logo: "/images/Why-Exhibit/pawan.png",
+    {
+      logo: "/images/Why-Exhibit/pawan.png",
       text: "The quality of visitors and industry professionals attending DIEMEX is impressive. It’s a great opportunity to showcase our latest die and mould innovations.",
-    author: "AMIT A, DHARURKAR",
-    company: "Marketing Engineer, Pawan Precisions Pvt. Ltd.",
+      author: "AMIT A, DHARURKAR",
+      company: "Marketing Engineer, Pawan Precisions Pvt. Ltd.",
     },
-     {
-        logo: "/images/Why-Exhibit/richcam.png",
-     text: "DIEMEX helps us demonstrate advanced automation and machining solutions directly to manufacturers looking to upgrade their tool rooms.",
-    author: "ABHIJEET C KHOLLAM",
-    company: "Chief Operating Officer, Rich Cam Auto Engg (I) Pvt. Ltd",
+    {
+      logo: "/images/Why-Exhibit/richcam.png",
+      text: "DIEMEX helps us demonstrate advanced automation and machining solutions directly to manufacturers looking to upgrade their tool rooms.",
+      author: "ABHIJEET C KHOLLAM",
+      company: "Chief Operating Officer, Rich Cam Auto Engg (I) Pvt. Ltd",
     },
-     {
-        logo: "/images/Why-Exhibit/vasantha.svg",
-     text: "The exhibition brings together the entire die and mould ecosystem — from raw materials and cutting tools to advanced machining and metrology solutions.",
-    author: "RANJITH",
-    company: "Manager, Vasantha Tool Craft Pvt. Ltd. ",
+    {
+      logo: "/images/Why-Exhibit/vasantha.svg",
+      text: "The exhibition brings together the entire die and mould ecosystem — from raw materials and cutting tools to advanced machining and metrology solutions.",
+      author: "RANJITH",
+      company: "Manager, Vasantha Tool Craft Pvt. Ltd. ",
     },
-     {
-       logo: "/images/Why-Exhibit/rajamane.png",
-       text: "Participating at DIEMEX helped us expand our market presence and connect with OEM manufacturers across multiple industries.",
-    author: "MAHESH RAJAMANE",
-    company: "CEO, Rajamane Solutions",
+    {
+      logo: "/images/Why-Exhibit/rajamane.png",
+      text: "Participating at DIEMEX helped us expand our market presence and connect with OEM manufacturers across multiple industries.",
+      author: "MAHESH RAJAMANE",
+      company: "CEO, Rajamane Solutions",
     },
-     {
-        logo: "/images/Why-Exhibit/prenac.webp",
-     text: "DIEMEX is an excellent platform for networking, discovering new technologies, and building partnerships within the die and mould industry.",
-    author: "Ms. CHERRY YASIS",
-    company: "Sales Assnt, Sohbi Kohgei (Phil)., Inc",
+    {
+      logo: "/images/Why-Exhibit/prenac.webp",
+      text: "DIEMEX is an excellent platform for networking, discovering new technologies, and building partnerships within the die and mould industry.",
+      author: "Ms. CHERRY YASIS",
+      company: "Sales Assnt, Sohbi Kohgei (Phil)., Inc",
     },
-     {
+    {
       logo: "/images/Why-Exhibit/prenac.webp",
       text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
-    author: "NAVEEN",
-    company: "Managing Director, Prenac Tools",
+      author: "NAVEEN",
+      company: "Managing Director, Prenac Tools",
     },
-{
+    {
       logo: "/images/Why-Exhibit/hottip.jpg",
       text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
-    author: "MOHAMMED FAHEMUDAIN",
-    company: "Managing Director, Hottip India",
+      author: "MOHAMMED FAHEMUDAIN",
+      company: "Managing Director, Hottip India",
     },
     {
       logo: "/images/Why-Exhibit/jai.jpg",
       text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
-    author: "SANTHOSH RAI",
-    company: "Director,  Jai Ambay Etching Process",
+      author: "SANTHOSH RAI",
+      company: "Director,  Jai Ambay Etching Process",
     },
-    
-
-
-
   ]
 
   const [testimonialIndex, setTestimonialIndex] = useState(0)
@@ -199,12 +195,16 @@ export default function WhyExhibit() {
 
                 <div className="flex flex-wrap gap-4 mt-6 text-white/90 text-sm sm:text-base">
                   <span className="flex items-center gap-2">
-                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" className="size-5 shrink-0 fill-[#004D9F] " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 48C141.1 48 48 141.1 48 256s93.1 208 208 208 208-93.1 208-208S370.9 48 256 48zm106.5 150.5L228.8 332.8h-.1c-1.7 1.7-6.3 5.5-11.6 5.5-3.8 0-8.1-2.1-11.7-5.7l-56-56c-1.6-1.6-1.6-4.1 0-5.7l17.8-17.8c.8-.8 1.8-1.2 2.8-1.2 1 0 2 .4 2.8 1.2l44.4 44.4 122-122.9c.8-.8 1.8-1.2 2.8-1.2 1.1 0 2.1.4 2.8 1.2l17.5 18.1c1.8 1.7 1.8 4.2.2 5.8z"></path></svg>
+                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="size-5 shrink-0 fill-[#004D9F]" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M256 48C141.1 48 48 141.1 48 256s93.1 208 208 208 208-93.1 208-208S370.9 48 256 48zm106.5 150.5L228.8 332.8h-.1c-1.7 1.7-6.3 5.5-11.6 5.5-3.8 0-8.1-2.1-11.7-5.7l-56-56c-1.6-1.6-1.6-4.1 0-5.7l17.8-17.8c.8-.8 1.8-1.2 2.8-1.2 1 0 2 .4 2.8 1.2l44.4 44.4 122-122.9c.8-.8 1.8-1.2 2.8-1.2 1.1 0 2.1.4 2.8 1.2l17.5 18.1c1.8 1.7 1.8 4.2.2 5.8z"></path>
+                    </svg>
                     08 – 10 October 2026
                   </span>
 
                   <span className="flex items-center gap-2">
-                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" className="size-5 shrink-0 fill-[#004D9F] " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 48C141.1 48 48 141.1 48 256s93.1 208 208 208 208-93.1 208-208S370.9 48 256 48zm106.5 150.5L228.8 332.8h-.1c-1.7 1.7-6.3 5.5-11.6 5.5-3.8 0-8.1-2.1-11.7-5.7l-56-56c-1.6-1.6-1.6-4.1 0-5.7l17.8-17.8c.8-.8 1.8-1.2 2.8-1.2 1 0 2 .4 2.8 1.2l44.4 44.4 122-122.9c.8-.8 1.8-1.2 2.8-1.2 1.1 0 2.1.4 2.8 1.2l17.5 18.1c1.8 1.7 1.8 4.2.2 5.8z"></path></svg>
+                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="size-5 shrink-0 fill-[#004D9F]" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M256 48C141.1 48 48 141.1 48 256s93.1 208 208 208 208-93.1 208-208S370.9 48 256 48zm106.5 150.5L228.8 332.8h-.1c-1.7 1.7-6.3 5.5-11.6 5.5-3.8 0-8.1-2.1-11.7-5.7l-56-56c-1.6-1.6-1.6-4.1 0-5.7l17.8-17.8c.8-.8 1.8-1.2 2.8-1.2 1 0 2 .4 2.8 1.2l44.4 44.4 122-122.9c.8-.8 1.8-1.2 2.8-1.2 1.1 0 2.1.4 2.8 1.2l17.5 18.1c1.8 1.7 1.8 4.2.2 5.8z"></path>
+                    </svg>
                     Pune, India
                   </span>
                 </div>
@@ -355,33 +355,32 @@ export default function WhyExhibit() {
                   }}
                   className="bg-white border border-gray-200 rounded-lg p-6 flex flex-row h-full"
                 >
-                  {/* ICON */}
-
-
-                  {/* TITLE */}
-                  <div className="grid">
+                  {/* CONTENT */}
+                  <div className="grid flex-1">
                     <h3 className="font-semibold text-lg mb-3 text-gray-900 leading-snug">
                       {item.title}
                     </h3>
 
-                    {/* DESCRIPTION */}
                     <p className="text-gray-600 text-sm leading-relaxed">
                       {item.text}
                     </p>
-
                   </div>
 
-
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="h-10 w-auto"
-                  />
-
+                  {/* IMAGE */}
+                  <div className="ml-4 flex-shrink-0">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="h-10 w-auto"
+                      onError={(e) => {
+                        console.error(`Failed to load image: ${item.image}`);
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
-
 
             <Link href='/exhibiting-enquiry'>
               <motion.button
@@ -418,17 +417,17 @@ export default function WhyExhibit() {
                 {
                   title: "A Fast-Growing Manufacturing Economy",
                   text: "India is one of the world’s fastest-growing manufacturing hubs, supported by strong GDP growth and major investments in automotive, EVs, aerospace, electronics, and industrial manufacturing—all key drivers of die & mould demand.",
-                  images: "/images/mfg-economy.jpg"
+                  image: "/images/mfg-economy.jpg"
                 },
                 {
                   title: "Rising Demand for Precision Tooling",
                   text: "With increasing localisation, shorter product life cycles, and higher quality standards, there is growing demand for advanced dies, moulds, tooling systems, and high-performance materials across industries.",
-                  images: "/images/demand.jpg"
+                  image: "/images/demand.jpg"
                 },
                 {
                   title: "Long-Term Growth & Investment Potential",
                   text: "India’s die & mould and tooling sector is poised for sustained expansion through 2026 and beyond, driven by capacity expansion, technology upgrades, automation, and global sourcing shifts—creating strong opportunities for technology providers, material suppliers, and solution partners.",
-                  images: "/images/investment.jpg"
+                  image: "/images/investment.jpg"
                 }
               ].map((item, index) => (
                 <motion.div
@@ -439,13 +438,16 @@ export default function WhyExhibit() {
                     boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
                     transition: { duration: 0.3 }
                   }}
-                  className="relative w-[466px] h-[500px] overflow-hidden rounded-lg cursor-pointer"
+                  className="relative w-full max-w-[466px] h-[500px] overflow-hidden rounded-lg cursor-pointer"
                 >
                   <Image
-                    src={item.images}
+                    src={item.image}
                     alt={item.title}
                     fill
                     className="object-cover"
+                    onError={(e) => {
+                      console.error(`Failed to load image: ${item.image}`);
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-black/40 p-8 hover:bg-black/70 transition-all duration-300">
                     <div className="text-white h-full flex flex-col justify-end">
@@ -499,28 +501,24 @@ export default function WhyExhibit() {
               {[
                 {
                   title: 'Precision Die & Mould Solutions',
-
                   slug: 'precision-moulds',
                   image: '/images/precision.jpg',
                   description: 'Comprehensive die & mould manufacturing, tooling systems, design engineering, and end-to-end production solutions supporting high-precision industrial applications.'
                 },
                 {
                   title: 'Tooling, Mould Bases & Standard Components',
-
                   slug: 'tooling-mould-base',
                   image: '/images/mouldbase.jpg',
                   description: 'High-quality mould bases, precision components, hot runner systems, and standard tooling elements supporting efficient and reliable die & mould production.'
                 },
                 {
                   title: 'Machining & Finishing Technologies',
-
                   slug: 'machining-finishing',
                   image: '/images/finishing.jpg',
                   description: 'High-precision CNC machining, EDM, wire-cut, surface finishing, and polishing solutions for toolroom operations.'
                 },
                 {
                   title: 'Automation & Industry 4.0 Solutions',
-
                   slug: 'automation-industry',
                   image: '/images/automation.jpg',
                   description: 'Smart automation, robotics, digital manufacturing, and smart factory technologies for modern die & mould production.'
@@ -570,7 +568,6 @@ export default function WhyExhibit() {
         {/* DOWNLOAD BROCHURE */}
         <BrochureSection />
 
-
         {/* TESTIMONIALS */}
         <section className="py-20 lg:py-28 bg-white font-parabolica">
           <SectionContainer>
@@ -588,10 +585,6 @@ export default function WhyExhibit() {
               >
                 Trusted by Industry Leaders
               </motion.h2>
-
-              <div className="absolute -top-10 right-0 text-[180px] text-blue-100 leading-none select-none pointer-events-none">
-                
-              </div>
 
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -630,9 +623,18 @@ export default function WhyExhibit() {
                 <motion.div
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="text-5xl font-bold text-blue-700"
+                  className="w-32 h-32 relative"
                 >
-                  {testimonials[testimonialIndex].logo}
+                  <Image
+                    src={testimonials[testimonialIndex].logo}
+                    alt="Company logo"
+                    fill
+                    className="object-contain"
+                    onError={(e) => {
+                      console.error(`Failed to load logo: ${testimonials[testimonialIndex].logo}`);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
                 </motion.div>
               </div>
 
@@ -712,7 +714,6 @@ export default function WhyExhibit() {
                   { value: "48%", label: "Die & Mould Manufacturers, Toolrooms & Tooling Companies" },
                   { value: "40%", label: "OEMs, Component Manufacturers, Automotive, EV, Plastics & Industrial Companies" },
                   { value: "31%", label: "Senior Decision-Makers & Department Heads" },
-
                   { value: "12%", label: "Design Software Providers, Automation & Industry 4.0 Solutions, Material Suppliers & Technical Consultants" }
                 ].map((stat, index) => (
                   <motion.div
@@ -769,6 +770,9 @@ export default function WhyExhibit() {
                   fill
                   className="object-cover"
                   priority
+                  onError={(e) => {
+                    console.error('Failed to load exhibitors image');
+                  }}
                 />
               </div>
             </motion.div>
@@ -834,7 +838,6 @@ export default function WhyExhibit() {
 
         {/* QUICK NAVIGATION */}
         <section className="font-parabolica py-16 lg:py-24">
-
           <SectionContainer>
             <div className="flex gap-2 mb-4">
               <img src="/images/logo-icon-3.png" alt="" className="h-5" />
