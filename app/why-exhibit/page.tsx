@@ -111,6 +111,7 @@ export default function WhyExhibit() {
 
   const [testimonialIndex, setTestimonialIndex] = useState(0)
 
+  /* Auto rotation disabled
   useEffect(() => {
     const interval = setInterval(() => {
       setTestimonialIndex((prev) => (prev + 1) % testimonials.length)
@@ -118,7 +119,8 @@ export default function WhyExhibit() {
 
     return () => clearInterval(interval)
   }, [testimonials.length])
-
+  */
+}
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
