@@ -22,7 +22,7 @@ const ExhibitionsGlance: React.FC<ExhibitionsGlanceProps> = ({
     {
       id: "1",
       name: "DIEMEX 2023",
-      image:"https://cdn.itegroupnews.com/comtrans_92db3bfebf.webp",
+      image:"",
       description: "The international exhibition of Die & Mould Industry.",
       startDate: "Oct 27th, 2023",
       endDate: "Oct 29th, 2023",
@@ -32,7 +32,7 @@ const ExhibitionsGlance: React.FC<ExhibitionsGlanceProps> = ({
     {
       id: "2",
       name: "DIEMEX 2025",
-      image:"https://cdn.itegroupnews.com/dairytech_d532416dae.webp",
+      image:"",
       description: "The international exhibition of Die & Mould Industry.",
       startDate: "Nov 20th, 2025",
       endDate: "Nov 22nd, 2025",
@@ -42,7 +42,7 @@ const ExhibitionsGlance: React.FC<ExhibitionsGlanceProps> = ({
     {
       id: "3",
       name: "DIEMEX 2026",
-      image:"https://cdn.itegroupnews.com/airvent_b09e1eb665.webp",
+      image:"",
      description: "The international exhibition of Die & Mould Industry.",
       startDate: "Oct 8th, 2026",
       endDate: "Oct 10th, 2026",

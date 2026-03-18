@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Diemex Conference | October 08-10, 2026, Pune',
     description: 'Annual conference for professionals in the tooling industry.',
-    images: ['https://regional-cdn.itegroupnews.com/10_2c986396fa.jpg'],
+    images: [''],
   },
 };
 const speakersData = [

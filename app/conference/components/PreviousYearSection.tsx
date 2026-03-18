@@ -7,8 +7,8 @@ export default function PreviousYearSection() {
       <div className="animated-block-target">
         <div className="relative !py-40 xl:!py-62">
           <img
-            alt="TransRussia Summit"
-            src="https://regional-cdn.itegroupnews.com/eksklyuzivnye_ekskursii_1e2ed3f384.png"
+            alt="Diemex 2025 Conference"
+            src=""
             className="absolute inset-0 z-[-1] size-full object-cover"
             width={500}
             height={500}

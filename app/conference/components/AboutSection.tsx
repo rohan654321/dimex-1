@@ -16,7 +16,7 @@ export default function AboutSection() {
                         <figure className="image image-style-side image_resized mx-auto md:mx-0" style={{ width: '50%', maxWidth: '75px', margin: '0 auto' }}>
                           <img
                             style={{ aspectRatio: '328/328' }}
-                            src="https://regional-cdn.itegroupnews.com/users_solid_full_64a5e910b8.png"
+                            src=""
                             alt="users-solid-full.png"
                             width={328}
                             height={328}

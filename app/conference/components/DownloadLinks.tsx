@@ -22,7 +22,7 @@ export default function DownloadLinks({ programLink, printVersionLink }: Downloa
               <div className="flex-center relative size-10 rounded-full bg-mainColor1">
                 <img
                   alt="Download icon"
-                  src="https://regional-cdn.itegroupnews.com/download_f7c6b2782d.png"
+                  src="/images/download_icon.png"
                   className="size-5 object-cover"
                   width={500}
                   height={500}
@@ -40,7 +40,7 @@ export default function DownloadLinks({ programLink, printVersionLink }: Downloa
               <div className="flex-center relative size-10 rounded-full bg-mainColor1">
                 <img
                   alt="Download icon"
-                  src="https://regional-cdn.itegroupnews.com/download_f7c6b2782d.png"
+                  src="/images/download_icon.png"
                   className="size-5 object-cover"
                   width={500}
                   height={500}

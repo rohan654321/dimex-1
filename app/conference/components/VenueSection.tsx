@@ -19,7 +19,7 @@ export default function VenueSection() {
                       <figure className="image image-style-side image_resized mx-auto md:mx-0" style={{ width: '50px', maxWidth: '75px', margin: '0 auto' }}>
                         <img
                           style={{ aspectRatio: '328/328' }}
-                          src="https://regional-cdn.itegroupnews.com/location_dot_solid_full_c0b9c622bf.png"
+                          src="/images/location.png"
                           alt="location-dot-solid-full.png"
                           width={328}
                           height={328}
