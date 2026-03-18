@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface ThankYouPopupProps {
   isVisible: boolean;
@@ -12,6 +13,7 @@ export default function ThankYouPopup({
   name = "there",
 }: ThankYouPopupProps) {
   const [countdown, setCountdown] = useState(5);
+  const router = useRouter();
 
   useEffect(() => {
     if (!isVisible) return;
@@ -22,7 +24,10 @@ export default function ThankYouPopup({
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          onClose(); // auto close
+
+          onClose();          // close popup
+          router.push("/");   // ✅ redirect to home
+
           return 0;
         }
         return prev - 1;
@@ -30,17 +35,17 @@ export default function ThankYouPopup({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isVisible, onClose]);
+  }, [isVisible, onClose, router]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3B2E5A]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       
       {/* CARD */}
-      <div className="relative w-[320px] rounded-xl bg-[#f2f2f2] p-8 text-center shadow-xl">
+      <div className="relative w-[320px] rounded-xl bg-white p-8 text-center shadow-2xl border">
 
-        {/* TOP ICON (OVERLAP) */}
+        {/* TOP ICON */}
         <div className="absolute -top-12 left-1/2 -translate-x-1/2">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500 shadow-lg">
             <svg
@@ -66,21 +71,24 @@ export default function ThankYouPopup({
           </h2>
 
           <p className="mt-2 text-sm text-gray-600">
-            Your details has been successfully submitted.
+            Your details have been successfully submitted.
           </p>
 
           {/* TIMER */}
           <p className="mt-3 text-sm text-gray-500">
-            Closing in{" "}
+            Redirecting in{" "}
             <span className="font-bold text-green-600">{countdown}s</span>
           </p>
 
           {/* BUTTON */}
           <button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              router.push("/");
+            }}
             className="mt-6 w-full rounded-md bg-green-500 py-2 text-white font-medium hover:bg-green-600 transition"
           >
-            OK
+            Go to Home
           </button>
         </div>
       </div>
