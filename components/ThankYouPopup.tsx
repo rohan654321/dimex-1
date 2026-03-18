@@ -1,99 +1,96 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface ThankYouPopupProps {
   isVisible: boolean;
   onClose: () => void;
   name?: string;
-  formType?: string;
 }
 
-export default function ThankYouPopup({ 
-  isVisible, 
-  onClose, 
-  name = 'there',
-  formType = 'contact'
+export default function ThankYouPopup({
+  isVisible,
+  onClose,
+  name = "there",
 }: ThankYouPopupProps) {
   const [countdown, setCountdown] = useState(5);
+  const router = useRouter();
 
   useEffect(() => {
-    if (isVisible) {
-      setCountdown(5);
-      
-      const timer = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            // Don't redirect automatically
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    if (!isVisible) return;
 
-      return () => clearInterval(timer);
-    }
-  }, [isVisible]);
+    setCountdown(5);
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+
+          onClose();          // close popup
+          router.push("/");   // ✅ redirect to home
+
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isVisible, onClose, router]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      
+      {/* CARD */}
+      <div className="relative w-[320px] rounded-xl bg-white p-8 text-center shadow-2xl border">
 
-      {/* Modal */}
-      <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
-
-        {/* Success Icon */}
-        <div className="mb-6 flex justify-center">
-          <div className="rounded-full bg-green-100 p-4">
-            <svg 
-              className="h-16 w-16 text-green-600" 
-              fill="currentColor" 
-              viewBox="0 0 20 20"
+        {/* TOP ICON */}
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500 shadow-lg">
+            <svg
+              className="h-10 w-10 text-white"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              viewBox="0 0 24 24"
             >
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              <path
+                d="M5 13l4 4L19 7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
         </div>
 
-        {/* Title */}
-        <h2 className="mb-3 text-center text-3xl font-bold text-gray-900">
-          Thank You, {name}!
-        </h2>
+        {/* CONTENT */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold text-gray-800">
+            Thank You!
+          </h2>
 
-        {/* Message */}
-        <p className="mb-6 text-center text-gray-600">
-          Your {formType === 'post-show-report' ? 'report request' : 'form'} has been submitted successfully. 
-          We've sent a confirmation email to your inbox.
-        </p>
+          <p className="mt-2 text-sm text-gray-600">
+            Your details have been successfully submitted.
+          </p>
 
-        {/* Optional countdown display (non-redirecting) */}
-        <div className="mb-8 rounded-xl bg-blue-50 p-4 text-center">
-          <div className="text-blue-700">
-            <span className="font-medium">This popup will auto-close in</span>
-            <span className="font-mono text-2xl font-bold text-blue-600 mx-2">{countdown}</span>
-            <span className="font-medium">seconds</span>
-          </div>
+          {/* TIMER */}
+          <p className="mt-3 text-sm text-gray-500">
+            Redirecting in{" "}
+            <span className="font-bold text-green-600">{countdown}s</span>
+          </p>
+
+          {/* BUTTON */}
+          <button
+            onClick={() => {
+              onClose();
+              router.push("/");
+            }}
+            className="mt-6 w-full rounded-md bg-green-500 py-2 text-white font-medium hover:bg-green-600 transition"
+          >
+            Go to Home
+          </button>
         </div>
-
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 transition-colors"
-        >
-          Close
-        </button>
       </div>
     </div>
   );

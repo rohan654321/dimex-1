@@ -174,7 +174,7 @@ const TransRussiaPage: React.FC<TransRussiaPageProps> = ({
         isVisible={showThankYouPopup}
         onClose={handleClosePopup}
         name={submittedName}
-        formType="visitor-registration"
+        // formType="visitor-registration"
       />
 
       {/* Main Content */}

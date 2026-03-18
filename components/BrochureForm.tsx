@@ -299,7 +299,7 @@ export default function BrochureForm() {
         isVisible={showThankYou}
         onClose={() => setShowThankYou(false)}
         name={formData.firstName}
-        formType="event-brochure"
+        // formType="event-brochure"
       />
     </>
   );

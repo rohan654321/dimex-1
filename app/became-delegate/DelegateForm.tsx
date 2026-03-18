@@ -367,7 +367,7 @@ export default function DelegateForm() {
         isVisible={showThankYou}
         onClose={() => setShowThankYou(false)}
         name={formData.firstName}
-        formType="delegate-registration"
+        // formType="delegate-registration"
       />
     </>
   );

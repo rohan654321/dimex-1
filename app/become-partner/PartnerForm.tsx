@@ -358,7 +358,7 @@ export default function PartnerRegistrationForm() {
         isVisible={showThankYou}
         onClose={() => setShowThankYou(false)}
         name={formData.firstName}
-        formType="partner-registration"
+        // formType="partner-registration"
       />
     </>
   );

@@ -481,7 +481,7 @@ const TransRussiaExhibitPage: React.FC = () => {
         isVisible={showThankYou}
         onClose={() => setShowThankYou(false)}
         name={formData.firstName}
-        formType="exhibitor-enquiry"
+        // formType="exhibitor-enquiry"
       />
 
       <BackToTop />
