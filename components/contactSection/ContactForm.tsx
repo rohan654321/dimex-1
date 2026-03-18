@@ -196,7 +196,7 @@ export default function ContactForm() {
         isVisible={showThankYou}
         onClose={() => setShowThankYou(false)}
         name={formData.firstName}
-        formType="contact"
+        // formType="contact"
       />
     </>
   )
