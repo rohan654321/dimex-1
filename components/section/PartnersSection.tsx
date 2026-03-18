@@ -227,7 +227,7 @@ const partners: Partner[] = [
                       unoptimized
                       onError={(e) => {
                         const img = e.currentTarget as HTMLImageElement
-                        img.src = "/images/image.png"
+                        img.src = ""
                       }}
                     />
                   </div>
