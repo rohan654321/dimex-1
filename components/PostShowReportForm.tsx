@@ -392,7 +392,7 @@ export default function PostShowReportForm() {
         isVisible={showThankYou}
         onClose={() => setShowThankYou(false)}
         name={formData.firstName}
-        formType="post-show-report"
+        // formType="post-show-report"
       />
     </>
   );
