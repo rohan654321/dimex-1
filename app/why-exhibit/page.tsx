@@ -117,7 +117,7 @@ export default function WhyExhibit() {
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [testimonials.length]).
+  }, [testimonials.length]);
 
 
   const scaleIn = {
