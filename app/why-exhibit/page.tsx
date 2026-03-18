@@ -103,27 +103,22 @@ export default function WhyExhibit() {
     },
     {
       logo: "/images/Why-Exhibit/jai.jpg",
-      text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactio
-  // Animation variants
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 }
-    }
-  };
+      text: "We look forward to participating in DIEMEX again. The event provides great exposure and meaningful interactions with buyers and industry experts.",
+      author: "SANTHOSH RAI",
+      company: "Director,  Jai Ambay Etching Process",
+    },
+  ]
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.1
-      }
-    }
-  };
+  const [testimonialIndex, setTestimonialIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestimonialIndex((prev) => (prev + 1) % testimonials.length)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [testimonials.length])
+
 
   const scaleIn = {
     hidden: { opacity: 0, scale: 0.95 },
