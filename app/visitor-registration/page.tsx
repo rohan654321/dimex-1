@@ -59,7 +59,7 @@ const pageData = {
           { id: "826", Text: "Post Show Report", LinkTo: "post-show-report", NewTab: false },
           { id: "825", Text: "Event Brochure", LinkTo: "event-brochure", NewTab: false },
           { id: "1885", Text: "Media Gallery", LinkTo: "media-gallery", NewTab: false },
-          { id: "1870", Text: "TransRussia Summit", LinkTo: "https://summit.transrussia.ru/", NewTab: false }
+          
         ]
       },
       {
@@ -88,10 +88,7 @@ const pageData = {
     ],
     Copyright: "©Transrussia - 2025. All Right Reserved",
     EndLinks: [
-      { id: "397", Text: "Terms of Use", LinkTo: "https://ite.group/en/terms-of-use", NewTab: true },
-      { id: "396", Text: "Privacy Policy", LinkTo: "https://dimex-ruby.vercel.app/privacy-policy", NewTab: true },
-      { id: "395", Text: "Cookie Policy", LinkTo: "https://ite.group/en/cookies/", NewTab: true },
-      { id: "550", Text: "Sitemap", LinkTo: "https://trstexpo.com/sitemap.xml", NewTab: true }
+      
     ]
   },
   pageData: {
@@ -218,26 +215,26 @@ const pageData = {
                 LogoORBanner: {
                   data: {
                     attributes: {
-                      url: "https://cdn.itegroupnews.com/linkedin_1_0226577448.png",
+                      url: "",
                       width: 32,
                       height: 32
                     }
                   }
                 },
-                Link: "https://www.linkedin.com/company/transrussia",
+                Link: "",
                 Target: "New_Tab"
               },
               {
                 LogoORBanner: {
                   data: {
                     attributes: {
-                      url: "https://cdn.itegroupnews.com/Untitled_design_2025_09_15_T151629_908_3fc6876662.png",
+                      url: "",
                       width: 50,
                       height: 50
                     }
                   }
                 },
-                Link: "https://www.instagram.com/expotransrussia/",
+                Link: "",
                 Target: "New_Tab"
               }
             ]
@@ -245,7 +242,7 @@ const pageData = {
         ]
       }
     ],
-    CopyrightText: "©Transrussia - 2025. All Right Reserved",
+    CopyrightText: "©Diemex - 2026. All Right Reserved",
     EndLinks: [
       
       { id: "396", Text: "Privacy Policy", LinkTo:"https://www.diemex.in/privacy-policy", NewTab: true },
