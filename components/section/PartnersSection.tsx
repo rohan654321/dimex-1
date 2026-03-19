@@ -24,39 +24,48 @@ const PartnersSection = () => {
 
 const partners: Partner[] = [
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
   {
-    name: '', logo: '',
+    name: '', 
+    logo: '',
     link: ""
   },
 ];
@@ -149,7 +158,7 @@ const partners: Partner[] = [
           </h2>
         </div>
 
-        {/* Slider Container */}
+        {/* Slider Container - Desktop Only */}
         <div className="relative hidden lg:block">
           {/* Gradient overlay for smooth edges */}
           <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-12 bg-linear-to-r from-white to-transparent" />
@@ -174,68 +183,58 @@ const partners: Partner[] = [
             <div className="flex items-stretch min-w-max">
               {duplicatedPartners.map((partner, index) => (
                 <div
-  key={`${partner.name}-${index}`}
-  className="min-w-[280px] max-w-[280px] px-4 shrink-0"
->
-  <Link
-    href={partner.link}
-    className="group block text-center transition-all hover:scale-[1.02]"
-  >
-    {/* Card */}
-    <div className="w-full rounded-lg bg-white shadow-md transition-all group-hover:shadow-lg overflow-hidden border border-gray-100">
-      
-      {/* Logo Container – REDUCED HEIGHT */}
-      <div className="h-32 w-full bg-gray-50 flex items-center justify-center p-4">
-        <div className="relative h-20 w-full">
-          <Image
-            src={partner.logo}
-            alt={partner.name}
-            fill
-            draggable={false}
-            className="object-contain"
-            unoptimized
-            sizes="(max-width: 280px) 100vw, 280px"
-          />
-        </div>
-      </div>
-    </div>
+                  key={`${partner.name}-${index}`}
+                  className="min-w-[280px] max-w-[280px] px-4 shrink-0"
+                >
+                  <Link
+                    href={partner.link}
+                    className="group block text-center transition-all hover:scale-[1.02]"
+                  >
+                    {/* Card */}
+                    <div className="w-full rounded-lg bg-white shadow-md transition-all group-hover:shadow-lg overflow-hidden border border-gray-100">
+                      
+                      {/* Logo Container – Show placeholder when no image */}
+                      <div className="h-32 w-full bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
+                        <div className="relative h-20 w-full flex items-center justify-center">
+                          {partner.logo ? (
+                            <Image
+                              src={partner.logo}
+                              alt={partner.name}
+                              fill
+                              draggable={false}
+                              className="object-contain"
+                              unoptimized
+                              sizes="(max-width: 280px) 100vw, 280px"
+                            />
+                          ) : (
+                            <span className="text-gray-400 font-medium text-lg">
+                              Logo
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-    {/* Partner Name – OUTSIDE CARD */}
-    <p className="font-parabolica mt-3 text-sm font-medium text-gray-800 leading-snug">
-      {truncateText(partner.name, 5)}
-    </p>
-  </Link>
-</div>
-
+                    {/* Partner Name – OUTSIDE CARD */}
+                    <p className="font-parabolica mt-3 text-sm font-medium text-gray-800 leading-snug">
+                      {truncateText(partner.name, 5)}
+                    </p>
+                  </Link>
+                </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Static Grid for Mobile (optional) */}
-        <div className="lg:hidden grid grid-cols-2 md:grid-cols-3 gap-6 mt-8">
+        {/* Static Grid for Mobile - Shows only partner names */}
+        <div className="lg:hidden grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
           {partners.slice(0, 6).map((partner, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
-              <Link href={partner.link} className="block">
-                <div className="h-32 bg-gray-50 flex items-center justify-center p-4">
-                  <div className="relative h-20 w-full">
-                    <Image
-                      src={partner.logo}
-                      alt={partner.name}
-                      fill
-                      className="object-contain"
-                      unoptimized
-                      onError={(e) => {
-                        const img = e.currentTarget as HTMLImageElement
-                        img.src = ""
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="p-4">
-                  <small className="text-sm font-medium text-gray-700 line-clamp-2 leading-tight">
-                    {truncateText(partner.name, 4)}
-                  </small>
+            <div key={index} className="bg-white rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-all">
+              <Link href={partner.link} className="block p-4">
+                <div className="flex items-center justify-center min-h-[60px]">
+                  <span className="text-gray-800 font-medium text-center text-sm">
+                    {partner.name}
+                  </span>
                 </div>
               </Link>
             </div>
