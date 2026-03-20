@@ -38,18 +38,24 @@ export default function NewExhibitorPage() {
   } | null>(null);
 
   const sectors = [
-    "Rail Transport",
-    "Maritime Logistics",
-    "Air Cargo",
-    "Warehouse Solutions",
-    "Technology & Software",
-    "Cold Chain Logistics",
-    "Logistics Services",
-    "Transport",
-    "Shipping",
-    "Supply Chain",
-    "Other",
-  ];
+
+ "Additive Manufacturing - 3D Printing",
+ "CNC Milling / Machining Centre, EDM",
+ "Cutting Tools",
+ "Heat Treatment",
+ "Hot Runner System",
+ "Injection Moulding Machine",
+ "Inspection and Quality Systems, CMM",
+ "Machine Tools & Accessories for Dies and Moulds",
+ "Mechanical Presses for Sheet Metal Components",
+ "Raw Material Suppliers (Tool Steel)",
+ "Texturizing, Polishing & Plating",
+ "CAD/CAM/CAE, Simulation",
+ "Mould Base",
+ "Tool Room - Die Casting Dies & Rubber Moulds",
+ "Tool Room - Jig, Fixture and Gauges",
+ "Tool Room - Sheet Metal Dies / Sheet metal Components",
+      ];
 
   const boothTypes = [
     { value: "standard", label: "Standard Booth (3x3m)" },

@@ -567,7 +567,7 @@ const staggerContainer = {
         {/* DOWNLOAD BROCHURE */}
         <BrochureSection />
 
-        {/* TESTIMONIALS */}
+        {/* TESTIMONIALS  */}
         {/* <section className="py-20 lg:py-28 bg-white font-parabolica">
           <SectionContainer>
             <div className="flex gap-2 mb-4">
@@ -578,7 +578,7 @@ const staggerContainer = {
             <div className="relative flex items-center justify-between mb-16">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}./.
                 viewport={{ once: true }}
                 className="text-4xl lg:text-5xl font-bold"
               >
@@ -653,7 +653,7 @@ const staggerContainer = {
               </div>
             </motion.div>
           </SectionContainer>
-        </section> */}
+        </section>
 
         {/* VISITOR PROFILE */}
         <section className="bg-white font-parabolica">
