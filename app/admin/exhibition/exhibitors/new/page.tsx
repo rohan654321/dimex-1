@@ -58,19 +58,34 @@ export default function NewExhibitorPage() {
       ];
 
   const boothTypes = [
-    { value: "standard", label: "Standard Booth (3x3m)" },
-    { value: "double", label: "Double Booth (6x3m)" },
-    { value: "corner", label: "Corner Booth" },
+    { value: "standard", label: "Standard Booth" },
+    { value: "double", label: "2 Side Corner Booth" },
+    { value: "corner", label: "3 Side Corner Booth" },
     { value: "island", label: "Island Booth" },
     { value: "custom", label: "Custom Size" },
   ];
 
   const boothSizes = [
     "3x3 m (9 sqm)",
+    "4x3 m (12 sqm)",
+    "4x5 m (20 sqm)",
+    "4x4 m (16 sqm)",
+    "4x7 m (28 sqm)",
+    "4x8 m (32 sqm)",
+    "5x3 m (15 sqm)",
     "6x3 m (18 sqm)",
-    "6x6 m (36 sqm)",
+    "9x3 m (27 sqm)",
     "9x6 m (54 sqm)",
-    "12x6 m (72 sqm)",
+    "6x7 m (42 sqm)",
+    "6x8 m (48 sqm)",
+    "8x3 m (24 sqm)",
+    "8x6 m (48 sqm)",
+    "8x5 m (45 sqm)",
+    "7x10 m (70 sqm)",
+    "7x5 m (35 sqm)",
+    "7x7 m (49 sqm)",
+    "6x10 m (60 sqm)",
+   
     "Custom",
   ];
 
