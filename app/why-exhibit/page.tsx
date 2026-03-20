@@ -110,6 +110,25 @@ export default function WhyExhibit() {
   ]
 
   const [testimonialIndex, setTestimonialIndex] = useState(0)
+  // Add these animation variants after your scaleIn definition
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -549,7 +568,7 @@ export default function WhyExhibit() {
         <BrochureSection />
 
         {/* TESTIMONIALS */}
-        <section className="py-20 lg:py-28 bg-white font-parabolica">
+        {/* <section className="py-20 lg:py-28 bg-white font-parabolica">
           <SectionContainer>
             <div className="flex gap-2 mb-4">
               <img src="/images/logo-icon-3.png" alt="" className="h-5" />
@@ -634,7 +653,7 @@ export default function WhyExhibit() {
               </div>
             </motion.div>
           </SectionContainer>
-        </section>
+        </section> */}
 
         {/* VISITOR PROFILE */}
         <section className="bg-white font-parabolica">
