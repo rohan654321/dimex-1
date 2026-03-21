@@ -81,11 +81,10 @@ export default function NewExhibitorPage() {
     "8x3 m (24 sqm)",
     "8x6 m (48 sqm)",
     "8x5 m (45 sqm)",
-    "7x10 m (70 sqm)",
+    "7x10 m(70 sqm)",
     "7x5 m (35 sqm)",
     "7x7 m (49 sqm)",
-    "6x10 m (60 sqm)",
-   
+    "6x10 m(60 sqm)",
     "Custom",
   ];
 

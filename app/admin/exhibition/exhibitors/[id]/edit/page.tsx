@@ -49,17 +49,22 @@ export default function EditExhibitorPage() {
   });
 
   const sectors = [
-    "Rail Transport",
-    "Maritime Logistics",
-    "Air Cargo",
-    "Warehouse Solutions",
-    "Technology & Software",
-    "Cold Chain Logistics",
-    "Logistics Services",
-    "Transport",
-    "Shipping",
-    "Supply Chain",
-    "Other",
+ "Additive Manufacturing - 3D Printing",
+ "CNC Milling / Machining Centre, EDM",
+ "Cutting Tools",
+ "Heat Treatment",
+ "Hot Runner System",
+ "Injection Moulding Machine",
+ "Inspection and Quality Systems, CMM",
+ "Machine Tools & Accessories for Dies and Moulds",
+ "Mechanical Presses for Sheet Metal Components",
+ "Raw Material Suppliers (Tool Steel)",
+ "Texturizing, Polishing & Plating",
+ "CAD/CAM/CAE, Simulation",
+ "Mould Base",
+ "Tool Room - Die Casting Dies & Rubber Moulds",
+ "Tool Room - Jig, Fixture and Gauges",
+ "Tool Room - Sheet Metal Dies / Sheet metal Components",
   ];
 
   const boothTypes = [
@@ -71,11 +76,25 @@ export default function EditExhibitorPage() {
   ];
 
   const boothSizes = [
-    "3x3 m (9 sqm)",
+     "3x3 m (9 sqm)",
+    "4x3 m (12 sqm)",
+    "4x5 m (20 sqm)",
+    "4x4 m (16 sqm)",
+    "4x7 m (28 sqm)",
+    "4x8 m (32 sqm)",
+    "5x3 m (15 sqm)",
     "6x3 m (18 sqm)",
-    "6x6 m (36 sqm)",
+    "9x3 m (27 sqm)",
     "9x6 m (54 sqm)",
-    "12x6 m (72 sqm)",
+    "6x7 m (42 sqm)",
+    "6x8 m (48 sqm)",
+    "8x3 m (24 sqm)",
+    "8x6 m (48 sqm)",
+    "8x5 m (45 sqm)",
+    "7x10 m(70 sqm)",
+    "7x5 m (35 sqm)",
+    "7x7 m (49 sqm)",
+    "6x10 m(60 sqm)",
     "Custom",
   ];
 
