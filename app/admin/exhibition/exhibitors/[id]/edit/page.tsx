@@ -68,9 +68,9 @@ export default function EditExhibitorPage() {
   ];
 
   const boothTypes = [
-    { value: "standard", label: "Standard Booth (3x3m)" },
-    { value: "double", label: "Double Booth (6x3m)" },
-    { value: "corner", label: "Corner Booth" },
+    { value: "standard", label:"Standard Booth" },
+    { value: "double", label: "2 Side Corner Booth" },
+    { value: "corner", label: "3 Side  Corner Booth" },
     { value: "island", label: "Island Booth" },
     { value: "custom", label: "Custom Size" },
   ];
