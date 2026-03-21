@@ -1,4 +1,5 @@
 // components/admin/AdminInvoices.tsx
+"use client"
 import { useState, useEffect } from 'react';
 import { 
   PrinterIcon, EyeIcon, ArrowDownTrayIcon, ShareIcon, 
