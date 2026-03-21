@@ -1192,7 +1192,7 @@ const handleSubmitApplication = async () => {
     // Calculate totals for invoice
     const totals = calculateTotals();
     
-    // Prepare all data for submission
+    // Prepare all data for submission with proper structure
     const submissionData = {
       generalInfo,
       boothDetails,
@@ -1203,19 +1203,32 @@ const handleSubmitApplication = async () => {
       electricalLoad,
       furnitureItems: furnitureItems.filter(f => f.quantity > 0),
       hostessRequirements: hostessRequirements.filter(h => h.quantity > 0),
-      compressedAir,
-      waterConnection,
-      securityGuard,
-      rentalItems: Object.values(rentalItems).filter(item => item.quantity > 0),
-      housekeepingStaff,
+      compressedAir: compressedAir.selected ? compressedAir : null,
+      waterConnection: waterConnection.connections > 0 ? waterConnection : null,
+      securityGuard: securityGuard.quantity > 0 ? securityGuard : null,
+      rentalItems: Object.values(rentalItems)
+        .filter(item => item.quantity > 0)
+        .map(item => ({
+          id: item.id,
+          description: item.description,
+          costFor3Days: item.costFor3Days,
+          quantity: item.quantity,
+          totalCost: item.totalCost,
+          category: item.category || 'AV/IT'
+        })),
+      housekeepingStaff: housekeepingStaff.quantity > 0 ? housekeepingStaff : null,
       totals,
       paymentDetails: {
-        ...paymentDetails,
-        uploadedReceipt: null
+        paymentMode: paymentDetails.paymentMode,
+        bankName: paymentDetails.bankName,
+        transactionId: paymentDetails.transactionId,
+        transactionDate: paymentDetails.transactionDate,
+        amount: paymentDetails.amount,
+        notes: `Total Amount: ₹${totals.total.toLocaleString()}\nServices Total: ₹${totals.servicesTotal.toLocaleString()}\nGST (18%): ₹${totals.gst.toLocaleString()}\nSecurity Deposit: ₹${totals.deposit.toLocaleString()}`
       }
     };
     
-    // Append JSON data
+    // IMPORTANT: Send each section as separate fields that the backend expects
     formData.append('generalInfo', JSON.stringify(generalInfo));
     formData.append('boothDetails', JSON.stringify(boothDetails));
     formData.append('securityDeposit', JSON.stringify(securityDeposit));
@@ -1223,37 +1236,121 @@ const handleSubmitApplication = async () => {
     formData.append('personnel', JSON.stringify(submissionData.personnel));
     formData.append('companyDetails', JSON.stringify(companyDetails));
     formData.append('electricalLoad', JSON.stringify(electricalLoad));
-    formData.append('furnitureItems', JSON.stringify(submissionData.furnitureItems));
-    formData.append('hostessRequirements', JSON.stringify(submissionData.hostessRequirements));
-    formData.append('compressedAir', JSON.stringify(compressedAir));
-    formData.append('waterConnection', JSON.stringify(waterConnection));
-    formData.append('securityGuard', JSON.stringify(securityGuard));
-    formData.append('rentalItems', JSON.stringify(submissionData.rentalItems));
-    formData.append('housekeepingStaff', JSON.stringify(housekeepingStaff));
-    formData.append('paymentDetails', JSON.stringify({
-      paymentMode: paymentDetails.paymentMode,
-      bankName: paymentDetails.bankName,
-      transactionId: paymentDetails.transactionId,
-      transactionDate: paymentDetails.transactionDate,
-      amount: paymentDetails.amount,
-      notes: `Total Amount: ₹${totals.total.toLocaleString()}\nServices Total: ₹${totals.servicesTotal.toLocaleString()}\nGST (18%): ₹${totals.gst.toLocaleString()}\nSecurity Deposit: ₹${totals.deposit.toLocaleString()}`
+    
+    // For furniture items, ensure each item has required fields
+    const furnitureData = submissionData.furnitureItems.map(item => ({
+      id: item.id,
+      code: item.code,
+      description: item.description,
+      quantity: item.quantity,
+      cost: item.cost,
+      cost3Days: item.cost3Days
     }));
+    formData.append('furnitureItems', JSON.stringify(furnitureData));
+    
+    // For hostess requirements
+    const hostessData = submissionData.hostessRequirements.map(item => ({
+      category: item.category,
+      quantity: item.quantity,
+      noOfDays: item.noOfDays,
+      amount: item.amount,
+      ratePerDay: item.ratePerDay
+    }));
+    formData.append('hostessRequirements', JSON.stringify(hostessData));
+    
+    // For compressed air - only if selected
+    if (submissionData.compressedAir) {
+      formData.append('compressedAir', JSON.stringify({
+        selected: submissionData.compressedAir.selected,
+        cfmRange: submissionData.compressedAir.cfmRange,
+        costPerConnection: submissionData.compressedAir.costPerConnection,
+        qty: submissionData.compressedAir.qty,
+        powerKW: submissionData.compressedAir.powerKW,
+        totalCost: submissionData.compressedAir.totalCost
+      }));
+    } else {
+      formData.append('compressedAir', JSON.stringify(null));
+    }
+    
+    // For water connection
+    if (submissionData.waterConnection) {
+      formData.append('waterConnection', JSON.stringify({
+        connections: submissionData.waterConnection.connections,
+        costPerConnection: submissionData.waterConnection.costPerConnection,
+        totalCost: submissionData.waterConnection.totalCost
+      }));
+    } else {
+      formData.append('waterConnection', JSON.stringify(null));
+    }
+    
+    // For security guard
+    if (submissionData.securityGuard) {
+      formData.append('securityGuard', JSON.stringify({
+        quantity: submissionData.securityGuard.quantity,
+        noOfDays: submissionData.securityGuard.noOfDays,
+        totalCost: submissionData.securityGuard.totalCost
+      }));
+    } else {
+      formData.append('securityGuard', JSON.stringify(null));
+    }
+    
+    // For rental items - CRITICAL: Ensure each item has type and description
+    const rentalData = submissionData.rentalItems.map(item => ({
+      id: item.id,
+      type: item.category || 'AV/IT Rental', // Add type field
+      description: item.description,
+      costFor3Days: item.costFor3Days,
+      quantity: item.quantity,
+      totalCost: item.totalCost
+    }));
+    formData.append('rentalItems', JSON.stringify(rentalData));
+    
+    // For housekeeping staff
+    if (submissionData.housekeepingStaff) {
+      formData.append('housekeepingStaff', JSON.stringify({
+        quantity: submissionData.housekeepingStaff.quantity,
+        category: submissionData.housekeepingStaff.category,
+        chargesPerShift: submissionData.housekeepingStaff.chargesPerShift,
+        noOfDays: submissionData.housekeepingStaff.noOfDays,
+        totalCost: submissionData.housekeepingStaff.totalCost
+      }));
+    } else {
+      formData.append('housekeepingStaff', JSON.stringify(null));
+    }
+    
+    formData.append('paymentDetails', JSON.stringify(submissionData.paymentDetails));
 
     // Upload receipt if exists
     if (paymentDetails.uploadedReceipt) {
       formData.append('receipt', paymentDetails.uploadedReceipt);
     }
 
-    console.log('Submitting application...');
+    console.log('Submitting application with data:', {
+      furnitureCount: furnitureData.length,
+      hostessCount: hostessData.length,
+      rentalCount: rentalData.length,
+      hasCompressedAir: !!submissionData.compressedAir,
+      hasWaterConnection: !!submissionData.waterConnection,
+      hasSecurityGuard: !!submissionData.securityGuard,
+      hasHousekeeping: !!submissionData.housekeepingStaff
+    });
+    
     const result = await apiService.submitApplication(formData);
 
     if (result.success) {
       console.log('Application submitted successfully:', result);
       
+      // Extract the requirements ID from the result
+      const requirementsId = result.data?.requirementsId || result.data?.id;
+      
+      if (!requirementsId) {
+        throw new Error('No requirements ID returned from submission');
+      }
+      
       // Generate invoice after successful submission
       try {
         console.log('Generating invoice...');
-        const invoiceData = await generateInvoice(result.data.requirementsId || result.data.id, totals);
+        const invoiceData = await generateInvoice(requirementsId, totals);
         
         if (invoiceData.success) {
           console.log('Invoice generated successfully:', invoiceData.data.invoiceNumber);
@@ -1280,7 +1377,7 @@ const handleSubmitApplication = async () => {
         alert(
           `✅ Application submitted successfully!\n\n` +
           `⚠️ Note: There was an issue generating your invoice. Our team will send it to you via email shortly.\n\n` +
-          `Reference ID: ${result.data.id || 'N/A'}`
+          `Reference ID: ${requirementsId}`
         );
         window.location.href = '/dashboard/requirements/success';
       }
@@ -1305,6 +1402,8 @@ const handleSubmitApplication = async () => {
       errorMessage = 'Payment processing failed. Please verify your payment details and try again.';
     } else if (error.message.includes('receipt')) {
       errorMessage = 'Failed to upload payment receipt. Please ensure the file is valid (PDF, JPG, PNG, max 5MB).';
+    } else if (error.message.includes('type') && error.message.includes('description')) {
+      errorMessage = 'Missing required information: Type and description are required for rental items.';
     } else if (error.message) {
       errorMessage = error.message;
     }
