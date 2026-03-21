@@ -76,7 +76,7 @@ export default function EditExhibitorPage() {
   ];
 
   const boothSizes = [
-     "3x3 m (9 sqm)",
+    "3x3 m (9 sqm)",
     "4x3 m (12 sqm)",
     "4x5 m (20 sqm)",
     "4x4 m (16 sqm)",
