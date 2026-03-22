@@ -146,6 +146,7 @@ export default function EnhancedDashboardPage() {
         trend: dashboardData.exhibitor.boothNumber ? "stable" : "warning",
         href: "/dashboard/layout",
       },
+      
       {
         title: "Total Investment",
         value: `₹${totalAmount.toLocaleString()}`,
