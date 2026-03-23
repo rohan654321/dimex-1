@@ -1,7 +1,9 @@
+// app/exhibition-directory/company-grid.tsx
 'use client';
 
 import { ExhibitionCompany } from './api';
 import CompanyCard from './copanyCard';
+import { Building, MapPin } from 'lucide-react';
 
 interface CompanyGridProps {
   companies: ExhibitionCompany[];
@@ -10,6 +12,8 @@ interface CompanyGridProps {
 }
 
 export default function CompanyGrid({ companies, viewMode, onProductBrochureClick }: CompanyGridProps) {
+  console.log('📊 CompanyGrid received companies:', companies.map(c => ({ name: c.name, logo: c.logo })));
+  
   if (viewMode === 'grid') {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
@@ -17,15 +21,16 @@ export default function CompanyGrid({ companies, viewMode, onProductBrochureClic
           <CompanyCard
             key={company.id}
             company={{
-              id: company.id, // ← USE THE ORIGINAL STRING ID, NOT parseInt!
+              id: company.id,
               name: company.name,
               pavilion: company.pavilion,
               stand: company.standNumber,
               country: company.country,
-              logo: company.name.substring(0, 2).toUpperCase(),
-              logoColor: `bg-${company.countryCode?.toLowerCase()}-50`
+              logo: company.logo,
+              logoInitials: company.name.substring(0, 2).toUpperCase(),
+              countryCode: company.countryCode
             }}
-            onProductBrochureClick={(id, name) => onProductBrochureClick(id, name)} // id is already string
+            onProductBrochureClick={(id, name) => onProductBrochureClick(id, name)}
           />
         ))}
       </div>
@@ -39,13 +44,14 @@ export default function CompanyGrid({ companies, viewMode, onProductBrochureClic
           <CompanyCard
             key={company.id}
             company={{
-              id: company.id, // ← USE THE ORIGINAL STRING ID
+              id: company.id,
               name: company.name,
               pavilion: company.pavilion,
               stand: company.standNumber,
               country: company.country,
-              logo: company.name.substring(0, 2).toUpperCase(),
-              logoColor: `bg-${company.countryCode?.toLowerCase()}-50`
+              logo: company.logo,
+              logoInitials: company.name.substring(0, 2).toUpperCase(),
+              countryCode: company.countryCode
             }}
             onProductBrochureClick={(id, name) => onProductBrochureClick(id, name)}
           />
@@ -70,17 +76,37 @@ export default function CompanyGrid({ companies, viewMode, onProductBrochureClic
           {companies.map((company) => (
             <tr
               key={company.id}
-              onClick={() => onProductBrochureClick(company.id, company.name)} // ← company.id is already string
+              onClick={() => onProductBrochureClick(company.id, company.name)}
               className="border-t hover:bg-slate-50 cursor-pointer transition-colors"
             >
               <td className="p-4">
-                <div className="font-medium text-slate-900">{company.name}</div>
-                <div className="text-sm text-slate-600 md:hidden">
-                  {company.pavilion} • Stand {company.standNumber}
+                <div className="flex items-center gap-3">
+                  {company.logo && (
+                    <img 
+                      src={company.logo} 
+                      alt={company.name}
+                      className="w-10 h-10 rounded-lg object-cover"
+                      onError={(e) => {
+                        console.error('List view image error:', company.logo);
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  )}
+                  <div>
+                    <div className="font-medium text-slate-900">{company.name}</div>
+                    <div className="text-sm text-slate-600 md:hidden">
+                      {company.pavilion} • Stand {company.standNumber}
+                    </div>
+                  </div>
                 </div>
               </td>
               <td className="p-4 hidden md:table-cell text-slate-600">
-                {company.country} • {company.pavilion}
+                <div className="flex items-center gap-2">
+                  <Building size={14} className="text-slate-400" />
+                  <span>{company.pavilion}</span>
+                  <MapPin size={14} className="text-slate-400 ml-2" />
+                  <span>{company.country}</span>
+                </div>
               </td>
               <td className="p-4 hidden lg:table-cell font-medium text-slate-900">
                 {company.standNumber}
@@ -92,6 +118,11 @@ export default function CompanyGrid({ companies, viewMode, onProductBrochureClic
                       {s}
                     </span>
                   ))}
+                  {company.sector.length > 2 && (
+                    <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded-full">
+                      +{company.sector.length - 2}
+                    </span>
+                  )}
                 </div>
               </td>
             </tr>
