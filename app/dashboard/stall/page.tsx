@@ -712,11 +712,11 @@ export default function StallPage() {
             <ul className="space-y-2 text-gray-600">
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></span>
-                Stall setup begins on January 28, 2024 at 8:00 AM
+                Stall setup begins on October 7, 2026 at 8:00 AM
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></span>
-                All materials must be removed by February 2, 2024 at 6:00 PM
+                All materials must be removed by October 10, 2026 at 10:00 PM
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></span>
@@ -734,11 +734,11 @@ export default function StallPage() {
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></span>
-                Submit booth design for approval by January 15
+                Submit booth design for approval by September 15 2026
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></span>
-                Contact support at support@diemex.com for assistance
+                Contact support at pad@diemex.com for assistance
               </li>
             </ul>
           </div>
