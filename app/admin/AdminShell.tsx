@@ -44,6 +44,7 @@ import {
   SparklesIcon,
   Wrench,
   ServerCrash,
+  Package,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
@@ -66,7 +67,7 @@ const navigation = [
       // { name: "Sectors", href: "/admin/exhibition/sectors", icon: Target },
       { name: "Floor Plans", href: "/admin/exhibition/booths", icon: Globe },
       { name: "Manuals", href: "/admin/exhibition/manuals", icon: BookOpen },
-      { name: "Payments", href: "/admin/exhibition/invoices", icon: Briefcase },
+      
     ],
   },
   {
@@ -84,47 +85,97 @@ const navigation = [
     icon: Sofa,
     color: "text-emerald-500",
     subItems: [
-      { name: "Furniture", href: "/admin/furniture", icon: FaUserNinja },
-      { name: "AV & IT Rentals", href: "/admin/rental-items", icon: Monitor },
-      { name: "Electrical Load", href: "/admin/electrical-rates", icon: Power },
-      { name: "Hostess Rates", href: "/admin/hostess-rates", icon: SparklesIcon },
-      { name: "Compressed Air", href: "/admin/compressed-air", icon: Cable },
-      { name: "Water Connection", href: "/admin/water", icon: Droplet },
-      { name: "Security Guard", href: "/admin/security-guard", icon: ShieldCheck },
-      { name: "Housekeeping", href: "/admin/housekeeping", icon: Sparkles },
-      {name: "Security Deposit", href: "/admin/security-deposit", icon: ServerCrash}
-      // { name: "Lighting", href: "/admin/lighting", icon: Lamp },
-    ],
+      { name: "Received", href: "/admin/received", icon: Package },
+      {
+        name: "Settings",
+        icon: Settings,
+        color: "text-gray-500",
+        subItems: [
+          { name: "Furniture", href: "/admin/furniture", icon: FaUserNinja },
+          { name: "AV & IT Rentals", href: "/admin/rental-items", icon: Monitor },
+          { name: "Electrical Load", href: "/admin/electrical-rates", icon: Power },
+          { name: "Hostess Rates", href: "/admin/hostess-rates", icon: SparklesIcon },
+          { name: "Compressed Air", href: "/admin/compressed-air", icon: Cable },
+          { name: "Water Connection", href: "/admin/water", icon: Droplet },
+          { name: "Security Guard", href: "/admin/security-guard", icon: ShieldCheck },
+          { name: "Housekeeping", href: "/admin/housekeeping", icon: Sparkles },
+          { name: "Security Deposit", href: "/admin/security-deposit", icon: ServerCrash }
+        ]
+      }
+    ]
   }
-  // { 
-  //   name: "User Management", 
-  //   href: "/admin/users", 
-  //   icon: Users,
-  //   color: "text-blue-500"
-  // },
-  // { 
-  //   name: "Media Library", 
-  //   href: "/admin/media", 
-  //   icon: Camera,
-  //   color: "text-pink-500"
-  // },
-  // { 
-  //   name: "Partners", 
-  //   href: "/admin/partners", 
-  //   icon: Handshake,
-  //   color: "text-emerald-500"
-  // },
-  // {
-  //   name: "Settings",
-  //   icon: Settings,
-  //   color: "text-gray-500",
-  //   subItems: [
-  //     { name: "General", href: "/admin/settings/general", icon: Settings },
-  //     { name: "Email Templates", href: "/admin/settings/email", icon: Mail },
-  //     { name: "API Configuration", href: "/admin/settings/api", icon: Key },
-  //   ],
-  // },
 ];
+
+// Helper function to render navigation items recursively
+const renderNavItem = (
+  item: any, 
+  pathname: string, 
+  handleNavigation: (href: string) => void,
+  isMobile: boolean = false,
+  level: number = 0,
+  openMenus: Set<string>,
+  mobileOpenMenus: Set<string>,
+  toggleMenu: (name: string, isMobile: boolean) => void
+) => {
+  const hasSubItems = item.subItems && item.subItems.length > 0;
+  const isOpen = isMobile 
+    ? mobileOpenMenus.has(item.name) 
+    : openMenus.has(item.name);
+  
+  if (hasSubItems) {
+    return (
+      <div key={item.name} className={`${level > 0 ? 'ml-4' : ''}`}>
+        <button
+          onClick={() => toggleMenu(item.name, isMobile)}
+          className={`w-full flex items-center px-4 py-3.5 text-sm rounded-xl transition-all group ${
+            level > 0 ? 'pl-8' : ''
+          } ${
+            isOpen 
+              ? 'bg-main-4/30 text-white shadow-sm' 
+              : 'text-main-3 hover:text-white hover:bg-main-4/20'
+          }`}
+        >
+          {item.icon && <item.icon className={`h-5 w-5 mr-3 ${item.color || 'text-main-3'}`} />}
+          <span className="flex-1 text-left">{item.name}</span>
+          <ChevronDown className={`h-4 w-4 text-main-3 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
+          }`} />
+        </button>
+
+        {isOpen && (
+          <div className={`${level > 0 ? 'ml-4' : 'ml-8'} pl-4 border-l border-main-4 space-y-1 mt-1 animate-slide-up`}>
+            {item.subItems.map((subItem: any) => 
+              renderNavItem(subItem, pathname, handleNavigation, isMobile, level + 1, openMenus, mobileOpenMenus, toggleMenu)
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+  
+  // Regular menu item (no sub-items) - only render if it has href
+  if (!item.href) return null;
+  
+  return (
+    <button
+      key={item.href}
+      onClick={() => handleNavigation(item.href)}
+      className={`w-full flex items-center px-4 py-3.5 text-sm rounded-xl transition-all group hover:translate-x-1 ${
+        level > 0 ? 'pl-8' : ''
+      } ${
+        pathname === item.href 
+          ? 'bg-main-2/20 text-white shadow-sm' 
+          : 'text-main-3 hover:text-white hover:bg-main-4/30'
+      }`}
+    >
+      {item.icon && <item.icon className={`h-5 w-5 mr-3 ${item.color || 'text-main-3'}`} />}
+      <span>{item.name}</span>
+      {pathname === item.href && (
+        <ChevronRight className="h-4 w-4 ml-auto text-main-2" />
+      )}
+    </button>
+  );
+};
 
 export default function AdminShell({
   children,
@@ -264,60 +315,11 @@ export default function AdminShell({
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - Mobile */}
         <nav className="flex-1 px-3 space-y-1 overflow-y-auto h-[calc(100vh-14rem)] py-4">
-          {navigation.map((item) => (
-            <div key={item.name}>
-              {item.subItems ? (
-                <>
-                  <button
-                    onClick={() => toggleMenu(item.name, true)}
-                    className="w-full flex items-center px-4 py-3.5 text-sm hover:bg-main-4/30 rounded-xl transition-all group hover:translate-x-1"
-                  >
-                    <item.icon className={`h-5 w-5 mr-3 ${item.color}`} />
-                    <span className="text-main-3 group-hover:text-white flex-1 text-left">{item.name}</span>
-                    <ChevronDown className={`h-4 w-4 text-main-3 transition-transform ${
-                      mobileOpenMenus.has(item.name) ? 'rotate-180' : ''
-                    }`} />
-                  </button>
-
-                  {mobileOpenMenus.has(item.name) && (
-                    <div className="ml-8 pl-4 border-l border-main-4 space-y-1 mt-1 animate-slide-up">
-                      {item.subItems.map((sub) => (
-                        <button
-                          key={sub.href}
-                          onClick={() => handleNavigation(sub.href)}
-                          className={`flex items-center w-full text-left py-2.5 px-4 text-sm rounded-lg transition-all ${
-                            pathname === sub.href 
-                              ? 'bg-main-2/20 text-white border-l-2 border-main-2' 
-                              : 'text-main-3/80 hover:text-white hover:bg-main-4/20'
-                          }`}
-                        >
-                          {sub.icon && <sub.icon className="h-4 w-4 mr-3 opacity-70" />}
-                          {sub.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <button
-                  onClick={() => handleNavigation(item.href!)}
-                  className={`w-full flex items-center px-4 py-3.5 text-sm rounded-xl transition-all group hover:translate-x-1 ${
-                    pathname === item.href 
-                      ? 'bg-main-2/20 text-white shadow-sm' 
-                      : 'text-main-3 hover:text-white hover:bg-main-4/30'
-                  }`}
-                >
-                  <item.icon className={`h-5 w-5 mr-3 ${item.color}`} />
-                  <span>{item.name}</span>
-                  {pathname === item.href && (
-                    <ChevronRight className="h-4 w-4 ml-auto text-main-2" />
-                  )}
-                </button>
-              )}
-            </div>
-          ))}
+          {navigation.map((item) => 
+            renderNavItem(item, pathname, handleNavigation, true, 0, openMenus, mobileOpenMenus, toggleMenu)
+          )}
         </nav>
 
         {/* Footer */}
@@ -367,64 +369,11 @@ export default function AdminShell({
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - Desktop */}
         <nav className="flex-1 px-3 space-y-1 overflow-y-auto py-6">
-          {navigation.map((item) => (
-            <div key={item.name} className="px-2">
-              {item.subItems ? (
-                <>
-                  <button
-                    onClick={() => toggleMenu(item.name, false)}
-                    className={`w-full flex items-center px-4 py-3.5 text-sm rounded-xl transition-all duration-200 group ${
-                      openMenus.has(item.name) 
-                        ? 'bg-main-4/30 text-white shadow-sm' 
-                        : 'text-main-3 hover:text-white hover:bg-main-4/20'
-                    }`}
-                  >
-                    <item.icon className={`h-5 w-5 mr-3 ${item.color}`} />
-                    <span className="flex-1 text-left">{item.name}</span>
-                    <ChevronDown className={`h-4 w-4 text-main-3 transition-transform duration-200 ${
-                      openMenus.has(item.name) ? 'rotate-180' : ''
-                    }`} />
-                  </button>
-
-                  {openMenus.has(item.name) && (
-                    <div className="ml-8 pl-4 border-l border-main-4 space-y-1 mt-1 animate-slide-up">
-                      {item.subItems.map((sub) => (
-                        <button
-                          key={sub.href}
-                          onClick={() => router.push(sub.href)}
-                          className={`flex items-center w-full text-left py-2.5 px-4 text-sm rounded-lg transition-all ${
-                            pathname === sub.href 
-                              ? 'bg-main-2/20 text-white border-l-2 border-main-2 shadow-sm' 
-                              : 'text-main-3/80 hover:text-white hover:bg-main-4/20'
-                          }`}
-                        >
-                          {sub.icon && <sub.icon className="h-4 w-4 mr-3 opacity-70" />}
-                          {sub.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <button
-                  onClick={() => router.push(item.href!)}
-                  className={`w-full flex items-center px-4 py-3.5 text-sm rounded-xl transition-all duration-200 group ${
-                    pathname === item.href 
-                      ? 'bg-main-2/20 text-white shadow-sm border-l-2 border-main-2' 
-                      : 'text-main-3 hover:text-white hover:bg-main-4/20'
-                  }`}
-                >
-                  <item.icon className={`h-5 w-5 mr-3 ${item.color}`} />
-                  <span>{item.name}</span>
-                  {pathname === item.href && (
-                    <ChevronRight className="h-4 w-4 ml-auto text-main-2 animate-pulse" />
-                  )}
-                </button>
-              )}
-            </div>
-          ))}
+          {navigation.map((item) => 
+            renderNavItem(item, pathname, handleNavigation, false, 0, openMenus, mobileOpenMenus, toggleMenu)
+          )}
         </nav>
 
         {/* Footer */}
