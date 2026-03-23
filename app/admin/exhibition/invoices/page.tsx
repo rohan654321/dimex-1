@@ -1,8 +1,9 @@
-// app/dashboard/invoice/page.tsx
+// app/admin/invoices/page.tsx
 'use client';
 
 import React, { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   DocumentTextIcon, 
   ArrowDownTrayIcon,
@@ -27,15 +28,21 @@ interface Invoice {
   status: 'paid' | 'pending' | 'overdue' | 'draft';
   issueDate: string;
   dueDate: string;
+  paidDate?: string;
   company?: string;
+  exhibitorId?: string;
   metadata?: {
+    requirementsId?: string;
     exhibitorInfo?: {
       companyName?: string;
+      name?: string;
+      email?: string;
     };
   };
 }
 
-export default function ExhibitorInvoicesPage() {
+export default function AdminInvoicesPage() {
+  const router = useRouter();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +56,9 @@ export default function ExhibitorInvoicesPage() {
     paid: 0,
     pending: 0,
     overdue: 0,
-    totalAmount: 0
+    totalAmount: 0,
+    paidAmount: 0,
+    pendingAmount: 0
   });
 
   useEffect(() => {
@@ -63,15 +72,16 @@ export default function ExhibitorInvoicesPage() {
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
       
       if (!token) {
-        console.error('No token found');
+        console.error('No admin token found. Please login again.');
+        router.push('/admin/login');
         setLoading(false);
         return;
       }
       
-      const response = await fetch(`${API_BASE_URL}/api/invoices/my-invoices`, {
+      const response = await fetch(`${API_BASE_URL}/api/invoices/admin/all`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -81,17 +91,23 @@ export default function ExhibitorInvoicesPage() {
         const data = await response.json();
         setInvoices(data.data);
         
-        // Calculate stats
         const statsData = {
           total: data.data.length,
           paid: data.data.filter((inv: Invoice) => inv.status === 'paid').length,
           pending: data.data.filter((inv: Invoice) => inv.status === 'pending').length,
           overdue: data.data.filter((inv: Invoice) => inv.status === 'overdue').length,
-          totalAmount: data.data.reduce((sum: number, inv: Invoice) => sum + inv.amount, 0)
+          totalAmount: data.data.reduce((sum: number, inv: Invoice) => sum + inv.amount, 0),
+          paidAmount: data.data.filter((inv: Invoice) => inv.status === 'paid').reduce((sum: number, inv: Invoice) => sum + inv.amount, 0),
+          pendingAmount: data.data.filter((inv: Invoice) => inv.status === 'pending').reduce((sum: number, inv: Invoice) => sum + inv.amount, 0)
         };
         setStats(statsData);
       } else if (response.status === 401) {
-        console.error('Unauthorized - Please login again');
+        console.error('Unauthorized - Please login as admin');
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin_token');
+        router.push('/admin/login');
+      } else {
+        console.error('Failed to fetch invoices');
       }
     } catch (error) {
       console.error('Error fetching invoices:', error);
@@ -103,17 +119,17 @@ export default function ExhibitorInvoicesPage() {
   const filterInvoices = () => {
     let filtered = [...invoices];
     
-    // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(inv => 
         inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (inv.company && inv.company.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (inv.metadata?.exhibitorInfo?.companyName && 
-          inv.metadata.exhibitorInfo.companyName.toLowerCase().includes(searchTerm.toLowerCase()))
+          inv.metadata.exhibitorInfo.companyName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (inv.metadata?.exhibitorInfo?.name && 
+          inv.metadata.exhibitorInfo.name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
-    // Apply status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(inv => inv.status === statusFilter);
     }
@@ -125,7 +141,7 @@ export default function ExhibitorInvoicesPage() {
   const downloadInvoice = async (invoiceId: string, invoiceNumber: string) => {
     setDownloading(invoiceId);
     try {
-      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
       const response = await fetch(`${API_BASE_URL}/api/invoices/${invoiceId}/pdf`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -143,7 +159,8 @@ export default function ExhibitorInvoicesPage() {
         link.remove();
         window.URL.revokeObjectURL(url);
       } else {
-        alert('Failed to download invoice');
+        const error = await response.json();
+        alert(error.message || 'Failed to download invoice');
       }
     } catch (error) {
       console.error('Error downloading invoice:', error);
@@ -189,18 +206,19 @@ export default function ExhibitorInvoicesPage() {
     return `₹${amount.toLocaleString('en-IN')}`;
   };
 
-  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentInvoices = filteredInvoices.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <ArrowPathIcon className="h-12 w-12 text-blue-600 animate-spin mx-auto" />
-          <p className="mt-4 text-gray-600">Loading your invoices...</p>
+          <p className="mt-4 text-gray-600">Loading invoices...</p>
         </div>
       </div>
     );
@@ -211,12 +229,12 @@ export default function ExhibitorInvoicesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Invoices</h1>
-          <p className="text-gray-600 mt-1">View and download all your invoices</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Invoice Management</h1>
+          <p className="text-gray-600 mt-1">View and manage all exhibitor invoices</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
@@ -262,6 +280,15 @@ export default function ExhibitorInvoicesPage() {
               <CurrencyRupeeIcon className="h-8 w-8 text-blue-500" />
             </div>
           </div>
+          <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Paid Amount</p>
+                <p className="text-lg font-bold text-green-600">{formatCurrency(stats.paidAmount)}</p>
+              </div>
+              <CheckCircleIcon className="h-8 w-8 text-green-500" />
+            </div>
+          </div>
         </div>
 
         {/* Search and Filter */}
@@ -272,7 +299,7 @@ export default function ExhibitorInvoicesPage() {
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by invoice number or company name..."
+                  placeholder="Search by invoice number, company, or exhibitor name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -314,17 +341,9 @@ export default function ExhibitorInvoicesPage() {
               <h3 className="text-lg font-medium text-gray-900 mb-2">No invoices found</h3>
               <p className="text-gray-500">
                 {invoices.length === 0 
-                  ? "Your invoices will appear here once you submit requirements."
+                  ? "No invoices have been generated yet."
                   : "No invoices match your search criteria."}
               </p>
-              {invoices.length === 0 && (
-                <Link
-                  href="/dashboard/requirements"
-                  className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Submit Requirements
-                </Link>
-              )}
             </div>
           ) : (
             <Fragment>
@@ -337,6 +356,9 @@ export default function ExhibitorInvoicesPage() {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Company
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Exhibitor
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Amount
@@ -369,6 +391,14 @@ export default function ExhibitorInvoicesPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">
+                            {invoice.metadata?.exhibitorInfo?.name || '—'}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            {invoice.metadata?.exhibitorInfo?.email || '—'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-semibold text-gray-900">
                             {formatCurrency(invoice.amount)}
                           </div>
@@ -388,10 +418,10 @@ export default function ExhibitorInvoicesPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getStatusBadge(invoice.status)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex gap-2 justify-end">
                             <Link
-                              href={`/dashboard/invoice/${invoice.id}`}
+                              href={`/admin/exhibition/invoices/${invoice.id}`}
                               className="text-gray-600 hover:text-gray-900 transition"
                               title="View Details"
                             >
@@ -421,7 +451,7 @@ export default function ExhibitorInvoicesPage() {
               {totalPages > 1 && (
                 <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
                   <button
-                    onClick={() => setCurrentPage(currentPage - 1)}
+                    onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -439,10 +469,11 @@ export default function ExhibitorInvoicesPage() {
                       } else {
                         pageNum = currentPage - 2 + i;
                       }
+                      
                       return (
                         <button
                           key={pageNum}
-                          onClick={() => setCurrentPage(pageNum)}
+                          onClick={() => paginate(pageNum)}
                           className={`px-3 py-1 text-sm font-medium rounded-md ${
                             currentPage === pageNum
                               ? 'bg-blue-600 text-white'
@@ -455,7 +486,7 @@ export default function ExhibitorInvoicesPage() {
                     })}
                   </div>
                   <button
-                    onClick={() => setCurrentPage(currentPage + 1)}
+                    onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -466,6 +497,28 @@ export default function ExhibitorInvoicesPage() {
             </Fragment>
           )}
         </div>
+
+        {/* Summary Section */}
+        {filteredInvoices.length > 0 && (
+          <div className="mt-6 bg-blue-50 rounded-xl p-4">
+            <div className="flex flex-wrap justify-between items-center gap-4">
+              <div>
+                <p className="text-sm text-blue-700">Showing {currentInvoices.length} of {filteredInvoices.length} invoices</p>
+                {searchTerm && (
+                  <p className="text-xs text-blue-600 mt-1">
+                    Filtered by: &quot;{searchTerm}&quot; {statusFilter !== 'all' && `• Status: ${statusFilter}`}
+                  </p>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-blue-700">Total Amount (Filtered)</p>
+                <p className="text-lg font-bold text-blue-800">
+                  {formatCurrency(filteredInvoices.reduce((sum: number, inv: Invoice) => sum + inv.amount, 0))}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -66,6 +66,7 @@ const navigation = [
       // { name: "Sectors", href: "/admin/exhibition/sectors", icon: Target },
       { name: "Floor Plans", href: "/admin/exhibition/booths", icon: Globe },
       { name: "Manuals", href: "/admin/exhibition/manuals", icon: BookOpen },
+      { name: "Payments", href: "/admin/exhibition/invoices", icon: Briefcase },
     ],
   },
   {
