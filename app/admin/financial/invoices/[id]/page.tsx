@@ -267,7 +267,7 @@ export default function AdminInvoiceDetailsPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-2">{error || 'Invoice Not Found'}</h2>
           <p className="text-gray-600 mb-6">The invoice you&apos;re looking for doesn&apos;t exist.</p>
           <Link
-            href="/admin/invoices"
+            href="/admin/financial/invoices"
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             <ArrowLeftIcon className="h-4 w-4" />
@@ -289,7 +289,7 @@ export default function AdminInvoiceDetailsPage() {
         {/* Header with Back Button and Actions */}
         <div className="mb-6 flex flex-wrap justify-between items-center gap-4">
           <Link
-            href="/admin/invoices"
+            href="/admin/financial/invoices"
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeftIcon className="h-4 w-4" />
