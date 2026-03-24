@@ -1,4 +1,5 @@
-// src/lib/api/manualApi.ts
+// lib/api/manualApi.ts
+import api from '../api'; // Import the existing axios instance with interceptors
 
 export interface Manual {
   id: string;
@@ -15,7 +16,7 @@ export interface Manual {
   downloads: number;
   status: 'published' | 'draft';
   metadata?: any;
-  type?: 'pdf' | 'section'; // To distinguish between PDF and text sections
+  type?: 'pdf' | 'section';
 }
 
 export interface ManualFilters {
@@ -48,35 +49,16 @@ export class ApiError extends Error {
 
 class ManualApi {
   private baseURL: string;
-  private token: string | null = null;
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://diemex-backend.onrender.com';
-  }
-
-  // Set auth token for subsequent requests
-  setAuthToken(token: string | null) {
-    this.token = token;
-    console.log('🔑 ManualApi token set:', token ? 'Token present' : 'null');
-  }
-
-  // Get headers with authorization if token exists
-  private getHeaders(includeAuth: boolean = true): HeadersInit {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (includeAuth && this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
-    
-    return headers;
+    console.log('✅ ManualApi initialized with axios instance');
   }
 
   // Get all manuals (combines text sections and PDFs)
   async getManuals(filters?: ManualFilters): Promise<ApiResponse<Manual[]>> {
     try {
-      let url = `${this.baseURL}/api/manuals/admin/all`;
+      let url = `/api/manuals/admin/all`;
       
       const params = new URLSearchParams();
       if (filters?.category && filters.category !== 'all') {
@@ -93,50 +75,35 @@ class ManualApi {
         url += `?${params.toString()}`;
       }
 
-      const response = await fetch(url, {
-        headers: this.getHeaders(false), // Public endpoint, no auth needed
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          return { success: true, data: [] };
-        }
-        throw new ApiError(response.status, await response.text());
-      }
-
-      const data = await response.json();
-      return data;
+      console.log('📡 Fetching manuals from:', url);
+      const response = await api.get(url);
+      return response.data;
     } catch (error) {
       console.error('Error fetching manuals:', error);
       return { success: true, data: [] };
     }
   }
 
+  // Get single manual by ID
+  async getManual(id: string): Promise<ApiResponse<Manual>> {
+    try {
+      console.log(`📡 Fetching manual with ID: ${id}`);
+      const response = await api.get(`/api/manuals/${id}`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching manual:', error);
+      if (error.response?.status === 404) {
+        throw new ApiError(404, 'Manual not found');
+      }
+      throw error;
+    }
+  }
+
   // Get statistics
   async getStatistics(): Promise<ApiResponse<ManualStatistics>> {
     try {
-      const response = await fetch(`${this.baseURL}/api/manuals/admin/statistics`, {
-        headers: this.getHeaders(false), // Public endpoint, no auth needed
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          return {
-            success: true,
-            data: {
-              totalManuals: 0,
-              publishedManuals: 0,
-              draftManuals: 0,
-              totalDownloads: 0,
-              categoryStats: []
-            }
-          };
-        }
-        throw new ApiError(response.status, await response.text());
-      }
-
-      const data = await response.json();
-      return data;
+      const response = await api.get('/api/manuals/admin/statistics');
+      return response.data;
     } catch (error) {
       console.error('Error fetching statistics:', error);
       return {
@@ -154,126 +121,115 @@ class ManualApi {
 
   // Create manual (for PDF uploads)
   async createManual(formData: FormData): Promise<ApiResponse<Manual>> {
-    const response = await fetch(`${this.baseURL}/api/manuals`, {
-      method: 'POST',
+    console.log('📤 Creating manual with form data');
+    
+    const response = await api.post('/api/manuals', formData, {
       headers: {
-        'Authorization': `Bearer ${this.token}`, // Use stored token
+        'Content-Type': 'multipart/form-data',
       },
-      body: formData,
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new ApiError(response.status, error.message || 'Failed to create manual');
-    }
-
-    return response.json();
+    
+    return response.data;
   }
 
   // Create text section
   async createSection(data: { title: string; content: string; category: string }): Promise<ApiResponse<Manual>> {
-    const response = await fetch(`${this.baseURL}/api/manuals/sections`, {
-      method: 'POST',
-      headers: this.getHeaders(true), // Include auth
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new ApiError(response.status, error.message || 'Failed to create section');
-    }
-
-    return response.json();
+    console.log('📤 Creating section:', data.title);
+    const response = await api.post('/api/manuals/sections', data);
+    return response.data;
   }
 
   // Update manual
   async updateManual(id: string, formData: FormData): Promise<ApiResponse<Manual>> {
-    const response = await fetch(`${this.baseURL}/api/manuals/${id}`, {
-      method: 'PUT',
+    console.log(`📤 Updating manual ${id}`);
+    
+    const response = await api.put(`/api/manuals/${id}`, formData, {
       headers: {
-        'Authorization': `Bearer ${this.token}`, // Use stored token
+        'Content-Type': 'multipart/form-data',
       },
-      body: formData,
     });
+    
+    return response.data;
+  }
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new ApiError(response.status, error.message || 'Failed to update manual');
-    }
-
-    return response.json();
+  // Update section
+  async updateSection(id: string, data: { title: string; content: string; category: string }): Promise<ApiResponse<Manual>> {
+    console.log(`📤 Updating section ${id}`);
+    const response = await api.put(`/api/manuals/sections/${id}`, data);
+    return response.data;
   }
 
   // Delete manual
   async deleteManual(id: string): Promise<ApiResponse<null>> {
-    const response = await fetch(`${this.baseURL}/api/manuals/${id}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(true), // Include auth
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new ApiError(response.status, error.message || 'Failed to delete manual');
-    }
-
-    return response.json();
+    console.log(`🗑️ Deleting manual ${id}`);
+    const response = await api.delete(`/api/manuals/${id}`);
+    return response.data;
   }
 
   // Delete section
   async deleteSection(id: string): Promise<ApiResponse<null>> {
-    const response = await fetch(`${this.baseURL}/api/manuals/sections/${id}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(true), // Include auth
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new ApiError(response.status, error.message || 'Failed to delete section');
-    }
-
-    return response.json();
+    console.log(`🗑️ Deleting section ${id}`);
+    const response = await api.delete(`/api/manuals/sections/${id}`);
+    return response.data;
   }
-  // Add this method to your ManualApi class
-async getManual(id: string): Promise<ApiResponse<Manual>> {
-  try {
-    const response = await fetch(`${this.baseURL}/api/manuals/${id}`, {
-      headers: this.getHeaders(false), // Public endpoint, no auth needed for viewing
+
+  // Bulk delete manuals
+  async bulkDeleteManuals(ids: string[]): Promise<ApiResponse<null>> {
+    console.log(`🗑️ Bulk deleting ${ids.length} manuals`);
+    const response = await api.delete('/api/manuals/bulk/delete', {
+      data: { ids }
     });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new ApiError(404, 'Manual not found');
-      }
-      throw new ApiError(response.status, await response.text());
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching manual:', error);
-    throw error;
+    return response.data;
   }
-}
+
+  // Bulk delete sections
+  async bulkDeleteSections(ids: string[]): Promise<ApiResponse<null>> {
+    console.log(`🗑️ Bulk deleting ${ids.length} sections`);
+    const response = await api.delete('/api/manuals/sections/bulk/delete', {
+      data: { ids }
+    });
+    return response.data;
+  }
 
   // Download manual
   async downloadManual(id: string): Promise<{ success: boolean; downloadUrl?: string }> {
     try {
+      console.log(`📥 Downloading manual ${id}`);
+      
+      // Get token from localStorage for download
+      const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
+      
       const response = await fetch(`${this.baseURL}/api/manuals/${id}/download`, {
-        headers: this.getHeaders(false), // Public endpoint, no auth needed
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        }
       });
 
       if (!response.ok) {
         throw new Error('Failed to download');
       }
 
-      const data = await response.json();
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
       
-      if (data.success && data.data?.downloadUrl) {
-        window.open(data.data.downloadUrl, '_blank');
-        return { success: true };
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'manual';
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          filename = match[1].replace(/['"]/g, '');
+        }
       }
       
-      return { success: false };
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      return { success: true };
     } catch (error) {
       console.error('Error downloading manual:', error);
       return { success: false };
@@ -282,7 +238,49 @@ async getManual(id: string): Promise<ApiResponse<Manual>> {
 
   // Preview manual
   async previewManual(id: string): Promise<void> {
-    window.open(`${this.baseURL}/api/manuals/${id}/preview`, '_blank');
+    console.log(`👁️ Previewing manual ${id}`);
+    const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
+    window.open(`${this.baseURL}/api/manuals/${id}/preview?token=${token}`, '_blank');
+  }
+
+  // Update manual status
+  async updateManualStatus(id: string, status: string): Promise<ApiResponse<Manual>> {
+    console.log(`📤 Updating manual ${id} status to ${status}`);
+    const response = await api.patch(`/api/manuals/${id}/status`, { status });
+    return response.data;
+  }
+
+  // Get manuals by category
+  async getManualsByCategory(category: string): Promise<ApiResponse<Manual[]>> {
+    try {
+      const response = await api.get(`/api/manuals/category/${encodeURIComponent(category)}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching manuals by category:', error);
+      return { success: true, data: [] };
+    }
+  }
+
+  // Search manuals
+  async searchManuals(query: string): Promise<ApiResponse<Manual[]>> {
+    try {
+      const response = await api.get(`/api/manuals/search?q=${encodeURIComponent(query)}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error searching manuals:', error);
+      return { success: true, data: [] };
+    }
+  }
+
+  // Get recent manuals
+  async getRecentManuals(limit: number = 5): Promise<ApiResponse<Manual[]>> {
+    try {
+      const response = await api.get(`/api/manuals/recent?limit=${limit}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching recent manuals:', error);
+      return { success: true, data: [] };
+    }
   }
 }
 

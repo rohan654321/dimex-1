@@ -1,29 +1,31 @@
+// app/exhibition-directory/companyCard.tsx
 'use client'
 
 import { useState } from 'react'
 import VisitorRegistrationForm from './visitor-registration-form'
 import { useRouter } from 'next/navigation'
-import { ExternalLink, MessageCircle } from 'lucide-react'
+import { ExternalLink, MessageCircle, Building, MapPin, Globe } from 'lucide-react'
 
 interface CompanyCardProps {
   company: {
-    id: string  // ← Change from number to string
+    id: string
     name: string
     pavilion: string
     stand: string
     country: string
-    logo: string
-    logoColor?: string
+    logo?: string
+    logoInitials: string
+    countryCode?: string
   }
   onProductBrochureClick: (companyId: string, companyName: string) => void
 }
 
 export default function CompanyCard({ company, onProductBrochureClick }: CompanyCardProps) {
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [imageError, setImageError] = useState(false)
   const router = useRouter()
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Prevent navigation if clicking on the Connect button or its children
     const target = e.target as HTMLElement
     if (
       target.closest('button') || 
@@ -34,7 +36,6 @@ export default function CompanyCard({ company, onProductBrochureClick }: Company
       return
     }
     
-    // Navigate to company page using Next.js router
     router.push(`/exhibition-directory/${company.id}`)
   }
 
@@ -48,6 +49,22 @@ export default function CompanyCard({ company, onProductBrochureClick }: Company
     onProductBrochureClick(company.id, company.name)
   }
 
+  const getLogoColor = () => {
+    const colors = [
+      'bg-gradient-to-br from-blue-50 to-blue-100',
+      'bg-gradient-to-br from-green-50 to-green-100',
+      'bg-gradient-to-br from-purple-50 to-purple-100',
+      'bg-gradient-to-br from-orange-50 to-orange-100',
+      'bg-gradient-to-br from-pink-50 to-pink-100',
+      'bg-gradient-to-br from-indigo-50 to-indigo-100',
+      'bg-gradient-to-br from-teal-50 to-teal-100',
+      'bg-gradient-to-br from-yellow-50 to-yellow-100'
+    ];
+    
+    const index = company.name.length % colors.length;
+    return colors[index];
+  };
+
   return (
     <>
       <div 
@@ -56,13 +73,22 @@ export default function CompanyCard({ company, onProductBrochureClick }: Company
       >
         {/* Logo Area */}
         <div
-          className={`h-32 sm:h-40 md:h-48 flex items-center justify-center p-4 sm:p-6 transition-colors duration-300 ${
-            company.logoColor || 'bg-gradient-to-br from-slate-50 to-slate-100'
-          } group-hover:from-slate-100 group-hover:to-slate-200`}
+          className={`h-32 sm:h-40 md:h-48 flex items-center justify-center p-4 sm:p-6 transition-colors duration-300 ${getLogoColor()} group-hover:from-slate-100 group-hover:to-slate-200`}
         >
-          <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-700 text-center">
-            {company.logo}
-          </div>
+          {company.logo && !imageError ? (
+            <div className="relative w-full h-full">
+              <img 
+                src={company.logo} 
+                alt={company.name}
+                className="w-full h-full object-contain"
+                onError={() => setImageError(true)}
+              />
+            </div>
+          ) : (
+            <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-700 text-center">
+              {company.logoInitials}
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -75,15 +101,15 @@ export default function CompanyCard({ company, onProductBrochureClick }: Company
           {/* Details */}
           <div className="space-y-1.5 sm:space-y-2 text-sm sm:text-base text-slate-600 mb-4 sm:mb-6">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-slate-900 min-w-[70px] sm:min-w-[80px]">Pavilion:</span>
+              <Building size={16} className="text-slate-400 flex-shrink-0" />
               <span className="text-slate-700">{company.pavilion}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-medium text-slate-900 min-w-[70px] sm:min-w-[80px]">Stand:</span>
-              <span className="text-slate-700 font-semibold">#{company.stand}</span>
+              <MapPin size={16} className="text-slate-400 flex-shrink-0" />
+              <span className="text-slate-700 font-semibold">Stand #{company.stand}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-medium text-slate-900 min-w-[70px] sm:min-w-[80px]">Country:</span>
+              <Globe size={16} className="text-slate-400 flex-shrink-0" />
               <span className="text-slate-700">{company.country}</span>
             </div>
           </div>
@@ -93,7 +119,6 @@ export default function CompanyCard({ company, onProductBrochureClick }: Company
             onClick={(e) => e.stopPropagation()}
             className="grid grid-cols-2 gap-2 sm:gap-3 pt-4 border-t border-slate-200"
           >
-            {/* Product Brochure Button */}
             <button
               onClick={handleBrochureClick}
               className="px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-slate-900 border border-slate-300 rounded-lg hover:bg-slate-50 transition-all duration-300 hover:border-slate-400 hover:shadow-sm flex items-center justify-center gap-2"
@@ -102,7 +127,6 @@ export default function CompanyCard({ company, onProductBrochureClick }: Company
               <span>Product</span>
             </button>
 
-            {/* Connect Button */}
             <button
               onClick={handleConnectClick}
               className="px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-slate-900 to-slate-700 rounded-lg hover:from-slate-800 hover:to-slate-600 transition-all duration-300 hover:shadow-md flex items-center justify-center gap-2"

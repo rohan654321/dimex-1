@@ -214,6 +214,9 @@ interface Metadata {
   boothPrice?: string;
   booth_price?: string;
   
+  // Logo
+  logoUrl?: string;
+  
   // Sector
   sector?: string | string[];
   
@@ -227,7 +230,7 @@ interface StallDetails {
   dimensions?: string;
   notes?: string;
   price?: string;
-  [key: string]: any; // Allow additional properties
+  [key: string]: any;
 }
 
 // Options
@@ -269,7 +272,7 @@ export default function ExhibitorDashboard() {
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState<string | null>(null);
-  const [requirements, setRequirements] = useState<any[]>([]);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   
   // Profile State
   const [profile, setProfile] = useState<ExhibitorProfile>({
@@ -420,173 +423,184 @@ export default function ExhibitorDashboard() {
     }
   };
 
-const fetchExhibitorProfile = async () => {
-  try {
-    const result = await apiCall('/api/exhibitorDashboard/profile');
-    
-    console.log('📥 Raw API response:', result);
-    
-    if (result.success) {
-      const apiData = result.data;
+  const fetchExhibitorProfile = async () => {
+    try {
+      const result = await apiCall('/api/exhibitorDashboard/profile');
       
-      // Extract metadata if it exists (this is where your additional fields are stored)
-      let metadata: Metadata = {};
-      if (apiData.metadata) {
-        if (typeof apiData.metadata === 'string') {
-          try {
-            metadata = JSON.parse(apiData.metadata) as Metadata;
-          } catch (e) {
-            console.error('Error parsing metadata:', e);
+      console.log('📥 Raw API response:', result);
+      
+      if (result.success) {
+        const apiData = result.data;
+        
+        // Extract metadata if it exists
+        let metadata: Metadata = {};
+        if (apiData.metadata) {
+          if (typeof apiData.metadata === 'string') {
+            try {
+              metadata = JSON.parse(apiData.metadata) as Metadata;
+            } catch (e) {
+              console.error('Error parsing metadata:', e);
+            }
+          } else if (typeof apiData.metadata === 'object') {
+            metadata = apiData.metadata as Metadata;
           }
-        } else if (typeof apiData.metadata === 'object') {
-          metadata = apiData.metadata as Metadata;
         }
-      }
-      
-      console.log('📦 Extracted metadata:', metadata);
-      
-      // Parse stallDetails for booth information
-      let stallDetails: StallDetails = {};
-      if (apiData.stallDetails) {
-        if (typeof apiData.stallDetails === 'string') {
-          try {
-            stallDetails = JSON.parse(apiData.stallDetails) as StallDetails;
-          } catch (e) {
-            console.error('Error parsing stallDetails:', e);
+        
+        console.log('📦 Extracted metadata:', metadata);
+        console.log('📦 Logo URL from metadata:', metadata.logoUrl);
+        
+        // Also check if logoUrl is directly in apiData
+        const logoUrl = metadata.logoUrl || apiData.logoUrl || '';
+        console.log('📦 Final logo URL:', logoUrl);
+        
+        // Parse stallDetails for booth information
+        let stallDetails: StallDetails = {};
+        if (apiData.stallDetails) {
+          if (typeof apiData.stallDetails === 'string') {
+            try {
+              stallDetails = JSON.parse(apiData.stallDetails) as StallDetails;
+            } catch (e) {
+              console.error('Error parsing stallDetails:', e);
+            }
+          } else if (typeof apiData.stallDetails === 'object') {
+            stallDetails = apiData.stallDetails as StallDetails;
           }
-        } else if (typeof apiData.stallDetails === 'object') {
-          stallDetails = apiData.stallDetails as StallDetails;
         }
-      }
-      
-      // Build contact person object
-      const contactPersonObj = {
-        name: apiData.contactPerson?.name || metadata.contact_name || apiData.name || '',
-        jobTitle: apiData.contactPerson?.jobTitle || metadata.contact_job_title || '',
-        email: apiData.email || metadata.email || '',
-        phone: apiData.phone || metadata.phone || '',
-        alternatePhone: apiData.contactPerson?.alternatePhone || metadata.alternate_phone || ''
-      };
-      
-      // Build social media object
-      const socialMediaObj = {
-        website: apiData.website || metadata.website || '',
-        linkedin: apiData.socialMedia?.linkedin || metadata.linkedin || '',
-        twitter: apiData.socialMedia?.twitter || metadata.twitter || '',
-        facebook: apiData.socialMedia?.facebook || metadata.facebook || '',
-        instagram: apiData.socialMedia?.instagram || metadata.instagram || ''
-      };
-      
-      // Build exhibition object
-      const exhibitionObj = {
-        pavilion: apiData.exhibition?.pavilion || metadata.pavilion || '',
-        hall: apiData.exhibition?.hall || metadata.hall || '',
-        standNumber: apiData.boothNumber || metadata.boothNumber || apiData.exhibition?.standNumber || '',
-        floorPlanUrl: apiData.exhibition?.floorPlanUrl || metadata.floor_plan_url || ''
-      };
-      
-      // Build address object - FIXED SECTION
-      let addressObj = {
-        street: '',
-        city: '',
-        state: '',
-        country: '',
-        countryCode: '',
-        postalCode: ''
-      };
+        
+        // Build contact person object
+        const contactPersonObj = {
+          name: apiData.contactPerson?.name || metadata.contact_name || apiData.name || '',
+          jobTitle: apiData.contactPerson?.jobTitle || metadata.contact_job_title || '',
+          email: apiData.email || metadata.email || '',
+          phone: apiData.phone || metadata.phone || '',
+          alternatePhone: apiData.contactPerson?.alternatePhone || metadata.alternate_phone || ''
+        };
+        
+        // Build social media object
+        const socialMediaObj = {
+          website: apiData.website || metadata.website || '',
+          linkedin: apiData.socialMedia?.linkedin || metadata.linkedin || '',
+          twitter: apiData.socialMedia?.twitter || metadata.twitter || '',
+          facebook: apiData.socialMedia?.facebook || metadata.facebook || '',
+          instagram: apiData.socialMedia?.instagram || metadata.instagram || ''
+        };
+        
+        // Build exhibition object
+        const exhibitionObj = {
+          pavilion: apiData.exhibition?.pavilion || metadata.pavilion || '',
+          hall: apiData.exhibition?.hall || metadata.hall || '',
+          standNumber: apiData.boothNumber || metadata.boothNumber || apiData.exhibition?.standNumber || '',
+          floorPlanUrl: apiData.exhibition?.floorPlanUrl || metadata.floor_plan_url || ''
+        };
+        
+        // Build address object
+        let addressObj = {
+          street: '',
+          city: '',
+          state: '',
+          country: '',
+          countryCode: '',
+          postalCode: ''
+        };
 
-      // Check if apiData.address is an object (new structure)
-      if (apiData.address && typeof apiData.address === 'object') {
-        addressObj = {
-          street: apiData.address.street || metadata.address_street || '',
-          city: apiData.address.city || metadata.address_city || '',
-          state: apiData.address.state || metadata.address_state || '',
-          country: apiData.address.country || metadata.address_country || '',
-          countryCode: apiData.address.countryCode || metadata.address_country_code || '',
-          postalCode: apiData.address.postalCode || metadata.address_postal_code || ''
-        };
-      } 
-      // Fallback to metadata fields if available
-      else {
-        addressObj = {
-          street: metadata.address_street || metadata.address?.street || '',
-          city: metadata.address_city || metadata.address?.city || '',
-          state: metadata.address_state || metadata.address?.state || '',
-          country: metadata.address_country || metadata.address?.country || '',
-          countryCode: metadata.address_country_code || metadata.address?.countryCode || '',
-          postalCode: metadata.address_postal_code || metadata.address?.postalCode || ''
-        };
-      }
-      
-      // Parse sector
-      let sectorArray: string[] = [];
-      if (apiData.sector) {
-        if (typeof apiData.sector === 'string') {
-          sectorArray = apiData.sector.split(',').map((s: string) => s.trim()).filter(Boolean);
-        } else if (Array.isArray(apiData.sector)) {
-          sectorArray = apiData.sector;
+        if (apiData.address && typeof apiData.address === 'object') {
+          addressObj = {
+            street: apiData.address.street || metadata.address_street || '',
+            city: apiData.address.city || metadata.address_city || '',
+            state: apiData.address.state || metadata.address_state || '',
+            country: apiData.address.country || metadata.address_country || '',
+            countryCode: apiData.address.countryCode || metadata.address_country_code || '',
+            postalCode: apiData.address.postalCode || metadata.address_postal_code || ''
+          };
+        } 
+        else {
+          addressObj = {
+            street: metadata.address_street || metadata.address?.street || '',
+            city: metadata.address_city || metadata.address?.city || '',
+            state: metadata.address_state || metadata.address?.state || '',
+            country: metadata.address_country || metadata.address?.country || '',
+            countryCode: metadata.address_country_code || metadata.address?.countryCode || '',
+            postalCode: metadata.address_postal_code || metadata.address?.postalCode || ''
+          };
         }
-      } else if (metadata.sector) {
-        if (typeof metadata.sector === 'string') {
-          sectorArray = metadata.sector.split(',').map((s: string) => s.trim()).filter(Boolean);
-        } else if (Array.isArray(metadata.sector)) {
-          sectorArray = metadata.sector;
+        
+        // Parse sector
+        let sectorArray: string[] = [];
+        if (apiData.sector) {
+          if (typeof apiData.sector === 'string') {
+            sectorArray = apiData.sector.split(',').map((s: string) => s.trim()).filter(Boolean);
+          } else if (Array.isArray(apiData.sector)) {
+            sectorArray = apiData.sector;
+          }
+        } else if (metadata.sector) {
+          if (typeof metadata.sector === 'string') {
+            sectorArray = metadata.sector.split(',').map((s: string) => s.trim()).filter(Boolean);
+          } else if (Array.isArray(metadata.sector)) {
+            sectorArray = metadata.sector;
+          }
         }
+        
+        setProfile(prev => ({
+          ...prev,
+          id: apiData.id || '',
+          // Basic fields from main table
+          companyName: apiData.company || metadata.companyName || '',
+          shortName: apiData.shortName || metadata.shortName || metadata.short_name || '',
+          registrationNumber: apiData.registrationNumber || metadata.registrationNumber || metadata.registration_number || '',
+          yearEstablished: apiData.yearEstablished || metadata.yearEstablished || metadata.year_established || '',
+          companySize: apiData.companySize || metadata.companySize || metadata.company_size || '',
+          companyType: apiData.companyType || metadata.companyType || metadata.company_type || '',
+          
+          // Contact person
+          contactPerson: contactPersonObj,
+          
+          // Exhibition
+          exhibition: exhibitionObj,
+          
+          // Address
+          address: addressObj,
+          
+          // Sector
+          sector: sectorArray,
+          
+          // Business details
+          about: apiData.about || metadata.about || apiData.description || '',
+          mission: apiData.mission || metadata.mission || '',
+          vision: apiData.vision || metadata.vision || '',
+          
+          // Social media
+          socialMedia: socialMediaObj,
+          
+          // Logo - IMPORTANT: Set the logo URL
+          logoUrl: logoUrl,
+          
+          // Status
+          status: apiData.status || 'active',
+          
+          // Timestamps
+          createdAt: apiData.createdAt || '',
+          updatedAt: apiData.updatedAt || '',
+          
+          // Booth fields
+          boothNumber: apiData.boothNumber || metadata.boothNumber || exhibitionObj.standNumber || prev.boothNumber,
+          boothSize: stallDetails.size || apiData.boothSize || metadata.boothSize || metadata.booth_size || prev.boothSize,
+          boothType: stallDetails.type || apiData.boothType || metadata.boothType || metadata.booth_type || prev.boothType,
+          boothDimensions: stallDetails.dimensions || apiData.boothDimensions || metadata.boothDimensions || metadata.booth_dimensions || prev.boothDimensions,
+          boothNotes: stallDetails.notes || apiData.boothNotes || metadata.boothNotes || metadata.booth_notes || prev.boothNotes,
+          boothStatus: apiData.boothStatus || metadata.boothStatus || metadata.booth_status || stallDetails.status || prev.boothStatus || 'pending',
+          boothPrice: stallDetails.price || apiData.boothPrice || metadata.boothPrice || metadata.booth_price || prev.boothPrice,
+        }));
+        
+        // Force a re-render after setting the logo
+        setTimeout(() => {
+          console.log('✅ Logo URL after profile load:', logoUrl);
+        }, 100);
       }
-      
-      setProfile(prev => ({
-        ...prev,
-        id: apiData.id || '',
-        // Basic fields from main table
-        companyName: apiData.company || metadata.companyName || '',
-        shortName: apiData.shortName || metadata.shortName || metadata.short_name || '',
-        registrationNumber: apiData.registrationNumber || metadata.registrationNumber || metadata.registration_number || '',
-        yearEstablished: apiData.yearEstablished || metadata.yearEstablished || metadata.year_established || '',
-        companySize: apiData.companySize || metadata.companySize || metadata.company_size || '',
-        companyType: apiData.companyType || metadata.companyType || metadata.company_type || '',
-        
-        // Contact person
-        contactPerson: contactPersonObj,
-        
-        // Exhibition
-        exhibition: exhibitionObj,
-        
-        // Address
-        address: addressObj,
-        
-        // Sector
-        sector: sectorArray,
-        
-        // Business details
-        about: apiData.about || metadata.about || apiData.description || '',
-        mission: apiData.mission || metadata.mission || '',
-        vision: apiData.vision || metadata.vision || '',
-        
-        // Social media
-        socialMedia: socialMediaObj,
-        
-        // Status
-        status: apiData.status || 'active',
-        
-        // Timestamps
-        createdAt: apiData.createdAt || '',
-        updatedAt: apiData.updatedAt || '',
-        
-        // Booth fields
-        boothNumber: apiData.boothNumber || metadata.boothNumber || exhibitionObj.standNumber || prev.boothNumber,
-        boothSize: stallDetails.size || apiData.boothSize || metadata.boothSize || metadata.booth_size || prev.boothSize,
-        boothType: stallDetails.type || apiData.boothType || metadata.boothType || metadata.booth_type || prev.boothType,
-        boothDimensions: stallDetails.dimensions || apiData.boothDimensions || metadata.boothDimensions || metadata.booth_dimensions || prev.boothDimensions,
-        boothNotes: stallDetails.notes || apiData.boothNotes || metadata.boothNotes || metadata.booth_notes || prev.boothNotes,
-        boothStatus: apiData.boothStatus || metadata.boothStatus || metadata.booth_status || stallDetails.status || prev.boothStatus || 'pending',
-        boothPrice: stallDetails.price || apiData.boothPrice || metadata.boothPrice || metadata.booth_price || prev.boothPrice,
-      }));
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      throw error;
     }
-  } catch (error) {
-    console.error('Error fetching profile:', error);
-    throw error;
-  }
-};
+  };
 
   const fetchProducts = async () => {
     try {
@@ -604,7 +618,6 @@ const fetchExhibitorProfile = async () => {
 
   const fetchBoothData = async () => {
     try {
-      // Try to fetch booth data from a separate endpoint
       const result = await apiCall('/api/exhibitorDashboard/booth', {
         method: 'GET',
       }).catch(() => null);
@@ -613,7 +626,6 @@ const fetchExhibitorProfile = async () => {
         const boothData = result.data;
         console.log('Booth data from separate endpoint:', boothData);
         
-        // Check if price is in stallDetails
         let boothPrice = '';
         if (boothData.stallDetails) {
           const stallDetails = typeof boothData.stallDetails === 'string'
@@ -663,6 +675,54 @@ const fetchExhibitorProfile = async () => {
       }
     } catch (error) {
       console.error('Error fetching brochures:', error);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingLogo(true);
+    setShowError(null);
+    
+    try {
+      console.log('📤 Uploading logo...');
+      
+      // First, upload the logo to Cloudinary via your backend
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'exhibitor-logos');
+      
+      const uploadResult = await apiCall('/api/upload', {
+        method: 'POST',
+        body: formData,
+      }, true);
+      
+      console.log('📥 Upload result:', uploadResult);
+      
+      if (uploadResult.success) {
+        const logoUrl = uploadResult.data.url;
+        
+        console.log('✅ Logo uploaded successfully, URL:', logoUrl);
+        
+        // Update local state with the uploaded logo URL
+        setProfile(prev => ({
+          ...prev,
+          logo: file,
+          logoUrl: logoUrl,
+        }));
+        
+        // Show success message
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } else {
+        throw new Error(uploadResult.error || 'Failed to upload logo');
+      }
+    } catch (error: any) {
+      console.error('Error uploading logo:', error);
+      setShowError(error.message || 'Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
@@ -746,46 +806,46 @@ const fetchExhibitorProfile = async () => {
     }
   };
 
-const handleAddBrochure = async () => {
-  if (!newBrochure.name || !newBrochure.file) {
-    setShowError("Please select a PDF file");
-    return;
-  }
-
-  setSaving(true);
-
-  try {
-    const formData = new FormData();
-    formData.append("file", newBrochure.file);
-    formData.append("title", newBrochure.name); // ✅ FIXED
-    formData.append("description", newBrochure.description);
-
-    const result = await apiCall(
-      "/api/exhibitorDashboard/brochures",
-      {
-        method: "POST",
-        body: formData,
-      },
-      true
-    );
-
-    if (result.success) {
-      setProfile(prev => ({
-        ...prev,
-        brochures: [...prev.brochures, result.data],
-      }));
-
-      setShowAddBrochure(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+  const handleAddBrochure = async () => {
+    if (!newBrochure.name || !newBrochure.file) {
+      setShowError("Please select a PDF file");
+      return;
     }
 
-  } catch (error: any) {
-    setShowError(error.message || "Failed to upload brochure");
-  } finally {
-    setSaving(false);
-  }
-};
+    setSaving(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", newBrochure.file);
+      formData.append("title", newBrochure.name);
+      formData.append("description", newBrochure.description);
+
+      const result = await apiCall(
+        "/api/exhibitorDashboard/brochures",
+        {
+          method: "POST",
+          body: formData,
+        },
+        true
+      );
+
+      if (result.success) {
+        setProfile(prev => ({
+          ...prev,
+          brochures: [...prev.brochures, result.data],
+        }));
+
+        setShowAddBrochure(false);
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      }
+
+    } catch (error: any) {
+      setShowError(error.message || "Failed to upload brochure");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleDeleteProduct = async (productId: string) => {
     try {
@@ -882,18 +942,6 @@ const handleAddBrochure = async () => {
     });
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setProfile({
-        ...profile,
-        logo: file,
-        logoUrl: url,
-      });
-    }
-  };
-
   const handleBrochureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -917,139 +965,145 @@ const handleAddBrochure = async () => {
     }
   };
 
-const handleSaveProfile = async () => {
-  setSaving(true);
-  setShowError(null);
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    setShowError(null);
 
-  try {
-    // Create metadata object for all additional fields
-    const metadata: Metadata = {
-      // Company info
-      shortName: profile.shortName,
-      registrationNumber: profile.registrationNumber,
-      yearEstablished: profile.yearEstablished,
-      companySize: profile.companySize,
-      companyType: profile.companyType,
+    try {
+      console.log('💾 Saving profile with logo URL:', profile.logoUrl);
       
-      // Contact person details
-      contact_name: profile.contactPerson.name,
-      contact_job_title: profile.contactPerson.jobTitle,
-      alternate_phone: profile.contactPerson.alternatePhone,
-      contactPerson: profile.contactPerson,
-      
-      // Exhibition location
-      pavilion: profile.exhibition.pavilion,
-      hall: profile.exhibition.hall,
-      exhibition: {
+      // Create metadata object for all additional fields including logo URL
+      const metadata: Metadata = {
+        // Company info
+        shortName: profile.shortName,
+        registrationNumber: profile.registrationNumber,
+        yearEstablished: profile.yearEstablished,
+        companySize: profile.companySize,
+        companyType: profile.companyType,
+        
+        // Logo URL - IMPORTANT: Save this to metadata
+        logoUrl: profile.logoUrl || '',
+        
+        // Contact person details
+        contact_name: profile.contactPerson.name,
+        contact_job_title: profile.contactPerson.jobTitle,
+        alternate_phone: profile.contactPerson.alternatePhone,
+        contactPerson: profile.contactPerson,
+        
+        // Exhibition location
         pavilion: profile.exhibition.pavilion,
         hall: profile.exhibition.hall,
-        standNumber: profile.exhibition.standNumber || profile.boothNumber,
-        floorPlanUrl: profile.exhibition.floorPlanUrl || ''
-      },
-      
-      // Address fields
-      address_street: profile.address.street,
-      address_city: profile.address.city,
-      address_state: profile.address.state,
-      address_country: profile.address.country,
-      address_country_code: profile.address.countryCode,
-      address_postal_code: profile.address.postalCode,
-      address: {
-        street: profile.address.street,
-        city: profile.address.city,
-        state: profile.address.state,
-        country: profile.address.country,
-        countryCode: profile.address.countryCode,
-        postalCode: profile.address.postalCode
-      },
-      
-      // Business details
-      about: profile.about,
-      mission: profile.mission,
-      vision: profile.vision,
-      
-      // Social media
-      website: profile.socialMedia.website,
-      linkedin: profile.socialMedia.linkedin,
-      twitter: profile.socialMedia.twitter,
-      facebook: profile.socialMedia.facebook,
-      instagram: profile.socialMedia.instagram,
-      socialMedia: profile.socialMedia,
-      
-      // Booth info
-      boothSize: profile.boothSize,
-      boothType: profile.boothType,
-      boothDimensions: profile.boothDimensions,
-      boothNotes: profile.boothNotes,
-      boothStatus: profile.boothStatus,
-      boothPrice: profile.boothPrice
-    };
+        exhibition: {
+          pavilion: profile.exhibition.pavilion,
+          hall: profile.exhibition.hall,
+          standNumber: profile.exhibition.standNumber || profile.boothNumber,
+          floorPlanUrl: profile.exhibition.floorPlanUrl || ''
+        },
+        
+        // Address fields
+        address_street: profile.address.street,
+        address_city: profile.address.city,
+        address_state: profile.address.state,
+        address_country: profile.address.country,
+        address_country_code: profile.address.countryCode,
+        address_postal_code: profile.address.postalCode,
+        address: {
+          street: profile.address.street,
+          city: profile.address.city,
+          state: profile.address.state,
+          country: profile.address.country,
+          countryCode: profile.address.countryCode,
+          postalCode: profile.address.postalCode
+        },
+        
+        // Business details
+        about: profile.about,
+        mission: profile.mission,
+        vision: profile.vision,
+        
+        // Social media
+        website: profile.socialMedia.website,
+        linkedin: profile.socialMedia.linkedin,
+        twitter: profile.socialMedia.twitter,
+        facebook: profile.socialMedia.facebook,
+        instagram: profile.socialMedia.instagram,
+        socialMedia: profile.socialMedia,
+        
+        // Booth info
+        boothSize: profile.boothSize,
+        boothType: profile.boothType,
+        boothDimensions: profile.boothDimensions,
+        boothNotes: profile.boothNotes,
+        boothStatus: profile.boothStatus,
+        boothPrice: profile.boothPrice
+      };
 
-    // Create stallDetails object with ALL booth information including price
-    const stallDetails: StallDetails = {
-      size: profile.boothSize || '',
-      type: profile.boothType || '',
-      dimensions: profile.boothDimensions || '',
-      notes: profile.boothNotes || '',
-      price: profile.boothPrice || '' // MAKE SURE PRICE IS INCLUDED HERE
-    };
+      // Create stallDetails object with booth information including price
+      const stallDetails: StallDetails = {
+        size: profile.boothSize || '',
+        type: profile.boothType || '',
+        dimensions: profile.boothDimensions || '',
+        notes: profile.boothNotes || '',
+        price: profile.boothPrice || ''
+      };
 
-    // Create the payload with all fields
-    const payload = {
-      name: profile.contactPerson.name || profile.companyName,
-      email: profile.contactPerson.email,
-      company: profile.companyName,
-      phone: profile.contactPerson.phone,
-      website: profile.socialMedia.website,
-      sector: profile.sector.join(', '),
-      boothNumber: profile.exhibition.standNumber || profile.boothNumber,
-      address: [
-        profile.address.street,
-        profile.address.city,
-        profile.address.state,
-        profile.address.country,
-        profile.address.postalCode
-      ].filter(Boolean).join(', '),
-      
-      // Store additional fields in metadata JSON
-      metadata: metadata,
-      
-      // Store booth details in stallDetails JSON
-      stallDetails: stallDetails,
-      
-      status: profile.status
-    };
+      // Create the payload with all fields
+      const payload = {
+        name: profile.contactPerson.name || profile.companyName,
+        email: profile.contactPerson.email,
+        company: profile.companyName,
+        phone: profile.contactPerson.phone,
+        website: profile.socialMedia.website,
+        sector: profile.sector.join(', '),
+        boothNumber: profile.exhibition.standNumber || profile.boothNumber,
+        address: [
+          profile.address.street,
+          profile.address.city,
+          profile.address.state,
+          profile.address.country,
+          profile.address.postalCode
+        ].filter(Boolean).join(', '),
+        
+        // Store additional fields in metadata JSON
+        metadata: metadata,
+        
+        // Store booth details in stallDetails JSON
+        stallDetails: stallDetails,
+        
+        status: profile.status
+      };
 
-    console.log('📤 Sending payload:', payload);
+      console.log('📤 Sending payload with metadata:', JSON.stringify(payload, null, 2));
 
-    const result = await apiCall(
-      "/api/exhibitorDashboard/profile",
-      {
-        method: "PUT",
-        body: JSON.stringify(payload),
+      const result = await apiCall(
+        "/api/exhibitorDashboard/profile",
+        {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (result.success) {
+        console.log('✅ Profile saved successfully');
+        setShowSuccess(true);
+        setIsEditing(false);
+        
+        // Refresh profile data to ensure logo is loaded
+        setTimeout(async () => {
+          await fetchExhibitorProfile();
+          await fetchBoothData();
+          setShowSuccess(false);
+        }, 1500);
+      } else {
+        throw new Error(result.message || 'Failed to save profile');
       }
-    );
-
-    if (result.success) {
-      setShowSuccess(true);
-      setIsEditing(false);
-      
-      // IMPORTANT: Wait a moment then refresh the profile data
-      setTimeout(async () => {
-        await fetchExhibitorProfile();
-        await fetchBoothData(); // Also fetch booth data separately
-        setShowSuccess(false);
-      }, 1500);
-    } else {
-      throw new Error(result.message || 'Failed to save profile');
+    } catch (error: any) {
+      console.error("❌ Error saving profile:", error);
+      setShowError(error.message || "Failed to save profile. Please check your connection and try again.");
+    } finally {
+      setSaving(false);
     }
-  } catch (error: any) {
-    console.error("❌ Error saving profile:", error);
-    setShowError(error.message || "Failed to save profile. Please check your connection and try again.");
-  } finally {
-    setSaving(false);
-  }
-};
+  };
 
   const handleBrandLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1190,6 +1244,11 @@ const handleSaveProfile = async () => {
                         src={profile.logoUrl}
                         alt={profile.companyName}
                         className="object-contain w-full h-full"
+                        onError={(e) => {
+                          console.error('Logo failed to load:', profile.logoUrl);
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement?.classList.add('bg-gray-100');
+                        }}
                       />
                     ) : (
                       <div className="text-3xl font-bold text-gray-400">
@@ -1198,13 +1257,18 @@ const handleSaveProfile = async () => {
                     )}
                   </div>
                   {isEditing && (
-                    <label className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors">
-                      <Upload size={14} className="text-white" />
+                    <label className={`absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors ${uploadingLogo ? 'opacity-50 cursor-wait' : ''}`}>
+                      {uploadingLogo ? (
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                      ) : (
+                        <Upload size={14} className="text-white" />
+                      )}
                       <input
                         type="file"
                         accept="image/*"
                         onChange={handleLogoUpload}
                         className="hidden"
+                        disabled={uploadingLogo}
                       />
                     </label>
                   )}
@@ -1597,127 +1661,128 @@ const handleSaveProfile = async () => {
                       </div>
                     </div>
                   </div>
-{/* Company Address */}
-<div className="p-6">
-  <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-    <Building size={20} className="text-blue-600" />
-    Company Address
-  </h2>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div className="md:col-span-2">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Street Address <span className="text-red-500">*</span>
-      </label>
-      {isEditing ? (
-        <input
-          type="text"
-          value={profile.address.street}
-          onChange={(e) => setProfile({
-            ...profile,
-            address: {...profile.address, street: e.target.value}
-          })}
-          className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Street address"
-        />
-      ) : (
-        <p className="text-gray-900 py-2.5">{profile.address.street || 'Not provided'}</p>
-      )}
-    </div>
+                  {/* Company Address */}
+                  <div className="p-6">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                      <Building size={20} className="text-blue-600" />
+                      Company Address
+                    </h2>
 
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        City <span className="text-red-500">*</span>
-      </label>
-      {isEditing ? (
-        <input
-          type="text"
-          value={profile.address.city}
-          onChange={(e) => setProfile({
-            ...profile,
-            address: {...profile.address, city: e.target.value}
-          })}
-          className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="City"
-        />
-      ) : (
-        <p className="text-gray-900 py-2.5">{profile.address.city || 'Not provided'}</p>
-      )}
-    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Street Address <span className="text-red-500">*</span>
+                        </label>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={profile.address.street}
+                            onChange={(e) => setProfile({
+                              ...profile,
+                              address: {...profile.address, street: e.target.value}
+                            })}
+                            className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Street address"
+                          />
+                        ) : (
+                          <p className="text-gray-900 py-2.5">{profile.address.street || 'Not provided'}</p>
+                        )}
+                      </div>
 
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        State/Province
-      </label>
-      {isEditing ? (
-        <input
-          type="text"
-          value={profile.address.state}
-          onChange={(e) => setProfile({
-            ...profile,
-            address: {...profile.address, state: e.target.value}
-          })}
-          className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="State/Province"
-        />
-      ) : (
-        <p className="text-gray-900 py-2.5">{profile.address.state || 'Not provided'}</p>
-      )}
-    </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          City <span className="text-red-500">*</span>
+                        </label>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={profile.address.city}
+                            onChange={(e) => setProfile({
+                              ...profile,
+                              address: {...profile.address, city: e.target.value}
+                            })}
+                            className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="City"
+                          />
+                        ) : (
+                          <p className="text-gray-900 py-2.5">{profile.address.city || 'Not provided'}</p>
+                        )}
+                      </div>
 
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Country <span className="text-red-500">*</span>
-      </label>
-      {isEditing ? (
-        <select
-          value={profile.address.countryCode}
-          onChange={(e) => {
-            const country = countries.find(c => c.code === e.target.value);
-            setProfile({
-              ...profile,
-              address: {
-                ...profile.address,
-                countryCode: e.target.value,
-                country: country?.name || ''
-              }
-            });
-          }}
-          className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Select Country</option>
-          {countries.map(country => (
-            <option key={country.code} value={country.code}>
-              {country.name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <p className="text-gray-900 py-2.5">{profile.address.country || 'Not provided'}</p>
-      )}
-    </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          State/Province
+                        </label>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={profile.address.state}
+                            onChange={(e) => setProfile({
+                              ...profile,
+                              address: {...profile.address, state: e.target.value}
+                            })}
+                            className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="State/Province"
+                          />
+                        ) : (
+                          <p className="text-gray-900 py-2.5">{profile.address.state || 'Not provided'}</p>
+                        )}
+                      </div>
 
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Postal Code
-      </label>
-      {isEditing ? (
-        <input
-          type="text"
-          value={profile.address.postalCode}
-          onChange={(e) => setProfile({
-            ...profile,
-            address: {...profile.address, postalCode: e.target.value}
-          })}
-          className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Postal code"
-        />
-      ) : (
-        <p className="text-gray-900 py-2.5">{profile.address.postalCode || 'Not provided'}</p>
-      )}
-    </div>
-  </div>
-</div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Country <span className="text-red-500">*</span>
+                        </label>
+                        {isEditing ? (
+                          <select
+                            value={profile.address.countryCode}
+                            onChange={(e) => {
+                              const country = countries.find(c => c.code === e.target.value);
+                              setProfile({
+                                ...profile,
+                                address: {
+                                  ...profile.address,
+                                  countryCode: e.target.value,
+                                  country: country?.name || ''
+                                }
+                              });
+                            }}
+                            className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Select Country</option>
+                            {countries.map(country => (
+                              <option key={country.code} value={country.code}>
+                                {country.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <p className="text-gray-900 py-2.5">{profile.address.country || 'Not provided'}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Postal Code
+                        </label>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={profile.address.postalCode}
+                            onChange={(e) => setProfile({
+                              ...profile,
+                              address: {...profile.address, postalCode: e.target.value}
+                            })}
+                            className="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Postal code"
+                          />
+                        ) : (
+                          <p className="text-gray-900 py-2.5">{profile.address.postalCode || 'Not provided'}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Business Details */}
                   <div className="p-6">
@@ -2280,23 +2345,23 @@ const handleSaveProfile = async () => {
                           />
                         </div>
                         <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Upload PDF File *
-  </label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Upload PDF File *
+                          </label>
 
-  <input
-    type="file"
-    accept="application/pdf"
-    onChange={handleBrochureUpload}
-    className="w-full border rounded-lg px-4 py-2"
-  />
+                          <input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={handleBrochureUpload}
+                            className="w-full border rounded-lg px-4 py-2"
+                          />
 
-  {newBrochure.file && (
-    <p className="text-sm text-green-600 mt-2">
-      Selected: {newBrochure.file.name}
-    </p>
-  )}
-</div>
+                          {newBrochure.file && (
+                            <p className="text-sm text-green-600 mt-2">
+                              Selected: {newBrochure.file.name}
+                            </p>
+                          )}
+                        </div>
 
                         <div className="flex justify-end gap-3 pt-4">
                           <button
@@ -2505,7 +2570,7 @@ const handleSaveProfile = async () => {
                           )}
                         </div>
 
-                        {/* Stand Number (duplicate but keeping for consistency) */}
+                        {/* Stand Number */}
                         <div className="border-b pb-3">
                           <label className="block text-xs text-gray-500 mb-1">Stand Number</label>
                           {isEditing ? (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Globe, Eye, Download, MapPin, Building, Package, Tag, File, X, Menu, ArrowLeft, Share2, Phone, Mail, Users, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Globe, Eye, Download, MapPin, Building, Package, Tag, File, X, Menu, ArrowLeft, Share2, Phone, Mail, Users, Loader2, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchExhibitionCompanyById, fetchExhibitorProducts, fetchExhibitorBrochures, fetchExhibitorBrands, ExhibitionCompany } from '../api';
@@ -19,6 +19,7 @@ export default function ExhibitorDetailPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState<{ url: string; name: string } | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -74,19 +75,17 @@ export default function ExhibitorDetailPage() {
     router.push('/exhibition-directory');
   };
 
-  const handleViewPdf = (url: string, name: string) => {
-    // For PDFs, we can open in a new tab
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
-  const handleDownloadPdf = (url: string, name: string) => {
-    // Create a temporary anchor element to trigger download
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = name || 'brochure.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: company?.name,
+        text: `Check out ${company?.name} at the exhibition`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
   };
 
   // Get logo color based on country
@@ -185,13 +184,19 @@ export default function ExhibitorDetailPage() {
             {/* Right actions */}
             <div className="flex items-center gap-3">
               <button
+                onClick={handleShare}
+                className="hidden lg:flex p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Share"
+              >
+                <Share2 size={20} />
+              </button>
+              <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
                 aria-label="Menu"
               >
                 <Menu size={20} />
               </button>
-
               <button
                 onClick={handleClose}
                 className="hidden lg:flex p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -230,16 +235,31 @@ export default function ExhibitorDetailPage() {
                 Back to Exhibitor List
               </button>
               <button
-                onClick={handlePrevious}
+                onClick={() => {
+                  handlePrevious();
+                  setShowMobileMenu(false);
+                }}
                 className="w-full py-3 text-left px-4 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium"
               >
                 ← Previous Company
               </button>
               <button
-                onClick={handleNext}
+                onClick={() => {
+                  handleNext();
+                  setShowMobileMenu(false);
+                }}
                 className="w-full py-3 text-left px-4 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium"
               >
                 Next Company →
+              </button>
+              <button
+                onClick={() => {
+                  handleShare();
+                  setShowMobileMenu(false);
+                }}
+                className="w-full py-3 text-left px-4 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium"
+              >
+                Share Company
               </button>
             </div>
           </div>
@@ -270,7 +290,7 @@ export default function ExhibitorDetailPage() {
         </div>
       )}
 
-      {/* MAIN CONTENT - with top padding for fixed nav */}
+      {/* MAIN CONTENT */}
       <div className="pt-16 lg:pt-20 pb-6">
         {/* COMPANY HEADER */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-40">
@@ -279,12 +299,22 @@ export default function ExhibitorDetailPage() {
               <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
                 {/* Logo */}
                 <div className="flex-shrink-0">
-                  <div className={`w-full max-w-xs mx-auto lg:mx-0 lg:w-64 lg:h-64 ${
+                  <div className={`w-full max-w-xs mx-auto lg:mx-0 lg:w-64 lg:h-64 rounded-xl border flex items-center justify-center p-8 overflow-hidden ${
                     getLogoColor(company.countryCode)
-                  } rounded-xl border flex items-center justify-center p-8`}>
-                    <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-700">
-                      {company.name.substring(0, 2).toUpperCase()}
-                    </div>
+                  }`}>
+                    {company.logo && !imageError ? (
+                      <img 
+                        src={company.logo} 
+                        alt={company.name}
+                        className="w-full h-full object-contain"
+                        onError={() => setImageError(true)}
+                        onLoad={() => console.log('Logo loaded:', company.logo)}
+                      />
+                    ) : (
+                      <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-700">
+                        {company.name.substring(0, 2).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   {!isMobile && (
                     <p className="mt-3 text-center text-sm text-gray-500">Company Logo</p>
@@ -302,16 +332,16 @@ export default function ExhibitorDetailPage() {
                     )}
                   </div>
 
-                  {/* Quick Info */}
+                  {/* Quick Info - Pavilion and Hall */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                     <div className="flex items-center gap-2">
                       <Building size={18} className="text-gray-500 flex-shrink-0" />
-                      <span className="text-gray-700 truncate">{company.country}</span>
+                      <span className="text-gray-700 truncate">{company.pavilion}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin size={18} className="text-gray-500 flex-shrink-0" />
                       <span className="text-gray-700">
-                        Pavilion {company.pavilion}, Hall {company.hall}
+                        Hall {company.hall || 'Not specified'}
                       </span>
                     </div>
                   </div>
@@ -339,7 +369,7 @@ export default function ExhibitorDetailPage() {
                   </div>
 
                   {/* Contact & Social */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 pt-4 border-t border-gray-200">
+                  <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-4 border-t border-gray-200">
                     {company.website && (
                       <a
                         href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
@@ -349,6 +379,24 @@ export default function ExhibitorDetailPage() {
                       >
                         <Globe size={18} />
                         <span className="truncate">Visit Website</span>
+                      </a>
+                    )}
+                    {company.phone && (
+                      <a
+                        href={`tel:${company.phone}`}
+                        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                      >
+                        <Phone size={18} />
+                        <span>{company.phone}</span>
+                      </a>
+                    )}
+                    {company.email && (
+                      <a
+                        href={`mailto:${company.email}`}
+                        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                      >
+                        <Mail size={18} />
+                        <span className="truncate">{company.email}</span>
                       </a>
                     )}
                   </div>
@@ -406,6 +454,7 @@ export default function ExhibitorDetailPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Location Details Card */}
                 <div className="bg-white rounded-2xl p-6 border shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Details</h3>
                   <ul className="space-y-3">
@@ -424,7 +473,7 @@ export default function ExhibitorDetailPage() {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Hall</p>
-                        <p className="font-medium text-gray-900">{company.hall}</p>
+                        <p className="font-medium text-gray-900">{company.hall || 'Not specified'}</p>
                       </div>
                     </li>
                     <li className="flex items-center gap-3">
@@ -436,9 +485,21 @@ export default function ExhibitorDetailPage() {
                         <p className="font-medium text-gray-900">{company.standNumber}</p>
                       </div>
                     </li>
+                    {company.fullAddress && (
+                      <li className="flex items-start gap-3 pt-2 border-t mt-2">
+                        <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                          <MapPin size={20} className="text-orange-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Company Address</p>
+                          <p className="font-medium text-gray-900">{company.fullAddress}</p>
+                        </div>
+                      </li>
+                    )}
                   </ul>
                 </div>
 
+                {/* Sectors & Specialties Card */}
                 <div className="bg-white rounded-2xl p-6 border shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Sectors & Specialties</h3>
                   <div className="flex flex-wrap gap-2">
@@ -451,6 +512,41 @@ export default function ExhibitorDetailPage() {
                       </span>
                     ))}
                   </div>
+                  
+                  {/* Contact Person */}
+                  {company.contactPerson && (company.contactPerson.name || company.contactPerson.email || company.contactPerson.phone) && (
+                    <div className="mt-6 pt-4 border-t">
+                      <h4 className="font-semibold text-gray-900 mb-3">Contact Person</h4>
+                      <div className="space-y-2">
+                        {company.contactPerson.name && (
+                          <p className="text-sm text-gray-700">
+                            <span className="font-medium">Name:</span> {company.contactPerson.name}
+                          </p>
+                        )}
+                        {company.contactPerson.jobTitle && (
+                          <p className="text-sm text-gray-700">
+                            <span className="font-medium">Title:</span> {company.contactPerson.jobTitle}
+                          </p>
+                        )}
+                        {company.contactPerson.email && (
+                          <p className="text-sm text-gray-700">
+                            <span className="font-medium">Email:</span>{' '}
+                            <a href={`mailto:${company.contactPerson.email}`} className="text-blue-600 hover:underline">
+                              {company.contactPerson.email}
+                            </a>
+                          </p>
+                        )}
+                        {company.contactPerson.phone && (
+                          <p className="text-sm text-gray-700">
+                            <span className="font-medium">Phone:</span>{' '}
+                            <a href={`tel:${company.contactPerson.phone}`} className="hover:underline">
+                              {company.contactPerson.phone}
+                            </a>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -475,6 +571,13 @@ export default function ExhibitorDetailPage() {
                     <p className="text-gray-600 text-center text-sm sm:text-base">
                       {product.description || `${company.name} services`}
                     </p>
+                    {product.price && (
+                      <div className="mt-3 text-center">
+                        <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                          {product.price}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (
@@ -491,7 +594,7 @@ export default function ExhibitorDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {brands.length > 0 ? (
                 brands.map((brand, index) => (
-                  <div key={index} className="bg-white rounded-2xl p-6 border shadow-sm">
+                  <div key={index} className="bg-white rounded-2xl p-6 border shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-4">
                       <div className={`w-14 h-14 sm:w-16 sm:h-16 ${getLogoColor(company.countryCode)} rounded-lg flex items-center justify-center flex-shrink-0`}>
                         <div className="text-lg font-bold text-gray-600">
@@ -500,7 +603,9 @@ export default function ExhibitorDetailPage() {
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-lg font-semibold text-gray-900 truncate">{brand.name || company.name}</h3>
-                        <p className="text-gray-600 text-sm">Brand of {company.name}</p>
+                        {brand.description && (
+                          <p className="text-gray-600 text-sm mt-1 line-clamp-2">{brand.description}</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -514,7 +619,7 @@ export default function ExhibitorDetailPage() {
             </div>
           )}
 
-          {/* BROCHURES TAB - FIXED VERSION */}
+          {/* BROCHURES TAB */}
           {activeTab === 'brochures' && (
             <div className="bg-white rounded-2xl border overflow-hidden">
               {brochures.length > 0 ? (
@@ -529,7 +634,6 @@ export default function ExhibitorDetailPage() {
                     </thead>
                     <tbody>
                       {brochures.map((brochure) => {
-                        // Get the brochure URL - check both possible field names
                         const brochureUrl = brochure.fileUrl || brochure.url;
                         const brochureName = brochure.name || brochure.title || 'Brochure';
                         
@@ -552,7 +656,6 @@ export default function ExhibitorDetailPage() {
                             <td className="p-4">
                               {brochureUrl ? (
                                 <div className="flex flex-col sm:flex-row gap-2">
-                                  {/* View button - opens in new tab */}
                                   <a
                                     href={brochureUrl}
                                     target="_blank"
@@ -561,8 +664,6 @@ export default function ExhibitorDetailPage() {
                                   >
                                     <Eye size={16} /> View
                                   </a>
-                                  
-                                  {/* Download button - using anchor tag with download attribute */}
                                   <a
                                     href={brochureUrl}
                                     download={brochureName}
@@ -608,6 +709,13 @@ export default function ExhibitorDetailPage() {
                   <ChevronLeft size={16} />
                   <span className="hidden sm:inline">Previous</span>
                 </button>
+                
+                <Link
+                  href="/exhibition-directory"
+                  className="px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 text-gray-700 bg-gray-100 hover:bg-gray-200"
+                >
+                  <span>Back to List</span>
+                </Link>
                 
                 <button
                   onClick={handleNext}

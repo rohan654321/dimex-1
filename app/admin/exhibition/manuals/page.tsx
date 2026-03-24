@@ -5,16 +5,14 @@ import { useRouter } from 'next/navigation';
 import { 
   Search, 
   Plus, 
-  
   Trash2, 
-  
   Upload, 
   FileText, 
   Calendar, 
   User, 
-
   File,
-  BookOpen
+  BookOpen,
+  Edit2
 } from 'lucide-react';
 import manualApi, { Manual, ManualFilters, ManualStatistics, ApiError } from '@/lib/api/manualApi';
 
@@ -69,16 +67,26 @@ export default function ExhibitorManualsPage() {
   const handleDelete = async (id: string, type?: string): Promise<void> => {
     if (confirm('Are you sure you want to delete this item?')) {
       try {
+        // No need to check token - axios interceptor handles it automatically
         if (type === 'section') {
           await manualApi.deleteSection(id);
         } else {
           await manualApi.deleteManual(id);
         }
-        setManuals(manuals.filter(manual => manual.id !== id));
+        
+        // Refresh the list
+        await fetchManuals();
         await fetchStatistics();
+        alert('Deleted successfully');
       } catch (error) {
         if (error instanceof ApiError) {
-          alert(`Failed to delete: ${error.message}`);
+          console.error('Delete error:', error);
+          if (error.status === 401) {
+            alert('Session expired. Please login again.');
+            router.push('/admin/login');
+          } else {
+            alert(`Failed to delete: ${error.message}`);
+          }
         } else {
           alert('Failed to delete');
         }
@@ -135,7 +143,7 @@ export default function ExhibitorManualsPage() {
 
   const handleEdit = (id: string, type?: string): void => {
     if (type === 'section') {
-      router.push(`/admin/exhibition/manuals/edit-section/${id}`);
+      router.push(`/admin/exhibition/manuals/edit/${id}`);
     } else {
       router.push(`/admin/exhibition/manuals/edit/${id}`);
     }
@@ -232,6 +240,17 @@ export default function ExhibitorManualsPage() {
           </div>
         </div>
 
+        <div className="bg-white shadow rounded-lg p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 rounded-md p-3 bg-green-100">
+              <File className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="ml-5">
+              <p className="text-sm font-medium text-gray-500">Published</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.publishedManuals}</p>
+            </div>
+          </div>
+        </div>
 
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex items-center">
@@ -241,6 +260,18 @@ export default function ExhibitorManualsPage() {
             <div className="ml-5">
               <p className="text-sm font-medium text-gray-500">Categories</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.categoryStats.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white shadow rounded-lg p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 rounded-md p-3 bg-purple-100">
+              <FileText className="h-6 w-6 text-purple-600" />
+            </div>
+            <div className="ml-5">
+              <p className="text-sm font-medium text-gray-500">Total Downloads</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.totalDownloads}</p>
             </div>
           </div>
         </div>
@@ -360,7 +391,13 @@ export default function ExhibitorManualsPage() {
                     <p className="text-lg font-semibold text-gray-900">{manual.downloads || 0}</p>
                   </div>
                   <div className="flex space-x-2">
-                 
+                    <button
+                      onClick={() => handleEdit(manual.id, manual.type)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      title="Edit"
+                    >
+                      <Edit2 className="h-5 w-5" />
+                    </button>
                     <button
                       onClick={() => handleDelete(manual.id, manual.type)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"

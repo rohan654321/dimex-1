@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   DocumentIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import manualApi from '@/lib/api/manualApi';
+import manualApi, { ApiError } from '@/lib/api/manualApi';
 
 export default function AddManualPage() {
   const router = useRouter();
@@ -36,6 +36,7 @@ export default function AddManualPage() {
     setError(null);
 
     try {
+      // No token check needed - axios interceptor handles it
       const response = await manualApi.createSection({
         title: title.trim(),
         content: content.trim(),
@@ -50,7 +51,14 @@ export default function AddManualPage() {
       }
     } catch (error) {
       console.error('Error adding manual section:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error occurred');
+      if (error instanceof ApiError && error.status === 401) {
+        setError('Session expired. Please login again.');
+        setTimeout(() => {
+          router.push('/admin/login');
+        }, 1500);
+      } else {
+        setError(error instanceof Error ? error.message : 'Unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -138,7 +146,14 @@ export default function AddManualPage() {
               </select>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => router.push('/admin/exhibition/manuals')}
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Cancel
+              </button>
               <button
                 type="submit"
                 disabled={loading}
