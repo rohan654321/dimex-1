@@ -1,4 +1,3 @@
-// app/admin/exhibition/manuals/edit/[id]/page.tsx
 "use client";
 
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
@@ -10,7 +9,7 @@ import {
   ExclamationCircleIcon,
   ArrowLeftIcon
 } from '@heroicons/react/24/outline';
-import manualApi, { Manual } from '@/lib/api/manualApi';
+import manualApi, { Manual, ApiError } from '@/lib/api/manualApi';
 
 interface ManualFormData {
   title: string;
@@ -46,7 +45,10 @@ export default function EditManualPage() {
     'Marketing',
     'Technical',
     'Logistics',
-    'Procedures'
+    'Procedures',
+    'General',
+    'Rules',
+    'Contact'
   ];
 
   const getCategoryIcon = (category: string) => {
@@ -63,6 +65,12 @@ export default function EditManualPage() {
         return '📦';
       case 'Procedures':
         return '📋';
+      case 'General':
+        return '📄';
+      case 'Rules':
+        return '📜';
+      case 'Contact':
+        return '📞';
       default:
         return '📄';
     }
@@ -82,13 +90,18 @@ export default function EditManualPage() {
         title: manual.title,
         description: manual.description || '',
         category: manual.category,
-        version: manual.version,
-        status: manual.status,
-        updated_by: manual.updated_by
+        version: manual.version || '1.0',
+        status: manual.status as 'published' | 'draft',
+        updated_by: manual.updated_by || 'Admin'
       });
     } catch (error) {
       console.error('Error fetching manual:', error);
-      alert('Failed to fetch manual details');
+      if (error instanceof ApiError && error.status === 401) {
+        alert('Session expired. Please login again.');
+        router.push('/admin/login');
+      } else {
+        alert('Failed to fetch manual details');
+      }
       router.push('/admin/exhibition/manuals');
     } finally {
       setLoading(false);
@@ -153,11 +166,17 @@ export default function EditManualPage() {
 
       await manualApi.updateManual(id, formDataToSend);
       
+      alert('Manual updated successfully!');
       router.push('/admin/exhibition/manuals');
       router.refresh();
     } catch (error) {
       console.error('Error updating manual:', error);
-      alert('Failed to update manual. Please try again.');
+      if (error instanceof ApiError && error.status === 401) {
+        alert('Session expired. Please login again.');
+        router.push('/admin/login');
+      } else {
+        alert('Failed to update manual. Please try again.');
+      }
     } finally {
       setSaving(false);
     }
@@ -179,7 +198,7 @@ export default function EditManualPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header with back button */}
       <div className="flex items-center space-x-4">
         <button
@@ -205,7 +224,7 @@ export default function EditManualPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Current File Info */}
-        {originalManual && (
+        {originalManual && originalManual.file_name && (
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Current File</h3>
             <div className="bg-gray-50 rounded-lg p-4 flex items-center">
@@ -309,6 +328,7 @@ export default function EditManualPage() {
                 value={formData.description}
                 onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Enter a brief description of this manual..."
               />
             </div>
 
@@ -350,6 +370,7 @@ export default function EditManualPage() {
                 value={formData.version}
                 onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="e.g., 1.0, 2.1"
               />
             </div>
 
@@ -394,6 +415,7 @@ export default function EditManualPage() {
             <li>• Update the version number when uploading a new file</li>
             <li>• Changes will be visible to exhibitors immediately if status is "published"</li>
             <li>• You can keep manuals in "draft" while making multiple updates</li>
+            <li>• Uploading a new file will replace the existing one</li>
           </ul>
         </div>
 

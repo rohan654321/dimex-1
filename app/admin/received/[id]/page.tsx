@@ -1,12 +1,11 @@
 // app/admin/extra-requirements/received/[id]/page.tsx
 'use client';
 
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   ArrowLeftIcon,
-  DocumentTextIcon,
   CheckCircleIcon,
   ClockIcon,
   XCircleIcon,
@@ -16,11 +15,8 @@ import {
   PhoneIcon,
   MapPinIcon,
   WrenchIcon,
-
   SparklesIcon,
-
   ShieldCheckIcon,
-
   UserIcon,
   TagIcon,
   ClipboardDocumentListIcon,
@@ -28,9 +24,9 @@ import {
   XMarkIcon,
   CheckIcon,
   PrinterIcon,
-  FlagIcon
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
-import { SofaIcon, MonitorIcon, ZapIcon, CableIcon, DropletIcon, PackageIcon } from 'lucide-react';
+import { SofaIcon, MonitorIcon, ZapIcon, CableIcon, DropletIcon, PackageIcon, UsersIcon, WifiIcon, LightbulbIcon } from 'lucide-react';
 
 const API_BASE_URL = 'https://diemex-backend.onrender.com';
 
@@ -40,9 +36,6 @@ interface RequirementItem {
   quantity: number;
   description: string;
   specifications?: string;
-  unitPrice?: number;
-  totalPrice?: number;
-  status?: string;
 }
 
 interface Requirement {
@@ -110,7 +103,12 @@ export default function AdminRequirementDetailsPage() {
       
       if (response.ok) {
         const data = await response.json();
-        setRequirement(data.data);
+        // Remove any cost/specifications that contain prices
+        const cleanItems = (data.data.items || []).map((item: any) => ({
+          ...item,
+          specifications: item.specifications?.replace(/Cost: ₹[\d,]+/gi, '').replace(/Total: ₹[\d,]+/gi, '').trim() || item.specifications
+        }));
+        setRequirement({ ...data.data, items: cleanItems });
         setEditData({
           status: data.data.status,
           adminNotes: data.data.adminNotes || ''
@@ -155,7 +153,6 @@ export default function AdminRequirementDetailsPage() {
         const data = await response.json();
         setRequirement(data.data);
         setShowEditModal(false);
-        alert('Requirement updated successfully');
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Failed to update requirement');
@@ -172,6 +169,260 @@ export default function AdminRequirementDetailsPage() {
     window.print();
   };
 
+  const downloadAsHTML = () => {
+    if (!requirement) return;
+    
+    const groupedItems = groupItemsByType(requirement.items);
+    
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Requirement Details - ${requirement.requirementId}</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+              font-family: 'Segoe UI', Arial, sans-serif;
+              background: white;
+              padding: 40px;
+              line-height: 1.5;
+            }
+            .container {
+              max-width: 900px;
+              margin: 0 auto;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 40px;
+              padding-bottom: 20px;
+              border-bottom: 2px solid #2563eb;
+            }
+            .header h1 {
+              font-size: 28px;
+              color: #1e293b;
+              margin-bottom: 8px;
+            }
+            .header p {
+              color: #64748b;
+              font-size: 14px;
+            }
+            .section {
+              margin-bottom: 32px;
+              page-break-inside: avoid;
+            }
+            .section-title {
+              font-size: 18px;
+              font-weight: 600;
+              margin-bottom: 16px;
+              padding-bottom: 8px;
+              border-bottom: 2px solid #e2e8f0;
+              color: #2563eb;
+            }
+            .info-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 16px;
+            }
+            .info-item {
+              background: #f8fafc;
+              padding: 12px;
+              border-radius: 8px;
+            }
+            .info-label {
+              font-size: 11px;
+              font-weight: 600;
+              text-transform: uppercase;
+              color: #64748b;
+              letter-spacing: 0.5px;
+            }
+            .info-value {
+              font-size: 15px;
+              font-weight: 500;
+              color: #0f172a;
+              margin-top: 4px;
+            }
+            .items-group {
+              background: #f8fafc;
+              border-radius: 12px;
+              padding: 16px;
+              margin-bottom: 20px;
+            }
+            .group-header {
+              font-size: 16px;
+              font-weight: 600;
+              color: #2563eb;
+              margin-bottom: 12px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            }
+            .item-list {
+              margin-left: 24px;
+            }
+            .item-entry {
+              padding: 8px 0;
+              border-bottom: 1px solid #e2e8f0;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .item-entry:last-child {
+              border-bottom: none;
+            }
+            .item-desc {
+              font-size: 14px;
+              color: #334155;
+            }
+            .item-qty {
+              font-size: 12px;
+              background: #e2e8f0;
+              padding: 2px 8px;
+              border-radius: 20px;
+              color: #475569;
+            }
+            .specs {
+              font-size: 12px;
+              color: #64748b;
+              margin-top: 4px;
+            }
+            .notes-box {
+              background: #fef3c7;
+              padding: 16px;
+              border-radius: 12px;
+              border-left: 4px solid #f59e0b;
+            }
+            .status-badge {
+              display: inline-block;
+              padding: 6px 16px;
+              border-radius: 50px;
+              font-size: 13px;
+              font-weight: 600;
+            }
+            .status-pending { background: #fef3c7; color: #92400e; }
+            .status-approved { background: #d1fae5; color: #065f46; }
+            .status-rejected { background: #fee2e2; color: #991b1b; }
+            .status-completed { background: #dbeafe; color: #1e40af; }
+            .footer {
+              margin-top: 48px;
+              text-align: center;
+              font-size: 11px;
+              color: #94a3b8;
+              padding-top: 20px;
+              border-top: 1px solid #e2e8f0;
+            }
+            @media print {
+              body { padding: 20px; }
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Extra Requirements Request</h1>
+              <p>${requirement.requirementId}</p>
+              <p>Submitted: ${formatDate(requirement.submittedAt)}</p>
+            </div>
+            
+            <div class="section">
+              <div class="section-title">Exhibitor Information</div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="info-label">Company Name</div>
+                  <div class="info-value">${requirement.companyName}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Stall Number</div>
+                  <div class="info-value">${requirement.stallNumber || 'Not Assigned'}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Contact Person</div>
+                  <div class="info-value">${requirement.contactPerson}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Email</div>
+                  <div class="info-value">${requirement.email}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Phone</div>
+                  <div class="info-value">${requirement.phone}</div>
+                </div>
+                ${requirement.metadata?.boothArea ? `
+                <div class="info-item">
+                  <div class="info-label">Booth Area</div>
+                  <div class="info-value">${requirement.metadata.boothArea}</div>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+            
+            <div class="section">
+              <div class="section-title">Items Required</div>
+              ${Object.entries(groupedItems).map(([type, items]) => `
+                <div class="items-group">
+                  <div class="group-header">📦 ${type}</div>
+                  <div class="item-list">
+                    ${items.map(item => `
+                      <div class="item-entry">
+                        <div>
+                          <div class="item-desc">${item.description}</div>
+                          ${item.specifications ? `<div class="specs">${item.specifications}</div>` : ''}
+                        </div>
+                        <div class="item-qty">x${item.quantity}</div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            
+            ${requirement.notes ? `
+            <div class="section">
+              <div class="section-title">Exhibitor Notes</div>
+              <div class="notes-box">
+                <p>${requirement.notes}</p>
+              </div>
+            </div>
+            ` : ''}
+            
+            ${requirement.adminNotes ? `
+            <div class="section">
+              <div class="section-title">Admin Notes</div>
+              <div class="notes-box" style="background: #dbeafe; border-left-color: #3b82f6;">
+                <p>${requirement.adminNotes}</p>
+              </div>
+            </div>
+            ` : ''}
+            
+            <div class="section">
+              <div class="section-title">Status</div>
+              <div>
+                <span class="status-badge status-${requirement.status}">
+                  ${requirement.status.toUpperCase()}
+                </span>
+              </div>
+            </div>
+            
+            <div class="footer">
+              Generated on ${new Date().toLocaleString()}<br>
+              DiemEx Event Management System
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const blob = new Blob([printContent], { type: 'text/html' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `requirement_${requirement.requirementId}.html`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -185,10 +436,10 @@ export default function AdminRequirementDetailsPage() {
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, string> = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      approved: 'bg-green-100 text-green-800',
-      rejected: 'bg-red-100 text-red-800',
-      completed: 'bg-blue-100 text-blue-800'
+      pending: 'bg-amber-50 text-amber-700 border-amber-200',
+      approved: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      rejected: 'bg-red-50 text-red-700 border-red-200',
+      completed: 'bg-blue-50 text-blue-700 border-blue-200'
     };
     const icons: Record<string, React.ReactElement> = {
       pending: <ClockIcon className="h-4 w-4" />,
@@ -198,7 +449,7 @@ export default function AdminRequirementDetailsPage() {
     };
     
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${badges[status] || badges.pending}`}>
+      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${badges[status] || badges.pending}`}>
         {icons[status] || icons.pending}
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
@@ -206,22 +457,17 @@ export default function AdminRequirementDetailsPage() {
   };
 
   const getItemIcon = (type: string) => {
-    const icons: Record<string, React.ReactElement> = {
-      'furniture': <SofaIcon className="h-5 w-5" />,
-      'av & it rentals': <MonitorIcon className="h-5 w-5" />,
-      'av': <MonitorIcon className="h-5 w-5" />,
-      'electrical load': <ZapIcon className="h-5 w-5" />,
-      'electrical': <ZapIcon className="h-5 w-5" />,
-      'hostess rates': <SparklesIcon className="h-5 w-5" />,
-      'hostess': <SparklesIcon className="h-5 w-5" />,
-      'compressed air': <CableIcon className="h-5 w-5" />,
-      'water connection': <DropletIcon className="h-5 w-5" />,
-      'water': <DropletIcon className="h-5 w-5" />,
-      'security guard': <ShieldCheckIcon className="h-5 w-5" />,
-      'security': <ShieldCheckIcon className="h-5 w-5" />,
-      'housekeeping': <SparklesIcon className="h-5 w-5" />
-    };
-    return icons[type.toLowerCase()] || <WrenchIcon className="h-5 w-5" />;
+    const typeLower = type.toLowerCase();
+    if (typeLower.includes('furniture')) return <SofaIcon className="h-5 w-5" />;
+    if (typeLower.includes('av') || typeLower.includes('it')) return <MonitorIcon className="h-5 w-5" />;
+    if (typeLower.includes('electrical')) return <ZapIcon className="h-5 w-5" />;
+    if (typeLower.includes('hostess')) return <UsersIcon className="h-5 w-5" />;
+    if (typeLower.includes('air')) return <CableIcon className="h-5 w-5" />;
+    if (typeLower.includes('water')) return <DropletIcon className="h-5 w-5" />;
+    if (typeLower.includes('security')) return <ShieldCheckIcon className="h-5 w-5" />;
+    if (typeLower.includes('internet') || typeLower.includes('wifi')) return <WifiIcon className="h-5 w-5" />;
+    if (typeLower.includes('lighting')) return <LightbulbIcon className="h-5 w-5" />;
+    return <WrenchIcon className="h-5 w-5" />;
   };
 
   const getItemTypeLabel = (type: string) => {
@@ -238,9 +484,22 @@ export default function AdminRequirementDetailsPage() {
       'water': 'Water Connection',
       'security guard': 'Security Guard',
       'security': 'Security Guard',
-      'housekeeping': 'Housekeeping'
+      'housekeeping': 'Housekeeping',
+      'internet': 'Internet & WiFi',
+      'lighting': 'Lighting'
     };
     return labels[type.toLowerCase()] || type;
+  };
+
+  const groupItemsByType = (items: RequirementItem[]) => {
+    const grouped: { [key: string]: RequirementItem[] } = {};
+    items.forEach(item => {
+      if (!grouped[item.type]) {
+        grouped[item.type] = [];
+      }
+      grouped[item.type].push(item);
+    });
+    return grouped;
   };
 
   if (loading) {
@@ -257,13 +516,13 @@ export default function AdminRequirementDetailsPage() {
   if (error || !requirement) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md text-center">
           <XCircleIcon className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-gray-900 mb-2">{error || 'Requirement Not Found'}</h2>
           <p className="text-gray-600 mb-6">The requirement you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/admin/received"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
           >
             <ArrowLeftIcon className="h-4 w-4" />
             Back to Requirements
@@ -273,17 +532,17 @@ export default function AdminRequirementDetailsPage() {
     );
   }
 
-  const exhibitorDetails = requirement;
   const metadata = requirement.metadata || {};
+  const groupedItems = groupItemsByType(requirement.items);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        {/* Header with Back Button and Actions */}
+        {/* Header */}
         <div className="mb-6 flex flex-wrap justify-between items-center gap-4">
           <Link
             href="/admin/received"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-50 shadow-sm transition"
           >
             <ArrowLeftIcon className="h-4 w-4" />
             Back to Requirements
@@ -292,14 +551,21 @@ export default function AdminRequirementDetailsPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setShowEditModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-xl hover:bg-gray-800 transition shadow-sm"
             >
               <PencilIcon className="h-4 w-4" />
               Update Status
             </button>
             <button
+              onClick={downloadAsHTML}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition shadow-sm"
+            >
+              <ArrowDownTrayIcon className="h-4 w-4" />
+              Download
+            </button>
+            <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 border border-gray-200 transition shadow-sm"
             >
               <PrinterIcon className="h-4 w-4" />
               Print
@@ -307,15 +573,16 @@ export default function AdminRequirementDetailsPage() {
           </div>
         </div>
 
-        {/* Requirement Card */}
+        {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          {/* Header with Gradient */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-6">
-            <div className="flex justify-between items-center flex-wrap gap-4">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-6">
+            <div className="flex justify-between items-start flex-wrap gap-4">
               <div>
-                <p className="text-sm text-blue-100">REQUIREMENT REQUEST</p>
-                <h1 className="text-2xl font-bold text-white">#{requirement.requirementId.substring(0, 12)}</h1>
-                <p className="text-blue-100 text-sm mt-1">
+                <p className="text-sm text-blue-100 font-medium">REQUIREMENT REQUEST</p>
+                <h1 className="text-2xl font-bold text-white mt-1">{requirement.requirementId}</h1>
+                <p className="text-blue-100 text-sm mt-2 flex items-center gap-2">
+                  <CalendarIcon className="h-4 w-4" />
                   Submitted on {formatDate(requirement.submittedAt)}
                 </p>
               </div>
@@ -325,198 +592,151 @@ export default function AdminRequirementDetailsPage() {
             </div>
           </div>
 
-          {/* Exhibitor Information */}
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          {/* Exhibitor Info */}
+          <div className="px-6 py-5 border-b border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
               <BuildingOfficeIcon className="h-4 w-4 text-blue-600" />
               Exhibitor Information
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-gray-500">Company Name</p>
-                <p className="text-sm font-medium text-gray-900">{requirement.companyName}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-xl p-3">
+                <p className="text-xs text-gray-500 font-medium">Company Name</p>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{requirement.companyName}</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500">Stall Number</p>
-                <p className="text-sm font-medium text-gray-900">{requirement.stallNumber || 'Not Assigned Yet'}</p>
+              <div className="bg-gray-50 rounded-xl p-3">
+                <p className="text-xs text-gray-500 font-medium">Stall Number</p>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{requirement.stallNumber || 'Not Assigned Yet'}</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 flex items-center gap-1">
+              <div className="bg-gray-50 rounded-xl p-3">
+                <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
                   <UserIcon className="h-3 w-3" />
                   Contact Person
                 </p>
-                <p className="text-sm font-medium text-gray-900">{requirement.contactPerson}</p>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{requirement.contactPerson}</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 flex items-center gap-1">
+              <div className="bg-gray-50 rounded-xl p-3">
+                <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
                   <EnvelopeIcon className="h-3 w-3" />
                   Email
                 </p>
-                <p className="text-sm font-medium text-gray-900">{requirement.email}</p>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{requirement.email}</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 flex items-center gap-1">
+              <div className="bg-gray-50 rounded-xl p-3">
+                <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
                   <PhoneIcon className="h-3 w-3" />
                   Phone
                 </p>
-                <p className="text-sm font-medium text-gray-900">{requirement.phone}</p>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{requirement.phone}</p>
               </div>
               {metadata.boothArea && (
-                <div>
-                  <p className="text-xs text-gray-500">Booth Area</p>
-                  <p className="text-sm font-medium text-gray-900">{metadata.boothArea} sqm</p>
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 font-medium">Booth Area</p>
+                  <p className="text-sm font-semibold text-gray-900 mt-1">{metadata.boothArea} sqm</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Event Information */}
-          {(metadata.eventName || metadata.eventDate || metadata.address) && (
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4 text-blue-600" />
-                Event Information
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {metadata.eventName && (
-                  <div>
-                    <p className="text-xs text-gray-500">Event Name</p>
-                    <p className="text-sm font-medium text-gray-900">{metadata.eventName}</p>
-                  </div>
-                )}
-                {metadata.eventDate && (
-                  <div>
-                    <p className="text-xs text-gray-500">Event Date</p>
-                    <p className="text-sm font-medium text-gray-900">{formatDate(metadata.eventDate)}</p>
-                  </div>
-                )}
-                {metadata.address && (
-                  <div className="sm:col-span-2">
-                    <p className="text-xs text-gray-500 flex items-center gap-1">
-                      <MapPinIcon className="h-3 w-3" />
-                      Venue Address
-                    </p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {metadata.address}
-                      {metadata.city && `, ${metadata.city}`}
-                      {metadata.state && `, ${metadata.state}`}
-                      {metadata.pincode && ` - ${metadata.pincode}`}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Items Required */}
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          {/* Items Required - Grouped */}
+          <div className="px-6 py-5 border-b border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
               <PackageIcon className="h-4 w-4 text-blue-600" />
               Items Required
             </h3>
-            <div className="space-y-3">
-              {requirement.items.map((item, index) => (
-                <div key={item.id || index} className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                      {getItemIcon(item.type)}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex flex-wrap justify-between items-start gap-2">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">
-                            {getItemTypeLabel(item.type)}
-                          </h4>
-                          {item.description && (
-                            <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                          )}
-                          {item.specifications && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              <span className="font-medium">Specifications:</span> {item.specifications}
-                            </p>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                            <TagIcon className="h-3 w-3" />
-                            Qty: {item.quantity}
-                          </span>
-                        </div>
+            
+            {Object.keys(groupedItems).length > 0 ? (
+              <div className="space-y-4">
+                {Object.entries(groupedItems).map(([type, items]) => (
+                  <div key={type} className="bg-gray-50 rounded-xl overflow-hidden">
+                    <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100">
+                      <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                        {getItemIcon(type)}
                       </div>
+                      <h4 className="font-semibold text-gray-900 text-base">
+                        {getItemTypeLabel(type)}
+                      </h4>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      {items.map((item, index) => (
+                        <div key={item.id || index} className="px-4 py-3 hover:bg-gray-100 transition">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-gray-800">{item.description}</p>
+                              {item.specifications && (
+                                <p className="text-xs text-gray-500 mt-1">{item.specifications}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 px-2.5 py-1 bg-blue-100 rounded-full">
+                              <TagIcon className="h-3 w-3 text-blue-600" />
+                              <span className="text-xs font-medium text-blue-700">x{item.quantity}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
-            {requirement.items.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <WrenchIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No items specified</p>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-gray-50 rounded-xl">
+                <WrenchIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No items specified</p>
               </div>
             )}
           </div>
 
-          {/* Notes Section */}
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <ClipboardDocumentListIcon className="h-4 w-4 text-blue-600" />
-              Notes
-            </h3>
-            
-            {requirement.notes && (
-              <div className="mb-4">
-                <p className="text-xs text-gray-500 mb-1">Exhibitor Notes:</p>
-                <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700">
-                  {requirement.notes}
+          {/* Notes */}
+          {(requirement.notes || requirement.adminNotes) && (
+            <div className="px-6 py-5 border-b border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                <ClipboardDocumentListIcon className="h-4 w-4 text-blue-600" />
+                Notes
+              </h3>
+              
+              {requirement.notes && (
+                <div className="mb-4 bg-amber-50 rounded-xl p-4 border-l-4 border-amber-400">
+                  <p className="text-xs text-amber-600 font-medium mb-1">Exhibitor Notes:</p>
+                  <p className="text-sm text-gray-700">{requirement.notes}</p>
                 </div>
-              </div>
-            )}
-            
-            {requirement.adminNotes && (
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Admin Notes:</p>
-                <div className="bg-blue-50 rounded-lg p-3 text-sm text-blue-800 border border-blue-200">
-                  {requirement.adminNotes}
+              )}
+              
+              {requirement.adminNotes && (
+                <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-400">
+                  <p className="text-xs text-blue-600 font-medium mb-1">Admin Notes:</p>
+                  <p className="text-sm text-blue-800">{requirement.adminNotes}</p>
                 </div>
-              </div>
-            )}
-            
-            {!requirement.notes && !requirement.adminNotes && (
-              <p className="text-sm text-gray-500 italic">No notes added</p>
-            )}
-          </div>
-
-          {/* Timeline Information */}
-          <div className="px-6 py-3 border-t border-gray-200 bg-gray-50 text-xs text-gray-400">
-            <div className="flex justify-between flex-wrap gap-2">
-              <span>Requirement ID: {requirement.requirementId}</span>
-              <span>Last Updated: {formatDate(requirement.updatedAt)}</span>
+              )}
             </div>
+          )}
+
+          {/* Footer */}
+          <div className="px-6 py-3 bg-gray-50 text-xs text-gray-400 flex justify-between flex-wrap gap-2">
+            <span>Requirement ID: {requirement.requirementId}</span>
+            <span>Last Updated: {formatDate(requirement.updatedAt)}</span>
           </div>
         </div>
 
-        {/* Edit Status Modal */}
+        {/* Edit Modal */}
         {showEditModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-              <div className="flex justify-between items-center p-4 border-b">
-                <h3 className="text-lg font-semibold">Update Requirement Status</h3>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full">
+              <div className="flex justify-between items-center p-5 border-b">
+                <h3 className="text-lg font-semibold">Update Status</h3>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 transition"
                 >
                   <XMarkIcon className="h-5 w-5" />
                 </button>
               </div>
               
-              <div className="p-4 space-y-4">
+              <div className="p-5 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                   <select
                     value={editData.status}
                     onChange={(e) => setEditData({ ...editData, status: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
@@ -526,28 +746,28 @@ export default function AdminRequirementDetailsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Admin Notes</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Admin Notes</label>
                   <textarea
                     value={editData.adminNotes}
                     onChange={(e) => setEditData({ ...editData, adminNotes: e.target.value })}
                     rows={4}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    placeholder="Add notes about this requirement (e.g., approval details, delivery instructions, etc.)..."
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-blue-500"
+                    placeholder="Add notes about this requirement..."
                   />
                 </div>
               </div>
               
-              <div className="flex justify-end gap-3 p-4 border-t">
+              <div className="flex justify-end gap-3 p-5 border-t">
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={updateRequirementStatus}
                   disabled={updating}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 transition"
                 >
                   {updating ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
