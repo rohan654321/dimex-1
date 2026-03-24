@@ -3,7 +3,7 @@ import manualApi from './manualApi';
 
 class TokenManager {
   private token: string | null = null;
-  private readonly TOKEN_KEY = 'admin_token'; // Changed from 'authToken' to match your useAuth
+  private readonly TOKEN_KEY = 'admin_token';
 
   constructor() {
     this.initialize();
@@ -16,7 +16,7 @@ class TokenManager {
       if (storedToken) {
         console.log('🔑 Found stored token, initializing...');
         this.token = storedToken;
-        manualApi.setAuthToken(storedToken);
+        // No need to call manualApi.setAuthToken - axios interceptor will read from localStorage
       } else {
         console.log('🔑 No stored token found');
       }
@@ -26,9 +26,6 @@ class TokenManager {
   setToken(token: string | null) {
     console.log('🔑 Setting token:', token ? 'Token present' : 'null');
     this.token = token;
-    
-    // Update manualApi token
-    manualApi.setAuthToken(token);
     
     // Store in localStorage if token exists
     if (typeof window !== 'undefined') {
@@ -49,9 +46,6 @@ class TokenManager {
       if (storedToken !== this.token) {
         console.log('🔑 Token mismatch, syncing...');
         this.token = storedToken;
-        if (storedToken) {
-          manualApi.setAuthToken(storedToken);
-        }
       }
     }
     return this.token;
