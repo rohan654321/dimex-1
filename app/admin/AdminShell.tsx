@@ -45,6 +45,7 @@ import {
   Wrench,
   ServerCrash,
   Package,
+  QrCode,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
@@ -67,6 +68,7 @@ const navigation = [
       // { name: "Sectors", href: "/admin/exhibition/sectors", icon: Target },
       { name: "Floor Plans", href: "/admin/exhibition/booths", icon: Globe },
       { name: "Manuals", href: "/admin/exhibition/manuals", icon: BookOpen },
+      // { name: "QR Scanner", href: "/admin/exhibition/qr-scanner", icon: QrCode}
       
     ],
   },
