@@ -90,7 +90,7 @@ export default function ExhibitorInvoiceDetailsPage() {
     setDownloading(true);
     try {
       const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/invoices/${invoice.id}/pdf`, {
+      const response = await fetch(`${API_BASE_URL}/api/invoices/${invoice.id}/download`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
