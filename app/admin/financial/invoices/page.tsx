@@ -142,7 +142,7 @@ export default function AdminInvoicesPage() {
     setDownloading(invoiceId);
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-      const response = await fetch(`${API_BASE_URL}/api/invoices/${invoiceId}/pdf`, {
+      const response = await fetch(`${API_BASE_URL}/api/invoices/${invoiceId}/download`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
