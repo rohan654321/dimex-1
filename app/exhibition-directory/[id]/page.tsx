@@ -76,10 +76,9 @@ export default function ExhibitorDetailPage() {
   const handleClose = () => {
     router.push('/exhibition-directory');
   };
-    const handleConnectClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsFormOpen(true)
-  }
+const handleConnectClick = () => {
+  setIsFormOpen(true)
+}
 
   const handleShare = () => {
     if (navigator.share) {
@@ -705,7 +704,7 @@ export default function ExhibitorDetailPage() {
       <VisitorRegistrationForm
   isOpen={isFormOpen}
   onClose={() => setIsFormOpen(false)}
-  companyName={company?.name}
+
 />
     </div>
   );

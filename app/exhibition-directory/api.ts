@@ -43,6 +43,7 @@ interface Metadata {
 }
 
 export interface ExhibitionCompany {
+  [x: string]: any;
   id: string;
   name: string;
   shortName?: string;
