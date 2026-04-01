@@ -1,6 +1,7 @@
 "use client";
 
 import type { Metadata } from "next";
+import Script from "next/script";
 import { parabolica } from "@/lib/fonts";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
@@ -23,6 +24,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={parabolica.variable}>
       <body className="min-h-screen flex flex-col font-parabolica">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-H4G3ZLKEYD"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-H4G3ZLKEYD');
+          `}
+        </Script>
         {!hideLayout && <NavBar />}
         <main className="flex-grow w-full">{children}</main>
         {!hideLayout && <Footer />}
