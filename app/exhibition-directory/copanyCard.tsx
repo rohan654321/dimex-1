@@ -142,7 +142,7 @@ export default function CompanyCard({ company, onProductBrochureClick }: Company
       <VisitorRegistrationForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        companyName={company.name}
+        // companyName={company.name}
       />
     </>
   )
