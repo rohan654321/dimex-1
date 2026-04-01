@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Globe, Eye, Download, MapPin, Building, Package, Tag, File, X, Menu, ArrowLeft, Share2, Phone, Mail, Users, Loader2, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Globe, Eye, Download, MapPin, Building, Package, Tag, File, X, Menu, ArrowLeft, Share2, Phone, Mail, Users, Loader2, ExternalLink, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchExhibitionCompanyById, fetchExhibitorProducts, fetchExhibitorBrochures, fetchExhibitorBrands, ExhibitionCompany } from '../api';
+import VisitorRegistrationForm from '../visitor-registration-form';
 
 export default function ExhibitorDetailPage() {
   const params = useParams();
@@ -20,6 +21,7 @@ export default function ExhibitorDetailPage() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState<{ url: string; name: string } | null>(null);
   const [imageError, setImageError] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -74,6 +76,10 @@ export default function ExhibitorDetailPage() {
   const handleClose = () => {
     router.push('/exhibition-directory');
   };
+    const handleConnectClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsFormOpen(true)
+  }
 
   const handleShare = () => {
     if (navigator.share) {
@@ -316,9 +322,7 @@ export default function ExhibitorDetailPage() {
                       </div>
                     )}
                   </div>
-                  {!isMobile && (
-                    <p className="mt-3 text-center text-sm text-gray-500">Company Logo</p>
-                  )}
+               
                 </div>
 
                 {/* Info */}
@@ -341,7 +345,7 @@ export default function ExhibitorDetailPage() {
                     <div className="flex items-center gap-2">
                       <MapPin size={18} className="text-gray-500 flex-shrink-0" />
                       <span className="text-gray-700">
-                        Hall {company.hall || 'Not specified'}
+                         {company.hall || 'Not specified'}
                       </span>
                     </div>
                   </div>
@@ -381,24 +385,7 @@ export default function ExhibitorDetailPage() {
                         <span className="truncate">Visit Website</span>
                       </a>
                     )}
-                    {company.phone && (
-                      <a
-                        href={`tel:${company.phone}`}
-                        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                      >
-                        <Phone size={18} />
-                        <span>{company.phone}</span>
-                      </a>
-                    )}
-                    {company.email && (
-                      <a
-                        href={`mailto:${company.email}`}
-                        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                      >
-                        <Mail size={18} />
-                        <span className="truncate">{company.email}</span>
-                      </a>
-                    )}
+         
                   </div>
                 </div>
               </div>
@@ -435,6 +422,13 @@ export default function ExhibitorDetailPage() {
                 </button>
               );
             })}
+              <button
+    onClick={handleConnectClick}
+    className="ml-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-slate-900 to-slate-700 rounded-xl hover:from-slate-800 hover:to-slate-600 transition-all duration-300 hover:shadow-md flex items-center gap-2"
+  >
+    <MessageCircle size={14} className="sm:w-4 sm:h-4" />
+    <span>Book Appointment</span>
+  </button>
           </div>
         </div>
 
@@ -526,22 +520,6 @@ export default function ExhibitorDetailPage() {
                         {company.contactPerson.jobTitle && (
                           <p className="text-sm text-gray-700">
                             <span className="font-medium">Title:</span> {company.contactPerson.jobTitle}
-                          </p>
-                        )}
-                        {company.contactPerson.email && (
-                          <p className="text-sm text-gray-700">
-                            <span className="font-medium">Email:</span>{' '}
-                            <a href={`mailto:${company.contactPerson.email}`} className="text-blue-600 hover:underline">
-                              {company.contactPerson.email}
-                            </a>
-                          </p>
-                        )}
-                        {company.contactPerson.phone && (
-                          <p className="text-sm text-gray-700">
-                            <span className="font-medium">Phone:</span>{' '}
-                            <a href={`tel:${company.contactPerson.phone}`} className="hover:underline">
-                              {company.contactPerson.phone}
-                            </a>
                           </p>
                         )}
                       </div>
@@ -695,12 +673,7 @@ export default function ExhibitorDetailPage() {
         {/* BOTTOM NAVIGATION */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <div className="bg-white rounded-2xl p-6 border shadow-sm">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-center sm:text-left">
-                <p className="text-gray-600 text-sm">Company</p>
-                <p className="text-lg font-semibold text-gray-900">{company.name}</p>
-              </div>
-              
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">              
               <div className="flex items-center gap-3">
                 <button
                   onClick={handlePrevious}
@@ -729,6 +702,11 @@ export default function ExhibitorDetailPage() {
           </div>
         </div>
       </div>
+      <VisitorRegistrationForm
+  isOpen={isFormOpen}
+  onClose={() => setIsFormOpen(false)}
+  companyName={company?.name}
+/>
     </div>
   );
 }
