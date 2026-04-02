@@ -105,22 +105,22 @@ export default function DashboardPage() {
       icon: Building,
       color: 'bg-green-500'
     },
-    {
-      name: 'Revenue',
-      value: summary?.revenue?.totalRevenue ? `₹${(summary.revenue.totalRevenue).toLocaleString()}` : '₹0',
-      change: '+23.1%',
-      changeType: 'positive' as const,
-      icon: DollarSign,
-      color: 'bg-purple-500'
-    },
-    {
-      name: 'Articles',
-      value: summary?.articles?.total?.toLocaleString() || '0',
-      change: '+5.3%',
-      changeType: 'positive' as const,
-      icon: FileText,
-      color: 'bg-yellow-500'
-    }
+    // {
+    //   name: 'Revenue',
+    //   value: summary?.revenue?.totalRevenue ? `₹${(summary.revenue.totalRevenue).toLocaleString()}` : '₹0',
+    //   change: '+23.1%',
+    //   changeType: 'positive' as const,
+    //   icon: DollarSign,
+    //   color: 'bg-purple-500'
+    // },
+    // {
+    //   name: 'Articles',
+    //   value: summary?.articles?.total?.toLocaleString() || '0',
+    //   change: '+5.3%',
+    //   changeType: 'positive' as const,
+    //   icon: FileText,
+    //   color: 'bg-yellow-500'
+    // }
   ];
 
   const recentActivities = summary?.activities || [
@@ -165,13 +165,7 @@ export default function DashboardPage() {
               )}
               Export Report
             </button>
-            <button 
-              onClick={handleCalendarView}
-              className="w-full sm:w-auto inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-            >
-              <Calendar className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-              Calendar View
-            </button>
+
           </div>
         </div>
 
@@ -274,53 +268,11 @@ export default function DashboardPage() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-2 sm:mt-4 text-right">
-                <Link href="/admin/activities" className="text-xs sm:text-sm text-blue-600 hover:text-blue-500 inline-flex items-center">
-                  View all activities
-                  <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-0.5 sm:ml-1" />
-                </Link>
-              </div>
+            
             </div>
           </div>
 
-          {/* Top Articles */}
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="px-3 sm:px-4 py-3 sm:py-5 border-b border-gray-200">
-              <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 flex items-center">
-                <Eye className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2 text-blue-600" />
-                Top Articles
-              </h3>
-            </div>
-            <div className="px-3 sm:px-4 py-3 sm:py-5">
-              <div className="space-y-3 sm:space-y-4">
-                {topArticles.slice(0, 5).map((article: any) => (
-                  <div key={article.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center min-w-0 flex-1">
-                      <div className="flex-shrink-0">
-                        <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
-                      </div>
-                      <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                        <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
-                          {article.title}
-                        </p>
-                        <p className="text-xs text-gray-500">{article.views?.toLocaleString()} views</p>
-                      </div>
-                    </div>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 w-fit">
-                      {article.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3 sm:mt-6">
-                <Link href="/admin/content/articles" className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-500 inline-flex items-center">
-                  View all articles
-                  <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-0.5 sm:ml-1" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+       </div>
 
         {/* Quick Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
@@ -355,19 +307,6 @@ export default function DashboardPage() {
                 </p>
               </div>
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-3 sm:p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-gray-500">Conversion Rate</p>
-                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
-                  {summary?.visitors?.total && summary?.exhibitors?.total 
-                    ? `${((summary.exhibitors.total / summary.visitors.total) * 100).toFixed(1)}%`
-                    : '0%'}
-                </p>
-              </div>
-              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
             </div>
           </div>
         </div>
