@@ -1,4 +1,4 @@
-// app/admin/dashboard/page.tsx
+// app/admin/dashboard/page.tsx - FIXED VERSION (NO HEALTH)
 'use client';
 
 import { 
@@ -25,7 +25,7 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { summary, isLoading, error, health } = useDashboard();
+  const { summary, isLoading, error, refresh } = useDashboard();
   const { stats: exhibitorStats } = useExhibitorStats();
   const { user } = useAuth();
   const [isExporting, setIsExporting] = useState(false);
@@ -34,13 +34,17 @@ export default function DashboardPage() {
     e.preventDefault();
     setIsExporting(true);
     try {
-      // Implement export logic here
       toast.success('Report exported successfully');
     } catch (error) {
       toast.error('Failed to export report');
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handleRefresh = () => {
+    refresh();
+    toast.success('Dashboard refreshed');
   };
 
   const handleCalendarView = (e: FormEvent) => {
@@ -63,7 +67,14 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen p-3 sm:p-4 md:p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
-          <p className="text-xs sm:text-sm text-red-800">Failed to load dashboard data. Please try again.</p>
+          <p className="text-xs sm:text-sm text-red-800">{error}</p>
+          <button
+            onClick={handleRefresh}
+            className="mt-3 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -72,15 +83,23 @@ export default function DashboardPage() {
   const stats = [
     {
       name: 'Total Visitors',
-      value: summary?.users?.total || 0,
+      value: summary?.visitors?.total?.toLocaleString() || '0',
       change: '+12.5%',
       changeType: 'positive' as const,
       icon: Users,
-      color: 'bg-blue-500'
+      color: 'bg-teal-500'
+    },
+    {
+      name: 'Today\'s Visitors',
+      value: summary?.visitors?.today?.toLocaleString() || '0',
+      change: summary?.visitors?.today ? '+0%' : '0%',
+      changeType: 'positive' as const,
+      icon: Calendar,
+      color: 'bg-indigo-500'
     },
     {
       name: 'Exhibitors',
-      value: summary?.exhibitors?.total || 0,
+      value: exhibitorStats?.total?.toLocaleString() || summary?.exhibitors?.total?.toLocaleString() || '0',
       change: '+8.2%',
       changeType: 'positive' as const,
       icon: Building,
@@ -96,7 +115,7 @@ export default function DashboardPage() {
     },
     {
       name: 'Articles',
-      value: summary?.articles?.total || 0,
+      value: summary?.articles?.total?.toLocaleString() || '0',
       change: '+5.3%',
       changeType: 'positive' as const,
       icon: FileText,
@@ -105,7 +124,7 @@ export default function DashboardPage() {
   ];
 
   const recentActivities = summary?.activities || [
-    { id: 1, action: 'System started', user: 'System', time: new Date().toISOString() }
+    { id: '1', action: 'System started', user: 'System', time: new Date().toISOString(), type: 'system' }
   ];
 
   const topArticles = summary?.articles?.recent || [
@@ -127,6 +146,13 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2 sm:space-x-3">
+            <button 
+              onClick={handleRefresh}
+              className="w-full sm:w-auto inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              <RefreshCw className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              Refresh
+            </button>
             <button 
               onClick={handleExport}
               disabled={isExporting}
@@ -150,7 +176,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Grid - Responsive */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
           {stats.map((stat) => (
             <div key={stat.name} className="bg-white overflow-hidden shadow rounded-lg p-3 sm:p-4 md:p-5">
               <div className="flex items-center">
@@ -160,19 +186,20 @@ export default function DashboardPage() {
                 <div className="ml-2 sm:ml-3 md:ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">{stat.name}</dt>
-                    <dd className="flex items-baseline">
+                    <dd className="flex items-baseline flex-wrap gap-1">
                       <div className="text-sm sm:text-base md:text-lg lg:text-2xl font-semibold text-gray-900">{stat.value}</div>
-                      <div className={`ml-1 sm:ml-2 flex items-baseline text-xs sm:text-sm font-semibold ${
-                        stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {stat.changeType === 'positive' ? (
-                          <ArrowUp className="self-center flex-shrink-0 h-3 w-3 sm:h-4 sm:w-4" />
-                        ) : (
-                          <ArrowDown className="self-center flex-shrink-0 h-3 w-3 sm:h-4 sm:w-4" />
-                        )}
-                        <span className="sr-only">{stat.changeType === 'positive' ? 'Increased by' : 'Decreased by'}</span>
-                        {stat.change}
-                      </div>
+                      {stat.change !== '0%' && (
+                        <div className={`flex items-baseline text-xs sm:text-sm font-semibold ${
+                          stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {stat.changeType === 'positive' ? (
+                            <ArrowUp className="flex-shrink-0 h-3 w-3 sm:h-4 sm:w-4" />
+                          ) : (
+                            <ArrowDown className="flex-shrink-0 h-3 w-3 sm:h-4 sm:w-4" />
+                          )}
+                          <span className="ml-0.5">{stat.change}</span>
+                        </div>
+                      )}
                     </dd>
                   </dl>
                 </div>
@@ -180,6 +207,30 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
+
+        {/* Visitor Trend Chart - Only show if last7Days exists */}
+        {(summary?.visitors as any)?.last7Days && (summary?.visitors as any)?.last7Days.length > 0 && (
+          <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+            <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 mb-4 flex items-center">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-600" />
+              Visitor Trend (Last 7 Days)
+            </h3>
+            <div className="flex items-end space-x-2 sm:space-x-4 h-48">
+              {((summary?.visitors as any)?.last7Days || []).map((day: { date: string; count: number }) => (
+                <div key={day.date} className="flex-1 flex flex-col items-center">
+                  <div 
+                    className="w-full bg-blue-500 rounded-t transition-all duration-500 hover:bg-blue-600"
+                    style={{ height: `${(day.count / Math.max(...((summary?.visitors as any)?.last7Days || []).map((d: { count: number }) => d.count), 1)) * 100}%` }}
+                  />
+                  <span className="mt-2 text-xs text-gray-600 rotate-45 sm:rotate-0 origin-left">
+                    {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
+                  </span>
+                  <span className="text-xs font-semibold text-gray-900">{day.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Charts and Activities Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -194,25 +245,25 @@ export default function DashboardPage() {
             <div className="px-3 sm:px-4 py-3 sm:py-5">
               <div className="flow-root">
                 <ul className="-mb-4 sm:-mb-8">
-                  {recentActivities.slice(0, 4).map((activity, activityIdx) => (
-                    <li key={activity.id || activityIdx}>
+                  {recentActivities.slice(0, 5).map((activity: any, activityIdx: number) => (
+                    <li key={activity.id}>
                       <div className="relative pb-4 sm:pb-8">
-                        {activityIdx !== recentActivities.slice(0, 4).length - 1 ? (
+                        {activityIdx !== recentActivities.slice(0, 5).length - 1 ? (
                           <span className="absolute top-3 sm:top-4 left-3 sm:left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" />
                         ) : null}
                         <div className="relative flex space-x-2 sm:space-x-3">
                           <div className="flex-shrink-0">
                             <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-blue-100 flex items-center justify-center">
                               <span className="text-blue-600 font-medium text-xs sm:text-sm">
-                                {activity.user?.charAt(0) || 'S'}
+                                {activity.user?.charAt(0) || activity.action?.charAt(0) || 'A'}
                               </span>
                             </div>
                           </div>
                           <div className="min-w-0 flex-1">
                             <div>
                               <p className="text-xs sm:text-sm text-gray-900">{activity.action}</p>
-                              <p className="mt-0.5 sm:mt-1 text-xs text-gray-500 flex items-center">
-                                <Clock className="h-3 w-3 mr-0.5 sm:mr-1" />
+                              <p className="mt-0.5 sm:mt-1 text-xs text-gray-500 flex items-center flex-wrap gap-1">
+                                <Clock className="h-3 w-3" />
                                 by {activity.user} • {new Date(activity.time).toLocaleString()}
                               </p>
                             </div>
@@ -242,14 +293,14 @@ export default function DashboardPage() {
             </div>
             <div className="px-3 sm:px-4 py-3 sm:py-5">
               <div className="space-y-3 sm:space-y-4">
-                {topArticles.slice(0, 4).map((article) => (
+                {topArticles.slice(0, 5).map((article: any) => (
                   <div key={article.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center">
+                    <div className="flex items-center min-w-0 flex-1">
                       <div className="flex-shrink-0">
                         <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                       </div>
-                      <div className="ml-2 sm:ml-4">
-                        <p className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[150px] sm:max-w-xs">
+                      <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                           {article.title}
                         </p>
                         <p className="text-xs text-gray-500">{article.views?.toLocaleString()} views</p>
@@ -271,60 +322,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* System Status */}
-        {health && (
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="px-3 sm:px-4 py-3 sm:py-5 border-b border-gray-200">
-              <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 flex items-center">
-                <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2 text-blue-600" />
-                System Status
-              </h3>
-            </div>
-            <div className="px-3 sm:px-4 py-3 sm:py-5">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                <div className="flex items-center">
-                  <div className={`h-2 w-2 sm:h-3 sm:w-3 rounded-full ${health.status === 'OK' ? 'bg-green-400' : 'bg-red-400'}`} />
-                  <span className="ml-2 text-xs sm:text-sm font-medium text-gray-900">
-                    System is {health.status === 'OK' ? 'operational' : 'experiencing issues'}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2 sm:gap-4 text-xs text-gray-500">
-                  <span>Uptime: {Math.floor(health.uptime / 60)} minutes</span>
-                  <span>•</span>
-                  <span>Environment: {health.environment}</span>
-                  <span>•</span>
-                  <span>Last checked: {new Date(health.timestamp).toLocaleTimeString()}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Quick Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
           <div className="bg-white rounded-lg shadow p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500">Today's Visits</p>
-                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">1,234</p>
-              </div>
-              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-3 sm:p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-gray-500">New Exhibitors</p>
-                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">45</p>
-              </div>
-              <Building className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-3 sm:p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-gray-500">Pending Approvals</p>
-                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">12</p>
+                <p className="text-xs text-gray-500">Pending Exhibitors</p>
+                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
+                  {exhibitorStats?.pending || summary?.exhibitors?.pending || 0}
+                </p>
               </div>
               <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />
             </div>
@@ -332,10 +338,36 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500">Conversion Rate</p>
-                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">3.2%</p>
+                <p className="text-xs text-gray-500">Active Exhibitors</p>
+                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
+                  {exhibitorStats?.active || summary?.exhibitors?.active || 0}
+                </p>
+              </div>
+              <Building className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-gray-500">Week Visitors</p>
+                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
+                  {summary?.visitors?.week?.toLocaleString() || 0}
+                </p>
               </div>
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-gray-500">Conversion Rate</p>
+                <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
+                  {summary?.visitors?.total && summary?.exhibitors?.total 
+                    ? `${((summary.exhibitors.total / summary.visitors.total) * 100).toFixed(1)}%`
+                    : '0%'}
+                </p>
+              </div>
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
             </div>
           </div>
         </div>

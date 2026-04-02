@@ -1,20 +1,18 @@
-// hooks/useExhibitorStats.ts
+// hooks/useVisitorStats.ts
 import { useEffect, useState, useCallback } from 'react';
 import { dashboardAPI } from '@/lib/api/dashboard';
 
-export interface ExhibitorStats {
+export interface VisitorStats {
   total: number;
-  active: number;
-  pending: number;
-  approved: number;
-  rejected: number;
-  inactive: number;
-  newThisWeek: number;
-  bySector: Array<{ sector: string; count: number }>;
+  today: number;
+  week: number;
+  month: number;
+  last7Days: Array<{ date: string; count: number }>;
+  topCompanies: Array<{ company: string; count: number }>;
 }
 
-export function useExhibitorStats() {
-  const [stats, setStats] = useState<ExhibitorStats | null>(null);
+export function useVisitorStats() {
+  const [stats, setStats] = useState<VisitorStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,15 +21,15 @@ export function useExhibitorStats() {
     setError(null);
     
     try {
-      const response = await dashboardAPI.getExhibitorStats();
+      const response = await dashboardAPI.getVisitorStats();
       
       if (response.success && response.data) {
         setStats(response.data);
       } else {
-        setError(response.error || 'Failed to load exhibitor stats');
+        setError(response.error || 'Failed to load visitor stats');
       }
     } catch (err: any) {
-      console.error('Exhibitor stats fetch error:', err);
+      console.error('Visitor stats fetch error:', err);
       setError(err.message || 'An unexpected error occurred');
     } finally {
       setIsLoading(false);

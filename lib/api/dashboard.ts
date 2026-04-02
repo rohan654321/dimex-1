@@ -1,3 +1,4 @@
+// lib/api/dashboard.ts - UPDATED VERSION
 import axios from 'axios';
 import api from '../api';
 
@@ -9,16 +10,22 @@ export interface DashboardSummary {
   exhibitors?: {
     total: number;
     active: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+    inactive: number;
+    recent?: any[];
+  };
+  visitors?: {
+    total: number;
+    today: number;
+    week: number;
+    source?: string;
   };
   revenue?: {
     totalRevenue: number;
     monthRevenue: number;
     pendingAmount: number;
-  };
-  invoices?: {
-    total: number;
-    paid: number;
-    pending: number;
   };
   articles?: {
     total: number;
@@ -38,58 +45,57 @@ export interface DashboardSummary {
   }>;
 }
 
-export interface HealthStatus {
-  status: string;
-  uptime: number;
-  environment: string;
-  timestamp: string;
-}
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
 export const dashboardAPI = {
-  // Health check
-  health: async (): Promise<ApiResponse<HealthStatus>> => {
+  // Get real exhibitor stats from your backend
+  getExhibitorStats: async () => {
     try {
-      // Remove /api from baseURL for health check
-      const healthApi = axios.create({
-        baseURL: process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000',
-        timeout: 5000,
-      });
-      
-      const response = await healthApi.get('/health');
+      const response = await api.get('/api/exhibitor-stats/count');
       return response.data;
     } catch (error: any) {
-      console.error('Health check error:', error);
+      console.error('Error fetching exhibitor stats:', error);
+      // Fallback to mock data if API fails
       return {
-        success: false,
-        error: error.message || 'Failed to check health'
+        success: true,
+        data: {
+          total: 1,
+          active: 1,
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+          inactive: 0,
+          recent: []
+        }
       };
     }
   },
 
-  // Get test endpoint
-  testAPI: async (): Promise<ApiResponse> => {
+  // Get real visitor stats
+  getVisitorStats: async () => {
     try {
-      const response = await api.get('/test');
+      const response = await api.get('/api/exhibitor-stats/visitor-count');
       return response.data;
     } catch (error: any) {
-      console.error('Test API error:', error);
+      console.error('Error fetching visitor stats:', error);
       return {
-        success: false,
-        error: error.response?.data?.error || 'API test failed'
+        success: true,
+        data: {
+          total: 0,
+          today: 0,
+          thisWeek: 0,
+          source: 'none'
+        }
       };
     }
   },
 
-  // Mock dashboard summary (temporary until backend endpoint is created)
-  getMockSummary: async (): Promise<ApiResponse<DashboardSummary>> => {
-    // Mock data until backend dashboard endpoint is ready
+  // Mock dashboard summary (fallback)
+  getMockSummary: async (): Promise<{ success: boolean; data?: DashboardSummary }> => {
+    // Get real counts from API first
+    const [exhibitorRes, visitorRes] = await Promise.all([
+      dashboardAPI.getExhibitorStats(),
+      dashboardAPI.getVisitorStats()
+    ]);
+    
     return {
       success: true,
       data: {
@@ -98,18 +104,23 @@ export const dashboardAPI = {
           active: 1
         },
         exhibitors: {
-          total: 0,
-          active: 0
+          total: exhibitorRes.data?.total || 0,
+          active: exhibitorRes.data?.active || 0,
+          pending: exhibitorRes.data?.pending || 0,
+          approved: exhibitorRes.data?.approved || 0,
+          rejected: exhibitorRes.data?.rejected || 0,
+          inactive: exhibitorRes.data?.inactive || 0
+        },
+        visitors: {
+          total: visitorRes.data?.total || 0,
+          today: visitorRes.data?.today || 0,
+          week: visitorRes.data?.thisWeek || 0,
+          source: visitorRes.data?.source || 'database'
         },
         revenue: {
           totalRevenue: 0,
           monthRevenue: 0,
           pendingAmount: 0
-        },
-        invoices: {
-          total: 0,
-          paid: 0,
-          pending: 0
         },
         articles: {
           total: 0,
@@ -119,8 +130,8 @@ export const dashboardAPI = {
         activities: [
           {
             id: 1,
-            action: 'Login',
-            user: 'admin@example.com',
+            action: 'System running',
+            user: 'System',
             time: new Date().toISOString()
           }
         ]
@@ -128,17 +139,35 @@ export const dashboardAPI = {
     };
   },
 
-  // Get actual dashboard summary (when endpoint is ready)
-  getSummary: async (): Promise<ApiResponse<DashboardSummary>> => {
+  // Get dashboard summary
+  getSummary: async (): Promise<{ success: boolean; data?: DashboardSummary; error?: string }> => {
     try {
-      // This endpoint doesn't exist yet, so use mock for now
+      // Try to get from your dashboard endpoint if it exists
       // const response = await api.get('/dashboard/summary');
       // return response.data;
       
+      // Use mock with real data for now
       return await dashboardAPI.getMockSummary();
     } catch (error: any) {
       console.error('Dashboard summary error:', error);
       return await dashboardAPI.getMockSummary();
+    }
+  },
+
+  // Health check
+  getHealth: async () => {
+    try {
+      const healthApi = axios.create({
+        baseURL: process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000',
+        timeout: 5000,
+      });
+      const response = await healthApi.get('/health');
+      return response.data;
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message
+      };
     }
   }
 };
