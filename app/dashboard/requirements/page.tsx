@@ -36,6 +36,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { MenuIcon } from 'lucide-react';
 import Image from 'next/image';
+import CashfreePayment from '@/components/CashfreePayment';
 
 // ============= API CONFIGURATION =============
 const API_BASE_URL = 'https://diemex-backend.onrender.com';
@@ -287,12 +288,14 @@ class ApiService {
       throw error;
     }
   }
+
   async calculateHousekeepingCost(quantity: number, days: number): Promise<{ success: boolean; data: { totalCost: number; ratePerShift: number } }> {
     return this.request('/api/admin/housekeeping/calculate', {
       method: 'POST',
       body: JSON.stringify({ quantity, days }),
     });
   }
+
   async getExhibitorProfile(): Promise<{ success: boolean; data: any }> {
     return this.request<{ success: boolean; data: any }>(
       '/api/exhibitorDashboard/profile'
@@ -348,33 +351,33 @@ class ApiService {
       body: JSON.stringify({ quantity, days }),
     });
   }
-  // Add these methods to your ApiService class
 
-async getInvoiceById(invoiceId: string): Promise<{ success: boolean; data: any }> {
-  return this.request(`/api/invoices/${invoiceId}`);
-}
-
-async downloadInvoicePdf(invoiceId: string): Promise<Blob> {
-  const token = this.token;
-  
-  const response = await fetch(`${this.baseUrl}/api/invoices/${invoiceId}/download`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `Failed to download invoice: ${response.status}`);
+  async getInvoiceById(invoiceId: string): Promise<{ success: boolean; data: any }> {
+    return this.request(`/api/invoices/${invoiceId}`);
   }
-  
-  return response.blob();
-}
 
-async getMyInvoices(): Promise<{ success: boolean; data: any[] }> {
-  return this.request('/api/invoices/my-invoices');
-}
+  async downloadInvoicePdf(invoiceId: string): Promise<Blob> {
+    const token = this.token;
+    
+    const response = await fetch(`${this.baseUrl}/api/invoices/${invoiceId}/download`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Failed to download invoice: ${response.status}`);
+    }
+    
+    return response.blob();
+  }
+
+  async getMyInvoices(): Promise<{ success: boolean; data: any[] }> {
+    return this.request('/api/invoices/my-invoices');
+  }
+
   async calculateHostessCost(category: string, quantity: number, days: number): Promise<{ success: boolean; data: { totalCost: number } }> {
     return this.request('/api/admin/hostess-rates/calculate', {
       method: 'POST',
@@ -382,39 +385,37 @@ async getMyInvoices(): Promise<{ success: boolean; data: any[] }> {
     });
   }
 
-// In the ApiService class
-async submitApplication(formData: FormData): Promise<{ success: boolean; message: string; data?: any }> {
-  const headers: HeadersInit = {};
-  if (this.token) {
-    headers['Authorization'] = `Bearer ${this.token}`;
-  }
-
-  try {
-    const response = await fetch(`${this.baseUrl}/api/exhibitorDashboard/requirements`, {
-      method: 'POST',
-      headers,
-      body: formData,
-      credentials: 'include',
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      console.error('API Error Response:', data);
-      throw new Error(data.error || data.message || 'Submission failed');
+  async submitApplication(formData: FormData): Promise<{ success: boolean; message: string; data?: any }> {
+    const headers: HeadersInit = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
     }
-    
-    // Return the full response
-    return {
-      success: true,
-      message: data.message || 'Application submitted successfully',
-      data: data.data || data
-    };
-  } catch (error: any) {
-    console.error('API submission error:', error);
-    throw error;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/api/exhibitorDashboard/requirements`, {
+        method: 'POST',
+        headers,
+        body: formData,
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('API Error Response:', data);
+        throw new Error(data.error || data.message || 'Submission failed');
+      }
+      
+      return {
+        success: true,
+        message: data.message || 'Application submitted successfully',
+        data: data.data || data
+      };
+    } catch (error: any) {
+      console.error('API submission error:', error);
+      throw error;
+    }
   }
-}
 }
 
 export default function RequirementsPage() {
@@ -429,10 +430,29 @@ export default function RequirementsPage() {
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
-
+  const [showCashPayment, setShowCashPayment] = useState(false);
+  const [showCashfree, setShowCashfree] = useState(false);
+  const [cashfreeAmount, setCashfreeAmount] = useState(0);
+  const [cashfreeInvoiceId, setCashfreeInvoiceId] = useState<string | null>(null);
+  const [cashfreeRequirementsId, setCashfreeRequirementsId] = useState<string | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState(0);
+  const [tempInvoiceId, setTempInvoiceId] = useState<string | null>(null);
+  const [tempRequirementsId, setTempRequirementsId] = useState<string | null>(null);
+  const [paymentReference, setPaymentReference] = useState('');
+  const [cashPaymentDetails, setCashPaymentDetails] = useState({
+    amountPaid: 0,
+    paymentDate: '',
+    paymentMode: 'cash' as 'cash' | 'cheque' | 'dd',
+    chequeNumber: '',
+    chequeDate: '',
+    bankName: '',
+    ddNumber: '',
+    ddDate: '',
+    remarks: ''
+  });
+  
   // ============= FIELD-LEVEL READ-ONLY STATES =============
   const [readOnlyFields, setReadOnlyFields] = useState({
-    // General Info
     generalInfo_title: false,
     generalInfo_firstName: false,
     generalInfo_lastName: false,
@@ -443,7 +463,6 @@ export default function RequirementsPage() {
     generalInfo_businessNature: false,
     generalInfo_gstNumber: false,
     
-    // Booth Details - Exhibitor fields (auto-filled)
     boothDetails_boothNo: false,
     boothDetails_exhibitorName: false,
     boothDetails_sqMtrBooked: false,
@@ -453,9 +472,6 @@ export default function RequirementsPage() {
     boothDetails_mobile: false,
     boothDetails_email: false,
     
-    // Booth Details - Contractor fields (always editable - no read-only flags needed)
-    
-    // Company Details
     companyDetails_companyName: false,
     companyDetails_address: false,
     companyDetails_telephone: false,
@@ -466,7 +482,6 @@ export default function RequirementsPage() {
     companyDetails_designation: false,
     companyDetails_productsServices: false,
     
-    // Personnel - First row
     personnel_0_name: false,
     personnel_0_designation: false,
     personnel_0_organisation: false,
@@ -628,7 +643,6 @@ export default function RequirementsPage() {
         setLoading(true);
         setApiError(null);
 
-        // Fetch all data in parallel
         const [
           furnitureRes,
           compressedAirRes,
@@ -651,9 +665,7 @@ export default function RequirementsPage() {
           apiService.getSecurityDepositConfig()
         ]);
 
-        // Process Furniture
         if (furnitureRes.status === 'fulfilled' && furnitureRes.value.success) {
-          console.log('Furniture API Response:', furnitureRes.value.data);
           setFurnitureItems(furnitureRes.value.data.map((item: any) => ({
             ...item,
             image: item.imageUrl || '',
@@ -663,20 +675,15 @@ export default function RequirementsPage() {
           })));
         }
 
-        // Process Compressed Air Options
         if (compressedAirRes.status === 'fulfilled' && compressedAirRes.value.success) {
           setCompressedAirOptions(compressedAirRes.value.data);
         }
 
-        // Process Electrical Rates
         if (electricalRatesRes.status === 'fulfilled' && electricalRatesRes.value.success) {
-          console.log('Electrical Rates API Response:', electricalRatesRes.value.data);
           setElectricalRates(electricalRatesRes.value.data);
         }
 
-        // Process Rental Items
         if (rentalItemsRes.status === 'fulfilled' && rentalItemsRes.value.success) {
-          console.log('Rental Items API Response:', rentalItemsRes.value.data);
           const items = rentalItemsRes.value.data;
           const rentalItemsMap: RentalItems = {};
           
@@ -704,7 +711,6 @@ export default function RequirementsPage() {
           setRentalItems(rentalItemsMap);
         }
 
-        // Process Hostess Categories
         if (hostessCategoriesRes.status === 'fulfilled' && hostessCategoriesRes.value.success) {
           const categories = hostessCategoriesRes.value.data;
           const updatedHostess = [...hostessRequirements];
@@ -722,9 +728,7 @@ export default function RequirementsPage() {
           setHostessRequirements(updatedHostess);
         }
 
-        // Process Water Connection Config
         if (waterConnectionConfigRes.status === 'fulfilled' && waterConnectionConfigRes.value.success) {
-          console.log('Water Connection Config Response:', waterConnectionConfigRes.value.data);
           const configData = waterConnectionConfigRes.value.data;
           const ratePerConnection = configData?.costPerConnection || 15000;
           
@@ -734,7 +738,6 @@ export default function RequirementsPage() {
           }));
         }
 
-        // Process Housekeeping Config
         if (housekeepingConfigRes.status === 'fulfilled' && housekeepingConfigRes.value.success) {
           setHousekeepingStaff(prev => ({
             ...prev,
@@ -742,13 +745,10 @@ export default function RequirementsPage() {
           }));
         }
 
-        // Process Security Deposit Tiers
         if (securityDepositRes.status === 'fulfilled' && securityDepositRes.value.success) {
-          console.log('Security Deposit Tiers:', securityDepositRes.value.data);
           setSecurityDepositTiers(securityDepositRes.value.data);
         }
 
-        // Now fetch exhibitor profile data
         await fetchExhibitorProfile();
 
       } catch (error: any) {
@@ -772,7 +772,6 @@ export default function RequirementsPage() {
 
       const apiData = result.data;
 
-      // Parse Contact Person
       let contactPersonObj = {
         name: '',
         jobTitle: '',
@@ -798,7 +797,6 @@ export default function RequirementsPage() {
       contactPersonObj.phone = contactPersonObj.phone || apiData.phone || '';
       contactPersonObj.jobTitle = contactPersonObj.jobTitle || apiData.contact_job_title || '';
 
-      // Parse Name
       let title: 'Mr' | 'Mrs' | 'Ms' | 'Dr' | 'Prof' = 'Mr';
       let firstName = '';
       let lastName = '';
@@ -820,7 +818,6 @@ export default function RequirementsPage() {
         lastName = parts.slice(1).join(' ') || '';
       }
 
-      // Update General Info and set read-only only for fields with data
       setGeneralInfo(prev => {
         const newState = {
           ...prev,
@@ -839,7 +836,6 @@ export default function RequirementsPage() {
           gstNumber: apiData.registrationNumber || apiData.gstNumber || prev.gstNumber
         };
         
-        // Set read-only flags for fields that have data
         setReadOnlyFields(prevFlags => ({
           ...prevFlags,
           generalInfo_title: hasData(title),
@@ -856,7 +852,6 @@ export default function RequirementsPage() {
         return newState;
       });
 
-      // Parse Address
       let street = '';
 
       if (apiData.address && typeof apiData.address === 'string') {
@@ -864,7 +859,6 @@ export default function RequirementsPage() {
         street = parts[0] || '';
       }
 
-      // Update Booth Details and set read-only only for fields with data
       setBoothDetails(prev => {
         const newState = {
           ...prev,
@@ -877,7 +871,6 @@ export default function RequirementsPage() {
           email: contactPersonObj.email || prev.email
         };
 
-        // Set read-only flags for fields that have data (exhibitor fields only)
         setReadOnlyFields(prevFlags => ({
           ...prevFlags,
           boothDetails_boothNo: hasData(apiData.boothNumber || apiData.booth_number),
@@ -892,7 +885,6 @@ export default function RequirementsPage() {
         return newState;
       });
 
-      // Update Company Details and set read-only only for fields with data
       setCompanyDetails(prev => {
         const newState = {
           ...prev,
@@ -927,7 +919,6 @@ export default function RequirementsPage() {
         return newState;
       });
 
-      // Update First Personnel Row and set read-only only for fields with data
       setPersonnel(prev => {
         if (prev.length === 0) return prev;
 
@@ -960,7 +951,6 @@ export default function RequirementsPage() {
 
   // ============= AUTO-FILL EFFECT =============
   useEffect(() => {
-    // Only auto-fill if fields are empty (not read-only)
     setBoothDetails(prev => ({
       ...prev,
       exhibitorName: (!readOnlyFields.boothDetails_exhibitorName && !prev.exhibitorName) ? `${generalInfo.title} ${generalInfo.firstName} ${generalInfo.lastName}`.trim() : prev.exhibitorName,
@@ -1043,35 +1033,33 @@ export default function RequirementsPage() {
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: any) => {
     const readOnlyKey = `generalInfo_${field}` as keyof typeof readOnlyFields;
-    if (readOnlyFields[readOnlyKey]) return; // Prevent changes if field is read-only
+    if (readOnlyFields[readOnlyKey]) return;
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
 
   const handleBoothDetailsChange = (field: keyof BoothDetails, value: any) => {
-    // Contractor fields are always editable
     const contractorFields = ['contractorCompany', 'contractorPerson', 'contractorMobile', 'contractorEmail', 'contractorGST', 'contractorPAN'];
     if (contractorFields.includes(field)) {
       setBoothDetails(prev => ({ ...prev, [field]: value }));
       return;
     }
     
-    // Check if exhibitor field is read-only
     const readOnlyKey = `boothDetails_${field}` as keyof typeof readOnlyFields;
-    if (readOnlyFields[readOnlyKey]) return; // Prevent changes if field is read-only
+    if (readOnlyFields[readOnlyKey]) return;
     
     setBoothDetails(prev => ({ ...prev, [field]: value }));
   };
 
   const handleCompanyDetailsChange = (field: keyof CompanyDetails, value: any) => {
     const readOnlyKey = `companyDetails_${field}` as keyof typeof readOnlyFields;
-    if (readOnlyFields[readOnlyKey]) return; // Prevent changes if field is read-only
+    if (readOnlyFields[readOnlyKey]) return;
     setCompanyDetails(prev => ({ ...prev, [field]: value }));
   };
 
   const handlePersonnelChange = (index: number, field: keyof Personnel, value: string) => {
     if (index === 0) {
       const readOnlyKey = `personnel_0_${field}` as keyof typeof readOnlyFields;
-      if (readOnlyFields[readOnlyKey]) return; // Prevent changes to first row if field is read-only
+      if (readOnlyFields[readOnlyKey]) return;
     }
     const updated = [...personnel];
     updated[index] = { ...updated[index], [field]: value };
@@ -1188,9 +1176,8 @@ export default function RequirementsPage() {
 
   const handleRemovePersonnel = (index: number) => {
     if (index === 0) {
-      // Check if any field in first row has data and is read-only
       if (readOnlyFields.personnel_0_name || readOnlyFields.personnel_0_designation || readOnlyFields.personnel_0_organisation) {
-        return; // Prevent removing first row if it has read-only data
+        return;
       }
     }
     const updated = personnel.filter((_, i) => i !== index);
@@ -1208,351 +1195,438 @@ export default function RequirementsPage() {
     }
   };
 
-// In your handleSubmitApplication function, update the error handling
+  const handleSubmitApplication = async () => {
+    setIsSubmitting(true);
 
-const handleSubmitApplication = async () => {
-  setIsSubmitting(true);
-
-  try {
-    const totals = calculateTotals();
-
-    // Prepare all data
-    const filteredMachines = machines.filter(m => m.machineName.trim() !== '');
-    const filteredPersonnel = personnel.filter(p => p.name.trim() !== '');
-    const filteredFurniture = furnitureItems.filter(f => f.quantity > 0);
-    const filteredHostess = hostessRequirements.filter(h => h.quantity > 0);
-
-    const filteredRentalItems = Object.values(rentalItems)
-      .filter(item => item.quantity > 0)
-      .map(item => ({
-        id: item.id,
-        type: item.category || 'AV/IT Rental',
-        description: item.description || 'Rental Item',
-        costFor3Days: item.costFor3Days,
-        quantity: item.quantity,
-        totalCost: item.totalCost
-      }));
-
-    const completeData = {
-      type: 'exhibitor',
-      description: 'Exhibitor requirement submission',
-      generalInfo,
-      boothDetails,
-      securityDeposit,
-      machines: filteredMachines,
-      personnel: filteredPersonnel,
-      companyDetails,
-      electricalLoad,
-      furnitureItems: filteredFurniture.map(item => ({
-        id: item.id,
-        code: item.code,
-        description: item.description,
-        quantity: item.quantity,
-        cost: item.cost,
-        cost3Days: item.cost3Days
-      })),
-      hostessRequirements: filteredHostess.map(item => ({
-        category: item.category,
-        quantity: item.quantity,
-        noOfDays: item.noOfDays,
-        amount: item.amount,
-        ratePerDay: item.ratePerDay
-      })),
-      compressedAir: compressedAir.selected ? {
-        selected: compressedAir.selected,
-        cfmRange: compressedAir.cfmRange,
-        costPerConnection: compressedAir.costPerConnection,
-        qty: compressedAir.qty,
-        powerKW: compressedAir.powerKW,
-        totalCost: compressedAir.totalCost
-      } : null,
-      waterConnection: waterConnection.connections > 0 ? waterConnection : null,
-      securityGuard: securityGuard.quantity > 0 ? securityGuard : null,
-      rentalItems: filteredRentalItems,
-      housekeepingStaff: housekeepingStaff.quantity > 0 ? housekeepingStaff : null,
-      paymentDetails: {
-        paymentMode: paymentDetails.paymentMode,
-        bankName: paymentDetails.bankName,
-        transactionId: paymentDetails.transactionId,
-        transactionDate: paymentDetails.transactionDate,
-        amount: paymentDetails.amount,
-        notes: `Total: ₹${totals.total}`
-      },
-      totals: {
-        servicesTotal: totals.servicesTotal,
-        gst: totals.gst,
-        subtotal: totals.subtotal,
-        deposit: totals.deposit,
-        total: totals.total
-      }
-    };
-
-    console.log('📤 Sending data to server:', JSON.stringify(completeData, null, 2));
-
-    const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-    
-    const response = await fetch(`${API_BASE_URL}/api/exhibitorDashboard/requirements`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(completeData)
-    });
-
-    console.log('Response status:', response.status);
-    
-    // Get the response text first to see what the server returns
-    const responseText = await response.text();
-    console.log('Response text:', responseText);
-    
-    let result;
     try {
-      result = JSON.parse(responseText);
-    } catch (e) {
-      console.error('Failed to parse response as JSON:', responseText);
-      throw new Error(`Server returned invalid JSON: ${responseText.substring(0, 200)}`);
+      const totals = calculateTotals();
+
+      const filteredMachines = machines.filter(m => m.machineName.trim() !== '');
+      const filteredPersonnel = personnel.filter(p => p.name.trim() !== '');
+      const filteredFurniture = furnitureItems.filter(f => f.quantity > 0);
+      const filteredHostess = hostessRequirements.filter(h => h.quantity > 0);
+
+      const filteredRentalItems = Object.values(rentalItems)
+        .filter(item => item.quantity > 0)
+        .map(item => ({
+          id: item.id,
+          type: item.category || 'AV/IT Rental',
+          description: item.description || 'Rental Item',
+          costFor3Days: item.costFor3Days,
+          quantity: item.quantity,
+          totalCost: item.totalCost
+        }));
+
+      const completeData = {
+        type: 'exhibitor',
+        description: 'Exhibitor requirement submission',
+        generalInfo,
+        boothDetails,
+        securityDeposit,
+        machines: filteredMachines,
+        personnel: filteredPersonnel,
+        companyDetails,
+        electricalLoad,
+        furnitureItems: filteredFurniture.map(item => ({
+          id: item.id,
+          code: item.code,
+          description: item.description,
+          quantity: item.quantity,
+          cost: item.cost,
+          cost3Days: item.cost3Days
+        })),
+        hostessRequirements: filteredHostess.map(item => ({
+          category: item.category,
+          quantity: item.quantity,
+          noOfDays: item.noOfDays,
+          amount: item.amount,
+          ratePerDay: item.ratePerDay
+        })),
+        compressedAir: compressedAir.selected ? {
+          selected: compressedAir.selected,
+          cfmRange: compressedAir.cfmRange,
+          costPerConnection: compressedAir.costPerConnection,
+          qty: compressedAir.qty,
+          powerKW: compressedAir.powerKW,
+          totalCost: compressedAir.totalCost
+        } : null,
+        waterConnection: waterConnection.connections > 0 ? waterConnection : null,
+        securityGuard: securityGuard.quantity > 0 ? securityGuard : null,
+        rentalItems: filteredRentalItems,
+        housekeepingStaff: housekeepingStaff.quantity > 0 ? housekeepingStaff : null,
+        paymentDetails: {
+          paymentMode: paymentDetails.paymentMode,
+          bankName: paymentDetails.bankName,
+          transactionId: paymentDetails.transactionId,
+          transactionDate: paymentDetails.transactionDate,
+          amount: paymentDetails.amount,
+          notes: `Total: ₹${totals.total}`
+        },
+        totals: {
+          servicesTotal: totals.servicesTotal,
+          gst: totals.gst,
+          subtotal: totals.subtotal,
+          deposit: totals.deposit,
+          total: totals.total
+        }
+      };
+
+      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/api/exhibitorDashboard/requirements`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(completeData)
+      });
+      
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        const requirementsId = result.data?.id;
+        
+        if (!requirementsId) {
+          throw new Error('No requirements ID returned');
+        }
+        
+        localStorage.setItem('last_requirements_id', requirementsId);
+        
+        const invoiceResult = await generateInvoice(requirementsId, totals);
+        
+        let finalInvoiceId = null;
+        
+        if (invoiceResult && invoiceResult.data?.id) {
+          finalInvoiceId = invoiceResult.data.id;
+          localStorage.setItem('last_invoice_id', finalInvoiceId);
+          
+          setCashfreeInvoiceId(finalInvoiceId);
+          setCashfreeRequirementsId(requirementsId);
+          setCashfreeAmount(totals.total);
+          
+          setShowPayment(false);
+          setShowCashfree(true);
+          
+        } else {
+          console.warn('Invoice generation failed, but requirements saved');
+          alert('Application submitted! However, invoice generation failed. Please contact support.');
+        }
+        
+      } else {
+        throw new Error(result.error || result.message || 'Submission failed');
+      }
+
+    } catch (error: any) {
+      console.error('❌ Submission Error:', error);
+      alert(error.message || 'Submission failed. Please check console for details.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCashPaymentSubmit = async () => {
+    if (!tempRequirementsId) {
+      alert('No requirement found. Please try again.');
+      return;
     }
 
-    if (response.ok && result.success) {
-      const requirementsId = result.data?.id;
-      
-      if (!requirementsId) {
-        throw new Error('No requirements ID returned');
+    if (cashPaymentDetails.paymentMode === 'cheque') {
+      if (!cashPaymentDetails.chequeNumber || !cashPaymentDetails.chequeDate || !cashPaymentDetails.bankName) {
+        alert('Please fill all cheque details (Cheque Number, Date, Bank Name)');
+        return;
       }
-      
-      localStorage.setItem('last_requirements_id', requirementsId);
-      
-      try {
-        await generateInvoice(requirementsId, totals);
-      } catch (invoiceError) {
-        console.warn('Invoice generation failed:', invoiceError);
+    } else if (cashPaymentDetails.paymentMode === 'dd') {
+      if (!cashPaymentDetails.ddNumber || !cashPaymentDetails.ddDate || !cashPaymentDetails.bankName) {
+        alert('Please fill all DD details (DD Number, Date, Bank Name)');
+        return;
       }
-      
-      alert('✅ Application submitted successfully!');
-      window.location.href = '/dashboard/requirements/success';
     } else {
-      console.error('Server error:', result);
-      throw new Error(result.error || result.message || 'Submission failed');
+      if (!cashPaymentDetails.amountPaid || cashPaymentDetails.amountPaid <= 0) {
+        alert('Please enter the amount paid');
+        return;
+      }
+      if (!cashPaymentDetails.paymentDate) {
+        alert('Please select payment date');
+        return;
+      }
     }
 
-  } catch (error: any) {
-    console.error('❌ Submission Error:', error);
-    alert(error.message || 'Submission failed. Please check console for details.');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    setIsSubmitting(true);
 
-const generateInvoice = async (requirementsId: string, totals: any) => {
-  try {
-    console.log('📝 Generating invoice for requirements:', requirementsId);
-    
-    // Prepare invoice items from the submission data
-    const items = [];
-    
-    // Furniture items
-    const furnitureItemsWithQty = furnitureItems.filter(f => f.quantity > 0);
-    if (furnitureItemsWithQty.length > 0) {
-      furnitureItemsWithQty.forEach(item => {
-        items.push({
-          description: `Furniture: ${item.description} (${item.code})`,
-          quantity: item.quantity,
-          unitPrice: item.cost3Days,
-          total: item.cost
-        });
+    try {
+      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      
+      const paymentData = {
+        requirementId: tempRequirementsId,
+        invoiceId: tempInvoiceId,
+        amount: paymentAmount,
+        amountPaid: cashPaymentDetails.amountPaid || paymentAmount,
+        paymentMode: cashPaymentDetails.paymentMode,
+        paymentDate: cashPaymentDetails.paymentDate || new Date().toISOString().split('T')[0],
+        chequeNumber: cashPaymentDetails.chequeNumber,
+        chequeDate: cashPaymentDetails.chequeDate,
+        bankName: cashPaymentDetails.bankName,
+        ddNumber: cashPaymentDetails.ddNumber,
+        ddDate: cashPaymentDetails.ddDate,
+        remarks: cashPaymentDetails.remarks,
+        status: 'pending_verification'
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/payments/cash-payment`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
       });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setPaymentReference(result.data.paymentReference);
+        setShowCashPayment(false);
+        window.location.href = `/dashboard/requirements/success?invoiceId=${tempInvoiceId}&paymentReference=${result.data.paymentReference}&status=pending`;
+      } else {
+        throw new Error(result.error || 'Payment submission failed');
+      }
+
+    } catch (error: any) {
+      console.error('❌ Payment Submission Error:', error);
+      alert(error.message || 'Failed to submit payment details. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?: string }) => {
+    console.log('Payment successful:', paymentData);
+    setShowCashfree(false);
+    
+    localStorage.setItem('last_cashfree_order_id', paymentData.orderId);
+    if (paymentData.paymentId) {
+      localStorage.setItem('last_payment_id', paymentData.paymentId);
     }
     
-    // Hostess services
-    const hostessItems = hostessRequirements.filter(h => h.quantity > 0);
-    if (hostessItems.length > 0) {
-      hostessItems.forEach(hostess => {
-        const ratePerDay = hostess.ratePerDay || (hostess.category === 'A' ? 5000 : 4000);
-        items.push({
-          description: `Hostess Services - Category ${hostess.category}`,
-          quantity: hostess.quantity * hostess.noOfDays,
-          unitPrice: ratePerDay,
-          total: hostess.amount
-        });
-      });
+    window.location.href = `/dashboard/requirements/success?order_id=${paymentData.orderId}&invoiceId=${cashfreeInvoiceId}`;
+  };
+
+  const handleCashfreeFailure = (error: string) => {
+    console.error('Payment failed:', error);
+    setShowCashfree(false);
+    
+    const shouldRetry = window.confirm(
+      `Payment failed: ${error}\n\nWould you like to try again?\n\nClick "OK" to retry or "Cancel" to use bank transfer.`
+    );
+    
+    if (shouldRetry) {
+      setShowCashfree(true);
+    } else {
+      setShowPayment(true);
     }
-    
-    // Electrical load
-    if (electricalLoad.temporaryTotal > 0) {
-      items.push({
-        description: 'Electrical Load - Temporary (Setup Days)',
-        quantity: parseFloat(electricalLoad.temporaryLoad) || 0,
-        unitPrice: electricalRates.find(r => r.type === 'temporary' && r.isActive)?.ratePerKW || 3500,
-        total: electricalLoad.temporaryTotal
-      });
-    }
-    
-    if (electricalLoad.exhibitionTotal > 0) {
-      items.push({
-        description: 'Electrical Load - Exhibition (Show Days)',
-        quantity: parseFloat(electricalLoad.exhibitionLoad) || 0,
-        unitPrice: electricalRates.find(r => r.type === 'exhibition' && r.isActive)?.ratePerKW || 3500,
-        total: electricalLoad.exhibitionTotal
-      });
-    }
-    
-    // Compressed air
-    if (compressedAir.selected && compressedAir.qty > 0) {
-      items.push({
-        description: `Compressed Air Connection - ${compressedAir.cfmRange}`,
-        quantity: compressedAir.qty,
-        unitPrice: compressedAir.costPerConnection + (compressedAir.powerKW * 3500),
-        total: compressedAir.totalCost
-      });
-    }
-    
-    // Water connection
-    if (waterConnection.connections > 0) {
-      items.push({
-        description: 'Water Connection',
-        quantity: waterConnection.connections,
-        unitPrice: waterConnection.costPerConnection,
-        total: waterConnection.totalCost
-      });
-    }
-    
-    // Security guards
-    if (securityGuard.quantity > 0 && securityGuard.noOfDays > 0) {
-      items.push({
-        description: 'Security Guard Services',
-        quantity: securityGuard.quantity * securityGuard.noOfDays,
-        unitPrice: 2500,
-        total: securityGuard.totalCost
-      });
-    }
-    
-    // AV & IT Rentals
-    const rentalItemsWithQty = Object.values(rentalItems).filter(item => item.quantity > 0);
-    if (rentalItemsWithQty.length > 0) {
-      rentalItemsWithQty.forEach(item => {
-        items.push({
-          description: `AV/IT Rental: ${item.description}`,
-          quantity: item.quantity,
-          unitPrice: item.costFor3Days,
-          total: item.totalCost
-        });
-      });
-    }
-    
-    // Housekeeping staff
-    if (housekeepingStaff.quantity > 0 && housekeepingStaff.noOfDays > 0) {
-      items.push({
-        description: 'Housekeeping Staff',
-        quantity: housekeepingStaff.quantity * housekeepingStaff.noOfDays,
-        unitPrice: housekeepingStaff.chargesPerShift,
-        total: housekeepingStaff.totalCost
-      });
-    }
-    
-    // Security deposit
-    if (totals.deposit > 0) {
-      items.push({
-        description: `Security Deposit - Booth Area: ${securityDeposit.boothSq}`,
-        quantity: 1,
-        unitPrice: totals.deposit,
-        total: totals.deposit
-      });
-    }
-    
-    // Get exhibitor info for invoice
-    const exhibitorInfo = {
-      name: `${generalInfo.title} ${generalInfo.firstName} ${generalInfo.lastName}`,
-      companyName: generalInfo.companyName,
-      email: generalInfo.email,
-      phone: generalInfo.mobile,
-      address: companyDetails.address || 'Not provided',
-      gstNumber: generalInfo.gstNumber || 'Not provided',
-      boothNumber: boothDetails.boothNo || 'Not assigned'
-    };
-    
-    // Prepare payment details
-    const paymentInfo = {
-      transactionId: paymentDetails.transactionId,
-      paymentMode: paymentDetails.paymentMode,
-      paymentDate: paymentDetails.transactionDate,
-      paidAmount: paymentDetails.amount,
-      bankName: paymentDetails.bankName
-    };
-    
-    // Calculate due date (30 days from now)
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 30);
-    
-    // Get exhibitor ID from localStorage
-    const exhibitorId = localStorage.getItem('exhibitor_id') || localStorage.getItem('user_id');
-    
-    // Create invoice data
-    const invoicePayload = {
-      requirementsId: requirementsId,
-      exhibitorId: exhibitorId,
-      exhibitorInfo,
-      paymentInfo,
-      items,
-      totals: {
-        servicesTotal: totals.servicesTotal,
-        gst: totals.gst,
-        total: totals.total,
-        deposit: totals.deposit,
-        subtotal: totals.subtotal
-      },
-      invoiceNumber: `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-8)}`,
-      issueDate: new Date().toISOString(),
-      dueDate: dueDate.toISOString(),
-      notes: `Thank you for your exhibition registration. This invoice includes all services requested.\n\n` +
-             `Booth Number: ${boothDetails.boothNo || 'To be assigned'}\n` +
-             `Contractor: ${boothDetails.contractorCompany || 'N/A'}\n\n` +
-             `Please make the payment via ${paymentDetails.paymentMode} using Transaction ID: ${paymentDetails.transactionId}`
-    };
-    
-    console.log('📤 Sending invoice generation request to backend...');
-    
-    // Make API call to generate invoice
-    const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/api/invoices/generate-from-requirements`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(invoicePayload)
+  };
+
+  const resetCashPaymentForm = () => {
+    setCashPaymentDetails({
+      amountPaid: paymentAmount,
+      paymentDate: new Date().toISOString().split('T')[0],
+      paymentMode: 'cash',
+      chequeNumber: '',
+      chequeDate: '',
+      bankName: '',
+      ddNumber: '',
+      ddDate: '',
+      remarks: ''
     });
-    
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      console.error('Non-JSON response:', text.substring(0, 200));
-      throw new Error('Server returned non-JSON response. Please check if the endpoint exists.');
+  };
+
+  const generateInvoice = async (requirementsId: string, totals: any) => {
+    try {
+      const items = [];
+      
+      const furnitureItemsWithQty = furnitureItems.filter(f => f.quantity > 0);
+      if (furnitureItemsWithQty.length > 0) {
+        furnitureItemsWithQty.forEach(item => {
+          items.push({
+            description: `Furniture: ${item.description} (${item.code})`,
+            quantity: item.quantity,
+            unitPrice: item.cost3Days,
+            total: item.cost
+          });
+        });
+      }
+      
+      const hostessItems = hostessRequirements.filter(h => h.quantity > 0);
+      if (hostessItems.length > 0) {
+        hostessItems.forEach(hostess => {
+          const ratePerDay = hostess.ratePerDay || (hostess.category === 'A' ? 5000 : 4000);
+          items.push({
+            description: `Hostess Services - Category ${hostess.category}`,
+            quantity: hostess.quantity * hostess.noOfDays,
+            unitPrice: ratePerDay,
+            total: hostess.amount
+          });
+        });
+      }
+      
+      if (electricalLoad.temporaryTotal > 0) {
+        items.push({
+          description: 'Electrical Load - Temporary (Setup Days)',
+          quantity: parseFloat(electricalLoad.temporaryLoad) || 0,
+          unitPrice: electricalRates.find(r => r.type === 'temporary' && r.isActive)?.ratePerKW || 3500,
+          total: electricalLoad.temporaryTotal
+        });
+      }
+      
+      if (electricalLoad.exhibitionTotal > 0) {
+        items.push({
+          description: 'Electrical Load - Exhibition (Show Days)',
+          quantity: parseFloat(electricalLoad.exhibitionLoad) || 0,
+          unitPrice: electricalRates.find(r => r.type === 'exhibition' && r.isActive)?.ratePerKW || 3500,
+          total: electricalLoad.exhibitionTotal
+        });
+      }
+      
+      if (compressedAir.selected && compressedAir.qty > 0) {
+        items.push({
+          description: `Compressed Air Connection - ${compressedAir.cfmRange}`,
+          quantity: compressedAir.qty,
+          unitPrice: compressedAir.costPerConnection + (compressedAir.powerKW * 3500),
+          total: compressedAir.totalCost
+        });
+      }
+      
+      if (waterConnection.connections > 0) {
+        items.push({
+          description: 'Water Connection',
+          quantity: waterConnection.connections,
+          unitPrice: waterConnection.costPerConnection,
+          total: waterConnection.totalCost
+        });
+      }
+      
+      if (securityGuard.quantity > 0 && securityGuard.noOfDays > 0) {
+        items.push({
+          description: 'Security Guard Services',
+          quantity: securityGuard.quantity * securityGuard.noOfDays,
+          unitPrice: 2500,
+          total: securityGuard.totalCost
+        });
+      }
+      
+      const rentalItemsWithQty = Object.values(rentalItems).filter(item => item.quantity > 0);
+      if (rentalItemsWithQty.length > 0) {
+        rentalItemsWithQty.forEach(item => {
+          items.push({
+            description: `AV/IT Rental: ${item.description}`,
+            quantity: item.quantity,
+            unitPrice: item.costFor3Days,
+            total: item.totalCost
+          });
+        });
+      }
+      
+      if (housekeepingStaff.quantity > 0 && housekeepingStaff.noOfDays > 0) {
+        items.push({
+          description: 'Housekeeping Staff',
+          quantity: housekeepingStaff.quantity * housekeepingStaff.noOfDays,
+          unitPrice: housekeepingStaff.chargesPerShift,
+          total: housekeepingStaff.totalCost
+        });
+      }
+      
+      if (totals.deposit > 0) {
+        items.push({
+          description: `Security Deposit - Booth Area: ${securityDeposit.boothSq}`,
+          quantity: 1,
+          unitPrice: totals.deposit,
+          total: totals.deposit
+        });
+      }
+      
+      const exhibitorInfo = {
+        name: `${generalInfo.title} ${generalInfo.firstName} ${generalInfo.lastName}`,
+        companyName: generalInfo.companyName,
+        email: generalInfo.email,
+        phone: generalInfo.mobile,
+        address: companyDetails.address || 'Not provided',
+        gstNumber: generalInfo.gstNumber || 'Not provided',
+        boothNumber: boothDetails.boothNo || 'Not assigned'
+      };
+      
+      const paymentInfo = {
+        transactionId: paymentDetails.transactionId,
+        paymentMode: paymentDetails.paymentMode,
+        paymentDate: paymentDetails.transactionDate,
+        paidAmount: paymentDetails.amount,
+        bankName: paymentDetails.bankName
+      };
+      
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 30);
+      
+      const exhibitorId = localStorage.getItem('exhibitor_id') || localStorage.getItem('user_id');
+      
+      const invoicePayload = {
+        requirementsId: requirementsId,
+        exhibitorId: exhibitorId,
+        exhibitorInfo,
+        paymentInfo,
+        items,
+        totals: {
+          servicesTotal: totals.servicesTotal,
+          gst: totals.gst,
+          total: totals.total,
+          deposit: totals.deposit,
+          subtotal: totals.subtotal
+        },
+        invoiceNumber: `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-8)}`,
+        issueDate: new Date().toISOString(),
+        dueDate: dueDate.toISOString(),
+        notes: `Thank you for your exhibition registration. This invoice includes all services requested.\n\n` +
+               `Booth Number: ${boothDetails.boothNo || 'To be assigned'}\n` +
+               `Contractor: ${boothDetails.contractorCompany || 'N/A'}\n\n` +
+               `Please complete payment to confirm your registration.`
+      };
+      
+      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/invoices/generate-from-requirements`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(invoicePayload)
+      });
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text.substring(0, 200));
+        throw new Error('Server returned non-JSON response. Please check if the endpoint exists.');
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const invoiceResult = await response.json();
+      
+      if (invoiceResult.data?.id) {
+        localStorage.setItem('last_invoice_id', invoiceResult.data.id);
+      }
+      
+      return invoiceResult;
+      
+    } catch (error: any) {
+      console.error('❌ Error generating invoice:', error);
+      console.warn('Invoice generation failed but submission was successful:', error.message);
+      return null;
     }
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const invoiceResult = await response.json();
-    console.log('✅ Invoice generated successfully:', invoiceResult.data.id);
-    
-    // Store invoice ID for success page
-    if (invoiceResult.data?.id) {
-      localStorage.setItem('last_invoice_id', invoiceResult.data.id);
-    }
-    
-    return invoiceResult;
-    
-  } catch (error: any) {
-    console.error('❌ Error generating invoice:', error);
-    // Don't throw - just log the error so submission still completes
-    console.warn('Invoice generation failed but submission was successful:', error.message);
-    return null;
-  }
-};
+  };
+
   // Effects for calculations
   useEffect(() => {
     if (waterConnection.connections > 0) {
@@ -1572,37 +1646,34 @@ const generateInvoice = async (requirementsId: string, totals: any) => {
     }
   }, [securityGuard.quantity, securityGuard.noOfDays]);
 
-
-useEffect(() => {
-  const calculateHousekeepingCost = async () => {
-    if (housekeepingStaff.quantity > 0 && housekeepingStaff.noOfDays > 0) {
-      try {
-        // Call with only 2 arguments (quantity and days)
-        const result = await apiService.calculateHousekeepingCost(
-          housekeepingStaff.quantity,
-          housekeepingStaff.noOfDays
-        );
-        
-        if (result.success) {
-          setHousekeepingStaff(prev => ({
-            ...prev,
-            totalCost: result.data.totalCost,
-            chargesPerShift: result.data.ratePerShift || prev.chargesPerShift
-          }));
+  useEffect(() => {
+    const calculateHousekeepingCost = async () => {
+      if (housekeepingStaff.quantity > 0 && housekeepingStaff.noOfDays > 0) {
+        try {
+          const result = await apiService.calculateHousekeepingCost(
+            housekeepingStaff.quantity,
+            housekeepingStaff.noOfDays
+          );
+          
+          if (result.success) {
+            setHousekeepingStaff(prev => ({
+              ...prev,
+              totalCost: result.data.totalCost,
+              chargesPerShift: result.data.ratePerShift || prev.chargesPerShift
+            }));
+          }
+        } catch (error) {
+          console.error('Error calculating housekeeping cost:', error);
+          const total = housekeepingStaff.quantity * housekeepingStaff.noOfDays * housekeepingStaff.chargesPerShift;
+          setHousekeepingStaff(prev => ({ ...prev, totalCost: total }));
         }
-      } catch (error) {
-        console.error('Error calculating housekeeping cost:', error);
-        // Fallback calculation
-        const total = housekeepingStaff.quantity * housekeepingStaff.noOfDays * housekeepingStaff.chargesPerShift;
-        setHousekeepingStaff(prev => ({ ...prev, totalCost: total }));
+      } else {
+        setHousekeepingStaff(prev => ({ ...prev, totalCost: 0 }));
       }
-    } else {
-      setHousekeepingStaff(prev => ({ ...prev, totalCost: 0 }));
-    }
-  };
+    };
 
-  calculateHousekeepingCost();
-}, [housekeepingStaff.quantity, housekeepingStaff.noOfDays]);
+    calculateHousekeepingCost();
+  }, [housekeepingStaff.quantity, housekeepingStaff.noOfDays]);
 
   // ============= IMAGE MODAL =============
   const renderImageModal = () => {
@@ -2953,7 +3024,7 @@ useEffect(() => {
                         <PhotoIcon className="h-6 w-6 text-gray-400" />
                       )}
                     </div>
-                  </td>
+                   </td>
                   <td className="px-2 py-1.5 text-xs font-mono text-blue-600">{item.code || 'N/A'}</td>
                   <td className="px-2 py-1.5 text-xs">{item.description || 'No description'}</td>
                   <td className="px-2 py-1.5 text-xs">{item.size && item.size !== 'null' ? item.size : 'N/A'}</td>
@@ -2966,10 +3037,10 @@ useEffect(() => {
                       onChange={(e) => handleFurnitureQuantity(index, parseInt(e.target.value) || 0)}
                       className="w-16 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-blue-500"
                     />
-                  </td>
+                   </td>
                   <td className="px-2 py-1.5 text-xs font-semibold">
                     ₹{item.cost?.toLocaleString() ?? '0'}
-                  </td>
+                   </td>
                 </tr>
               ))}
             </tbody>
@@ -2978,7 +3049,7 @@ useEffect(() => {
                 <td colSpan={6} className="px-2 py-2 text-right text-xs font-semibold">Total:</td>
                 <td className="px-2 py-2 text-xs font-bold text-blue-600">
                   ₹{furnitureTotal?.toLocaleString() ?? '0'}
-                </td>
+                 </td>
               </tr>
             </tfoot>
           </table>
@@ -3019,7 +3090,7 @@ useEffect(() => {
                   <td className="px-3 py-2 text-sm">Category {hostess.category}</td>
                   <td className="px-3 py-2 text-sm">
                     ₹{(hostess.ratePerDay || (hostess.category === 'A' ? 5000 : 4000)).toLocaleString()}
-                  </td>
+                   </td>
                   <td className="px-3 py-2">
                     <input
                       type="number"
@@ -3030,7 +3101,7 @@ useEffect(() => {
                       }
                       className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
                     />
-                  </td>
+                   </td>
                   <td className="px-3 py-2">
                     <input
                       type="number"
@@ -3041,10 +3112,10 @@ useEffect(() => {
                       }
                       className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
                     />
-                  </td>
+                   </td>
                   <td className="px-3 py-2 text-sm font-semibold">
                     ₹{hostess.amount.toLocaleString()}
-                  </td>
+                   </td>
                 </tr>
               ))}
             </tbody>
@@ -3122,7 +3193,7 @@ useEffect(() => {
                       onChange={() => handleCompressedAirSelect(option)}
                       className="h-4 w-4 text-blue-600"
                     />
-                  </td>
+                   </td>
                   <td className="px-2 py-2 text-sm">{option.cfmRange}</td>
                   <td className="px-2 py-2 text-sm">₹{option.costPerConnection.toLocaleString()}</td>
                   <td className="px-2 py-2 text-sm">{option.powerKW} KW</td>
@@ -3137,12 +3208,12 @@ useEffect(() => {
                         className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
                       />
                     )}
-                  </td>
+                   </td>
                   <td className="px-2 py-2 text-sm">
                     {compressedAir.selected === option.cfmRange && (
                       <span className="font-semibold">₹{compressedAir.totalCost.toLocaleString()}</span>
                     )}
-                  </td>
+                   </td>
                 </tr>
               ))}
             </tbody>
@@ -3333,7 +3404,7 @@ useEffect(() => {
                         <PhotoIcon className="h-6 w-6 text-gray-400" />
                       )}
                     </div>
-                  </td>
+                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{item.description}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">₹{(item.costFor3Days || 0).toLocaleString()}</td>
                   <td className="px-4 py-3">
@@ -3345,10 +3416,10 @@ useEffect(() => {
                       className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                       placeholder="0"
                     />
-                  </td>
+                   </td>
                   <td className="px-4 py-3 text-sm font-semibold text-blue-600">
                     ₹{(item.totalCost || 0).toLocaleString()}
-                  </td>
+                   </td>
                 </tr>
               ))}
             </tbody>
@@ -3431,90 +3502,349 @@ useEffect(() => {
                     className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="0"
                   />
-                </td>
+                                </td>
                 <td className="px-4 py-4 text-sm font-semibold text-blue-600">
-                  ₹{(totalCost)?.toLocaleString() ?? '0'}
+                  ₹{totalCost.toLocaleString()}
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        {quantity > 0 && noOfDays > 0 && (
+          <div className="mt-4 bg-blue-50 p-3 rounded-lg">
+            <p className="text-sm text-gray-600">
+              Calculation: {quantity} staff × {noOfDays} days × ₹{chargesPerShift.toLocaleString()} per shift = ₹{totalCost.toLocaleString()}
+            </p>
+          </div>
+        )}
       </div>
     );
   };
 
-  // ============= PREVIEW MODAL =============
-  const renderPreviewModal = () => {
+  // ============= PREVIEW & SUBMIT =============
+  const renderPreview = () => {
     const totals = calculateTotals();
 
     return (
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div className="relative top-10 sm:top-20 mx-3 sm:mx-auto p-4 sm:p-6 border w-full sm:w-11/12 max-w-4xl shadow-lg rounded-lg bg-white">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Preview & Cost Summary</h2>
+      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <div className="bg-blue-100 p-2 rounded-lg">
+              <EyeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
+              Preview & Submit
+            </h2>
+          </div>
+          <button
+            onClick={() => setShowPreview(false)}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <ChevronLeftIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          {/* General Information Summary */}
+          <div className="border-b border-gray-200 pb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+              <UserIcon className="h-5 w-5 mr-2 text-blue-500" />
+              Basic Information
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <p><span className="font-medium">Name:</span> {generalInfo.title} {generalInfo.firstName} {generalInfo.lastName}</p>
+              <p><span className="font-medium">Designation:</span> {generalInfo.designation}</p>
+              <p><span className="font-medium">Mobile:</span> {generalInfo.mobile}</p>
+              <p><span className="font-medium">Email:</span> {generalInfo.email}</p>
+              <p><span className="font-medium">Company:</span> {generalInfo.companyName}</p>
+              <p><span className="font-medium">GST:</span> {generalInfo.gstNumber}</p>
+              <p><span className="font-medium">Business Nature:</span> {generalInfo.businessNature}</p>
+            </div>
+          </div>
+
+          {/* Booth Details Summary */}
+          <div className="border-b border-gray-200 pb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+              <BuildingOfficeIcon className="h-5 w-5 mr-2 text-blue-500" />
+              Booth & Contractor Details
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <p><span className="font-medium">Booth No:</span> {boothDetails.boothNo}</p>
+              <p><span className="font-medium">Sq Mtr Booked:</span> {boothDetails.sqMtrBooked}</p>
+              <p><span className="font-medium">Exhibitor Name:</span> {boothDetails.exhibitorName}</p>
+              <p><span className="font-medium">Organisation:</span> {boothDetails.organisation}</p>
+              <p><span className="font-medium">Contact Person:</span> {boothDetails.contactPerson}</p>
+              <p><span className="font-medium">Designation:</span> {boothDetails.designation}</p>
+              <p><span className="font-medium">Mobile:</span> {boothDetails.mobile}</p>
+              <p><span className="font-medium">Email:</span> {boothDetails.email}</p>
+            </div>
+            {(boothDetails.contractorCompany || boothDetails.contractorPerson) && (
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <p className="font-medium text-gray-700 mb-2">Contractor Details:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                  <p><span className="font-medium">Contractor Company:</span> {boothDetails.contractorCompany || 'N/A'}</p>
+                  <p><span className="font-medium">Contractor Person:</span> {boothDetails.contractorPerson || 'N/A'}</p>
+                  <p><span className="font-medium">Contractor Mobile:</span> {boothDetails.contractorMobile || 'N/A'}</p>
+                  <p><span className="font-medium">Contractor Email:</span> {boothDetails.contractorEmail || 'N/A'}</p>
+                  <p><span className="font-medium">Contractor GST:</span> {boothDetails.contractorGST || 'N/A'}</p>
+                  <p><span className="font-medium">Contractor PAN:</span> {boothDetails.contractorPAN || 'N/A'}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Security Deposit Summary */}
+          {securityDeposit.boothSq && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <BanknotesIcon className="h-5 w-5 mr-2 text-blue-500" />
+                Security Deposit
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                <p><span className="font-medium">Booth Sq Category:</span> {securityDeposit.boothSq}</p>
+                <p><span className="font-medium">Amount (INR):</span> ₹{securityDeposit.amountINR.toLocaleString()}</p>
+                <p><span className="font-medium">Amount (USD):</span> ${securityDeposit.amountUSD}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Machines Summary */}
+          {machines.filter(m => m.machineName.trim()).length > 0 && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <CubeIcon className="h-5 w-5 mr-2 text-blue-500" />
+                Machines Display
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-2 py-1 text-left">Sr</th>
+                      <th className="px-2 py-1 text-left">Machine Name</th>
+                      <th className="px-2 py-1 text-left">Dimensions (W×L×H)</th>
+                      <th className="px-2 py-1 text-left">Weight</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {machines.filter(m => m.machineName.trim()).map((m) => (
+                      <tr key={m.srNo}>
+                        <td className="px-2 py-1">{m.srNo}</td>
+                        <td className="px-2 py-1">{m.machineName}</td>
+                        <td className="px-2 py-1">{m.width}×{m.length}×{m.height} m</td>
+                        <td className="px-2 py-1">{m.weight} Tons</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Personnel Summary */}
+          {personnel.filter(p => p.name.trim()).length > 0 && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <UserIcon className="h-5 w-5 mr-2 text-blue-500" />
+                Exhibitor Passes
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-2 py-1 text-left">Sr</th>
+                      <th className="px-2 py-1 text-left">Name</th>
+                      <th className="px-2 py-1 text-left">Designation</th>
+                      <th className="px-2 py-1 text-left">Organisation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {personnel.filter(p => p.name.trim()).map((p) => (
+                      <tr key={p.srNo}>
+                        <td className="px-2 py-1">{p.srNo}</td>
+                        <td className="px-2 py-1">{p.name}</td>
+                        <td className="px-2 py-1">{p.designation}</td>
+                        <td className="px-2 py-1">{p.organisation}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Company Details Summary */}
+          <div className="border-b border-gray-200 pb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+              <BuildingOfficeIcon className="h-5 w-5 mr-2 text-blue-500" />
+              Company Details (Exhibitor's Guide)
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <p><span className="font-medium">Company Name:</span> {companyDetails.companyName}</p>
+              <p><span className="font-medium">Address:</span> {companyDetails.address}</p>
+              <p><span className="font-medium">Telephone:</span> {companyDetails.telephone}</p>
+              <p><span className="font-medium">Mobile:</span> {companyDetails.mobile}</p>
+              <p><span className="font-medium">Email:</span> {companyDetails.email}</p>
+              <p><span className="font-medium">Website:</span> {companyDetails.website}</p>
+              <p><span className="font-medium">Contact Person:</span> {companyDetails.contactPerson}</p>
+              <p><span className="font-medium">Designation:</span> {companyDetails.designation}</p>
+            </div>
+            {companyDetails.productsServices && (
+              <p className="mt-2 text-sm"><span className="font-medium">Products/Services:</span> {companyDetails.productsServices}</p>
+            )}
+          </div>
+
+          {/* Services Summary */}
+          <div className="border-b border-gray-200 pb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+              <BoltIcon className="h-5 w-5 mr-2 text-blue-500" />
+              Services & Add-ons
+            </h3>
+            
+            {/* Electrical Load */}
+            {(electricalLoad.temporaryTotal > 0 || electricalLoad.exhibitionTotal > 0) && (
+              <div className="mb-3">
+                <p className="font-medium text-gray-700">Electrical Load:</p>
+                {electricalLoad.temporaryTotal > 0 && (
+                  <p className="text-sm ml-4">Temporary Load: {electricalLoad.temporaryLoad} KW - ₹{electricalLoad.temporaryTotal.toLocaleString()}</p>
+                )}
+                {electricalLoad.exhibitionTotal > 0 && (
+                  <p className="text-sm ml-4">Exhibition Load: {electricalLoad.exhibitionLoad} KW - ₹{electricalLoad.exhibitionTotal.toLocaleString()}</p>
+                )}
+              </div>
+            )}
+
+            {/* Furniture */}
+            {furnitureItems.filter(f => f.quantity > 0).length > 0 && (
+              <div className="mb-3">
+                <p className="font-medium text-gray-700">Furniture:</p>
+                {furnitureItems.filter(f => f.quantity > 0).map((f, idx) => (
+                  <p key={idx} className="text-sm ml-4">{f.description} × {f.quantity} - ₹{f.cost.toLocaleString()}</p>
+                ))}
+              </div>
+            )}
+
+            {/* Hostess */}
+            {hostessRequirements.filter(h => h.quantity > 0).length > 0 && (
+              <div className="mb-3">
+                <p className="font-medium text-gray-700">Hostess/Temporary Staff:</p>
+                {hostessRequirements.filter(h => h.quantity > 0).map((h, idx) => (
+                  <p key={idx} className="text-sm ml-4">Category {h.category}: {h.quantity} staff × {h.noOfDays} days - ₹{h.amount.toLocaleString()}</p>
+                ))}
+              </div>
+            )}
+
+            {/* Compressed Air */}
+            {compressedAir.selected && compressedAir.qty > 0 && (
+              <div className="mb-3">
+                <p className="font-medium text-gray-700">Compressed Air:</p>
+                <p className="text-sm ml-4">{compressedAir.cfmRange} - {compressedAir.qty} connection(s) - ₹{compressedAir.totalCost.toLocaleString()}</p>
+              </div>
+            )}
+
+            {/* Water Connection */}
+            {waterConnection.connections > 0 && (
+              <div className="mb-3">
+                <p className="font-medium text-gray-700">Water Connection:</p>
+                <p className="text-sm ml-4">{waterConnection.connections} connection(s) - ₹{waterConnection.totalCost.toLocaleString()}</p>
+              </div>
+            )}
+
+            {/* Security Guard */}
+            {securityGuard.quantity > 0 && securityGuard.noOfDays > 0 && (
+              <div className="mb-3">
+                <p className="font-medium text-gray-700">Security Guard:</p>
+                <p className="text-sm ml-4">{securityGuard.quantity} guard(s) × {securityGuard.noOfDays} days - ₹{securityGuard.totalCost.toLocaleString()}</p>
+              </div>
+            )}
+
+            {/* Rental Items */}
+            {Object.values(rentalItems).filter(r => r.quantity > 0).length > 0 && (
+              <div className="mb-3">
+                <p className="font-medium text-gray-700">AV & IT Rentals:</p>
+                {Object.values(rentalItems).filter(r => r.quantity > 0).map((r, idx) => (
+                  <p key={idx} className="text-sm ml-4">{r.description} × {r.quantity} - ₹{r.totalCost.toLocaleString()}</p>
+                ))}
+              </div>
+            )}
+
+            {/* Housekeeping */}
+            {housekeepingStaff.quantity > 0 && housekeepingStaff.noOfDays > 0 && (
+              <div className="mb-3">
+                <p className="font-medium text-gray-700">Housekeeping Staff:</p>
+                <p className="text-sm ml-4">{housekeepingStaff.quantity} staff × {housekeepingStaff.noOfDays} days - ₹{housekeepingStaff.totalCost.toLocaleString()}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Payment Summary */}
+          <div className="border-b border-gray-200 pb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+              <CreditCardIcon className="h-5 w-5 mr-2 text-blue-500" />
+              Payment Details
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <p><span className="font-medium">Payment Mode:</span> {paymentDetails.paymentMode}</p>
+              <p><span className="font-medium">Bank Name:</span> {paymentDetails.bankName || 'N/A'}</p>
+              <p><span className="font-medium">Transaction ID:</span> {paymentDetails.transactionId || 'N/A'}</p>
+              <p><span className="font-medium">Transaction Date:</span> {paymentDetails.transactionDate || 'N/A'}</p>
+              <p><span className="font-medium">Amount Paid:</span> ₹{paymentDetails.amount?.toLocaleString() || '0'}</p>
+            </div>
+          </div>
+
+          {/* Cost Summary */}
+          <div className="bg-gray-50 rounded-xl p-5">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Cost Summary</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Services Total:</span>
+                <span>₹{totals.servicesTotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>GST (18%):</span>
+                <span>₹{totals.gst.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Subtotal (Services + GST):</span>
+                <span>₹{totals.subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Security Deposit:</span>
+                <span>₹{totals.deposit.toLocaleString()}</span>
+              </div>
+              <div className="border-t border-gray-300 pt-2 mt-2">
+                <div className="flex justify-between font-bold text-lg">
+                  <span>Grand Total:</span>
+                  <span className="text-blue-600">₹{totals.total.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-end pt-4">
             <button
               onClick={() => setShowPreview(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
-              <XCircleIcon className="h-6 w-6" />
+              Edit
             </button>
-          </div>
-
-          <div className="max-h-[70vh] overflow-y-auto p-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
-                  <UserIcon className="h-4 w-4 mr-2 text-blue-600" />
-                  Exhibitor
-                </h3>
-                <div className="space-y-1 text-xs">
-                  <p><span className="font-medium">Name:</span> {`${generalInfo.title || ""} ${generalInfo.firstName || ""} ${generalInfo.lastName || ""}`.trim() || "—"}</p>
-                  <p><span className="font-medium">Company:</span> {generalInfo.companyName || "—"}</p>
-                  <p><span className="font-medium">Email:</span> {generalInfo.email || "—"}</p>
-                  <p><span className="font-medium">Mobile:</span> {generalInfo.mobile || "—"}</p>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
-                  <MapPinIcon className="h-4 w-4 mr-2 text-blue-600" />
-                  Booth Details
-                </h3>
-                <div className="space-y-1 text-xs">
-                  <p><span className="font-medium">Booth No:</span> {boothDetails.boothNo || "—"}</p>
-                  <p><span className="font-medium">Size:</span> {boothDetails.sqMtrBooked ? `${boothDetails.sqMtrBooked} sq.m` : "—"}</p>
-                  <p><span className="font-medium">Exhibitor:</span> {boothDetails.exhibitorName || "—"}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white border rounded-lg overflow-hidden mb-6">
-              <div className="bg-gray-800 px-4 py-2">
-                <h3 className="text-sm font-semibold text-white">Cost Summary</h3>
-              </div>
-              <table className="min-w-full divide-y divide-gray-200">
-                <tbody className="divide-y divide-gray-200">
-                  <tr><td className="px-4 py-2 text-xs">Furniture</td><td className="px-4 py-2 text-xs text-right">₹{totals.furniture.toLocaleString()}</td></tr>
-                  <tr><td className="px-4 py-2 text-xs">Hostess</td><td className="px-4 py-2 text-xs text-right">₹{totals.hostess.toLocaleString()}</td></tr>
-                  <tr><td className="px-4 py-2 text-xs">Electrical</td><td className="px-4 py-2 text-xs text-right">₹{totals.electrical.toLocaleString()}</td></tr>
-                  <tr><td className="px-4 py-2 text-xs">Compressed Air</td><td className="px-4 py-2 text-xs text-right">₹{totals.compressedAir.toLocaleString()}</td></tr>
-                  <tr><td className="px-4 py-2 text-xs">Water</td><td className="px-4 py-2 text-xs text-right">₹{totals.water.toLocaleString()}</td></tr>
-                  <tr><td className="px-4 py-2 text-xs">Security Guard</td><td className="px-4 py-2 text-xs text-right">₹{totals.security.toLocaleString()}</td></tr>
-                  <tr className="bg-yellow-50"><td className="px-4 py-2 text-xs font-semibold">AV & IT Rentals</td><td className="px-4 py-2 text-xs font-semibold text-right">₹{totals.rental.toLocaleString()}</td></tr>
-                  <tr className="bg-green-50"><td className="px-4 py-2 text-xs font-semibold">Housekeeping Staff</td><td className="px-4 py-2 text-xs font-semibold text-right">₹{totals.housekeeping.toLocaleString()}</td></tr>
-                  <tr><td className="px-4 py-2 text-xs">Services Total</td><td className="px-4 py-2 text-xs text-right">₹{totals.servicesTotal.toLocaleString()}</td></tr>
-                  <tr><td className="px-4 py-2 text-xs">GST (18%)</td><td className="px-4 py-2 text-xs text-right">₹{totals.gst.toLocaleString()}</td></tr>
-                  <tr className="bg-gray-50"><td className="px-4 py-2 text-xs font-semibold">Subtotal (Including GST)</td><td className="px-4 py-2 text-xs text-right">₹{totals.subtotal.toLocaleString()}</td></tr>
-                  <tr><td className="px-4 py-2 text-xs font-semibold">Security Deposit</td><td className="px-4 py-2 text-xs text-right">₹{totals.deposit.toLocaleString()}</td></tr>
-                  <tr className="bg-blue-50"><td className="px-4 py-2 text-sm font-bold">Grand Total</td><td className="px-4 py-2 text-sm font-bold text-blue-700 text-right">₹{totals.total.toLocaleString()}</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t flex flex-col sm:flex-row justify-end gap-3">
-            <button onClick={() => setShowPreview(false)} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm">Continue Editing</button>
-            <button onClick={() => { setShowPreview(false); setShowPayment(true); }} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">Proceed to Payment</button>
+            <button
+              onClick={handleSubmitApplication}
+              disabled={isSubmitting}
+              className={`px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 ${
+                isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  Submitting...
+                </>
+              ) : (
+                'Submit Application'
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -3523,69 +3853,127 @@ useEffect(() => {
 
   // ============= PAYMENT MODAL =============
   const renderPaymentModal = () => {
+    if (!showPayment) return null;
+
     const totals = calculateTotals();
 
     return (
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div className="relative top-10 sm:top-20 mx-3 sm:mx-auto p-4 sm:p-6 border w-full sm:w-11/12 max-w-2xl shadow-lg rounded-lg bg-white">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Payment</h2>
-            <button onClick={() => setShowPayment(false)} className="text-gray-400 hover:text-gray-600"><XCircleIcon className="h-6 w-6" /></button>
+      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+            <h2 className="text-xl font-bold">Payment Details</h2>
+            <button
+              onClick={() => setShowPayment(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <XCircleIcon className="h-6 w-6" />
+            </button>
           </div>
 
-          <div className="space-y-6">
+          <div className="p-6 space-y-6">
             <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-blue-900">Total Amount:</span>
-                <span className="text-xl font-bold text-blue-900">₹{totals.total.toLocaleString()}</span>
-              </div>
-              <p className="text-xs text-blue-700 mt-1">Includes 18% GST on services + Security Deposit</p>
+              <p className="text-sm text-gray-600">Total Amount Due</p>
+              <p className="text-2xl font-bold text-blue-600">₹{totals.total.toLocaleString()}</p>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-sm font-semibold text-gray-800 mb-3">Bank Transfer Details</h3>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="text-gray-600">Account Name:</div><div className="font-medium">Maxx Business Media Pvt. Ltd.</div>
-                <div className="text-gray-600">Account No:</div><div className="font-medium">272605000632</div>
-                <div className="text-gray-600">IFSC:</div><div className="font-medium">ICIC0002726</div>
-                <div className="text-gray-600">Bank:</div><div className="font-medium">ICICI Bank</div>
-                <div className="text-gray-600">Branch:</div><div className="font-medium">New Delhi</div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Payment Mode
+                </label>
+                <select
+                  value={paymentDetails.paymentMode}
+                  onChange={(e) => setPaymentDetails({ ...paymentDetails, paymentMode: e.target.value as any })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
+                >
+                  <option value="RTGS">RTGS</option>
+                  <option value="NEFT">NEFT</option>
+                  <option value="IMPS">IMPS</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="DD">DD</option>
+                  <option value="Cash">Cash</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bank Name
+                </label>
+                <input
+                  type="text"
+                  value={paymentDetails.bankName}
+                  onChange={(e) => setPaymentDetails({ ...paymentDetails, bankName: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
+                  placeholder="Enter bank name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Transaction ID / Reference No.
+                </label>
+                <input
+                  type="text"
+                  value={paymentDetails.transactionId}
+                  onChange={(e) => setPaymentDetails({ ...paymentDetails, transactionId: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
+                  placeholder="Enter transaction ID"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Transaction Date
+                </label>
+                <input
+                  type="date"
+                  value={paymentDetails.transactionDate}
+                  onChange={(e) => setPaymentDetails({ ...paymentDetails, transactionDate: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Amount Paid
+                </label>
+                <input
+                  type="number"
+                  value={paymentDetails.amount || ''}
+                  onChange={(e) => setPaymentDetails({ ...paymentDetails, amount: parseFloat(e.target.value) || 0 })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
+                  placeholder="Enter amount"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Upload Payment Receipt
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handlePaymentFileUpload}
+                  className="w-full border border-gray-200 rounded-lg p-2 text-sm"
+                />
+                <p className="text-xs text-gray-500 mt-1">Upload screenshot or scan of payment proof</p>
               </div>
             </div>
 
-            <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-3">Payment Details</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Payment Mode</label>
-                  <select value={paymentDetails.paymentMode} onChange={(e) => setPaymentDetails({ ...paymentDetails, paymentMode: e.target.value as any })} className="w-full border border-gray-200 rounded-lg p-2 text-sm">
-                    <option value="RTGS">RTGS</option><option value="NEFT">NEFT</option><option value="IMPS">IMPS</option>
-                    <option value="UPI">UPI</option><option value="Cheque">Cheque</option><option value="DD">DD</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Transaction ID / UTR</label>
-                  <input type="text" value={paymentDetails.transactionId} onChange={(e) => setPaymentDetails({ ...paymentDetails, transactionId: e.target.value })} className="w-full border border-gray-200 rounded-lg p-2 text-sm" placeholder="UTR / Transaction ID" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Amount Paid</label>
-                  <input type="number" value={paymentDetails.amount || ''} onChange={(e) => setPaymentDetails({ ...paymentDetails, amount: parseFloat(e.target.value) || 0 })} className="w-full border border-gray-200 rounded-lg p-2 text-sm" placeholder="Enter amount" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Transaction Date</label>
-                  <input type="date" value={paymentDetails.transactionDate} onChange={(e) => setPaymentDetails({ ...paymentDetails, transactionDate: e.target.value })} className="w-full border border-gray-200 rounded-lg p-2 text-sm" />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Upload Payment Receipt</label>
-                  <input type="file" onChange={handlePaymentFileUpload} accept=".pdf,.jpg,.jpeg,.png" className="w-full border border-gray-200 rounded-lg p-1.5 text-sm" />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row justify-end gap-3">
-              <button onClick={() => setShowPayment(false)} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm">Back</button>
-              <button onClick={handleSubmitApplication} disabled={isSubmitting} className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-semibold disabled:opacity-50">
-                {isSubmitting ? 'Submitting...' : 'Submit Application'}
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={() => setShowPayment(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitApplication}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit & Proceed'}
               </button>
             </div>
           </div>
@@ -3594,109 +3982,164 @@ useEffect(() => {
     );
   };
 
-  // ============= NAVIGATION =============
-  const renderNavigation = () => (
-    <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-6">
-      <button onClick={() => setCurrentStep(Math.max(1, currentStep - 1))} disabled={currentStep === 1} className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center text-sm">
-        <ChevronLeftIcon className="h-4 w-4 mr-1" /> Previous
-      </button>
+  // ============= CASHFREE PAYMENT MODAL =============
+const renderCashfreePayment = () => {
+  if (!showCashfree || !cashfreeInvoiceId || !cashfreeRequirementsId) return null;
 
-      <div className="flex gap-3 w-full sm:w-auto">
-        <button onClick={() => setShowPreview(true)} className="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center justify-center text-sm">
-          <EyeIcon className="h-4 w-4 sm:mr-2" /><span className="hidden sm:inline">Preview & Totals</span><span className="sm:hidden">Preview</span>
-        </button>
-
-        {currentStep < totalSteps && (
-          <button onClick={() => setCurrentStep(currentStep + 1)} className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center text-sm">
-            <span className="sm:hidden">Next</span><span className="hidden sm:inline">Next</span><ChevronRightIcon className="h-4 w-4 ml-1" />
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+          <h2 className="text-xl font-bold">Complete Payment</h2>
+          <button
+            onClick={() => setShowCashfree(false)}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <XCircleIcon className="h-6 w-6" />
           </button>
-        )}
-
-        {currentStep === totalSteps && (
-          <button onClick={() => setShowPreview(true)} className="flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center text-sm font-semibold">
-            Review & Submit
-          </button>
-        )}
+        </div>
+        <div className="p-6">
+          <CashfreePayment
+            invoiceId={cashfreeInvoiceId}
+            amount={cashfreeAmount}
+            requirementsId={cashfreeRequirementsId}
+            onSuccess={handleCashfreeSuccess}
+            onFailure={handleCashfreeFailure}
+          />
+        </div>
       </div>
     </div>
   );
-
-  // ============= PROGRESS TRACKER =============
-  const renderProgressTracker = () => (
-    <div className="mb-6 bg-white rounded-lg shadow p-4">
-      <div className="hidden sm:block">
-        <div className="flex items-center justify-between">
-          {steps.map((step, idx) => (
-            <div key={step.number} className="flex items-center">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 text-xs font-medium ${
-                currentStep > step.number ? 'bg-green-600 border-green-600 text-white' :
-                currentStep === step.number ? 'bg-blue-600 border-blue-600 text-white' :
-                'border-gray-300 bg-white text-gray-400'}`}>
-                {currentStep > step.number ? '✓' : step.number}
-              </div>
-              {idx < steps.length - 1 && <div className={`w-6 h-0.5 mx-1 ${currentStep > step.number + 1 ? 'bg-green-600' : 'bg-gray-300'}`} />}
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-between mt-2">
-          {steps.map(step => <span key={step.number} className="text-xs text-gray-600">{step.name}</span>)}
-        </div>
-      </div>
-
-      <div className="sm:hidden">
-        <div className="flex items-center justify-between">
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="flex items-center text-blue-600">
-            <MenuIcon className="h-5 w-5 mr-2" /><span className="font-medium text-sm">Step {currentStep}: {steps[currentStep - 1]?.mobileName}</span>
-          </button>
-          <div className="text-sm text-gray-600">{currentStep} / {totalSteps}</div>
-        </div>
-        {isMobileMenuOpen && (
-          <div className="mt-4 grid grid-cols-4 gap-2">
-            {steps.map((step) => (
-              <button key={step.number} onClick={() => { setCurrentStep(step.number); setIsMobileMenuOpen(false); }} className={`p-2 rounded-lg text-xs font-medium relative ${currentStep === step.number ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
-                {step.mobileName}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+};
 
   // ============= MAIN RENDER =============
   return (
-    <div className="min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Exhibition Registration</h1>
-          <p className="mt-1 text-sm sm:text-base text-gray-600">Complete all sections to register your participation. All sections are optional.</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Exhibitor Requirements
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                Fill in your requirements for the exhibition
+              </p>
+            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+            >
+              <MenuIcon className="h-6 w-6 text-gray-600" />
+            </button>
+          </div>
         </div>
-
-        {renderProgressTracker()}
-        {renderNavigation()}
-        {renderImageModal()}
-
-        <div className="mt-4">
-          {currentStep === 1 && renderGeneralInfo()}
-          {currentStep === 2 && renderBoothDetails()}
-          {currentStep === 3 && renderSecurityDeposit()}
-          {currentStep === 4 && renderMachines()}
-          {currentStep === 5 && renderPersonnel()}
-          {currentStep === 6 && renderCompanyDetails()}
-          {currentStep === 7 && renderElectricalLoad()}
-          {currentStep === 8 && renderFurniture()}
-          {currentStep === 9 && renderHostess()}
-          {currentStep === 10 && renderCompressedAir()}
-          {currentStep === 11 && renderWaterConnection()}
-          {currentStep === 12 && renderSecurityGuard()}
-          {currentStep === 13 && renderRentalItems()}
-          {currentStep === 14 && renderHousekeepingStaff()}
-        </div>
-
-        {renderNavigation()}
-        {showPreview && renderPreviewModal()}
-        {showPayment && renderPaymentModal()}
       </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Sidebar - Steps Navigation */}
+          <div className={`lg:w-64 flex-shrink-0 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-white rounded-xl shadow-sm p-4 sticky top-20">
+              <div className="flex flex-wrap lg:flex-col gap-2">
+                {steps.map((step) => {
+                  const isActive = currentStep === step.number;
+                  const isCompleted = currentStep > step.number;
+                  const Icon = step.icon;
+
+                  return (
+                    <button
+                      key={step.number}
+                      onClick={() => {
+                        setCurrentStep(step.number);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all ${
+                        isActive
+                          ? 'bg-blue-50 text-blue-600 font-medium'
+                          : isCompleted
+                          ? 'text-green-600 hover:bg-gray-50'
+                          : 'text-gray-500 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs ${
+                        isActive
+                          ? 'bg-blue-600 text-white'
+                          : isCompleted
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-200 text-gray-600'
+                      }`}>
+                        {isCompleted ? <CheckCircleIcon className="h-4 w-4" /> : step.number}
+                      </div>
+                      <span className="hidden sm:inline text-sm">{step.name}</span>
+                      <span className="sm:hidden text-sm">{step.mobileName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="flex-1">
+            {!showPreview ? (
+              <>
+                {/* Step Content */}
+                {currentStep === 1 && renderGeneralInfo()}
+                {currentStep === 2 && renderBoothDetails()}
+                {currentStep === 3 && renderSecurityDeposit()}
+                {currentStep === 4 && renderMachines()}
+                {currentStep === 5 && renderPersonnel()}
+                {currentStep === 6 && renderCompanyDetails()}
+                {currentStep === 7 && renderElectricalLoad()}
+                {currentStep === 8 && renderFurniture()}
+                {currentStep === 9 && renderHostess()}
+                {currentStep === 10 && renderCompressedAir()}
+                {currentStep === 11 && renderWaterConnection()}
+                {currentStep === 12 && renderSecurityGuard()}
+                {currentStep === 13 && renderRentalItems()}
+                {currentStep === 14 && renderHousekeepingStaff()}
+
+                {/* Navigation Buttons */}
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                  >
+                    <ChevronLeftIcon className="h-4 w-4" />
+                    Previous
+                  </button>
+                  {currentStep < totalSteps ? (
+                    <button
+                      onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                    >
+                      Next
+                      <ChevronRightIcon className="h-4 w-4" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowPreview(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                    >
+                      <EyeIcon className="h-4 w-4" />
+                      Preview & Submit
+                    </button>
+                  )}
+                </div>
+              </>
+            ) : (
+              renderPreview()
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {renderImageModal()}
+      {renderPaymentModal()}
+      {renderCashfreePayment()}
     </div>
   );
 }

@@ -17,7 +17,9 @@ import {
   BuildingOfficeIcon,
   UserIcon,
   DevicePhoneMobileIcon,
-  MapPinIcon
+  MapPinIcon,
+  ClockIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
@@ -27,9 +29,13 @@ export default function SuccessPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const invoiceId = searchParams.get('invoiceId');
+  const paymentStatus = searchParams.get('status');
+  const paymentReference = searchParams.get('paymentReference');
+  const paymentId = searchParams.get('paymentId');
   
   const [invoice, setInvoice] = useState<any>(null);
   const [requirementData, setRequirementData] = useState<any>(null);
+  const [paymentData, setPaymentData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -39,6 +45,11 @@ export default function SuccessPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // First check if we have payment info from URL
+        if (paymentId) {
+          await fetchPaymentDetails(paymentId);
+        }
+        
         if (invoiceId) {
           await fetchInvoiceWithDetails(invoiceId);
         } else {
@@ -64,7 +75,25 @@ export default function SuccessPage() {
     };
     
     fetchData();
-  }, [invoiceId]);
+  }, [invoiceId, paymentId]);
+
+  const fetchPaymentDetails = async (id: string) => {
+    try {
+      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/payments/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPaymentData(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching payment details:', error);
+    }
+  };
 
   const fetchInvoiceWithDetails = async (id: string) => {
     try {
@@ -255,6 +284,19 @@ export default function SuccessPage() {
     return `₹${amount.toLocaleString('en-IN')}`;
   };
 
+  const getPaymentModeIcon = (mode: string) => {
+    switch(mode) {
+      case 'cash':
+        return '💵';
+      case 'cheque':
+        return '📝';
+      case 'dd':
+        return '📄';
+      default:
+        return '💰';
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -293,23 +335,44 @@ export default function SuccessPage() {
   const totals = invoice?.totals || invoice?.metadata?.totals || {};
   const items = invoice?.items || [];
   const paymentInfo = invoice?.paymentDetails || invoice?.metadata?.paymentInfo || {};
+  
+  const isPending = paymentStatus === 'pending' || invoice?.status === 'pending_verification';
+  const isVerified = invoice?.status === 'paid' || paymentStatus === 'verified';
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 sm:py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        {/* Success Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 text-center mb-6">
-          <div className="mx-auto flex items-center justify-center h-16 w-16 bg-green-100 rounded-full mb-6">
-            <CheckCircleIcon className="h-10 w-10 text-green-600" />
+        {/* Success/Status Header */}
+        <div className={`bg-white rounded-2xl shadow-lg p-6 sm:p-8 text-center mb-6 ${
+          isPending ? 'border-l-4 border-l-yellow-500' : ''
+        }`}>
+          <div className={`mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-6 ${
+            isPending ? 'bg-yellow-100' : 'bg-green-100'
+          }`}>
+            {isPending ? (
+              <ClockIcon className="h-10 w-10 text-yellow-600" />
+            ) : (
+              <CheckCircleIcon className="h-10 w-10 text-green-600" />
+            )}
           </div>
           
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Application Submitted Successfully!
+            {isPending ? 'Application Submitted - Payment Pending' : 'Application Submitted Successfully!'}
           </h1>
           
           <p className="text-gray-600 mb-6">
-            Your exhibition requirements have been received. A confirmation email has been sent to your registered email address.
+            {isPending 
+              ? 'Your exhibition requirements have been received. Our team will verify your payment details.'
+              : 'Your exhibition requirements have been received. A confirmation email has been sent to your registered email address.'
+            }
           </p>
+          
+          {paymentReference && (
+            <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-2">
+              <ReceiptPercentIcon className="h-4 w-4 text-gray-600" />
+              <span className="text-sm text-gray-700">Payment Reference: {paymentReference}</span>
+            </div>
+          )}
           
           {invoice && (
             <div className="inline-flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full">
@@ -319,11 +382,50 @@ export default function SuccessPage() {
           )}
         </div>
 
+        {/* Pending Payment Warning */}
+        {isPending && paymentData && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-yellow-800">Payment Pending Verification</h3>
+                <p className="text-sm text-yellow-700 mt-1">
+                  Your payment details have been submitted and are pending verification by our team.
+                  Once verified, you will receive a confirmation email and your invoice status will be updated.
+                </p>
+                {paymentData && (
+                  <div className="mt-3 text-xs text-yellow-700 space-y-1">
+                    <p><strong>Payment Mode:</strong> {getPaymentModeIcon(paymentData.paymentMode)} {paymentData.paymentMode?.toUpperCase()}</p>
+                    {paymentData.paymentMode === 'cheque' && (
+                      <>
+                        <p><strong>Cheque Number:</strong> {paymentData.cheque_number}</p>
+                        <p><strong>Bank Name:</strong> {paymentData.bank_name}</p>
+                      </>
+                    )}
+                    {paymentData.paymentMode === 'dd' && (
+                      <>
+                        <p><strong>DD Number:</strong> {paymentData.dd_number}</p>
+                        <p><strong>Bank Name:</strong> {paymentData.bank_name}</p>
+                      </>
+                    )}
+                    {paymentData.payment_mode === 'cash' && (
+                      <p><strong>Amount Paid:</strong> {formatCurrency(paymentData.amount_paid)}</p>
+                    )}
+                    <p><strong>Submitted on:</strong> {formatDate(paymentData.created_at)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Invoice Details */}
         {invoice && (
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
             {/* Invoice Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <div className={`px-6 py-4 ${
+              isPending ? 'bg-gradient-to-r from-yellow-600 to-yellow-700' : 'bg-gradient-to-r from-blue-600 to-blue-700'
+            }`}>
               <div className="flex justify-between items-center text-white">
                 <div>
                   <p className="text-sm opacity-80">INVOICE</p>
@@ -350,18 +452,26 @@ export default function SuccessPage() {
                 <div>
                   <p className="text-gray-500">Status</p>
                   <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${
-                    invoice.status === 'paid' 
+                    invoice.status === 'paid' || isVerified
                       ? 'bg-green-100 text-green-800'
+                      : invoice.status === 'pending_verification' || isPending
+                      ? 'bg-yellow-100 text-yellow-800'
                       : invoice.status === 'pending'
                       ? 'bg-yellow-100 text-yellow-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {invoice.status?.toUpperCase() || 'PENDING'}
+                    {invoice.status === 'pending_verification' || isPending 
+                      ? 'PENDING VERIFICATION' 
+                      : invoice.status === 'paid' || isVerified
+                      ? 'PAID'
+                      : invoice.status?.toUpperCase() || 'PENDING'}
                   </span>
                 </div>
                 <div>
                   <p className="text-gray-500">Payment Mode</p>
-                  <p className="font-semibold text-gray-900">{paymentInfo.paymentMode || 'Not specified'}</p>
+                  <p className="font-semibold text-gray-900">
+                    {paymentData?.paymentMode || paymentInfo.paymentMode || 'Cash/Cheque/DD'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -488,31 +598,6 @@ export default function SuccessPage() {
                 </div>
               </div>
             </div>
-
-            {/* Payment Details */}
-            {paymentInfo.transactionId && (
-              <div className="px-6 py-4 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Payment Information</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-                  <div>
-                    <p className="text-gray-500">Transaction ID</p>
-                    <p className="font-medium text-gray-900">{paymentInfo.transactionId}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Payment Mode</p>
-                    <p className="font-medium text-gray-900">{paymentInfo.paymentMode}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Transaction Date</p>
-                    <p className="font-medium text-gray-900">{paymentInfo.transactionDate ? formatDate(paymentInfo.transactionDate) : '—'}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Amount Paid</p>
-                    <p className="font-medium text-gray-900">{formatCurrency(paymentInfo.paidAmount || paymentInfo.amount)}</p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -577,32 +662,71 @@ export default function SuccessPage() {
               <ReceiptPercentIcon className="h-4 w-4" />
               View All Invoices
             </Link>
+            {isPending && (
+              <Link
+                href="/dashboard/requirements"
+                className="text-green-600 hover:text-green-700 font-medium text-sm flex items-center gap-1"
+              >
+                <ArrowPathIcon className="h-4 w-4" />
+                Track Payment Status
+              </Link>
+            )}
           </div>
         </div>
         
-        {/* Payment Instructions */}
-        <div className="mt-6 bg-white rounded-xl shadow p-6">
-          <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <CurrencyRupeeIcon className="h-5 w-5 text-green-600" />
-            Payment Instructions
-          </h3>
-          <div className="space-y-3 text-sm text-gray-600">
-            <p>Please make the payment via bank transfer using the following details:</p>
-            <div className="bg-gray-50 p-4 rounded-lg mt-2 space-y-1">
-              <p><strong>Account Name:</strong> Maxx Business Media Pvt. Ltd.</p>
-              <p><strong>Account Number:</strong> 272605000632</p>
-              <p><strong>IFSC Code:</strong> ICIC0002726</p>
-              <p><strong>Bank:</strong> ICICI Bank, New Delhi</p>
-              <p><strong>Branch:</strong> Connaught Place</p>
-            </div>
-            <div className="bg-yellow-50 p-4 rounded-lg mt-3">
-              <p className="text-xs text-yellow-800">
-                <span className="font-semibold">Important:</span> Please use your Invoice Number <strong>{invoice?.invoiceNumber || 'N/A'}</strong> as reference when making the payment.
-                After payment, please upload the receipt in your dashboard for verification.
-              </p>
+        {/* Payment Instructions - Only show for pending payments */}
+        {isPending && (
+          <div className="mt-6 bg-white rounded-xl shadow p-6">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <CurrencyRupeeIcon className="h-5 w-5 text-green-600" />
+              Payment Instructions
+            </h3>
+            <div className="space-y-3 text-sm text-gray-600">
+              <p>Please complete your payment using one of these methods:</p>
+              
+              <div className="bg-green-50 p-4 rounded-lg mt-2">
+                <h4 className="font-semibold text-green-800 mb-2">Option 1: Online Bank Transfer</h4>
+                <div className="space-y-1">
+                  <p><strong>Account Name:</strong> Maxx Business Media Pvt. Ltd.</p>
+                  <p><strong>Account Number:</strong> 272605000632</p>
+                  <p><strong>IFSC Code:</strong> ICIC0002726</p>
+                  <p><strong>Bank:</strong> ICICI Bank, New Delhi</p>
+                  <p><strong>Branch:</strong> Connaught Place</p>
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-blue-800 mb-2">Option 2: Cash/Cheque/DD at Venue</h4>
+                <p className="text-sm">
+                  You can also make the payment at the exhibition venue during the event days.
+                  Please bring a printed copy of this invoice for reference.
+                </p>
+              </div>
+              
+              <div className="bg-yellow-50 p-4 rounded-lg mt-3">
+                <p className="text-xs text-yellow-800">
+                  <span className="font-semibold">Important:</span> Please use your Invoice Number <strong>{invoice?.invoiceNumber || 'N/A'}</strong> as reference when making the payment.
+                  After payment, please upload the receipt in your dashboard for verification.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Verified Payment Success Message */}
+        {isVerified && !isPending && (
+          <div className="mt-6 bg-green-50 border border-green-200 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <CheckCircleIcon className="h-6 w-6 text-green-600" />
+              <div>
+                <h3 className="font-semibold text-green-800">Payment Verified!</h3>
+                <p className="text-sm text-green-700">
+                  Your payment has been successfully verified. You are now confirmed for the exhibition.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Support Section */}
         <div className="mt-6 text-center">
