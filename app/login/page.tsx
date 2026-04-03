@@ -86,25 +86,17 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">
-            {/* DIEMEX Logo - You can use either an image or text logo */}
-            
-            {/* Option 1: If you have a logo image */}
-            <div className="relative h-40 w-40">
-              <Image
-                src="/images/exhibitor-login.png" // Update this path to your actual logo location
-                alt="DIEMEX"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-
-            {/* Option 2: Text logo (if you don't have an image) */}
-            {/* <div className="text-center">
-              <h1 className="text-4xl font-bold text-blue-600">DIEMEX</h1>
-              <p className="text-xs text-gray-500 mt-1">Exhibition</p>
-            </div> */}
-          </div>
+  <div className="relative h-40 w-[700px]">
+  <Image
+  src="/images/exhibitor-login.png"
+  alt="DIEMEX"
+  width={300}
+  height={100}
+  className="mx-auto object-contain"
+  priority
+/>
+  </div>
+</div>
 
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Exhibitor Portal
