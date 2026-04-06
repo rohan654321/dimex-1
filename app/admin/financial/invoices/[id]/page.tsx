@@ -120,9 +120,10 @@ export default function AdminInvoiceDetailsPage() {
       } else {
         setError('Failed to load invoice details');
       }
-    } catch (error) {
-      console.error('Error fetching invoice:', error);
-      setError('Failed to load invoice details');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load invoice details';
+      console.error('Error fetching invoice:', errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -154,9 +155,10 @@ export default function AdminInvoiceDetailsPage() {
         const errorData = await response.json();
         alert(errorData.message || 'Failed to download invoice');
       }
-    } catch (error) {
-      console.error('Error downloading invoice:', error);
-      alert('Failed to download invoice');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to download invoice';
+      console.error('Error downloading invoice:', errorMessage);
+      alert(errorMessage);
     } finally {
       setDownloading(false);
     }
@@ -168,6 +170,13 @@ export default function AdminInvoiceDetailsPage() {
     setUpdating(true);
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
+      
+      console.log('Updating invoice with:', {
+        url: `${API_BASE_URL}/api/invoices/admin/${invoice.id}`,
+        status: editData.status,
+        notes: editData.notes
+      });
+      
       const response = await fetch(`${API_BASE_URL}/api/invoices/admin/${invoice.id}`, {
         method: 'PUT',
         headers: {
@@ -180,25 +189,41 @@ export default function AdminInvoiceDetailsPage() {
         })
       });
       
+      // Get the response text first
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        const parseError = e instanceof Error ? e.message : 'Unknown parse error';
+        console.error('Failed to parse JSON:', responseText);
+        throw new Error(`Server returned: ${responseText.substring(0, 200)}`);
+      }
+      
       if (response.ok) {
-        const data = await response.json();
         setInvoice(data.data);
         setShowEditModal(false);
-        alert('Invoice updated successfully');
+        alert('✅ Invoice updated successfully');
+        await fetchInvoiceDetails();
       } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Failed to update invoice');
+        console.error('Update failed:', data);
+        alert(`❌ Failed: ${data.error || data.message || 'Unknown error'}`);
       }
-    } catch (error) {
-      console.error('Error updating invoice:', error);
-      alert('Failed to update invoice');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Network error occurred';
+      console.error('Network error:', errorMessage);
+      alert(`❌ Network error: ${errorMessage}`);
     } finally {
       setUpdating(false);
     }
   };
 
   const handlePrint = () => {
-    window.print();
+    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
+    const printUrl = `${API_BASE_URL}/api/invoices/${invoice?.id}/print?token=${encodeURIComponent(token || '')}`;
+    window.open(printUrl, '_blank');
   };
 
   const formatDate = (dateString: string) => {
@@ -222,7 +247,7 @@ export default function AdminInvoiceDetailsPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    if (!amount) return '₹0';
+    if (!amount && amount !== 0) return '₹0';
     return `₹${amount.toLocaleString('en-IN')}`;
   };
 
