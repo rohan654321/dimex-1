@@ -764,6 +764,11 @@ export default function RequirementsPage() {
     fetchAllData();
   }, []);
 
+
+
+
+
+
   const fetchExhibitorProfile = async () => {
     try {
       const result = await apiService.getExhibitorProfile();
@@ -3546,6 +3551,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           >
             <ChevronLeftIcon className="h-5 w-5" />
           </button>
+     
         </div>
 
         <div className="space-y-6">
