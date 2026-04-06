@@ -1411,8 +1411,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
     localStorage.setItem('last_payment_id', paymentData.paymentId);
   }
   
+  // FIX: Navigate to the EXISTING success page, not payment-status
   router.push(`/dashboard/requirements/success?order_id=${paymentData.orderId}&invoiceId=${cashfreeInvoiceId}`);
 };
+
   const handleCashfreeFailure = (error: string) => {
     console.error('Payment failed:', error);
     setShowCashfree(false);
