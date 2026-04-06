@@ -34,6 +34,7 @@ import {
   MagnifyingGlassPlusIcon,
   LockClosedIcon
 } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
 import { MenuIcon } from 'lucide-react';
 import Image from 'next/image';
 import CashfreePayment from '@/components/CashfreePayment';
@@ -635,6 +636,7 @@ export default function RequirementsPage() {
     if (typeof value === 'number') return value !== 0;
     return true;
   };
+  const router = useRouter();
 
   // ============= FETCH ALL DATA =============
   useEffect(() => {
@@ -1400,18 +1402,17 @@ export default function RequirementsPage() {
     }
   };
 
-  const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?: string }) => {
-    console.log('Payment successful:', paymentData);
-    setShowCashfree(false);
-    
-    localStorage.setItem('last_cashfree_order_id', paymentData.orderId);
-    if (paymentData.paymentId) {
-      localStorage.setItem('last_payment_id', paymentData.paymentId);
-    }
-    
-    window.location.href = `/dashboard/requirements/success?order_id=${paymentData.orderId}&invoiceId=${cashfreeInvoiceId}`;
-  };
-
+const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?: string }) => {
+  console.log('Payment successful:', paymentData);
+  setShowCashfree(false);
+  
+  localStorage.setItem('last_cashfree_order_id', paymentData.orderId);
+  if (paymentData.paymentId) {
+    localStorage.setItem('last_payment_id', paymentData.paymentId);
+  }
+  
+  router.push(`/dashboard/requirements/success?order_id=${paymentData.orderId}&invoiceId=${cashfreeInvoiceId}`);
+};
   const handleCashfreeFailure = (error: string) => {
     console.error('Payment failed:', error);
     setShowCashfree(false);
