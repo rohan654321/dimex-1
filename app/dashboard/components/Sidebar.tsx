@@ -22,7 +22,7 @@ const navigation = [
   {name: 'Invoices', href: '/dashboard/invoice', icon: DocumentTextIcon},
   { name: 'Layout', href: '/dashboard/layout', icon: MapIcon },
   { name: 'Stall Booked', href: '/dashboard/stall', icon: ShoppingCartIcon },
-  { name: 'Invoice', href: '/dashboard/invoice', icon: DocumentTextIcon },
+  // { name: 'Invoice', href: '/dashboard/invoice', icon: DocumentTextIcon },
   { name: 'Exhibitor Manual', href: '/dashboard/manual', icon: BookOpenIcon },
   { name: 'Extra Requirements', href: '/dashboard/requirements', icon: CogIcon },
   // { name: 'Exhibitor', href: '/dashboard/exhibitor', icon: UserIcon}
