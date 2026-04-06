@@ -193,10 +193,17 @@ export default function ExhibitorInvoiceDetailsPage() {
               )}
               Download PDF
             </button>
-            <button onClick={() => window.print()} className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              <PrinterIcon className="h-4 w-4" />
-              Print
-            </button>
+          <button
+  onClick={() => {
+    const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+    window.open(`${API_BASE_URL}/api/invoices/${invoice.id}/print?token=${encodeURIComponent(token || '')}`, '_blank');
+  }}
+  className="text-gray-600 hover:text-gray-900 transition"
+  title="Print Invoice"
+>
+  <PrinterIcon className="h-5 w-5" />
+</button>
+
           </div>
         </div>
 

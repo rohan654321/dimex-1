@@ -633,13 +633,18 @@ export default function SuccessPage() {
             </button>
           )}
           
-          <button
-            onClick={handlePrint}
-            className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition"
-          >
-            <PrinterIcon className="h-5 w-5" />
-            Print Invoice
-          </button>
+         <button
+  onClick={() => {
+    if (invoice?.id) {
+      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      window.open(`${API_BASE_URL}/api/invoices/${invoice.id}/print?token=${encodeURIComponent(token || '')}`, '_blank');
+    }
+  }}
+  className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition"
+>
+  <PrinterIcon className="h-5 w-5" />
+  Print Invoice
+</button>
         </div>
         
         {/* Navigation Links */}
