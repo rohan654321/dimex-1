@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
 interface CashfreePaymentProps {
   invoiceId: string;
@@ -121,31 +122,32 @@ export default function CashfreePayment({
         mode: 'production' // Change to 'sandbox' for testing
       });
 
-      // Open checkout
+      // Open checkout and handle redirect
       const paymentResult = await cashfree.checkout({
         paymentSessionId: paymentSessionId,
-        redirectTarget: '_self' // or '_blank' for new tab
+        redirectTarget: '_self'
       });
 
       console.log('Payment result:', paymentResult);
 
-      // Handle payment result
-      if (paymentResult && paymentResult.error) {
-        throw new Error(paymentResult.error);
-      }
-
-      // Check payment status
-      if (paymentResult && paymentResult.paymentDetails) {
-        const { paymentStatus, paymentId } = paymentResult.paymentDetails;
+      // After redirect, verify payment status
+      if (paymentResult && paymentResult.orderId) {
+        // Verify payment status with backend
+        const verifyResponse = await fetch(`${API_BASE_URL}/api/cashfree/verify-payment/${paymentResult.orderId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         
-        if (paymentStatus === 'SUCCESS' || paymentStatus === 'success') {
-          onSuccess?.({ orderId, paymentId });
+        const verifyResult = await verifyResponse.json();
+        
+        if (verifyResult.success && verifyResult.data.paymentStatus === 'SUCCESS') {
+          onSuccess?.({ orderId: paymentResult.orderId, paymentId: verifyResult.data.paymentId });
         } else {
-          throw new Error(`Payment ${paymentStatus || 'failed'}`);
+          throw new Error('Payment verification failed');
         }
-      } else if (paymentResult && paymentResult.orderId) {
-        // Alternative response structure
-        onSuccess?.({ orderId: paymentResult.orderId, paymentId: paymentResult.paymentId });
+      } else if (paymentResult && paymentResult.error) {
+        throw new Error(paymentResult.error);
       } else {
         // Payment might be pending or redirecting
         console.log('Payment initiated, waiting for redirect...');
@@ -211,14 +213,5 @@ export default function CashfreePayment({
         Secure payment powered by Cashfree
       </p>
     </div>
-  );
-}
-
-// Missing icon import - add at top of file if needed
-function ExclamationCircleIcon(props: any) {
-  return (
-    <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-    </svg>
   );
 }

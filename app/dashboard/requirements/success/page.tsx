@@ -1,7 +1,7 @@
 // app/dashboard/requirements/success/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { 
   CheckCircleIcon, 
@@ -29,9 +29,9 @@ export default function SuccessPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const invoiceId = searchParams.get('invoiceId');
+  const orderId = searchParams.get('order_id');
   const paymentStatus = searchParams.get('status');
   const paymentReference = searchParams.get('paymentReference');
-  const paymentId = searchParams.get('paymentId');
   
   const [invoice, setInvoice] = useState<any>(null);
   const [requirementData, setRequirementData] = useState<any>(null);
@@ -41,59 +41,59 @@ export default function SuccessPage() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const [invoiceStatus, setInvoiceStatus] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // First check if we have payment info from URL
-        if (paymentId) {
-          await fetchPaymentDetails(paymentId);
-        }
-        
-        if (invoiceId) {
-          await fetchInvoiceWithDetails(invoiceId);
-        } else {
-          // Try to get from localStorage
-          const savedInvoiceId = localStorage.getItem('last_invoice_id');
-          if (savedInvoiceId) {
-            await fetchInvoiceWithDetailsById(savedInvoiceId);
-          } else {
-            // Try to get by requirements ID
-            const savedRequirementsId = localStorage.getItem('last_requirements_id');
-            if (savedRequirementsId) {
-              await fetchInvoiceByRequirements(savedRequirementsId);
-            } else {
-              setLoading(false);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error in fetchData:', error);
-        setError('Failed to load invoice details');
-        setLoading(false);
-      }
-    };
-    
-    fetchData();
-  }, [invoiceId, paymentId]);
-
-  const fetchPaymentDetails = async (id: string) => {
+  // Verify payment status with Cashfree
+  const verifyCashfreePayment = useCallback(async (orderIdParam: string) => {
     try {
+      setVerifyingPayment(true);
       const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/payments/${id}`, {
+      
+      console.log('Verifying payment for order:', orderIdParam);
+      
+      const response = await fetch(`${API_BASE_URL}/api/cashfree/verify-payment/${orderIdParam}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setPaymentData(data.data);
+      const result = await response.json();
+      console.log('Payment verification result:', result);
+      
+      if (result.success && result.data.paymentStatus === 'SUCCESS') {
+        console.log('✅ Payment verified successfully!');
+        // Refresh invoice after payment verification
+        if (invoiceId) {
+          await fetchInvoiceWithDetails(invoiceId);
+        }
+        return true;
       }
+      return false;
     } catch (error) {
-      console.error('Error fetching payment details:', error);
+      console.error('Error verifying payment:', error);
+      return false;
+    } finally {
+      setVerifyingPayment(false);
     }
-  };
+  }, [invoiceId]);
+
+  // Check payment status from URL and verify
+  useEffect(() => {
+    const checkPayment = async () => {
+      // Check if we have order_id from Cashfree redirect
+      if (orderId) {
+        console.log('Order ID found in URL:', orderId);
+        const verified = await verifyCashfreePayment(orderId);
+        if (verified) {
+          // Remove query params from URL
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      }
+    };
+    
+    checkPayment();
+  }, [orderId, verifyCashfreePayment]);
 
   const fetchInvoiceWithDetails = async (id: string) => {
     try {
@@ -108,6 +108,12 @@ export default function SuccessPage() {
         const data = await response.json();
         setInvoice(data.data);
         setRequirementData(data.data);
+        setInvoiceStatus(data.data.status);
+        
+        // Also update localStorage
+        if (data.data.status === 'paid') {
+          localStorage.setItem(`invoice_${id}_paid`, 'true');
+        }
       } else {
         // Fallback to regular invoice fetch
         await fetchInvoiceById(id);
@@ -136,6 +142,7 @@ export default function SuccessPage() {
       if (response.ok) {
         const data = await response.json();
         setInvoice(data.data);
+        setInvoiceStatus(data.data.status);
       }
     } catch (error) {
       console.error('Error fetching invoice:', error);
@@ -143,6 +150,42 @@ export default function SuccessPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // First check if we have payment info from URL
+        if (orderId) {
+          // Payment verification is handled by the useEffect above
+          return;
+        }
+        
+        if (invoiceId) {
+          await fetchInvoiceWithDetails(invoiceId);
+        } else {
+          // Try to get from localStorage
+          const savedInvoiceId = localStorage.getItem('last_invoice_id');
+          if (savedInvoiceId) {
+            await fetchInvoiceWithDetailsById(savedInvoiceId);
+          } else {
+            // Try to get by requirements ID
+            const savedRequirementsId = localStorage.getItem('last_requirements_id');
+            if (savedRequirementsId) {
+              await fetchInvoiceByRequirements(savedRequirementsId);
+            } else {
+              setLoading(false);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetchData:', error);
+        setError('Failed to load invoice details');
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [invoiceId, orderId]);
 
   const fetchInvoiceWithDetailsById = async (id: string) => {
     if (!id) return;
@@ -159,6 +202,7 @@ export default function SuccessPage() {
         const data = await response.json();
         setInvoice(data.data);
         setRequirementData(data.data);
+        setInvoiceStatus(data.data.status);
       } else {
         await fetchInvoiceById(id);
       }
@@ -184,6 +228,7 @@ export default function SuccessPage() {
       if (response.ok) {
         const data = await response.json();
         setInvoice(data.data);
+        setInvoiceStatus(data.data.status);
         if (data.data?.id) {
           localStorage.setItem('last_invoice_id', data.data.id);
         }
@@ -297,12 +342,22 @@ export default function SuccessPage() {
     }
   };
 
-  if (loading) {
+  if (loading || verifyingPayment) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <ArrowPathIcon className="h-12 w-12 text-blue-600 animate-spin mx-auto" />
-          <p className="mt-4 text-gray-600 font-medium">Loading invoice details...</p>
+          {verifyingPayment ? (
+            <>
+              <ArrowPathIcon className="h-12 w-12 text-blue-600 animate-spin mx-auto" />
+              <p className="mt-4 text-gray-600 font-medium">Verifying your payment...</p>
+              <p className="text-sm text-gray-500 mt-2">Please wait while we confirm your transaction</p>
+            </>
+          ) : (
+            <>
+              <ArrowPathIcon className="h-12 w-12 text-blue-600 animate-spin mx-auto" />
+              <p className="mt-4 text-gray-600 font-medium">Loading invoice details...</p>
+            </>
+          )}
         </div>
       </div>
     );
@@ -336,18 +391,19 @@ export default function SuccessPage() {
   const items = invoice?.items || [];
   const paymentInfo = invoice?.paymentDetails || invoice?.metadata?.paymentInfo || {};
   
-  const isPending = paymentStatus === 'pending' || invoice?.status === 'pending_verification';
-  const isVerified = invoice?.status === 'paid' || paymentStatus === 'verified';
+  // Check if invoice is paid (either from API or from verification)
+  const isPaid = invoiceStatus === 'paid' || paymentStatus === 'verified' || paymentStatus === 'success';
+  const isPending = (!isPaid && (paymentStatus === 'pending' || invoiceStatus === 'pending_verification' || invoiceStatus === 'pending'));
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 sm:py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Success/Status Header */}
         <div className={`bg-white rounded-2xl shadow-lg p-6 sm:p-8 text-center mb-6 ${
-          isPending ? 'border-l-4 border-l-yellow-500' : ''
+          isPaid ? 'border-l-4 border-l-green-500' : isPending ? 'border-l-4 border-l-yellow-500' : ''
         }`}>
           <div className={`mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-6 ${
-            isPending ? 'bg-yellow-100' : 'bg-green-100'
+            isPaid ? 'bg-green-100' : isPending ? 'bg-yellow-100' : 'bg-green-100'
           }`}>
             {isPending ? (
               <ClockIcon className="h-10 w-10 text-yellow-600" />
@@ -357,15 +413,24 @@ export default function SuccessPage() {
           </div>
           
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            {isPending ? 'Application Submitted - Payment Pending' : 'Application Submitted Successfully!'}
+            {isPaid ? 'Payment Successful!' : isPending ? 'Application Submitted - Payment Pending' : 'Application Submitted Successfully!'}
           </h1>
           
           <p className="text-gray-600 mb-6">
-            {isPending 
+            {isPaid 
+              ? 'Your payment has been successfully processed. Your registration is now confirmed!'
+              : isPending 
               ? 'Your exhibition requirements have been received. Our team will verify your payment details.'
               : 'Your exhibition requirements have been received. A confirmation email has been sent to your registered email address.'
             }
           </p>
+          
+          {isPaid && (
+            <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full mb-2">
+              <CheckCircleIcon className="h-4 w-4 text-green-600" />
+              <span className="text-sm text-green-700 font-medium">Payment Confirmed</span>
+            </div>
+          )}
           
           {paymentReference && (
             <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-2">
@@ -382,7 +447,7 @@ export default function SuccessPage() {
           )}
         </div>
 
-        {/* Pending Payment Warning */}
+        {/* Pending Payment Warning - Only show if NOT paid */}
         {isPending && paymentData && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
             <div className="flex items-start gap-3">
@@ -419,12 +484,29 @@ export default function SuccessPage() {
           </div>
         )}
 
+        {/* Paid Success Message */}
+        {isPaid && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <CheckCircleIcon className="h-6 w-6 text-green-600" />
+              <div>
+                <h3 className="font-semibold text-green-800">Payment Verified!</h3>
+                <p className="text-sm text-green-700">
+                  Your payment has been successfully verified. You are now confirmed for the exhibition.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Invoice Details */}
         {invoice && (
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
             {/* Invoice Header */}
             <div className={`px-6 py-4 ${
-              isPending ? 'bg-gradient-to-r from-yellow-600 to-yellow-700' : 'bg-gradient-to-r from-blue-600 to-blue-700'
+              isPaid ? 'bg-gradient-to-r from-green-600 to-green-700' : 
+              isPending ? 'bg-gradient-to-r from-yellow-600 to-yellow-700' : 
+              'bg-gradient-to-r from-blue-600 to-blue-700'
             }`}>
               <div className="flex justify-between items-center text-white">
                 <div>
@@ -452,30 +534,25 @@ export default function SuccessPage() {
                 <div>
                   <p className="text-gray-500">Status</p>
                   <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${
-                    invoice.status === 'paid' || isVerified
+                    isPaid
                       ? 'bg-green-100 text-green-800'
-                      : invoice.status === 'pending_verification' || isPending
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : invoice.status === 'pending'
+                      : isPending
                       ? 'bg-yellow-100 text-yellow-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {invoice.status === 'pending_verification' || isPending 
-                      ? 'PENDING VERIFICATION' 
-                      : invoice.status === 'paid' || isVerified
-                      ? 'PAID'
-                      : invoice.status?.toUpperCase() || 'PENDING'}
+                    {isPaid ? 'PAID' : isPending ? 'PENDING VERIFICATION' : invoice.status?.toUpperCase() || 'PENDING'}
                   </span>
                 </div>
                 <div>
                   <p className="text-gray-500">Payment Mode</p>
                   <p className="font-semibold text-gray-900">
-                    {paymentData?.paymentMode || paymentInfo.paymentMode || 'Cash/Cheque/DD'}
+                    {paymentData?.paymentMode || paymentInfo.paymentMode || 'Online Payment'}
                   </p>
                 </div>
               </div>
             </div>
 
+            {/* Rest of the invoice details remain the same */}
             {/* Exhibitor Details */}
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
@@ -633,20 +710,19 @@ export default function SuccessPage() {
             </button>
           )}
           
-
-<button
-  onClick={() => {
-    if (invoice?.id) {
-      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-      const printUrl = `${API_BASE_URL}/api/invoices/${invoice.id}/print?token=${encodeURIComponent(token || '')}`;
-      window.open(printUrl, '_blank');
-    }
-  }}
-  className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition"
->
-  <PrinterIcon className="h-5 w-5" />
-  Print Invoice
-</button>
+          <button
+            onClick={() => {
+              if (invoice?.id) {
+                const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+                const printUrl = `${API_BASE_URL}/api/invoices/${invoice.id}/print?token=${encodeURIComponent(token || '')}`;
+                window.open(printUrl, '_blank');
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition"
+          >
+            <PrinterIcon className="h-5 w-5" />
+            Print Invoice
+          </button>
         </div>
         
         {/* Navigation Links */}
@@ -669,15 +745,6 @@ export default function SuccessPage() {
               <ReceiptPercentIcon className="h-4 w-4" />
               View All Invoices
             </Link>
-            {isPending && (
-              <Link
-                href="/dashboard/requirements"
-                className="text-green-600 hover:text-green-700 font-medium text-sm flex items-center gap-1"
-              >
-                <ArrowPathIcon className="h-4 w-4" />
-                Track Payment Status
-              </Link>
-            )}
           </div>
         </div>
         
@@ -714,21 +781,6 @@ export default function SuccessPage() {
                 <p className="text-xs text-yellow-800">
                   <span className="font-semibold">Important:</span> Please use your Invoice Number <strong>{invoice?.invoiceNumber || 'N/A'}</strong> as reference when making the payment.
                   After payment, please upload the receipt in your dashboard for verification.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Verified Payment Success Message */}
-        {isVerified && !isPending && (
-          <div className="mt-6 bg-green-50 border border-green-200 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <CheckCircleIcon className="h-6 w-6 text-green-600" />
-              <div>
-                <h3 className="font-semibold text-green-800">Payment Verified!</h3>
-                <p className="text-sm text-green-700">
-                  Your payment has been successfully verified. You are now confirmed for the exhibition.
                 </p>
               </div>
             </div>
