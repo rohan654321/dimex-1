@@ -1,8 +1,8 @@
-// app/dashboard/invoice/page.tsx
 'use client';
 
 import React, { useState, useEffect, Fragment, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   DocumentTextIcon, 
   ArrowDownTrayIcon,
@@ -38,6 +38,7 @@ interface Invoice {
 }
 
 export default function ExhibitorInvoicesPage() {
+  const router = useRouter();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +59,22 @@ export default function ExhibitorInvoicesPage() {
     totalAmount: 0
   });
 
+  const getAuthToken = () => {
+    return localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+  };
+
+  const checkAuth = () => {
+    const token = getAuthToken();
+    if (!token) {
+      router.push('/login');
+      return false;
+    }
+    return true;
+  };
+
   const fetchInvoices = useCallback(async (showRefreshIndicator = false) => {
+    if (!checkAuth()) return;
+    
     try {
       if (showRefreshIndicator) {
         setRefreshing(true);
@@ -66,14 +82,7 @@ export default function ExhibitorInvoicesPage() {
         setLoading(true);
       }
       
-      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-      
-      if (!token) {
-        console.error('No token found');
-        setLoading(false);
-        setRefreshing(false);
-        return;
-      }
+      const token = getAuthToken();
       
       const response = await fetch(`${API_BASE_URL}/api/invoices/my-invoices`, {
         headers: {
@@ -81,12 +90,18 @@ export default function ExhibitorInvoicesPage() {
         },
       });
       
+      if (response.status === 401) {
+        localStorage.removeItem('exhibitor_token');
+        localStorage.removeItem('token');
+        router.push('/login');
+        return;
+      }
+      
       if (response.ok) {
         const data = await response.json();
         setInvoices(data.data);
         setLastRefresh(new Date());
         
-        // Calculate stats
         const statsData = {
           total: data.data.length,
           paid: data.data.filter((inv: Invoice) => inv.status === 'paid').length,
@@ -98,8 +113,6 @@ export default function ExhibitorInvoicesPage() {
           )
         };
         setStats(statsData);
-      } else if (response.status === 401) {
-        console.error('Unauthorized - Please login again');
       }
     } catch (error) {
       console.error('Error fetching invoices:', error);
@@ -107,7 +120,112 @@ export default function ExhibitorInvoicesPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [router]);
+
+  const downloadInvoice = async (invoiceId: string, invoiceNumber: string) => {
+    if (downloading === invoiceId) return;
+    
+    setDownloading(invoiceId);
+    
+    try {
+      const token = getAuthToken();
+      
+      if (!token) {
+        alert('Please login again to download invoices');
+        router.push('/login');
+        return;
+      }
+      
+      // Add timestamp to prevent caching
+      const url = `${API_BASE_URL}/api/invoices/${invoiceId}/download?t=${Date.now()}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/pdf',
+        },
+      });
+      
+      if (response.status === 401) {
+        alert('Session expired. Please login again.');
+        localStorage.removeItem('exhibitor_token');
+        localStorage.removeItem('token');
+        router.push('/login');
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      
+      // Check if server returned HTML instead of PDF (common error)
+      if (contentType && contentType.includes('text/html')) {
+        const text = await response.text();
+        if (text.includes('login') || text.includes('unauthorized')) {
+          alert('Authentication failed. Please login again.');
+          router.push('/login');
+          return;
+        }
+        throw new Error('Server returned HTML instead of PDF');
+      }
+      
+      if (!contentType || !contentType.includes('application/pdf')) {
+        throw new Error('Server did not return a PDF file');
+      }
+      
+      const blob = await response.blob();
+      
+      // Verify blob is not empty
+      if (blob.size === 0) {
+        throw new Error('Downloaded file is empty');
+      }
+      
+      // Create download link
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `invoice-${invoiceNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      }, 100);
+      
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download invoice. Please try again or contact support.');
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  const printInvoice = (invoiceId: string) => {
+    if (printing === invoiceId) return;
+    
+    setPrinting(invoiceId);
+    try {
+      const token = getAuthToken();
+      
+      if (!token) {
+        alert('Please login again to print invoices');
+        router.push('/login');
+        return;
+      }
+      
+      const printUrl = `${API_BASE_URL}/api/invoices/${invoiceId}/print?t=${Date.now()}&token=${encodeURIComponent(token)}`;
+      window.open(printUrl, '_blank');
+    } catch (error) {
+      console.error('Error printing invoice:', error);
+      alert('Failed to print invoice');
+    } finally {
+      setPrinting(null);
+    }
+  };
 
   // Auto-refresh for pending invoices
   useEffect(() => {
@@ -119,25 +237,18 @@ export default function ExhibitorInvoicesPage() {
     
     if (autoRefreshEnabled && invoices.length > 0) {
       const hasPendingInvoices = invoices.some(inv => inv.status === 'pending');
-      if (hasPendingInvoices) {
-        // Refresh every 15 seconds if there are pending invoices
-        interval = setInterval(() => {
-          console.log('Auto-refreshing invoices...');
-          fetchInvoices(true);
-        }, 15000);
-      } else {
-        // Refresh every 60 seconds if all invoices are processed
-        interval = setInterval(() => {
-          console.log('Auto-refreshing invoices...');
-          fetchInvoices(true);
-        }, 60000);
-      }
+      const intervalTime = hasPendingInvoices ? 15000 : 60000;
+      
+      interval = setInterval(() => {
+        console.log('Auto-refreshing invoices...');
+        fetchInvoices(true);
+      }, intervalTime);
     }
     
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [autoRefreshEnabled, invoices.length, invoices.map(i => i.status).join(','), fetchInvoices]);
+  }, [autoRefreshEnabled, invoices, fetchInvoices]);
 
   useEffect(() => {
     filterInvoices();
@@ -161,52 +272,6 @@ export default function ExhibitorInvoicesPage() {
     
     setFilteredInvoices(filtered);
     setCurrentPage(1);
-  };
-
-  const downloadInvoice = async (invoiceId: string, invoiceNumber: string) => {
-    setDownloading(invoiceId);
-    try {
-      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/invoices/${invoiceId}/download`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `invoice-${invoiceNumber}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        alert('Failed to download invoice');
-      }
-    } catch (error) {
-      console.error('Error downloading invoice:', error);
-      alert('Failed to download invoice');
-    } finally {
-      setDownloading(null);
-    }
-  };
-
-  // Add print function
-  const printInvoice = (invoiceId: string) => {
-    setPrinting(invoiceId);
-    try {
-      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-      const printUrl = `${API_BASE_URL}/api/invoices/${invoiceId}/print?token=${encodeURIComponent(token || '')}`;
-      window.open(printUrl, '_blank');
-    } catch (error) {
-      console.error('Error printing invoice:', error);
-      alert('Failed to print invoice');
-    } finally {
-      setPrinting(null);
-    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -261,7 +326,7 @@ export default function ExhibitorInvoicesPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-6 sm:py-8 md:py-10">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Header with Refresh */}
-        <div className="mb-6 sm:mb-8 flex justify-between items-center">
+        <div className="mb-6 sm:mb-8 flex justify-between items-center flex-wrap gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Invoices</h1>
             <p className="text-gray-600 mt-1 text-sm sm:text-base">View and download all your invoices</p>

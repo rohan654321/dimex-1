@@ -1,4 +1,3 @@
-// app/admin/invoices/[id]/page.tsx
 'use client';
 
 import React, { useState, useEffect, Fragment } from 'react';
@@ -82,26 +81,44 @@ export default function AdminInvoiceDetailsPage() {
     notes: ''
   });
 
+  const getAuthToken = () => {
+    return localStorage.getItem('token') || localStorage.getItem('admin_token');
+  };
+
+  const checkAuth = () => {
+    const token = getAuthToken();
+    if (!token) {
+      router.push('/admin/login');
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
-    fetchInvoiceDetails();
+    if (checkAuth()) {
+      fetchInvoiceDetails();
+    }
   }, [invoiceId]);
 
   const fetchInvoiceDetails = async () => {
+    if (!checkAuth()) return;
+    
     try {
-      const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-      
-      if (!token) {
-        setError('Please login to view invoice');
-        router.push('/admin/login');
-        setLoading(false);
-        return;
-      }
+      setLoading(true);
+      const token = getAuthToken();
       
       const response = await fetch(`${API_BASE_URL}/api/invoices/${invoiceId}/details`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
+      
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin_token');
+        router.push('/admin/login');
+        return;
+      }
       
       if (response.ok) {
         const data = await response.json();
@@ -110,11 +127,6 @@ export default function AdminInvoiceDetailsPage() {
           status: data.data.status,
           notes: data.data.notes || ''
         });
-      } else if (response.status === 401) {
-        setError('Session expired. Please login again.');
-        localStorage.removeItem('token');
-        localStorage.removeItem('admin_token');
-        router.push('/admin/login');
       } else if (response.status === 404) {
         setError('Invoice not found');
       } else {
@@ -131,30 +143,75 @@ export default function AdminInvoiceDetailsPage() {
 
   const downloadInvoice = async () => {
     if (!invoice?.id) return;
+    if (downloading) return;
     
     setDownloading(true);
     try {
-      const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-      const response = await fetch(`${API_BASE_URL}/api/invoices/${invoice.id}/download`, {
+      const token = getAuthToken();
+      
+      if (!token) {
+        alert('Please login again');
+        router.push('/admin/login');
+        return;
+      }
+      
+      // Add timestamp to prevent caching
+      const url = `${API_BASE_URL}/api/invoices/${invoice.id}/download?t=${Date.now()}`;
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Accept': 'application/pdf',
         },
       });
       
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `invoice-${invoice.invoiceNumber}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Failed to download invoice');
+      if (response.status === 401) {
+        alert('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin_token');
+        router.push('/admin/login');
+        return;
       }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      
+      // Check if server returned HTML instead of PDF
+      if (contentType && contentType.includes('text/html')) {
+        const text = await response.text();
+        if (text.includes('login') || text.includes('unauthorized')) {
+          alert('Authentication failed. Please login again.');
+          router.push('/admin/login');
+          return;
+        }
+        throw new Error('Server returned HTML instead of PDF');
+      }
+      
+      if (!contentType || !contentType.includes('application/pdf')) {
+        throw new Error('Server did not return a PDF file');
+      }
+      
+      const blob = await response.blob();
+      
+      if (blob.size === 0) {
+        throw new Error('Downloaded file is empty');
+      }
+      
+      const url_ = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url_;
+      link.setAttribute('download', `invoice-${invoice.invoiceNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url_);
+      }, 100);
+      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to download invoice';
       console.error('Error downloading invoice:', errorMessage);
@@ -169,7 +226,7 @@ export default function AdminInvoiceDetailsPage() {
     
     setUpdating(true);
     try {
-      const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
+      const token = getAuthToken();
       
       console.log('Updating invoice with:', {
         url: `${API_BASE_URL}/api/invoices/admin/${invoice.id}`,
@@ -189,7 +246,6 @@ export default function AdminInvoiceDetailsPage() {
         })
       });
       
-      // Get the response text first
       const responseText = await response.text();
       console.log('Raw response:', responseText);
       
@@ -197,7 +253,6 @@ export default function AdminInvoiceDetailsPage() {
       try {
         data = JSON.parse(responseText);
       } catch (e) {
-        const parseError = e instanceof Error ? e.message : 'Unknown parse error';
         console.error('Failed to parse JSON:', responseText);
         throw new Error(`Server returned: ${responseText.substring(0, 200)}`);
       }
@@ -221,8 +276,8 @@ export default function AdminInvoiceDetailsPage() {
   };
 
   const handlePrint = () => {
-    const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-    const printUrl = `${API_BASE_URL}/api/invoices/${invoice?.id}/print?token=${encodeURIComponent(token || '')}`;
+    const token = getAuthToken();
+    const printUrl = `${API_BASE_URL}/api/invoices/${invoice?.id}/print?t=${Date.now()}&token=${encodeURIComponent(token || '')}`;
     window.open(printUrl, '_blank');
   };
 
