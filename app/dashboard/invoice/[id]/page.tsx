@@ -179,38 +179,69 @@ useEffect(() => {
 }, [invoice?.status, fetchInvoiceDetails, invoice?.id]);
 
 
-  const downloadInvoice = async () => {
-    if (!invoice?.id) return;
+const downloadInvoice = async () => {
+  if (!invoice?.id) return;
+  
+  setDownloading(true);
+  try {
+    const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
     
-    setDownloading(true);
-    try {
-      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/invoices/${invoice.id}/download`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `invoice-${invoice.invoiceNumber}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        alert('Failed to download invoice');
-      }
-    } catch (error) {
-      console.error('Error downloading:', error);
-      alert('Failed to download invoice');
-    } finally {
-      setDownloading(false);
+    // Add cache-busting parameter to prevent caching issues
+    const response = await fetch(`${API_BASE_URL}/api/invoices/${invoice.id}/download?t=${Date.now()}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/pdf', // Explicitly request PDF
+      },
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Download failed: ${response.status} - ${errorText}`);
     }
-  };
+    
+    // Get the filename from Content-Disposition header if available
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = `invoice-${invoice.invoiceNumber || invoice.id}.pdf`;
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (match && match[1]) {
+        filename = match[1].replace(/['"]/g, '');
+      }
+    }
+    
+    const blob = await response.blob();
+    
+    // Verify it's actually a PDF
+    if (blob.type !== 'application/pdf' && !filename.endsWith('.pdf')) {
+      console.warn('Unexpected content type:', blob.type);
+    }
+    
+    // Create download URL
+    const url = window.URL.createObjectURL(blob);
+    
+    // Create and trigger download link
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    link.setAttribute('target', '_blank'); // Open in new tab as fallback
+    
+    // Append to body, click, and cleanup
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up - delay removal to ensure download starts
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+    
+  } catch (error) {
+    console.error('Error downloading invoice:', error);
+    alert(`Failed to download invoice: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } finally {
+    setDownloading(false);
+  }
+};
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';

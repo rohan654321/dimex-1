@@ -1,4 +1,3 @@
-// app/admin/invoices/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -63,8 +62,23 @@ export default function AdminInvoicesPage() {
     pendingAmount: 0
   });
 
+  const getAuthToken = () => {
+    return localStorage.getItem('token') || localStorage.getItem('admin_token');
+  };
+
+  const checkAuth = () => {
+    const token = getAuthToken();
+    if (!token) {
+      router.push('/admin/login');
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
-    fetchInvoices();
+    if (checkAuth()) {
+      fetchInvoices();
+    }
   }, []);
 
   useEffect(() => {
@@ -72,22 +86,24 @@ export default function AdminInvoicesPage() {
   }, [searchTerm, statusFilter, invoices]);
 
   const fetchInvoices = async () => {
+    if (!checkAuth()) return;
+    
     try {
       setLoading(true);
-      const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-      
-      if (!token) {
-        console.error('No admin token found. Please login again.');
-        router.push('/admin/login');
-        setLoading(false);
-        return;
-      }
+      const token = getAuthToken();
       
       const response = await fetch(`${API_BASE_URL}/api/invoices/admin/all`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
+      
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin_token');
+        router.push('/admin/login');
+        return;
+      }
       
       if (response.ok) {
         const data = await response.json();
@@ -106,13 +122,6 @@ export default function AdminInvoicesPage() {
           pendingAmount: pendingInvoices.reduce((sum: number, inv: Invoice) => sum + (Number(inv.amount) || 0), 0)
         };
         setStats(statsData);
-      } else if (response.status === 401) {
-        console.error('Unauthorized - Please login as admin');
-        localStorage.removeItem('token');
-        localStorage.removeItem('admin_token');
-        router.push('/admin/login');
-      } else {
-        console.error('Failed to fetch invoices');
       }
     } catch (error) {
       console.error('Error fetching invoices:', error);
@@ -146,32 +155,78 @@ export default function AdminInvoicesPage() {
   };
 
   const downloadInvoice = async (invoiceId: string, invoiceNumber: string) => {
+    if (downloading === invoiceId) return;
+    
     setDownloading(invoiceId);
     try {
-      const token = localStorage.getItem('token') || localStorage.getItem('admin_token');
-      const response = await fetch(`${API_BASE_URL}/api/invoices/${invoiceId}/download`, {
+      const token = getAuthToken();
+      
+      if (!token) {
+        alert('Please login again');
+        router.push('/admin/login');
+        return;
+      }
+      
+      // Add timestamp to prevent caching
+      const url = `${API_BASE_URL}/api/invoices/${invoiceId}/download?t=${Date.now()}`;
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Accept': 'application/pdf',
         },
       });
       
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `invoice-${invoiceNumber}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        const error = await response.json();
-        alert(error.message || 'Failed to download invoice');
+      if (response.status === 401) {
+        alert('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin_token');
+        router.push('/admin/login');
+        return;
       }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      
+      // Check if server returned HTML instead of PDF
+      if (contentType && contentType.includes('text/html')) {
+        const text = await response.text();
+        if (text.includes('login') || text.includes('unauthorized')) {
+          alert('Authentication failed. Please login again.');
+          router.push('/admin/login');
+          return;
+        }
+        throw new Error('Server returned HTML instead of PDF');
+      }
+      
+      if (!contentType || !contentType.includes('application/pdf')) {
+        throw new Error('Server did not return a PDF file');
+      }
+      
+      const blob = await response.blob();
+      
+      if (blob.size === 0) {
+        throw new Error('Downloaded file is empty');
+      }
+      
+      const url_ = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url_;
+      link.setAttribute('download', `invoice-${invoiceNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url_);
+      }, 100);
+      
     } catch (error) {
       console.error('Error downloading invoice:', error);
-      alert('Failed to download invoice');
+      alert(error instanceof Error ? error.message : 'Failed to download invoice');
     } finally {
       setDownloading(null);
     }
