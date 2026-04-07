@@ -145,22 +145,39 @@ export default function ExhibitorInvoiceDetailsPage() {
     fetchInvoiceDetails();
   }, [fetchInvoiceDetails]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
+ // Replace the auto-refresh useEffect with this:
+
+useEffect(() => {
+  let interval: NodeJS.Timeout;
+  let checkCount = 0;
+  const MAX_CHECKS = 10; // Reduced from 30 to 10
+  const CHECK_INTERVAL = 10000; // Increased to 10 seconds
+  
+  // Only auto-refresh for pending invoices that don't have payment verification pending
+  if (invoice?.status === 'pending' && checkCount < MAX_CHECKS) {
+    // Check if payment was just made (within last 5 minutes)
+    const lastPaymentAttempt = localStorage.getItem(`payment_attempt_${invoice.id}`);
+    const shouldAutoCheck = lastPaymentAttempt && (Date.now() - parseInt(lastPaymentAttempt) < 300000);
     
-    if (invoice?.status === 'pending' && autoCheckCount < 30) {
-      // Refresh every 5 seconds for pending invoices (max 30 times = 2.5 minutes)
+    if (shouldAutoCheck) {
       interval = setInterval(() => {
-        console.log(`Auto-checking payment status... (${autoCheckCount + 1}/30)`);
+        console.log(`Auto-checking payment status... (${checkCount + 1}/${MAX_CHECKS})`);
         fetchInvoiceDetails();
-        setAutoCheckCount(prev => prev + 1);
-      }, 5000);
+        checkCount++;
+        
+        if (checkCount >= MAX_CHECKS) {
+          clearInterval(interval);
+          localStorage.removeItem(`payment_attempt_${invoice.id}`);
+        }
+      }, CHECK_INTERVAL);
     }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [invoice?.status, autoCheckCount, fetchInvoiceDetails]);
+  }
+  
+  return () => {
+    if (interval) clearInterval(interval);
+  };
+}, [invoice?.status, fetchInvoiceDetails, invoice?.id]);
+
 
   const downloadInvoice = async () => {
     if (!invoice?.id) return;
@@ -296,16 +313,18 @@ export default function ExhibitorInvoiceDetailsPage() {
               )}
               Download PDF
             </button>
-            <button
-              onClick={() => {
-                const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
-                window.open(`${API_BASE_URL}/api/invoices/${invoice.id}/print?token=${encodeURIComponent(token || '')}`, '_blank');
-              }}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all shadow-sm hover:shadow-md"
-            >
-              <PrinterIcon className="h-5 w-5" />
-              Print
-            </button>
+
+<button
+  onClick={() => {
+    const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+    const printUrl = `${API_BASE_URL}/api/invoices/${invoice.id}/print?token=${encodeURIComponent(token || '')}`;
+    window.open(printUrl, '_blank');
+  }}
+  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all shadow-sm hover:shadow-md"
+>
+  <PrinterIcon className="h-5 w-5" />
+  Print
+</button>
           </div>
         </div>
 

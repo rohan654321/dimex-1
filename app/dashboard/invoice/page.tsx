@@ -16,7 +16,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ReceiptPercentIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  PrinterIcon
 } from '@heroicons/react/24/outline';
 
 const API_BASE_URL = 'https://diemex-backend.onrender.com';
@@ -41,6 +42,7 @@ export default function ExhibitorInvoicesPage() {
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [printing, setPrinting] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -189,6 +191,21 @@ export default function ExhibitorInvoicesPage() {
       alert('Failed to download invoice');
     } finally {
       setDownloading(null);
+    }
+  };
+
+  // Add print function
+  const printInvoice = (invoiceId: string) => {
+    setPrinting(invoiceId);
+    try {
+      const token = localStorage.getItem('exhibitor_token') || localStorage.getItem('token');
+      const printUrl = `${API_BASE_URL}/api/invoices/${invoiceId}/print?token=${encodeURIComponent(token || '')}`;
+      window.open(printUrl, '_blank');
+    } catch (error) {
+      console.error('Error printing invoice:', error);
+      alert('Failed to print invoice');
+    } finally {
+      setPrinting(null);
     }
   };
 
@@ -447,18 +464,30 @@ export default function ExhibitorInvoicesPage() {
                           {getStatusBadge(invoice.status)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex gap-3 justify-end">
+                          <div className="flex gap-2 justify-end">
                             <Link
                               href={`/dashboard/invoice/${invoice.id}`}
-                              className="text-gray-500 hover:text-gray-700 transition"
+                              className="text-gray-500 hover:text-gray-700 transition p-1"
                               title="View Details"
                             >
                               <EyeIcon className="h-5 w-5" />
                             </Link>
                             <button
+                              onClick={() => printInvoice(invoice.id)}
+                              disabled={printing === invoice.id}
+                              className="text-gray-500 hover:text-gray-700 transition p-1 disabled:opacity-50"
+                              title="Print Invoice"
+                            >
+                              {printing === invoice.id ? (
+                                <ArrowPathIcon className="h-5 w-5 animate-spin" />
+                              ) : (
+                                <PrinterIcon className="h-5 w-5" />
+                              )}
+                            </button>
+                            <button
                               onClick={() => downloadInvoice(invoice.id, invoice.invoiceNumber)}
                               disabled={downloading === invoice.id}
-                              className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition"
+                              className="text-blue-600 hover:text-blue-800 transition p-1 disabled:opacity-50"
                               title="Download PDF"
                             >
                               {downloading === invoice.id ? (
@@ -507,18 +536,30 @@ export default function ExhibitorInvoicesPage() {
                       <span className="text-sm text-gray-600">{formatDate(invoice.dueDate)}</span>
                     </div>
                   </div>
-                  <div className="flex gap-3 pt-3 border-t">
+                  <div className="flex gap-2 pt-3 border-t">
                     <Link
                       href={`/dashboard/invoice/${invoice.id}`}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm"
                     >
                       <EyeIcon className="h-4 w-4" />
                       View
                     </Link>
                     <button
+                      onClick={() => printInvoice(invoice.id)}
+                      disabled={printing === invoice.id}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm disabled:opacity-50"
+                    >
+                      {printing === invoice.id ? (
+                        <ArrowPathIcon className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <PrinterIcon className="h-4 w-4" />
+                      )}
+                      Print
+                    </button>
+                    <button
                       onClick={() => downloadInvoice(invoice.id, invoice.invoiceNumber)}
                       disabled={downloading === invoice.id}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm disabled:opacity-50"
                     >
                       {downloading === invoice.id ? (
                         <ArrowPathIcon className="h-4 w-4 animate-spin" />
