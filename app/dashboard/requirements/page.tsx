@@ -440,6 +440,8 @@ export default function RequirementsPage() {
   const [tempInvoiceId, setTempInvoiceId] = useState<string | null>(null);
   const [tempRequirementsId, setTempRequirementsId] = useState<string | null>(null);
   const [paymentReference, setPaymentReference] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [showValidationModal, setShowValidationModal] = useState(false);
   const [cashPaymentDetails, setCashPaymentDetails] = useState({
     amountPaid: 0,
     paymentDate: '',
@@ -488,7 +490,7 @@ export default function RequirementsPage() {
     personnel_0_organisation: false,
   });
 
-  // Form 1 - General Information
+  // Form 1 - General Information (REQUIRED)
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     title: 'Mr',
     firstName: '',
@@ -501,7 +503,7 @@ export default function RequirementsPage() {
     gstNumber: ''
   });
 
-  // Form 2 - Booth Details
+  // Form 2 - Booth Details (REQUIRED)
   const [boothDetails, setBoothDetails] = useState<BoothDetails>({
     boothNo: '',
     exhibitorName: '',
@@ -519,7 +521,7 @@ export default function RequirementsPage() {
     contractorPAN: ''
   });
 
-  // Form 3 - Security Deposit
+  // Form 3 - Security Deposit (REQUIRED)
   const [securityDeposit, setSecurityDeposit] = useState<SecurityDeposit>({
     boothSq: '',
     amountINR: 0,
@@ -531,21 +533,21 @@ export default function RequirementsPage() {
     amountWords: ''
   });
 
-  // Form 4 - Machine Display (Optional)
+  // Form 4 - Machine Display (OPTIONAL)
   const [machines, setMachines] = useState<MachineDisplay[]>([
     { srNo: 1, machineName: '', width: '', length: '', height: '', weight: '' },
     { srNo: 2, machineName: '', width: '', length: '', height: '', weight: '' },
     { srNo: 3, machineName: '', width: '', length: '', height: '', weight: '' }
   ]);
 
-  // Form 5 - Personnel (Required)
+  // Form 5 - Personnel (OPTIONAL - but at least one entry recommended)
   const [personnel, setPersonnel] = useState<Personnel[]>([
     { srNo: 1, name: '', designation: '', organisation: '' },
     { srNo: 2, name: '', designation: '', organisation: '' },
     { srNo: 3, name: '', designation: '', organisation: '' }
   ]);
 
-  // Form 6 - Company Details (Required)
+  // Form 6 - Company Details (REQUIRED)
   const [companyDetails, setCompanyDetails] = useState<CompanyDetails>({
     companyName: '',
     address: '',
@@ -558,7 +560,7 @@ export default function RequirementsPage() {
     productsServices: ''
   });
 
-  // Form 7 - Electrical Load (Optional)
+  // Form 7 - Electrical Load (OPTIONAL)
   const [electricalLoad, setElectricalLoad] = useState<ElectricalLoad>({
     temporaryLoad: '',
     exhibitionLoad: '',
@@ -566,16 +568,16 @@ export default function RequirementsPage() {
     exhibitionTotal: 0
   });
 
-  // Form 8 - Furniture (Optional)
+  // Form 8 - Furniture (OPTIONAL)
   const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
 
-  // Form 9 - Hostess (Optional)
+  // Form 9 - Hostess (OPTIONAL)
   const [hostessRequirements, setHostessRequirements] = useState<HostessRequirement[]>([
     { category: 'A', quantity: 0, noOfDays: 0, amount: 0, ratePerDay: 5000 },
     { category: 'B', quantity: 0, noOfDays: 0, amount: 0, ratePerDay: 4000 }
   ]);
 
-  // Form 10 - Compressed Air (Optional)
+  // Form 10 - Compressed Air (OPTIONAL)
   const [compressedAirOptions, setCompressedAirOptions] = useState<CompressedAirOption[]>([]);
   const [compressedAir, setCompressedAir] = useState<CompressedAir>({
     selected: '',
@@ -587,24 +589,24 @@ export default function RequirementsPage() {
     totalCost: 0
   });
 
-  // Form 11 - Water Connection (Optional)
+  // Form 11 - Water Connection (OPTIONAL)
   const [waterConnection, setWaterConnection] = useState<WaterConnection>({
     connections: 0,
     costPerConnection: 15000,
     totalCost: 0
   });
 
-  // Form 12 - Security Guard (Optional)
+  // Form 12 - Security Guard (OPTIONAL)
   const [securityGuard, setSecurityGuard] = useState<SecurityGuard>({
     quantity: 0,
     noOfDays: 0,
     totalCost: 0
   });
 
-  // Form 13 - Rental Items (AV & IT) (Optional)
+  // Form 13 - Rental Items (AV & IT) (OPTIONAL)
   const [rentalItems, setRentalItems] = useState<RentalItems>({});
 
-  // Form 14 - Housekeeping Staff (Optional)
+  // Form 14 - Housekeeping Staff (OPTIONAL)
   const [housekeepingStaff, setHousekeepingStaff] = useState<HousekeepingStaff>({
     quantity: 0,
     category: 'Housekeeping',
@@ -628,6 +630,57 @@ export default function RequirementsPage() {
   
   // Security Deposit Tiers from API
   const [securityDepositTiers, setSecurityDepositTiers] = useState<SecurityDepositTier[]>([]);
+
+  // ============= VALIDATION FUNCTION =============
+  const validateRequiredFields = (): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+
+    // Step 1: General Information Validation
+    if (!generalInfo.firstName.trim()) errors.push('First Name is required (Step 1: Basic Information)');
+    if (!generalInfo.lastName.trim()) errors.push('Last Name is required (Step 1: Basic Information)');
+    if (!generalInfo.designation.trim()) errors.push('Designation is required (Step 1: Basic Information)');
+    if (!generalInfo.mobile.trim()) errors.push('Mobile number is required (Step 1: Basic Information)');
+    if (!generalInfo.email.trim()) errors.push('Email is required (Step 1: Basic Information)');
+    if (generalInfo.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(generalInfo.email)) {
+      errors.push('Valid email is required (Step 1: Basic Information)');
+    }
+    if (!generalInfo.companyName.trim()) errors.push('Company Name is required (Step 1: Basic Information)');
+    if (!generalInfo.businessNature.trim()) errors.push('Nature of Business is required (Step 1: Basic Information)');
+
+    // Step 2: Booth Details Validation
+    if (!boothDetails.boothNo.trim()) errors.push('Booth Number is required (Step 2: Booth Details)');
+    if (!boothDetails.sqMtrBooked.trim()) errors.push('Square Meters Booked is required (Step 2: Booth Details)');
+    if (!boothDetails.organisation.trim()) errors.push('Organisation is required (Step 2: Booth Details)');
+    if (!boothDetails.contactPerson.trim()) errors.push('Contact Person is required (Step 2: Booth Details)');
+    if (!boothDetails.designation.trim()) errors.push('Designation is required (Step 2: Booth Details)');
+    if (!boothDetails.mobile.trim()) errors.push('Mobile number is required (Step 2: Booth Details)');
+    if (!boothDetails.email.trim()) errors.push('Email is required (Step 2: Booth Details)');
+    if (boothDetails.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(boothDetails.email)) {
+      errors.push('Valid email is required (Step 2: Booth Details)');
+    }
+
+    // Step 3: Security Deposit Validation
+    if (!securityDeposit.boothSq) errors.push('Security Deposit selection is required (Step 3: Security Deposit)');
+
+    // Step 6: Company Details Validation
+    if (!companyDetails.companyName.trim()) errors.push('Company Name is required (Step 6: Company Details)');
+    if (!companyDetails.address.trim()) errors.push('Address is required (Step 6: Company Details)');
+    if (!companyDetails.mobile.trim()) errors.push('Mobile number is required (Step 6: Company Details)');
+    if (!companyDetails.email.trim()) errors.push('Email is required (Step 6: Company Details)');
+    if (companyDetails.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(companyDetails.email)) {
+      errors.push('Valid email is required (Step 6: Company Details)');
+    }
+    if (!companyDetails.contactPerson.trim()) errors.push('Contact Person is required (Step 6: Company Details)');
+    if (!companyDetails.designation.trim()) errors.push('Designation is required (Step 6: Company Details)');
+
+    // Step 5: Personnel - At least one exhibitor pass entry is recommended
+    const hasPersonnel = personnel.some(p => p.name.trim() !== '');
+    if (!hasPersonnel) {
+      errors.push('At least one exhibitor pass entry is required (Step 5: Personnel/Exhibitor Passes)');
+    }
+
+    return { isValid: errors.length === 0, errors };
+  };
 
   // ============= HELPER FUNCTION =============
   const hasData = (value: any): boolean => {
@@ -763,11 +816,6 @@ export default function RequirementsPage() {
 
     fetchAllData();
   }, []);
-
-
-
-
-
 
   const fetchExhibitorProfile = async () => {
     try {
@@ -1202,7 +1250,28 @@ export default function RequirementsPage() {
     }
   };
 
+  const handleProceedToPreview = () => {
+    const { isValid, errors } = validateRequiredFields();
+    
+    if (!isValid) {
+      setValidationErrors(errors);
+      setShowValidationModal(true);
+      return;
+    }
+    
+    setShowPreview(true);
+  };
+
   const handleSubmitApplication = async () => {
+    // Validate again before final submission
+    const { isValid, errors } = validateRequiredFields();
+    
+    if (!isValid) {
+      setValidationErrors(errors);
+      setShowValidationModal(true);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -1407,18 +1476,17 @@ export default function RequirementsPage() {
     }
   };
 
-const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?: string }) => {
-  console.log('Payment successful:', paymentData);
-  setShowCashfree(false);
-  
-  localStorage.setItem('last_cashfree_order_id', paymentData.orderId);
-  if (paymentData.paymentId) {
-    localStorage.setItem('last_payment_id', paymentData.paymentId);
-  }
-  
-  // FIX: Navigate to the EXISTING success page, not payment-status
-  router.push(`/dashboard/requirements/success?order_id=${paymentData.orderId}&invoiceId=${cashfreeInvoiceId}`);
-};
+  const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?: string }) => {
+    console.log('Payment successful:', paymentData);
+    setShowCashfree(false);
+    
+    localStorage.setItem('last_cashfree_order_id', paymentData.orderId);
+    if (paymentData.paymentId) {
+      localStorage.setItem('last_payment_id', paymentData.paymentId);
+    }
+    
+    router.push(`/dashboard/requirements/success?order_id=${paymentData.orderId}&invoiceId=${cashfreeInvoiceId}`);
+  };
 
   const handleCashfreeFailure = (error: string) => {
     console.error('Payment failed:', error);
@@ -1721,23 +1789,68 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
     );
   };
 
+  // ============= VALIDATION MODAL =============
+  const renderValidationModal = () => {
+    if (!showValidationModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <ExclamationCircleIcon className="h-6 w-6 text-red-500" />
+              <h2 className="text-lg font-bold text-gray-900">Missing Required Fields</h2>
+            </div>
+            <button
+              onClick={() => setShowValidationModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <XCircleIcon className="h-6 w-6" />
+            </button>
+          </div>
+          
+          <div className="p-6">
+            <p className="text-gray-600 mb-4">Please complete the following required fields before submitting:</p>
+            <ul className="space-y-2">
+              {validationErrors.map((error, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm text-red-600">
+                  <span className="mt-0.5">•</span>
+                  <span>{error}</span>
+                </li>
+              ))}
+            </ul>
+            
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => setShowValidationModal(false)}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Go Back and Complete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // ============= RENDER FUNCTIONS =============
 
   const steps = [
-    { number: 1, name: 'Basic Info', icon: UserIcon, mobileName: 'Basic' },
-    { number: 2, name: 'Booth', icon: BuildingOfficeIcon, mobileName: 'Booth' },
-    { number: 3, name: 'Security', icon: BanknotesIcon, mobileName: 'Deposit' },
-    { number: 4, name: 'Machines', icon: CubeIcon, mobileName: 'Mach' },
-    { number: 5, name: 'Personnel', icon: UserIcon, mobileName: 'Staff' },
-    { number: 6, name: 'Company', icon: BuildingOfficeIcon, mobileName: 'Co' },
-    { number: 7, name: 'Electrical', icon: BoltIcon, mobileName: 'Elec' },
-    { number: 8, name: 'Furniture', icon: ComputerDesktopIcon, mobileName: 'Furn' },
-    { number: 9, name: 'Hostess', icon: SparklesIcon, mobileName: 'Host' },
-    { number: 10, name: 'Air', icon: WrenchScrewdriverIcon, mobileName: 'Air' },
-    { number: 11, name: 'Water', icon: TruckIcon, mobileName: 'Water' },
-    { number: 12, name: 'Security', icon: ShieldCheckIcon, mobileName: 'Guard' },
-    { number: 13, name: 'AV Rentals', icon: ComputerDesktopIcon, mobileName: 'Rentals' },
-    { number: 14, name: 'Housekeeping', icon: SparklesIcon, mobileName: 'House' }
+    { number: 1, name: 'Basic Info', icon: UserIcon, mobileName: 'Basic', required: true },
+    { number: 2, name: 'Booth', icon: BuildingOfficeIcon, mobileName: 'Booth', required: true },
+    { number: 3, name: 'Security', icon: BanknotesIcon, mobileName: 'Deposit', required: true },
+    { number: 4, name: 'Machines', icon: CubeIcon, mobileName: 'Mach', required: false },
+    { number: 5, name: 'Personnel', icon: UserIcon, mobileName: 'Staff', required: true },
+    { number: 6, name: 'Company', icon: BuildingOfficeIcon, mobileName: 'Co', required: true },
+    { number: 7, name: 'Electrical', icon: BoltIcon, mobileName: 'Elec', required: false },
+    { number: 8, name: 'Furniture', icon: ComputerDesktopIcon, mobileName: 'Furn', required: false },
+    { number: 9, name: 'Hostess', icon: SparklesIcon, mobileName: 'Host', required: false },
+    { number: 10, name: 'Air', icon: WrenchScrewdriverIcon, mobileName: 'Air', required: false },
+    { number: 11, name: 'Water', icon: TruckIcon, mobileName: 'Water', required: false },
+    { number: 12, name: 'Security', icon: ShieldCheckIcon, mobileName: 'Guard', required: false },
+    { number: 13, name: 'AV Rentals', icon: ComputerDesktopIcon, mobileName: 'Rentals', required: false },
+    { number: 14, name: 'Housekeeping', icon: SparklesIcon, mobileName: 'House', required: false }
   ];
 
   const totalSteps = steps.length;
@@ -1781,7 +1894,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           <div className="bg-blue-100 p-2 rounded-lg">
             <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Basic Information</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Basic Information <span className="text-red-500 text-sm ml-2">*Required</span></h2>
         </div>
         {Object.values(readOnlyFields).some(v => v) && (
           <div className="flex items-center text-green-600 bg-green-50 px-3 py-1 rounded-full">
@@ -1799,7 +1912,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <div className="col-span-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Title</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Title <span className="text-red-500">*</span></label>
               <select
                 value={generalInfo.title}
                 onChange={(e) => handleGeneralInfoChange('title', e.target.value as any)}
@@ -1816,7 +1929,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
               </select>
             </div>
             <div className="col-span-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">First Name</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">First Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={generalInfo.firstName}
@@ -1824,9 +1937,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.generalInfo_firstName}
                 className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.generalInfo_firstName ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!generalInfo.firstName && generalInfo.firstName === '' ? 'border-red-300' : ''}`}
                 placeholder="First"
               />
+              {!generalInfo.firstName && <p className="text-xs text-red-500 mt-1">Required</p>}
               {readOnlyFields.generalInfo_firstName && (
                 <p className="text-xs text-green-600 mt-1 flex items-center">
                   <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -1834,7 +1948,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
               )}
             </div>
             <div className="col-span-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Last Name</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Last Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={generalInfo.lastName}
@@ -1842,9 +1956,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.generalInfo_lastName}
                 className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.generalInfo_lastName ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!generalInfo.lastName && generalInfo.lastName === '' ? 'border-red-300' : ''}`}
                 placeholder="Last"
               />
+              {!generalInfo.lastName && <p className="text-xs text-red-500 mt-1">Required</p>}
               {readOnlyFields.generalInfo_lastName && (
                 <p className="text-xs text-green-600 mt-1 flex items-center">
                   <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -1852,7 +1967,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
               )}
             </div>
             <div className="col-span-2 lg:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Designation</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Designation <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={generalInfo.designation}
@@ -1860,9 +1975,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.generalInfo_designation}
                 className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.generalInfo_designation ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!generalInfo.designation ? 'border-red-300' : ''}`}
                 placeholder="e.g. Manager"
               />
+              {!generalInfo.designation && <p className="text-xs text-red-500 mt-1">Required</p>}
               {readOnlyFields.generalInfo_designation && (
                 <p className="text-xs text-green-600 mt-1 flex items-center">
                   <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -1878,43 +1994,43 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             Contact
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Mobile</label>
-                <input
-                  type="tel"
-                  value={generalInfo.mobile}
-                  onChange={(e) => handleGeneralInfoChange('mobile', e.target.value)}
-                  disabled={readOnlyFields.generalInfo_mobile}
-                  className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
-                    readOnlyFields.generalInfo_mobile ? 'bg-gray-100 cursor-not-allowed' : ''
-                  }`}
-                  placeholder="98765 43210"
-                />
-                {readOnlyFields.generalInfo_mobile && (
-                  <p className="text-xs text-green-600 mt-1 flex items-center">
-                    <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={generalInfo.email}
-                  onChange={(e) => handleGeneralInfoChange('email', e.target.value)}
-                  disabled={readOnlyFields.generalInfo_email}
-                  className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
-                    readOnlyFields.generalInfo_email ? 'bg-gray-100 cursor-not-allowed' : ''
-                  }`}
-                  placeholder="name@company.com"
-                />
-                {readOnlyFields.generalInfo_email && (
-                  <p className="text-xs text-green-600 mt-1 flex items-center">
-                    <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                  </p>
-                )}
-              </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Mobile <span className="text-red-500">*</span></label>
+              <input
+                type="tel"
+                value={generalInfo.mobile}
+                onChange={(e) => handleGeneralInfoChange('mobile', e.target.value)}
+                disabled={readOnlyFields.generalInfo_mobile}
+                className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
+                  readOnlyFields.generalInfo_mobile ? 'bg-gray-100 cursor-not-allowed' : ''
+                } ${!generalInfo.mobile ? 'border-red-300' : ''}`}
+                placeholder="98765 43210"
+              />
+              {!generalInfo.mobile && <p className="text-xs text-red-500 mt-1">Required</p>}
+              {readOnlyFields.generalInfo_mobile && (
+                <p className="text-xs text-green-600 mt-1 flex items-center">
+                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Email <span className="text-red-500">*</span></label>
+              <input
+                type="email"
+                value={generalInfo.email}
+                onChange={(e) => handleGeneralInfoChange('email', e.target.value)}
+                disabled={readOnlyFields.generalInfo_email}
+                className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
+                  readOnlyFields.generalInfo_email ? 'bg-gray-100 cursor-not-allowed' : ''
+                } ${!generalInfo.email ? 'border-red-300' : ''}`}
+                placeholder="name@company.com"
+              />
+              {!generalInfo.email && <p className="text-xs text-red-500 mt-1">Required</p>}
+              {readOnlyFields.generalInfo_email && (
+                <p className="text-xs text-green-600 mt-1 flex items-center">
+                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -1926,7 +2042,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Company Name</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Company Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={generalInfo.companyName}
@@ -1934,9 +2050,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.generalInfo_companyName}
                 className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.generalInfo_companyName ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!generalInfo.companyName ? 'border-red-300' : ''}`}
                 placeholder="Enter company name"
               />
+              {!generalInfo.companyName && <p className="text-xs text-red-500 mt-1">Required</p>}
               {readOnlyFields.generalInfo_companyName && (
                 <p className="text-xs text-green-600 mt-1 flex items-center">
                   <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -1955,14 +2072,9 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 }`}
                 placeholder="22AAAAA0000A1Z5"
               />
-              {readOnlyFields.generalInfo_gstNumber && (
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                </p>
-              )}
             </div>
             <div className="sm:col-span-3">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Nature of Business</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Nature of Business <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={generalInfo.businessNature}
@@ -1970,9 +2082,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.generalInfo_businessNature}
                 className={`w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.generalInfo_businessNature ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!generalInfo.businessNature ? 'border-red-300' : ''}`}
                 placeholder="e.g. Manufacturing, Trading, Services"
               />
+              {!generalInfo.businessNature && <p className="text-xs text-red-500 mt-1">Required</p>}
               {readOnlyFields.generalInfo_businessNature && (
                 <p className="text-xs text-green-600 mt-1 flex items-center">
                   <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -1999,6 +2112,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">REGISTRATION OF CONTRACTOR
             <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>FOR BARE SPACE EXHIBITORS</span>
+            <span className="text-red-500 text-sm ml-2">*Required</span>
           </h2>
         </div>
         {Object.values(readOnlyFields).some(v => v) && (
@@ -2014,7 +2128,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Booth Details</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Booth No.</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Booth No. <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={boothDetails.boothNo}
@@ -2022,9 +2136,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.boothDetails_boothNo}
                 className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.boothDetails_boothNo ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!boothDetails.boothNo ? 'border-red-300' : ''}`}
                 placeholder="Enter booth number"
               />
+              {!boothDetails.boothNo && <p className="text-xs text-red-500 mt-1">Required</p>}
               {readOnlyFields.boothDetails_boothNo && (
                 <p className="text-xs text-green-600 mt-1 flex items-center">
                   <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -2038,19 +2153,13 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 value={boothDetails.exhibitorName}
                 onChange={(e) => handleBoothDetailsChange('exhibitorName', e.target.value)}
                 disabled={readOnlyFields.boothDetails_exhibitorName}
-                className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
-                  readOnlyFields.boothDetails_exhibitorName ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 bg-gray-100 cursor-not-allowed"
                 placeholder="Auto-filled from basic info"
+                readOnly
               />
-              {readOnlyFields.boothDetails_exhibitorName && (
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                </p>
-              )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sq. Mtr Booked</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Sq. Mtr Booked <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={boothDetails.sqMtrBooked}
@@ -2058,17 +2167,13 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.boothDetails_sqMtrBooked}
                 className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.boothDetails_sqMtrBooked ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!boothDetails.sqMtrBooked ? 'border-red-300' : ''}`}
                 placeholder="Enter square meters"
               />
-              {readOnlyFields.boothDetails_sqMtrBooked && (
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                </p>
-              )}
+              {!boothDetails.sqMtrBooked && <p className="text-xs text-red-500 mt-1">Required</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Organisation</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Organisation <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={boothDetails.organisation}
@@ -2076,17 +2181,13 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.boothDetails_organisation}
                 className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.boothDetails_organisation ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!boothDetails.organisation ? 'border-red-300' : ''}`}
                 placeholder="Auto-filled from company name"
               />
-              {readOnlyFields.boothDetails_organisation && (
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                </p>
-              )}
+              {!boothDetails.organisation && <p className="text-xs text-red-500 mt-1">Required</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={boothDetails.contactPerson}
@@ -2094,17 +2195,13 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.boothDetails_contactPerson}
                 className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.boothDetails_contactPerson ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!boothDetails.contactPerson ? 'border-red-300' : ''}`}
                 placeholder="Auto-filled from name"
               />
-              {readOnlyFields.boothDetails_contactPerson && (
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                </p>
-              )}
+              {!boothDetails.contactPerson && <p className="text-xs text-red-500 mt-1">Required</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Designation <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={boothDetails.designation}
@@ -2112,17 +2209,13 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.boothDetails_designation}
                 className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.boothDetails_designation ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!boothDetails.designation ? 'border-red-300' : ''}`}
                 placeholder="Auto-filled from designation"
               />
-              {readOnlyFields.boothDetails_designation && (
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                </p>
-              )}
+              {!boothDetails.designation && <p className="text-xs text-red-500 mt-1">Required</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number <span className="text-red-500">*</span></label>
               <input
                 type="tel"
                 value={boothDetails.mobile}
@@ -2130,17 +2223,13 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.boothDetails_mobile}
                 className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.boothDetails_mobile ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!boothDetails.mobile ? 'border-red-300' : ''}`}
                 placeholder="Auto-filled from contact"
               />
-              {readOnlyFields.boothDetails_mobile && (
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                </p>
-              )}
+              {!boothDetails.mobile && <p className="text-xs text-red-500 mt-1">Required</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email ID</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email ID <span className="text-red-500">*</span></label>
               <input
                 type="email"
                 value={boothDetails.email}
@@ -2148,20 +2237,16 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 disabled={readOnlyFields.boothDetails_email}
                 className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
                   readOnlyFields.boothDetails_email ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
+                } ${!boothDetails.email ? 'border-red-300' : ''}`}
                 placeholder="Auto-filled from contact"
               />
-              {readOnlyFields.boothDetails_email && (
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
-                </p>
-              )}
+              {!boothDetails.email && <p className="text-xs text-red-500 mt-1">Required</p>}
             </div>
           </div>
         </div>
 
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Contractor Details</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Contractor Details (Optional)</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Contractor Company</label>
@@ -2305,12 +2390,13 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">CONTRACTOR SECURITY
             DEPOSIT FORM <br /> <span className='text-[#4D4D4D] font-semibold text-[15px]'>FORM 2 FOR BARE SPACE EXHIBITORS</span>
+            <span className="text-red-500 text-sm ml-2">*Required</span>
           </h2>
         </div>
 
         <div className="space-y-6">
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Security Deposit Amount</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Security Deposit Amount <span className="text-red-500">*</span></h3>
             
             {sortedTiers.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
@@ -2362,6 +2448,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                 </table>
               </div>
             )}
+            {!securityDeposit.boothSq && <p className="text-xs text-red-500 mt-2">Please select a security deposit option</p>}
           </div>
 
           <div className="mt-8 border-t border-gray-200 pt-6">
@@ -2537,7 +2624,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             EXHIBITOR PASSES
             <br />
             <span className="text-[#4D4D4D] font-semibold text-[15px]">
-              (OPTIONAL)
+              (At least one entry required)
             </span>
           </h2>
         </div>
@@ -2563,9 +2650,9 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           <thead className="bg-gray-50">
             <tr>
               <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sr.</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Designation</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Organisation</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name <span className="text-red-500">*</span></th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Designation <span className="text-red-500">*</span></th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Organisation <span className="text-red-500">*</span></th>
               <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
             </tr>
           </thead>
@@ -2584,9 +2671,12 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                     disabled={index === 0 && readOnlyFields.personnel_0_name}
                     className={`w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 ${
                       (index === 0 && readOnlyFields.personnel_0_name) ? 'bg-gray-100 cursor-not-allowed' : ''
-                    }`}
+                    } ${index === 0 && !person.name && personnel.filter(p => p.name.trim()).length === 0 ? 'border-red-300' : ''}`}
                     placeholder={index === 0 ? "Auto-filled from basic info" : "Enter name"}
                   />
+                  {index === 0 && !person.name && personnel.filter(p => p.name.trim()).length === 0 && (
+                    <p className="text-xs text-red-500 mt-1">At least one exhibitor is required</p>
+                  )}
                   {index === 0 && readOnlyFields.personnel_0_name && (
                     <p className="text-xs text-green-600 mt-1 flex items-center">
                       <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -2645,7 +2735,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
       </div>
 
       <p className="text-xs text-gray-500 mt-4 italic">
-        * Please enter all representatives who require exhibitor passes. (Optional)
+        * Please enter all representatives who require exhibitor passes. At least one entry is required.
       </p>
     </div>
   );
@@ -2662,7 +2752,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             DATA FOR EXHIBITOR'S GUIDE
             <br />
             <span className="text-[#4D4D4D] font-semibold text-[15px]">
-              (OPTIONAL)
+              (Required for publication)
             </span>
           </h2>
         </div>
@@ -2677,7 +2767,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Company Name
+            Company Name <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -2686,9 +2776,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             disabled={readOnlyFields.companyDetails_companyName}
             className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
               readOnlyFields.companyDetails_companyName ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            } ${!companyDetails.companyName ? 'border-red-300' : ''}`}
             placeholder="Auto-filled from basic info"
           />
+          {!companyDetails.companyName && <p className="text-xs text-red-500 mt-1">Required</p>}
           {readOnlyFields.companyDetails_companyName && (
             <p className="text-xs text-green-600 mt-1 flex items-center">
               <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -2698,7 +2789,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
 
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Address
+            Address <span className="text-red-500">*</span>
           </label>
           <textarea
             value={companyDetails.address}
@@ -2709,9 +2800,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             rows={2}
             className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
               readOnlyFields.companyDetails_address ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            } ${!companyDetails.address ? 'border-red-300' : ''}`}
             placeholder="Enter complete address"
           />
+          {!companyDetails.address && <p className="text-xs text-red-500 mt-1">Required</p>}
           {readOnlyFields.companyDetails_address && (
             <p className="text-xs text-green-600 mt-1 flex items-center">
               <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -2744,7 +2836,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Mobile
+            Mobile <span className="text-red-500">*</span>
           </label>
           <input
             type="tel"
@@ -2755,9 +2847,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             disabled={readOnlyFields.companyDetails_mobile}
             className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
               readOnlyFields.companyDetails_mobile ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            } ${!companyDetails.mobile ? 'border-red-300' : ''}`}
             placeholder="Auto-filled from contact"
           />
+          {!companyDetails.mobile && <p className="text-xs text-red-500 mt-1">Required</p>}
           {readOnlyFields.companyDetails_mobile && (
             <p className="text-xs text-green-600 mt-1 flex items-center">
               <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -2767,7 +2860,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
+            Email <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
@@ -2778,9 +2871,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             disabled={readOnlyFields.companyDetails_email}
             className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
               readOnlyFields.companyDetails_email ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            } ${!companyDetails.email ? 'border-red-300' : ''}`}
             placeholder="Auto-filled from contact"
           />
+          {!companyDetails.email && <p className="text-xs text-red-500 mt-1">Required</p>}
           {readOnlyFields.companyDetails_email && (
             <p className="text-xs text-green-600 mt-1 flex items-center">
               <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -2813,7 +2907,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Contact Person
+            Contact Person <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -2824,9 +2918,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             disabled={readOnlyFields.companyDetails_contactPerson}
             className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
               readOnlyFields.companyDetails_contactPerson ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            } ${!companyDetails.contactPerson ? 'border-red-300' : ''}`}
             placeholder="Auto-filled from name"
           />
+          {!companyDetails.contactPerson && <p className="text-xs text-red-500 mt-1">Required</p>}
           {readOnlyFields.companyDetails_contactPerson && (
             <p className="text-xs text-green-600 mt-1 flex items-center">
               <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -2836,7 +2931,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Designation
+            Designation <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -2847,9 +2942,10 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             disabled={readOnlyFields.companyDetails_designation}
             className={`w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 ${
               readOnlyFields.companyDetails_designation ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            } ${!companyDetails.designation ? 'border-red-300' : ''}`}
             placeholder="Auto-filled from designation"
           />
+          {!companyDetails.designation && <p className="text-xs text-red-500 mt-1">Required</p>}
           {readOnlyFields.companyDetails_designation && (
             <p className="text-xs text-green-600 mt-1 flex items-center">
               <LockClosedIcon className="h-3 w-3 mr-1" /> Auto-filled
@@ -2899,7 +2995,7 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           <div className="bg-blue-100 p-2 rounded-lg">
             <BoltIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Electrical Load</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Electrical Load (Optional)</h2>
         </div>
 
         <div className="space-y-6">
@@ -2943,18 +3039,20 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                       className="w-20 border border-gray-200 rounded px-2 py-1 text-sm"
                       placeholder="KW"
                     />
-                  </td>
+                                    </td>
                   <td className="px-3 py-2 text-sm">₹{electricalLoad.exhibitionTotal.toLocaleString()}</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div className="mt-8 border-t border-gray-200 pt-6">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-sm">
-              <p className="font-semibold text-yellow-800 mb-2">Important Note:</p>
-              <p>All prices are current and subject to change without prior notice. Orders must be placed by 7th November 2025.</p>
-            </div>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-gray-700">
+            <p className="font-semibold">Note:</p>
+            <ul className="list-disc pl-5 mt-1 space-y-1">
+              <li>Electrical connections are subject to availability</li>
+              <li>Minimum load of 1KW applies for each connection type</li>
+              <li>Rates are inclusive of GST</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -2962,20 +3060,313 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
   };
 
   // ============= FORM 8: FURNITURE (OPTIONAL) =============
-  const renderFurniture = () => {
-    const furnitureTotal = furnitureItems.reduce((sum, item) => sum + (item.cost || 0), 0);
+  const renderFurniture = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Furniture & Equipment (Optional)</h2>
+      </div>
 
-    if (furnitureItems.length === 0) {
+      {furnitureItems.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>Loading furniture items...</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cost (3 Days)</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {furnitureItems.map((item, index) => (
+                <tr key={item.id || index} className="hover:bg-gray-50">
+                  <td className="px-3 py-2">
+                    {item.image ? (
+                      <button
+                        onClick={() => setSelectedImage({ src: item.image, alt: item.description })}
+                        className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 hover:opacity-80 transition"
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.description}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/placeholder.jpg';
+                          }}
+                        />
+                        <MagnifyingGlassPlusIcon className="absolute bottom-0 right-0 h-3 w-3 bg-white rounded-full p-0.5" />
+                      </button>
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <PhotoIcon className="h-6 w-6 text-gray-400" />
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-sm font-mono">{item.code}</td>
+                  <td className="px-3 py-2 text-sm">{item.description}</td>
+                  <td className="px-3 py-2 text-sm">{item.size || 'N/A'}</td>
+                  <td className="px-3 py-2 text-sm">₹{item.cost3Days.toLocaleString()}</td>
+                  <td className="px-3 py-2">
+                    <input
+                      type="number"
+                      min="0"
+                      value={item.quantity}
+                      onChange={(e) => handleFurnitureQuantity(index, parseInt(e.target.value) || 0)}
+                      className="w-20 border border-gray-300 rounded-lg px-2 py-1 text-sm text-center"
+                    />
+                  </td>
+                  <td className="px-3 py-2 text-sm font-medium">₹{item.cost.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <p className="text-xs text-gray-500 mt-4 italic">
+        * All furniture items are for 3-day exhibition period. Prices are exclusive of GST.
+      </p>
+    </div>
+  );
+
+  // ============= FORM 9: HOSTESS (OPTIONAL) =============
+  const renderHostess = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Hostess Services (Optional)</h2>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Rate/Day</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">No. of Days</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {hostessRequirements.map((hostess, index) => (
+              <tr key={hostess.category}>
+                <td className="px-3 py-2 text-sm font-medium">Category {hostess.category}</td>
+                <td className="px-3 py-2 text-sm">₹{(hostess.ratePerDay || (hostess.category === 'A' ? 5000 : 4000)).toLocaleString()}</td>
+                <td className="px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={hostess.quantity}
+                    onChange={(e) => handleHostessChange(index, 'quantity', parseInt(e.target.value) || 0)}
+                    className="w-20 border border-gray-300 rounded-lg px-2 py-1 text-sm text-center"
+                  />
+                </td>
+                <td className="px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    max="3"
+                    value={hostess.noOfDays}
+                    onChange={(e) => handleHostessChange(index, 'noOfDays', parseInt(e.target.value) || 0)}
+                    className="w-20 border border-gray-300 rounded-lg px-2 py-1 text-sm text-center"
+                  />
+                </td>
+                <td className="px-3 py-2 text-sm font-medium">₹{hostess.amount.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-4 bg-blue-50 rounded-lg p-3 text-sm">
+        <p className="text-gray-600">
+          <span className="font-semibold">Category A:</span> Professional Hostess (English/Hindi) - ₹5,000/day<br />
+          <span className="font-semibold">Category B:</span> Bilingual Hostess (English/Hindi + Regional) - ₹4,000/day
+        </p>
+      </div>
+    </div>
+  );
+
+  // ============= FORM 10: COMPRESSED AIR (OPTIONAL) =============
+  const renderCompressedAir = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <WrenchScrewdriverIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Compressed Air Connection (Optional)</h2>
+      </div>
+
+      {compressedAirOptions.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>Loading compressed air options...</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Select</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">CFM Range</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Connection Cost</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Power (KW)</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Power Cost @ ₹3,500/KW</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {compressedAirOptions.map((option) => (
+                  <tr key={option.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleCompressedAirSelect(option)}>
+                    <td className="px-3 py-2">
+                      <input
+                        type="radio"
+                        name="compressedAir"
+                        checked={compressedAir.selected === option.cfmRange}
+                        onChange={() => handleCompressedAirSelect(option)}
+                        className="h-4 w-4 text-blue-600"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-sm">{option.cfmRange}</td>
+                    <td className="px-3 py-2 text-sm">₹{option.costPerConnection.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-sm">{option.powerKW}</td>
+                    <td className="px-3 py-2 text-sm">₹{(option.powerKW * 3500).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {compressedAir.selected && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={compressedAir.qty}
+                    onChange={(e) => handleCompressedAirQuantity(parseInt(e.target.value) || 1)}
+                    className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Total Cost</label>
+                  <div className="text-xl font-bold text-blue-600">₹{compressedAir.totalCost.toLocaleString()}</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  // ============= FORM 11: WATER CONNECTION (OPTIONAL) =============
+  const renderWaterConnection = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <TruckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Water Connection (Optional)</h2>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Number of Connections</label>
+          <input
+            type="number"
+            min="0"
+            value={waterConnection.connections}
+            onChange={(e) => setWaterConnection(prev => ({ ...prev, connections: parseInt(e.target.value) || 0 }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Cost per Connection</label>
+          <div className="text-lg font-semibold text-gray-900">₹{waterConnection.costPerConnection.toLocaleString()}</div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Total Cost</label>
+          <div className="text-xl font-bold text-blue-600">₹{waterConnection.totalCost.toLocaleString()}</div>
+        </div>
+      </div>
+
+      <div className="mt-4 text-xs text-gray-500">
+        * Water connection includes supply for 3 exhibition days
+      </div>
+    </div>
+  );
+
+  // ============= FORM 12: SECURITY GUARD (OPTIONAL) =============
+  const renderSecurityGuard = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <ShieldCheckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Security Guard Services (Optional)</h2>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Number of Guards</label>
+          <input
+            type="number"
+            min="0"
+            value={securityGuard.quantity}
+            onChange={(e) => setSecurityGuard(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Number of Days</label>
+          <input
+            type="number"
+            min="0"
+            max="5"
+            value={securityGuard.noOfDays}
+            onChange={(e) => setSecurityGuard(prev => ({ ...prev, noOfDays: parseInt(e.target.value) || 0 }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Total Cost</label>
+          <div className="text-xl font-bold text-blue-600">₹{securityGuard.totalCost.toLocaleString()}</div>
+          <div className="text-xs text-gray-500">@ ₹2,500 per guard per day</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ============= FORM 13: RENTAL ITEMS (AV & IT) (OPTIONAL) =============
+  const renderRentalItems = () => {
+    const rentalItemsList = Object.values(rentalItems);
+
+    if (rentalItemsList.length === 0) {
       return (
         <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
           <div className="flex items-center mb-6">
             <div className="bg-blue-100 p-2 rounded-lg">
               <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Furniture</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals (Optional)</h2>
           </div>
           <div className="text-center py-8 text-gray-500">
-            No furniture items available at the moment.
+            <p>Loading rental items...</p>
           </div>
         </div>
       );
@@ -2987,419 +3378,30 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
           <div className="bg-blue-100 p-2 rounded-lg">
             <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Furniture</h2>
-        </div>
-
-        <div className="overflow-x-auto max-h-96 overflow-y-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50 sticky top-0">
-              <tr>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cost (3 Days)</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cost</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {furnitureItems.map((item, index) => (
-                <tr key={item.code || index} className="hover:bg-gray-50">
-                  <td className="px-2 py-1.5">
-                    <div 
-                      className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => {
-                        const imageUrl = item.image || item.imageUrl;
-                        if (imageUrl) {
-                          setSelectedImage({
-                            src: imageUrl,
-                            alt: item.description || 'Furniture item'
-                          });
-                        }
-                      }}
-                    >
-                      {(item.image || item.imageUrl) ? (
-                        <img
-                          src={item.image || item.imageUrl || ''}
-                          alt={item.description || 'Furniture item'}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/placeholder.jpg';
-                          }}
-                        />
-                      ) : (
-                        <PhotoIcon className="h-6 w-6 text-gray-400" />
-                      )}
-                    </div>
-                   </td>
-                  <td className="px-2 py-1.5 text-xs font-mono text-blue-600">{item.code || 'N/A'}</td>
-                  <td className="px-2 py-1.5 text-xs">{item.description || 'No description'}</td>
-                  <td className="px-2 py-1.5 text-xs">{item.size && item.size !== 'null' ? item.size : 'N/A'}</td>
-                  <td className="px-2 py-1.5 text-xs">₹{item.cost3Days?.toLocaleString() ?? '0'}</td>
-                  <td className="px-2 py-1.5">
-                    <input
-                      type="number"
-                      min="0"
-                      value={item.quantity || ''}
-                      onChange={(e) => handleFurnitureQuantity(index, parseInt(e.target.value) || 0)}
-                      className="w-16 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-blue-500"
-                    />
-                   </td>
-                  <td className="px-2 py-1.5 text-xs font-semibold">
-                    ₹{item.cost?.toLocaleString() ?? '0'}
-                   </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot className="bg-gray-50 sticky bottom-0">
-              <tr>
-                <td colSpan={6} className="px-2 py-2 text-right text-xs font-semibold">Total:</td>
-                <td className="px-2 py-2 text-xs font-bold text-blue-600">
-                  ₹{furnitureTotal?.toLocaleString() ?? '0'}
-                 </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    );
-  };
-
-  // ============= FORM 9: HOSTESS (OPTIONAL) =============
-  const renderHostess = () => {
-    const hostessTotal = hostessRequirements.reduce((sum, h) => sum + h.amount, 0);
-
-    return (
-      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-        <div className="flex items-center mb-6">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-            Temporary Staff / Hostess
-          </h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals (Optional)</h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Rate/Day</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Days</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {hostessRequirements.map((hostess, index) => (
-                <tr key={hostess.category}>
-                  <td className="px-3 py-2 text-sm">Category {hostess.category}</td>
-                  <td className="px-3 py-2 text-sm">
-                    ₹{(hostess.ratePerDay || (hostess.category === 'A' ? 5000 : 4000)).toLocaleString()}
-                   </td>
-                  <td className="px-3 py-2">
-                    <input
-                      type="number"
-                      min="0"
-                      value={hostess.quantity || ''}
-                      onChange={(e) =>
-                        handleHostessChange(index, 'quantity', parseInt(e.target.value) || 0)
-                      }
-                      className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
-                    />
-                   </td>
-                  <td className="px-3 py-2">
-                    <input
-                      type="number"
-                      min="0"
-                      value={hostess.noOfDays || ''}
-                      onChange={(e) =>
-                        handleHostessChange(index, 'noOfDays', parseInt(e.target.value) || 0)
-                      }
-                      className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
-                    />
-                   </td>
-                  <td className="px-3 py-2 text-sm font-semibold">
-                    ₹{hostess.amount.toLocaleString()}
-                   </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot className="bg-gray-50">
-              <tr>
-                <td colSpan={4} className="px-3 py-2 text-right text-sm font-semibold">Total:</td>
-                <td className="px-3 py-2 text-sm font-bold text-blue-600">₹{hostessTotal.toLocaleString()}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-sm">
-            <p className="font-semibold mb-3">Please Note:</p>
-            <ul className="list-decimal pl-5 space-y-2">
-              <li>All prices are current and subject to change without prior notice.</li>
-              <li>The working hour for service is 8 hrs./person/day.</li>
-              <li>No refund for any cancellation once the order is placed.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ============= FORM 10: COMPRESSED AIR (OPTIONAL) =============
-  const renderCompressedAir = () => {
-    if (compressedAirOptions.length === 0) {
-      return (
-        <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-          <div className="flex items-center mb-6">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <WrenchScrewdriverIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Compressed Air</h2>
-          </div>
-          <div className="text-center py-8 text-gray-500">
-            No compressed air options available at the moment.
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-        <div className="flex items-center mb-6">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <WrenchScrewdriverIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Compressed Air</h2>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase"></th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">CFM Range</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Connection Cost</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Power</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total per Unit</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {compressedAirOptions.map((option) => (
-                <tr key={option.id} className="hover:bg-gray-50">
-                  <td className="px-2 py-2">
-                    <input
-                      type="radio"
-                      name="compressedAir"
-                      checked={compressedAir.selected === option.cfmRange}
-                      onChange={() => handleCompressedAirSelect(option)}
-                      className="h-4 w-4 text-blue-600"
-                    />
-                   </td>
-                  <td className="px-2 py-2 text-sm">{option.cfmRange}</td>
-                  <td className="px-2 py-2 text-sm">₹{option.costPerConnection.toLocaleString()}</td>
-                  <td className="px-2 py-2 text-sm">{option.powerKW} KW</td>
-                  <td className="px-2 py-2 text-sm">₹{(option.costPerConnection + (option.powerKW * 3500)).toLocaleString()}</td>
-                  <td className="px-2 py-2">
-                    {compressedAir.selected === option.cfmRange && (
-                      <input
-                        type="number"
-                        min="1"
-                        value={compressedAir.qty}
-                        onChange={(e) => handleCompressedAirQuantity(parseInt(e.target.value) || 1)}
-                        className="w-16 border border-gray-200 rounded px-2 py-1 text-sm"
-                      />
-                    )}
-                   </td>
-                  <td className="px-2 py-2 text-sm">
-                    {compressedAir.selected === option.cfmRange && (
-                      <span className="font-semibold">₹{compressedAir.totalCost.toLocaleString()}</span>
-                    )}
-                   </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  };
-
-  // ============= FORM 11: WATER CONNECTION (OPTIONAL) =============
-  const renderWaterConnection = () => {
-    const connections = waterConnection?.connections ?? 0;
-    const costPerConnection = waterConnection?.costPerConnection ?? 0;
-    const totalCost = waterConnection?.totalCost ?? 0;
-
-    return (
-      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-        <div className="flex items-center mb-6">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <TruckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-            Water Connection
-          </h2>
-        </div>
-
-        <div className="max-w-md">
-          <div className="flex items-center gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                No. of Connections
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={connections || ''}
-                onChange={(e) =>
-                  setWaterConnection({
-                    ...waterConnection,
-                    connections: parseInt(e.target.value) || 0
-                  })
-                }
-                className="w-24 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="text-sm">
-              <p className="text-gray-600">Cost per connection: ₹{costPerConnection.toLocaleString()}</p>
-              <p className="font-semibold text-blue-600 mt-1">Total: ₹{totalCost.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ============= FORM 12: SECURITY GUARD (OPTIONAL) =============
-  const renderSecurityGuard = () => (
-    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-      <div className="flex items-center mb-6">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <ShieldCheckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-        </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-          Security Guard
-        </h2>
-      </div>
-
-      <div className="max-w-lg space-y-6">
-        <div className="flex flex-col sm:flex-row gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              No. of Guards
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={securityGuard.quantity || ''}
-              onChange={(e) =>
-                setSecurityGuard({
-                  ...securityGuard,
-                  quantity: parseInt(e.target.value) || 0
-                })
-              }
-              className="w-32 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="Guards"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              No. of Days
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={securityGuard.noOfDays || ''}
-              onChange={(e) =>
-                setSecurityGuard({
-                  ...securityGuard,
-                  noOfDays: parseInt(e.target.value) || 0
-                })
-              }
-              className="w-32 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="Days"
-            />
-          </div>
-        </div>
-
-        {securityGuard.quantity > 0 && securityGuard.noOfDays > 0 && (
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-700">
-              Rate per guard per day: <span className="font-semibold">₹2,500</span>
-            </p>
-            <p className="mt-2 text-sm font-semibold">Total Cost: ₹{securityGuard.totalCost.toLocaleString()}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  // ============= FORM 13: RENTAL ITEMS (AV & IT) (OPTIONAL) =============
-  const renderRentalItems = () => {
-    const rentalTotal = Object.values(rentalItems).reduce((sum, item) => sum + (item.totalCost || 0), 0);
-
-    if (Object.keys(rentalItems).length === 0) {
-      return (
-        <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-          <div className="flex items-center mb-6">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals</h2>
-          </div>
-          <div className="text-center py-8 text-gray-500">
-            No rental items available at the moment.
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">AV & IT Rentals</h2>
-          </div>
-          <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1.5 rounded-full">For 3 Days</span>
-        </div>
-
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Image</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Description</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Cost for 3 Days</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Quantity</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Total Cost</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cost (3 Days)</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {Object.entries(rentalItems).map(([key, item]) => (
-                <tr key={key} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div 
-                      className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => {
-                        if (item.image) {
-                          setSelectedImage({
-                            src: item.image,
-                            alt: item.description
-                          });
-                        }
-                      }}
-                    >
-                      {item.image ? (
+              {rentalItemsList.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-3 py-2">
+                    {item.image ? (
+                      <button
+                        onClick={() => setSelectedImage({ src: item.image!, alt: item.description })}
+                        className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 hover:opacity-80 transition"
+                      >
                         <img
                           src={item.image}
                           alt={item.description}
@@ -3408,129 +3410,93 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
                             (e.target as HTMLImageElement).src = '/placeholder.jpg';
                           }}
                         />
-                      ) : (
+                        <MagnifyingGlassPlusIcon className="absolute bottom-0 right-0 h-3 w-3 bg-white rounded-full p-0.5" />
+                      </button>
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                         <PhotoIcon className="h-6 w-6 text-gray-400" />
-                      )}
-                    </div>
-                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{item.description}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">₹{(item.costFor3Days || 0).toLocaleString()}</td>
-                  <td className="px-4 py-3">
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-sm">{item.description}</td>
+                  <td className="px-3 py-2 text-sm">
+                    <span className="px-2 py-1 bg-gray-100 rounded-full text-xs">
+                      {item.category || 'General'}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-sm">₹{item.costFor3Days.toLocaleString()}</td>
+                  <td className="px-3 py-2">
                     <input
                       type="number"
                       min="0"
-                      value={item.quantity || ''}
-                      onChange={(e) => handleRentalQuantity(key, parseInt(e.target.value) || 0)}
-                      className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
-                      placeholder="0"
+                      value={item.quantity}
+                      onChange={(e) => handleRentalQuantity(item.id!, parseInt(e.target.value) || 0)}
+                      className="w-20 border border-gray-300 rounded-lg px-2 py-1 text-sm text-center"
                     />
-                   </td>
-                  <td className="px-4 py-3 text-sm font-semibold text-blue-600">
-                    ₹{(item.totalCost || 0).toLocaleString()}
-                   </td>
+                  </td>
+                  <td className="px-3 py-2 text-sm font-medium">₹{item.totalCost.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
-            <tfoot className="bg-gray-50">
-              <tr>
-                <td colSpan={4} className="px-4 py-3 text-right text-sm font-bold text-gray-900">Total:</td>
-                <td className="px-4 py-3 text-sm font-bold text-blue-600">₹{(rentalTotal || 0).toLocaleString()}</td>
-              </tr>
-            </tfoot>
           </table>
         </div>
+
+        <p className="text-xs text-gray-500 mt-4 italic">
+          * Rental items are for 3-day exhibition period. Prices are exclusive of GST.
+        </p>
       </div>
     );
   };
 
   // ============= FORM 14: HOUSEKEEPING STAFF (OPTIONAL) =============
-  const renderHousekeepingStaff = () => {
-    const chargesPerShift = housekeepingStaff?.chargesPerShift ?? 2000;
-    const quantity = housekeepingStaff?.quantity ?? 0;
-    const noOfDays = housekeepingStaff?.noOfDays ?? 0;
-    const totalCost = housekeepingStaff?.totalCost ?? 0;
-
-    return (
-      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-              Housekeeping Staff
-            </h2>
-          </div>
-          <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full">
-            Per Shift (10 Hrs)
-          </span>
+  const renderHousekeepingStaff = () => (
+    <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8">
+      <div className="flex items-center mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
-
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Category</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Charges per Shift</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">No. of Staff</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">No. of Days</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Total Cost</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              <tr className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-4 text-sm font-medium text-gray-900">Housekeeping</td>
-                <td className="px-4 py-4 text-sm text-gray-900">₹{(chargesPerShift)?.toLocaleString() ?? '2,000'}</td>
-                <td className="px-4 py-4">
-                  <input
-                    type="number"
-                    min="0"
-                    value={quantity || ""}
-                    onChange={(e) =>
-                      setHousekeepingStaff({
-                        ...housekeepingStaff,
-                        quantity: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
-                    placeholder="0"
-                  />
-                </td>
-                <td className="px-4 py-4">
-                  <input
-                    type="number"
-                    min="0"
-                    value={noOfDays || ""}
-                    onChange={(e) =>
-                      setHousekeepingStaff({
-                        ...housekeepingStaff,
-                        noOfDays: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"
-                    placeholder="0"
-                  />
-                                </td>
-                <td className="px-4 py-4 text-sm font-semibold text-blue-600">
-                  ₹{totalCost.toLocaleString()}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {quantity > 0 && noOfDays > 0 && (
-          <div className="mt-4 bg-blue-50 p-3 rounded-lg">
-            <p className="text-sm text-gray-600">
-              Calculation: {quantity} staff × {noOfDays} days × ₹{chargesPerShift.toLocaleString()} per shift = ₹{totalCost.toLocaleString()}
-            </p>
-          </div>
-        )}
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Housekeeping Staff (Optional)</h2>
       </div>
-    );
-  };
 
-  // ============= PREVIEW & SUBMIT =============
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Number of Staff</label>
+          <input
+            type="number"
+            min="0"
+            value={housekeepingStaff.quantity}
+            onChange={(e) => setHousekeepingStaff(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Number of Days</label>
+          <input
+            type="number"
+            min="0"
+            max="5"
+            value={housekeepingStaff.noOfDays}
+            onChange={(e) => setHousekeepingStaff(prev => ({ ...prev, noOfDays: parseInt(e.target.value) || 0 }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Rate per Shift</label>
+          <div className="text-lg font-semibold text-gray-900">₹{housekeepingStaff.chargesPerShift.toLocaleString()}</div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Total Cost</label>
+          <div className="text-xl font-bold text-blue-600">₹{housekeepingStaff.totalCost.toLocaleString()}</div>
+        </div>
+      </div>
+
+      <div className="mt-4 text-xs text-gray-500">
+        * Housekeeping staff available for 8-hour shifts during exhibition days
+      </div>
+    </div>
+  );
+
+  // ============= PREVIEW SECTION =============
   const renderPreview = () => {
     const totals = calculateTotals();
 
@@ -3541,614 +3507,294 @@ const handleCashfreeSuccess = async (paymentData: { orderId: string; paymentId?:
             <div className="bg-blue-100 p-2 rounded-lg">
               <EyeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">
-              Preview & Submit
-            </h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 ml-3">Preview & Submit</h2>
           </div>
           <button
             onClick={() => setShowPreview(false)}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1"
           >
-            <ChevronLeftIcon className="h-5 w-5" />
+            <MinusIcon className="h-4 w-4" />
+            Back to Edit
           </button>
-     
         </div>
 
         <div className="space-y-6">
-          {/* General Information Summary */}
-          <div className="border-b border-gray-200 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-              <UserIcon className="h-5 w-5 mr-2 text-blue-500" />
-              Basic Information
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              <p><span className="font-medium">Name:</span> {generalInfo.title} {generalInfo.firstName} {generalInfo.lastName}</p>
-              <p><span className="font-medium">Designation:</span> {generalInfo.designation}</p>
-              <p><span className="font-medium">Mobile:</span> {generalInfo.mobile}</p>
-              <p><span className="font-medium">Email:</span> {generalInfo.email}</p>
-              <p><span className="font-medium">Company:</span> {generalInfo.companyName}</p>
-              <p><span className="font-medium">GST:</span> {generalInfo.gstNumber}</p>
-              <p><span className="font-medium">Business Nature:</span> {generalInfo.businessNature}</p>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-blue-50 rounded-xl p-4">
+              <p className="text-sm text-gray-600">Security Deposit</p>
+              <p className="text-2xl font-bold text-blue-600">₹{totals.deposit.toLocaleString()}</p>
+            </div>
+            <div className="bg-green-50 rounded-xl p-4">
+              <p className="text-sm text-gray-600">Services Total</p>
+              <p className="text-2xl font-bold text-green-600">₹{totals.servicesTotal.toLocaleString()}</p>
+            </div>
+            <div className="bg-purple-50 rounded-xl p-4">
+              <p className="text-sm text-gray-600">GST (18%)</p>
+              <p className="text-2xl font-bold text-purple-600">₹{totals.gst.toLocaleString()}</p>
+            </div>
+            <div className="bg-orange-50 rounded-xl p-4">
+              <p className="text-sm text-gray-600">Grand Total</p>
+              <p className="text-2xl font-bold text-orange-600">₹{totals.total.toLocaleString()}</p>
             </div>
           </div>
 
-          {/* Booth Details Summary */}
-          <div className="border-b border-gray-200 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-              <BuildingOfficeIcon className="h-5 w-5 mr-2 text-blue-500" />
-              Booth & Contractor Details
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              <p><span className="font-medium">Booth No:</span> {boothDetails.boothNo}</p>
-              <p><span className="font-medium">Sq Mtr Booked:</span> {boothDetails.sqMtrBooked}</p>
-              <p><span className="font-medium">Exhibitor Name:</span> {boothDetails.exhibitorName}</p>
-              <p><span className="font-medium">Organisation:</span> {boothDetails.organisation}</p>
-              <p><span className="font-medium">Contact Person:</span> {boothDetails.contactPerson}</p>
-              <p><span className="font-medium">Designation:</span> {boothDetails.designation}</p>
-              <p><span className="font-medium">Mobile:</span> {boothDetails.mobile}</p>
-              <p><span className="font-medium">Email:</span> {boothDetails.email}</p>
-            </div>
-            {(boothDetails.contractorCompany || boothDetails.contractorPerson) && (
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <p className="font-medium text-gray-700 mb-2">Contractor Details:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                  <p><span className="font-medium">Contractor Company:</span> {boothDetails.contractorCompany || 'N/A'}</p>
-                  <p><span className="font-medium">Contractor Person:</span> {boothDetails.contractorPerson || 'N/A'}</p>
-                  <p><span className="font-medium">Contractor Mobile:</span> {boothDetails.contractorMobile || 'N/A'}</p>
-                  <p><span className="font-medium">Contractor Email:</span> {boothDetails.contractorEmail || 'N/A'}</p>
-                  <p><span className="font-medium">Contractor GST:</span> {boothDetails.contractorGST || 'N/A'}</p>
-                  <p><span className="font-medium">Contractor PAN:</span> {boothDetails.contractorPAN || 'N/A'}</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Security Deposit Summary */}
-          {securityDeposit.boothSq && (
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <BanknotesIcon className="h-5 w-5 mr-2 text-blue-500" />
-                Security Deposit
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                <p><span className="font-medium">Booth Sq Category:</span> {securityDeposit.boothSq}</p>
-                <p><span className="font-medium">Amount (INR):</span> ₹{securityDeposit.amountINR.toLocaleString()}</p>
-                <p><span className="font-medium">Amount (USD):</span> ${securityDeposit.amountUSD}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Machines Summary */}
-          {machines.filter(m => m.machineName.trim()).length > 0 && (
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <CubeIcon className="h-5 w-5 mr-2 text-blue-500" />
-                Machines Display
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-2 py-1 text-left">Sr</th>
-                      <th className="px-2 py-1 text-left">Machine Name</th>
-                      <th className="px-2 py-1 text-left">Dimensions (W×L×H)</th>
-                      <th className="px-2 py-1 text-left">Weight</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {machines.filter(m => m.machineName.trim()).map((m) => (
-                      <tr key={m.srNo}>
-                        <td className="px-2 py-1">{m.srNo}</td>
-                        <td className="px-2 py-1">{m.machineName}</td>
-                        <td className="px-2 py-1">{m.width}×{m.length}×{m.height} m</td>
-                        <td className="px-2 py-1">{m.weight} Tons</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Personnel Summary */}
-          {personnel.filter(p => p.name.trim()).length > 0 && (
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <UserIcon className="h-5 w-5 mr-2 text-blue-500" />
-                Exhibitor Passes
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-2 py-1 text-left">Sr</th>
-                      <th className="px-2 py-1 text-left">Name</th>
-                      <th className="px-2 py-1 text-left">Designation</th>
-                      <th className="px-2 py-1 text-left">Organisation</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {personnel.filter(p => p.name.trim()).map((p) => (
-                      <tr key={p.srNo}>
-                        <td className="px-2 py-1">{p.srNo}</td>
-                        <td className="px-2 py-1">{p.name}</td>
-                        <td className="px-2 py-1">{p.designation}</td>
-                        <td className="px-2 py-1">{p.organisation}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Company Details Summary */}
-          <div className="border-b border-gray-200 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-              <BuildingOfficeIcon className="h-5 w-5 mr-2 text-blue-500" />
-              Company Details (Exhibitor's Guide)
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              <p><span className="font-medium">Company Name:</span> {companyDetails.companyName}</p>
-              <p><span className="font-medium">Address:</span> {companyDetails.address}</p>
-              <p><span className="font-medium">Telephone:</span> {companyDetails.telephone}</p>
-              <p><span className="font-medium">Mobile:</span> {companyDetails.mobile}</p>
-              <p><span className="font-medium">Email:</span> {companyDetails.email}</p>
-              <p><span className="font-medium">Website:</span> {companyDetails.website}</p>
-              <p><span className="font-medium">Contact Person:</span> {companyDetails.contactPerson}</p>
-              <p><span className="font-medium">Designation:</span> {companyDetails.designation}</p>
-            </div>
-            {companyDetails.productsServices && (
-              <p className="mt-2 text-sm"><span className="font-medium">Products/Services:</span> {companyDetails.productsServices}</p>
-            )}
-          </div>
-
-          {/* Services Summary */}
-          <div className="border-b border-gray-200 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-              <BoltIcon className="h-5 w-5 mr-2 text-blue-500" />
-              Services & Add-ons
-            </h3>
-            
-            {/* Electrical Load */}
-            {(electricalLoad.temporaryTotal > 0 || electricalLoad.exhibitionTotal > 0) && (
-              <div className="mb-3">
-                <p className="font-medium text-gray-700">Electrical Load:</p>
-                {electricalLoad.temporaryTotal > 0 && (
-                  <p className="text-sm ml-4">Temporary Load: {electricalLoad.temporaryLoad} KW - ₹{electricalLoad.temporaryTotal.toLocaleString()}</p>
-                )}
-                {electricalLoad.exhibitionTotal > 0 && (
-                  <p className="text-sm ml-4">Exhibition Load: {electricalLoad.exhibitionLoad} KW - ₹{electricalLoad.exhibitionTotal.toLocaleString()}</p>
-                )}
-              </div>
-            )}
-
-            {/* Furniture */}
-            {furnitureItems.filter(f => f.quantity > 0).length > 0 && (
-              <div className="mb-3">
-                <p className="font-medium text-gray-700">Furniture:</p>
-                {furnitureItems.filter(f => f.quantity > 0).map((f, idx) => (
-                  <p key={idx} className="text-sm ml-4">{f.description} × {f.quantity} - ₹{f.cost.toLocaleString()}</p>
-                ))}
-              </div>
-            )}
-
-            {/* Hostess */}
-            {hostessRequirements.filter(h => h.quantity > 0).length > 0 && (
-              <div className="mb-3">
-                <p className="font-medium text-gray-700">Hostess/Temporary Staff:</p>
-                {hostessRequirements.filter(h => h.quantity > 0).map((h, idx) => (
-                  <p key={idx} className="text-sm ml-4">Category {h.category}: {h.quantity} staff × {h.noOfDays} days - ₹{h.amount.toLocaleString()}</p>
-                ))}
-              </div>
-            )}
-
-            {/* Compressed Air */}
-            {compressedAir.selected && compressedAir.qty > 0 && (
-              <div className="mb-3">
-                <p className="font-medium text-gray-700">Compressed Air:</p>
-                <p className="text-sm ml-4">{compressedAir.cfmRange} - {compressedAir.qty} connection(s) - ₹{compressedAir.totalCost.toLocaleString()}</p>
-              </div>
-            )}
-
-            {/* Water Connection */}
-            {waterConnection.connections > 0 && (
-              <div className="mb-3">
-                <p className="font-medium text-gray-700">Water Connection:</p>
-                <p className="text-sm ml-4">{waterConnection.connections} connection(s) - ₹{waterConnection.totalCost.toLocaleString()}</p>
-              </div>
-            )}
-
-            {/* Security Guard */}
-            {securityGuard.quantity > 0 && securityGuard.noOfDays > 0 && (
-              <div className="mb-3">
-                <p className="font-medium text-gray-700">Security Guard:</p>
-                <p className="text-sm ml-4">{securityGuard.quantity} guard(s) × {securityGuard.noOfDays} days - ₹{securityGuard.totalCost.toLocaleString()}</p>
-              </div>
-            )}
-
-            {/* Rental Items */}
-            {Object.values(rentalItems).filter(r => r.quantity > 0).length > 0 && (
-              <div className="mb-3">
-                <p className="font-medium text-gray-700">AV & IT Rentals:</p>
-                {Object.values(rentalItems).filter(r => r.quantity > 0).map((r, idx) => (
-                  <p key={idx} className="text-sm ml-4">{r.description} × {r.quantity} - ₹{r.totalCost.toLocaleString()}</p>
-                ))}
-              </div>
-            )}
-
-            {/* Housekeeping */}
-            {housekeepingStaff.quantity > 0 && housekeepingStaff.noOfDays > 0 && (
-              <div className="mb-3">
-                <p className="font-medium text-gray-700">Housekeeping Staff:</p>
-                <p className="text-sm ml-4">{housekeepingStaff.quantity} staff × {housekeepingStaff.noOfDays} days - ₹{housekeepingStaff.totalCost.toLocaleString()}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Payment Summary */}
-          <div className="border-b border-gray-200 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-              <CreditCardIcon className="h-5 w-5 mr-2 text-blue-500" />
-              Payment Details
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              <p><span className="font-medium">Payment Mode:</span> {paymentDetails.paymentMode}</p>
-              <p><span className="font-medium">Bank Name:</span> {paymentDetails.bankName || 'N/A'}</p>
-              <p><span className="font-medium">Transaction ID:</span> {paymentDetails.transactionId || 'N/A'}</p>
-              <p><span className="font-medium">Transaction Date:</span> {paymentDetails.transactionDate || 'N/A'}</p>
-              <p><span className="font-medium">Amount Paid:</span> ₹{paymentDetails.amount?.toLocaleString() || '0'}</p>
-            </div>
-          </div>
-
-          {/* Cost Summary */}
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Cost Summary</h3>
+          {/* Selected Items Summary */}
+          <div className="border-t border-gray-200 pt-4">
+            <h3 className="font-semibold text-gray-800 mb-3">Selected Services</h3>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Services Total:</span>
-                <span>₹{totals.servicesTotal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>GST (18%):</span>
-                <span>₹{totals.gst.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Subtotal (Services + GST):</span>
-                <span>₹{totals.subtotal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Security Deposit:</span>
-                <span>₹{totals.deposit.toLocaleString()}</span>
-              </div>
-              <div className="border-t border-gray-300 pt-2 mt-2">
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Grand Total:</span>
-                  <span className="text-blue-600">₹{totals.total.toLocaleString()}</span>
+              {furnitureItems.filter(f => f.quantity > 0).length > 0 && (
+                <div className="flex justify-between">
+                  <span>Furniture:</span>
+                  <span>₹{totals.furniture.toLocaleString()}</span>
                 </div>
-              </div>
+              )}
+              {hostessRequirements.filter(h => h.quantity > 0).length > 0 && (
+                <div className="flex justify-between">
+                  <span>Hostess Services:</span>
+                  <span>₹{totals.hostess.toLocaleString()}</span>
+                </div>
+              )}
+              {totals.electrical > 0 && (
+                <div className="flex justify-between">
+                  <span>Electrical Load:</span>
+                  <span>₹{totals.electrical.toLocaleString()}</span>
+                </div>
+              )}
+              {totals.compressedAir > 0 && (
+                <div className="flex justify-between">
+                  <span>Compressed Air:</span>
+                  <span>₹{totals.compressedAir.toLocaleString()}</span>
+                </div>
+              )}
+              {totals.water > 0 && (
+                <div className="flex justify-between">
+                  <span>Water Connection:</span>
+                  <span>₹{totals.water.toLocaleString()}</span>
+                </div>
+              )}
+              {totals.security > 0 && (
+                <div className="flex justify-between">
+                  <span>Security Guards:</span>
+                  <span>₹{totals.security.toLocaleString()}</span>
+                </div>
+              )}
+              {totals.rental > 0 && (
+                <div className="flex justify-between">
+                  <span>AV/IT Rentals:</span>
+                  <span>₹{totals.rental.toLocaleString()}</span>
+                </div>
+              )}
+              {totals.housekeeping > 0 && (
+                <div className="flex justify-between">
+                  <span>Housekeeping:</span>
+                  <span>₹{totals.housekeeping.toLocaleString()}</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Submit Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-end pt-4">
-            <button
-              onClick={() => setShowPreview(false)}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-            >
-              Edit
-            </button>
+          {/* Submit Button */}
+          <div className="border-t border-gray-200 pt-6">
             <button
               onClick={handleSubmitApplication}
               disabled={isSubmitting}
-              className={`px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 ${
-                isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-              }`}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
                   Submitting...
                 </>
               ) : (
-                'Submit Application'
+                <>
+                  <CheckCircleIcon className="h-5 w-5" />
+                  Submit Application & Proceed to Payment
+                </>
               )}
             </button>
+            <p className="text-xs text-gray-500 text-center mt-3">
+              By submitting, you confirm that all information provided is accurate and complete.
+            </p>
           </div>
         </div>
       </div>
     );
   };
-
-  // ============= PAYMENT MODAL =============
-  const renderPaymentModal = () => {
-    if (!showPayment) return null;
-
-    const totals = calculateTotals();
-
-    return (
-      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-            <h2 className="text-xl font-bold">Payment Details</h2>
-            <button
-              onClick={() => setShowPayment(false)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <XCircleIcon className="h-6 w-6" />
-            </button>
-          </div>
-
-          <div className="p-6 space-y-6">
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Total Amount Due</p>
-              <p className="text-2xl font-bold text-blue-600">₹{totals.total.toLocaleString()}</p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Payment Mode
-                </label>
-                <select
-                  value={paymentDetails.paymentMode}
-                  onChange={(e) => setPaymentDetails({ ...paymentDetails, paymentMode: e.target.value as any })}
-                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
-                >
-                  <option value="RTGS">RTGS</option>
-                  <option value="NEFT">NEFT</option>
-                  <option value="IMPS">IMPS</option>
-                  <option value="UPI">UPI</option>
-                  <option value="Cheque">Cheque</option>
-                  <option value="DD">DD</option>
-                  <option value="Cash">Cash</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Bank Name
-                </label>
-                <input
-                  type="text"
-                  value={paymentDetails.bankName}
-                  onChange={(e) => setPaymentDetails({ ...paymentDetails, bankName: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
-                  placeholder="Enter bank name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Transaction ID / Reference No.
-                </label>
-                <input
-                  type="text"
-                  value={paymentDetails.transactionId}
-                  onChange={(e) => setPaymentDetails({ ...paymentDetails, transactionId: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
-                  placeholder="Enter transaction ID"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Transaction Date
-                </label>
-                <input
-                  type="date"
-                  value={paymentDetails.transactionDate}
-                  onChange={(e) => setPaymentDetails({ ...paymentDetails, transactionDate: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount Paid
-                </label>
-                <input
-                  type="number"
-                  value={paymentDetails.amount || ''}
-                  onChange={(e) => setPaymentDetails({ ...paymentDetails, amount: parseFloat(e.target.value) || 0 })}
-                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm"
-                  placeholder="Enter amount"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Upload Payment Receipt
-                </label>
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={handlePaymentFileUpload}
-                  className="w-full border border-gray-200 rounded-lg p-2 text-sm"
-                />
-                <p className="text-xs text-gray-500 mt-1">Upload screenshot or scan of payment proof</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={() => setShowPayment(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmitApplication}
-                disabled={isSubmitting}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit & Proceed'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ============= CASHFREE PAYMENT MODAL =============
-const renderCashfreePayment = () => {
-  if (!showCashfree || !cashfreeInvoiceId || !cashfreeRequirementsId) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold">Complete Payment</h2>
-          <button
-            onClick={() => setShowCashfree(false)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <XCircleIcon className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="p-6">
-          <CashfreePayment
-            invoiceId={cashfreeInvoiceId}
-            amount={cashfreeAmount}
-            requirementsId={cashfreeRequirementsId}
-            onSuccess={handleCashfreeSuccess}
-            onFailure={handleCashfreeFailure}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
 
   // ============= MAIN RENDER =============
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Exhibitor Requirements
-              </h1>
-              <p className="text-sm text-gray-500 mt-1">
-                Fill in your requirements for the exhibition
-              </p>
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <MenuIcon className="h-6 w-6" />
+              </button>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900">Exhibitor Requirements</h1>
+                <p className="text-xs text-gray-500 hidden sm:block">Complete your exhibition service requirements</p>
+              </div>
             </div>
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
-            >
-              <MenuIcon className="h-6 w-6 text-gray-600" />
-            </button>
+            <div className="flex items-center gap-2">
+              <div className="text-right">
+                <p className="text-xs text-gray-500">Step {currentStep} of {totalSteps}</p>
+                <p className="text-sm font-medium text-blue-600">{steps[currentStep - 1]?.name}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar - Steps Navigation */}
+          {/* Sidebar Steps */}
           <div className={`lg:w-64 flex-shrink-0 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white rounded-xl shadow-sm p-4 sticky top-20">
-              <div className="flex flex-wrap lg:flex-col gap-2">
-                {steps.map((step) => {
-                  const isActive = currentStep === step.number;
-                  const isCompleted = currentStep > step.number;
-                  const Icon = step.icon;
-
-                  return (
-                    <button
-                      key={step.number}
-                      onClick={() => {
-                        setCurrentStep(step.number);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all ${
-                        isActive
-                          ? 'bg-blue-50 text-blue-600 font-medium'
-                          : isCompleted
-                          ? 'text-green-600 hover:bg-gray-50'
-                          : 'text-gray-500 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs ${
-                        isActive
-                          ? 'bg-blue-600 text-white'
-                          : isCompleted
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        {isCompleted ? <CheckCircleIcon className="h-4 w-4" /> : step.number}
-                      </div>
-                      <span className="hidden sm:inline text-sm">{step.name}</span>
-                      <span className="sm:hidden text-sm">{step.mobileName}</span>
-                    </button>
-                  );
-                })}
+            <div className="bg-white rounded-xl shadow-lg p-4 sticky top-24">
+              <div className="space-y-1">
+                {steps.map((step) => (
+                  <button
+                    key={step.number}
+                    onClick={() => setCurrentStep(step.number)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                      currentStep === step.number
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium ${
+                      currentStep === step.number
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {step.number}
+                    </div>
+                    <span className="text-sm font-medium hidden lg:inline">{step.name}</span>
+                    <span className="text-sm font-medium lg:hidden">{step.mobileName}</span>
+                    {step.required && (
+                      <span className="text-xs text-red-500 ml-auto">*</span>
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
           {/* Main Content */}
           <div className="flex-1">
-            {!showPreview ? (
-              <>
-                {/* Step Content */}
-                {currentStep === 1 && renderGeneralInfo()}
-                {currentStep === 2 && renderBoothDetails()}
-                {currentStep === 3 && renderSecurityDeposit()}
-                {currentStep === 4 && renderMachines()}
-                {currentStep === 5 && renderPersonnel()}
-                {currentStep === 6 && renderCompanyDetails()}
-                {currentStep === 7 && renderElectricalLoad()}
-                {currentStep === 8 && renderFurniture()}
-                {currentStep === 9 && renderHostess()}
-                {currentStep === 10 && renderCompressedAir()}
-                {currentStep === 11 && renderWaterConnection()}
-                {currentStep === 12 && renderSecurityGuard()}
-                {currentStep === 13 && renderRentalItems()}
-                {currentStep === 14 && renderHousekeepingStaff()}
+            {currentStep === 1 && renderGeneralInfo()}
+            {currentStep === 2 && renderBoothDetails()}
+            {currentStep === 3 && renderSecurityDeposit()}
+            {currentStep === 4 && renderMachines()}
+            {currentStep === 5 && renderPersonnel()}
+            {currentStep === 6 && renderCompanyDetails()}
+            {currentStep === 7 && renderElectricalLoad()}
+            {currentStep === 8 && renderFurniture()}
+            {currentStep === 9 && renderHostess()}
+            {currentStep === 10 && renderCompressedAir()}
+            {currentStep === 11 && renderWaterConnection()}
+            {currentStep === 12 && renderSecurityGuard()}
+            {currentStep === 13 && renderRentalItems()}
+            {currentStep === 14 && renderHousekeepingStaff()}
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between mt-6">
-                  <button
-                    onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    <ChevronLeftIcon className="h-4 w-4" />
-                    Previous
-                  </button>
-                  {currentStep < totalSteps ? (
-                    <button
-                      onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                    >
-                      Next
-                      <ChevronRightIcon className="h-4 w-4" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setShowPreview(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                    >
-                      <EyeIcon className="h-4 w-4" />
-                      Preview & Submit
-                    </button>
-                  )}
-                </div>
-              </>
-            ) : (
-              renderPreview()
-            )}
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+                disabled={currentStep === 1}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                  currentStep === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+                Previous
+              </button>
+
+              {currentStep < totalSteps ? (
+                <button
+                  onClick={() => setCurrentStep(prev => prev + 1)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                >
+                  Next
+                  <ChevronRightIcon className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleProceedToPreview}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                >
+                  Preview & Submit
+                  <EyeIcon className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto">
+          <div className="min-h-screen p-4 flex items-center justify-center">
+            <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Preview Your Application</h2>
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <XCircleIcon className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="p-6">
+                {renderPreview()}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cashfree Payment Modal */}
+      {showCashfree && cashfreeInvoiceId && (
+        <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto">
+          <div className="min-h-screen p-4 flex items-center justify-center">
+            <div className="bg-white rounded-xl max-w-lg w-full">
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Complete Payment</h2>
+                <button
+                  onClick={() => {
+                    setShowCashfree(false);
+                    setShowPayment(true);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <XCircleIcon className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="p-6">
+                <CashfreePayment
+                  invoiceId={cashfreeInvoiceId}
+                  amount={cashfreeAmount}
+                  onSuccess={handleCashfreeSuccess}
+                  onFailure={handleCashfreeFailure} requirementsId={''}                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Validation Modal */}
+      {renderValidationModal()}
+
+      {/* Image Modal */}
       {renderImageModal()}
-      {renderPaymentModal()}
-      {renderCashfreePayment()}
     </div>
   );
 }

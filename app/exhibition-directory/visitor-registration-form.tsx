@@ -134,10 +134,7 @@ export default function VisitorRegistrationForm({
     }
 
     // Make sure we have a company name
-    if (!companyName) {
-      setError('Company information is missing. Please refresh and try again.')
-      return
-    }
+
 
     setLoading(true)
     setError('')
@@ -152,7 +149,7 @@ export default function VisitorRegistrationForm({
           email: formData.email,
           name: formData.name,
           mobile: formData.mobile,
-          company: companyName // Use the companyName from props
+          company: "Visitor"  // Use the companyName from props
         }),
       })
 
@@ -247,7 +244,7 @@ export default function VisitorRegistrationForm({
         },
         body: JSON.stringify({
           ...formData,
-          company: companyName, // Include company from props
+          //company: companyName, // Include company from props
           otp: otp
         }),
       })
@@ -512,7 +509,7 @@ export default function VisitorRegistrationForm({
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading || !companyName}
+                disabled={loading}
                 className="w-full px-4 py-3 bg-slate-900 text-white font-medium rounded hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm md:text-base flex items-center justify-center gap-2"
               >
                 {loading ? (
