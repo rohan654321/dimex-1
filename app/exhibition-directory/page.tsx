@@ -1,8 +1,8 @@
 import CompanyDirectory from "./company-directory"
 
 export const metadata = {
-  title: 'Company Directory - Logistics Exhibition',
-  description: 'Browse participating companies in the logistics and transportation exhibition',
+  title: 'Exhibitor Directory - Diemex Exhibition',
+  description: 'Browse participating companies in the Diemex 2026 exhibition',
 }
 
 export default function Home() {
