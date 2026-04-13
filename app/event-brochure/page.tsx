@@ -6,8 +6,8 @@ import SectionContainer from "@/components/UI/SectionContainer"
 import BackToTop from "../exhibitor-resource-center/component/BackToTop"
 
 export const metadata: Metadata = {
-  title: "Event Brochure | TransRussia & SkladTech",
-  description: "Download the complete event brochure for TransRussia & SkladTech Expo 2026. Explore exhibitor opportunities and visitor information.",
+  title: "Event Brochure |Diemex 2026",
+  description: "Download the complete event brochure for Diemex Expo 2026. Explore exhibitor opportunities and visitor information.",
 }
 
 export default function BrochurePage() {
