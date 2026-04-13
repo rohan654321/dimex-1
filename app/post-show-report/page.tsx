@@ -5,8 +5,8 @@ import SectionContainer from "@/components/UI/SectionContainer"
 import BackToTop from "../exhibitor-resource-center/component/BackToTop"
 
 export const metadata: Metadata = {
-  title: "Post-Show Report | TransRussia & SkladTech",
-  description: "Download the complete post-show report for TransRussia & SkladTech Expo. See event statistics, success metrics, and exhibitor feedback.",
+  title: "Post-Show Report | Diemex 2025",
+  description: "Download the complete post-show report for Diemex Expo. See event statistics, success metrics, and exhibitor feedback.",
 }
 
 export default function PostShowReportPage() {
