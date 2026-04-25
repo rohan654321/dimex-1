@@ -9,15 +9,13 @@ import {
   TrendingUp,
   Activity,
   Clock,
-  Eye,
+  
   FileText,
   BarChart3,
   TrendingDown,
   CalendarDays,
   MousePointerClick,
   ChartNoAxesCombined,
-  LineChart,
-  PieChart
 } from 'lucide-react';
 
 import { useDashboard } from '@/hooks/useDashboard';
@@ -25,6 +23,23 @@ import { useAuth } from '@/hooks/useAuth';
 import toast from 'react-hot-toast';
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 
 // Types for dashboard data
 interface VisitorDay {
@@ -51,11 +66,32 @@ interface DashboardData {
   visitors: VisitorStats;
 }
 
+// Unified chart data type
+interface ChartDataPoint {
+  name: string;
+  visitors: number;
+  fullDate?: string;
+  date?: string;
+  days?: number;
+}
+
+// Custom colors
+const COLORS = ['#F08400', '#F59E0B', '#FCD34D', '#FDE68A', '#FFEDD5', '#FFF7ED'];
+const CHART_COLORS = {
+  primary: '#F08400',
+  secondary: '#F59E0B',
+  gradient: ['#F08400', '#FCD34D'],
+  area: '#FEF3C7',
+  grid: '#E5E7EB',
+  text: '#6B7280'
+};
+
 export default function DashboardPage() {
   const { summary, isLoading, error, refresh } = useDashboard();
   const { user } = useAuth();
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month'>('week');
+  const [chartType, setChartType] = useState<'line' | 'bar' | 'area'>('area');
 
   const handleExport = async (e: FormEvent) => {
     e.preventDefault();
@@ -83,6 +119,16 @@ export default function DashboardPage() {
       dateStr.slice(6, 8)
     );
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const getFullDate = (dateStr: string) => {
+    if (!dateStr || dateStr.length < 8) return '';
+    const date = new Date(
+      dateStr.slice(0, 4) + '-' +
+      dateStr.slice(4, 6) + '-' +
+      dateStr.slice(6, 8)
+    );
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const getDayName = (dateStr: string) => {
@@ -132,10 +178,6 @@ export default function DashboardPage() {
   const last7Days = visitorStats.last7Days || [];
   const topPages = visitorStats.pages || [];
   
-  const maxCount = last7Days.length > 0 
-    ? Math.max(...last7Days.map((d: VisitorDay) => d.count), 1) 
-    : 1;
-
   // Calculate percentage change
   const calculateChange = (current: number, previous: number) => {
     if (previous === 0) return { percentage: '+100', trend: 'up' };
@@ -148,13 +190,49 @@ export default function DashboardPage() {
 
   // Weekly change calculation
   const previousWeekTotal = last7Days.slice(0, 7).reduce((sum, d) => sum + d.count, 0);
-  const currentWeekTotal = last7Days.slice(7, 14).reduce((sum, d) => sum + d.count, 0);
+  const currentWeekTotal = last7Days.slice(0, 7).reduce((sum, d) => sum + d.count, 0);
   const weeklyChange = calculateChange(currentWeekTotal, previousWeekTotal);
 
-  // Monthly change calculation (comparing last 7 days avg with monthly avg)
+  // Monthly change calculation
   const weeklyAvg = last7Days.reduce((sum, d) => sum + d.count, 0) / 7;
   const monthlyAvg = (visitorStats.month || 0) / 30;
   const monthlyChange = calculateChange(weeklyAvg, monthlyAvg);
+
+  // Prepare chart data with unified type
+  const weeklyChartData: ChartDataPoint[] = last7Days.map(day => ({
+    name: getDayName(day.date),
+    fullDate: getFullDate(day.date),
+    visitors: day.count,
+    date: day.date
+  }));
+
+  // Prepare monthly data (group by week)
+  const monthlyChartData: ChartDataPoint[] = [];
+  for (let i = 0; i < last7Days.length; i += 7) {
+    const weekData = last7Days.slice(i, i + 7);
+    if (weekData.length > 0) {
+      monthlyChartData.push({
+        name: `Week ${Math.floor(i / 7) + 1}`,
+        visitors: weekData.reduce((sum, d) => sum + d.count, 0),
+        days: weekData.length
+      });
+    }
+  }
+
+  const chartData: ChartDataPoint[] = selectedPeriod === 'week' ? weeklyChartData : monthlyChartData;
+  
+  // Calculate stats
+  const totalViews = topPages.reduce((sum, p) => sum + p.views, 0);
+  const homepageViews = topPages.find(p => p.page === '/')?.views || 0;
+  const engagementRate = ((homepageViews / (visitorStats.total || 1)) * 100).toFixed(1);
+  const pagesPerVisitor = (totalViews / (visitorStats.total || 1)).toFixed(1);
+
+  // Prepare pie chart data for page distribution
+  const pageDistribution = topPages.slice(0, 5).map(page => ({
+    name: page.page === '/' ? 'Homepage' : page.page.replace(/^\/+/, '').substring(0, 20),
+    value: page.views,
+    percentage: ((page.views / totalViews) * 100).toFixed(1)
+  }));
 
   const statsCards = [
     {
@@ -164,7 +242,9 @@ export default function DashboardPage() {
       color: 'from-blue-500 to-blue-600',
       bgColor: 'bg-blue-50',
       iconColor: 'text-blue-600',
-      period: 'All Time'
+      period: 'All Time',
+      trend: '+12%',
+      trendUp: true
     },
     {
       title: 'Monthly Visitors',
@@ -174,8 +254,9 @@ export default function DashboardPage() {
       bgColor: 'bg-purple-50',
       iconColor: 'text-purple-600',
       period: 'Last 30 Days',
-      change: monthlyChange,
-      subValue: `${visitorStats.week || 0} this week`
+      subValue: `${visitorStats.week || 0} this week`,
+      trend: monthlyChange.percentage,
+      trendUp: monthlyChange.trend === 'up'
     },
     {
       title: 'Weekly Visitors',
@@ -185,8 +266,9 @@ export default function DashboardPage() {
       bgColor: 'bg-green-50',
       iconColor: 'text-green-600',
       period: 'Last 7 Days',
-      change: weeklyChange,
-      subValue: `${visitorStats.today || 0} today`
+      subValue: `${visitorStats.today || 0} today`,
+      trend: weeklyChange.percentage,
+      trendUp: weeklyChange.trend === 'up'
     },
     {
       title: "Today's Visitors",
@@ -196,30 +278,112 @@ export default function DashboardPage() {
       bgColor: 'bg-orange-50',
       iconColor: 'text-orange-600',
       period: 'Live',
-      subValue: `Updated in real-time`
+      subValue: `Updated real-time`,
+      trend: '+5%',
+      trendUp: true
     }
   ];
 
-  // Prepare data for weekly view (last 7 days)
-  const weeklyData = last7Days.slice(-7);
-  
-  // Prepare data for monthly view (group by week)
-  const monthlyData = [];
-  for (let i = 0; i < last7Days.length; i += 7) {
-    const weekData = last7Days.slice(i, i + 7);
-    if (weekData.length > 0) {
-      monthlyData.push({
-        week: `Week ${Math.floor(i / 7) + 1}`,
-        total: weekData.reduce((sum, d) => sum + d.count, 0),
-        days: weekData.length
-      });
+  // Custom Tooltip for charts
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-100">
+          <p className="text-sm font-semibold text-gray-800">{label}</p>
+          <p className="text-2xl font-bold text-[#F08400]">
+            {payload[0].value.toLocaleString()}
+          </p>
+          <p className="text-xs text-gray-500">visitors</p>
+        </div>
+      );
     }
-  }
+    return null;
+  };
 
-  const chartData = selectedPeriod === 'week' ? weeklyData : monthlyData;
-  const chartMaxCount = selectedPeriod === 'week' 
-    ? Math.max(...weeklyData.map(d => d.count), 1)
-    : Math.max(...monthlyData.map(d => d.total), 1);
+  // Render chart based on selected type
+  const renderChart = () => {
+    if (chartType === 'line') {
+      return (
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
+          <XAxis 
+            dataKey="name" 
+            tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
+            axisLine={{ stroke: CHART_COLORS.grid }}
+          />
+          <YAxis 
+            tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
+            axisLine={{ stroke: CHART_COLORS.grid }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Line 
+            type="monotone" 
+            dataKey="visitors" 
+            stroke={CHART_COLORS.primary}
+            strokeWidth={3}
+            dot={{ fill: CHART_COLORS.primary, strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6, fill: CHART_COLORS.primary }}
+            name="Visitors"
+          />
+        </LineChart>
+      );
+    } else if (chartType === 'bar') {
+      return (
+        <BarChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
+          <XAxis 
+            dataKey="name" 
+            tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
+            axisLine={{ stroke: CHART_COLORS.grid }}
+          />
+          <YAxis 
+            tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
+            axisLine={{ stroke: CHART_COLORS.grid }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Bar 
+            dataKey="visitors" 
+            fill={CHART_COLORS.primary}
+            radius={[8, 8, 0, 0]}
+            name="Visitors"
+          />
+        </BarChart>
+      );
+    } else {
+      return (
+        <AreaChart data={chartData}>
+          <defs>
+            <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
+          <XAxis 
+            dataKey="name" 
+            tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
+            axisLine={{ stroke: CHART_COLORS.grid }}
+          />
+          <YAxis 
+            tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
+            axisLine={{ stroke: CHART_COLORS.grid }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Area 
+            type="monotone" 
+            dataKey="visitors" 
+            stroke={CHART_COLORS.primary}
+            strokeWidth={3}
+            fill="url(#colorVisitors)"
+            name="Visitors"
+          />
+        </AreaChart>
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -234,7 +398,7 @@ export default function DashboardPage() {
             <p className="text-gray-500 text-sm mt-1 flex items-center gap-2">
               <span>Welcome back, {user?.name || 'Admin'}!</span>
               <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                 Live Data
               </span>
             </p>
@@ -248,14 +412,7 @@ export default function DashboardPage() {
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Refresh</span>
             </button>
-
-            <button 
-              onClick={handleExport}
-              className="flex items-center gap-2 px-4 py-2 bg-[#F08400] text-white rounded-lg hover:bg-orange-600 transition shadow-sm"
-            >
-              <Download className="h-4 w-4" />
-              <span className="hidden sm:inline">Export Report</span>
-            </button>
+            
           </div>
         </div>
 
@@ -277,10 +434,10 @@ export default function DashboardPage() {
                     <p className="text-[10px] text-gray-400 mt-0.5">{stat.period}</p>
                   </div>
                 </div>
-                {stat.change && (
-                  <div className={`flex items-center gap-1 text-xs font-medium ${stat.change.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                    {stat.change.trend === 'up' ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                    {stat.change.percentage}
+                {stat.trend && (
+                  <div className={`flex items-center gap-1 text-xs font-medium ${stat.trendUp ? 'text-green-600' : 'text-red-600'}`}>
+                    {stat.trendUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {stat.trend}
                   </div>
                 )}
               </div>
@@ -288,207 +445,229 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* PERIOD SELECTOR */}
-        <div className="flex justify-between items-center flex-wrap gap-4">
-          <div className="flex items-center gap-2">
+        {/* CHART CONTROLS */}
+        <div className="flex flex-wrap justify-between items-center gap-4">
+          <div className="flex flex-wrap gap-2">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
               <button
                 onClick={() => setSelectedPeriod('week')}
-                className={`px-4 py-1.5 text-sm rounded-md transition ${
+                className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-md transition ${
                   selectedPeriod === 'week' 
                     ? 'bg-[#F08400] text-white' 
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <LineChart className="h-4 w-4 inline mr-1" />
-                Weekly View
+                <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4 inline mr-1" />
+                Weekly
               </button>
               <button
                 onClick={() => setSelectedPeriod('month')}
-                className={`px-4 py-1.5 text-sm rounded-md transition ${
+                className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-md transition ${
                   selectedPeriod === 'month' 
                     ? 'bg-[#F08400] text-white' 
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <BarChart3 className="h-4 w-4 inline mr-1" />
-                Monthly View
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 inline mr-1" />
+                Monthly
+              </button>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+              <button
+                onClick={() => setChartType('area')}
+                className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md transition ${
+                  chartType === 'area' 
+                    ? 'bg-[#F08400] text-white' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                📈 Area
+              </button>
+              <button
+                onClick={() => setChartType('line')}
+                className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md transition ${
+                  chartType === 'line' 
+                    ? 'bg-[#F08400] text-white' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                📉 Line
+              </button>
+              <button
+                onClick={() => setChartType('bar')}
+                className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md transition ${
+                  chartType === 'bar' 
+                    ? 'bg-[#F08400] text-white' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                📊 Bar
               </button>
             </div>
           </div>
-          
           <div className="text-xs text-gray-400">
-            Data source: {visitorStats.source || 'Google Analytics'}
+            Source: {visitorStats.source || 'Google Analytics'}
           </div>
         </div>
 
-        {/* VISITOR TREND CHART */}
+        {/* MAIN CHART */}
         {chartData.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
               <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
                 <ChartNoAxesCombined className="h-5 w-5 text-[#F08400]" />
-                Visitor Trends - {selectedPeriod === 'week' ? 'Daily' : 'Weekly'} View
+                Visitor Trends - {selectedPeriod === 'week' ? 'Daily Breakdown' : 'Weekly Summary'}
               </h3>
-              <div className="flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-2 text-xs">
                 <div className="flex items-center gap-1">
                   <span className="w-3 h-3 bg-[#F08400] rounded-full"></span>
                   <span className="text-gray-500">Visitors</span>
                 </div>
-                <div className="text-gray-400">
-                  {selectedPeriod === 'week' ? 'Last 7 days' : `${monthlyData.length} weeks`}
-                </div>
               </div>
             </div>
 
-            <div className="relative h-64 sm:h-80">
-              <div className="flex items-end h-full gap-2 sm:gap-3">
-                {chartData.map((item: any, index: number) => {
-                  const count = selectedPeriod === 'week' ? item.count : item.total;
-                  const height = chartMaxCount > 0 ? (count / chartMaxCount) * 100 : 0;
-                  const label = selectedPeriod === 'week' 
-                    ? getDayName(item.date)
-                    : item.week;
-                  const dateLabel = selectedPeriod === 'week' 
-                    ? formatDate(item.date)
-                    : `Total: ${count}`;
-                  
+            <ResponsiveContainer width="100%" height={400}>
+              {renderChart()}
+            </ResponsiveContainer>
+
+            {/* Chart Summary Stats */}
+            <div className="mt-6 pt-4 border-t border-gray-100">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500">Total</p>
+                  <p className="text-xl font-bold text-gray-800">
+                    {chartData.reduce((sum, d) => sum + d.visitors, 0).toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500">Average</p>
+                  <p className="text-xl font-bold text-gray-800">
+                    {Math.round(chartData.reduce((sum, d) => sum + d.visitors, 0) / chartData.length).toLocaleString()}
+                    <span className="text-xs text-gray-400">/day</span>
+                  </p>
+                </div>
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500">Highest</p>
+                  <p className="text-xl font-bold text-green-600">
+                    {Math.max(...chartData.map(d => d.visitors)).toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500">Lowest</p>
+                  <p className="text-xl font-bold text-red-500">
+                    {Math.min(...chartData.map(d => d.visitors)).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TWO COLUMN LAYOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* TOP PAGES - Bar Chart View */}
+          {topPages.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <FileText className="h-5 w-5 text-[#F08400]" />
+                Top Performing Pages
+                <span className="text-xs font-normal text-gray-400 ml-2">by views</span>
+              </h3>
+              
+              <div className="space-y-4">
+                {topPages.slice(0, 7).map((page: PageView, i: number) => {
+                  const percentage = topPages[0]?.views > 0 
+                    ? (page.views / topPages[0].views) * 100 
+                    : 0;
                   return (
-                    <div key={index} className="flex flex-col items-center flex-1 group">
-                      <div className="relative w-full">
-                        <div
-                          className="bg-gradient-to-t from-[#F08400] to-orange-400 w-full rounded-t-lg transition-all duration-300 hover:opacity-80 cursor-pointer"
-                          style={{ height: `${height}%`, minHeight: '4px' }}
-                        />
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none z-10">
-                          {count.toLocaleString()} visitors
-                          {selectedPeriod === 'week' && ` on ${formatDate(item.date)}`}
+                    <div key={i} className="group">
+                      <div className="flex justify-between items-center mb-1.5">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-xs font-bold text-gray-400 w-6">{i + 1}.</span>
+                          <span className="text-sm text-gray-700 truncate font-medium">
+                            {page.page === '/' ? '🏠 Homepage' : page.page.replace(/^\/+/, '').replace(/-/g, ' ').substring(0, 30) || 'Unknown'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                         
+                          <span className="text-sm font-bold text-gray-800 min-w-[45px] text-right">
+                            {page.views.toLocaleString()}
+                          </span>
+                          <span className="text-xs text-gray-400 w-12 text-right">
+                            {((page.views / topPages[0].views) * 100).toFixed(0)}%
+                          </span>
                         </div>
                       </div>
-                      <span className="text-[10px] sm:text-xs text-gray-500 mt-2 font-medium">
-                        {label}
-                      </span>
-                      <span className="text-[10px] sm:text-xs text-gray-400 mt-0.5">
-                        {dateLabel}
-                      </span>
-                      <span className="text-xs font-bold text-gray-700 mt-1">
-                        {count}
-                      </span>
+                      <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div 
+                          className="bg-gradient-to-r from-[#F08400] to-orange-400 h-2 rounded-full transition-all duration-700 ease-out"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
 
-            {/* Chart Summary */}
-            <div className="mt-6 pt-4 border-t border-gray-100">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <p className="text-xs text-gray-500">Total</p>
-                  <p className="text-lg font-bold text-gray-800">
-                    {selectedPeriod === 'week' 
-                      ? weeklyData.reduce((sum, d) => sum + d.count, 0).toLocaleString()
-                      : monthlyData.reduce((sum, d) => sum + d.total, 0).toLocaleString()}
-                  </p>
+              {topPages.length > 7 && (
+                <div className="mt-4 pt-3 border-t border-gray-100">
+                  <Link 
+                    href="/admin/analytics"
+                    className="text-sm text-[#F08400] hover:text-orange-600 font-medium flex items-center gap-1 inline-flex"
+                  >
+                    View All {topPages.length} Pages
+                    <ArrowUp className="h-3 w-3 rotate-90" />
+                  </Link>
                 </div>
-                <div className="text-center">
-                  <p className="text-xs text-gray-500">Average</p>
-                  <p className="text-lg font-bold text-gray-800">
-                    {selectedPeriod === 'week'
-                      ? Math.round(weeklyData.reduce((sum, d) => sum + d.count, 0) / weeklyData.length).toLocaleString()
-                      : Math.round(monthlyData.reduce((sum, d) => sum + d.total, 0) / monthlyData.length).toLocaleString()}
-                    <span className="text-xs text-gray-400">/day</span>
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xs text-gray-500">Peak Day</p>
-                  <p className="text-lg font-bold text-green-600">
-                    {selectedPeriod === 'week'
-                      ? Math.max(...weeklyData.map(d => d.count)).toLocaleString()
-                      : Math.max(...monthlyData.map(d => d.total)).toLocaleString()}
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xs text-gray-500">vs Previous</p>
-                  <p className={`text-lg font-bold flex items-center justify-center gap-1 ${weeklyChange.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                    {weeklyChange.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                    {weeklyChange.percentage}
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* TOP PAGES SECTION */}
-        {topPages.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <FileText className="h-5 w-5 text-[#F08400]" />
-                Top Performing Pages
-                <span className="text-xs font-normal text-gray-400 ml-2">by page views</span>
+          {/* PAGE DISTRIBUTION - Pie Chart */}
+          {pageDistribution.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <PieChart className="h-5 w-5 text-[#F08400]" />
+                Page View Distribution
               </h3>
-              <div className="text-xs text-gray-400">
-                Total Views: {topPages.reduce((sum, p) => sum + p.views, 0).toLocaleString()}
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              {topPages.slice(0, 10).map((page: PageView, i: number) => {
-                const percentage = topPages[0]?.views > 0 
-                  ? (page.views / topPages[0].views) * 100 
-                  : 0;
-                return (
-                  <div key={i} className="group">
-                    <div className="flex justify-between items-center mb-1.5">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <span className="text-xs font-bold text-gray-400 w-7">
-                          #{i + 1}
-                        </span>
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs">
-                            {i === 0 ? '🏠' : i === 1 ? '📋' : i === 2 ? '📊' : '📄'}
-                          </div>
-                          <span className="text-sm text-gray-700 truncate font-medium">
-                            {page.page === '/' ? 'Homepage' : page.page.replace(/^\/+/, '').replace(/-/g, ' ') || 'Unknown'}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Eye className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="text-sm font-bold text-gray-800 min-w-[50px] text-right">
-                          {page.views.toLocaleString()}
-                        </span>
-                        <span className="text-xs text-gray-400 w-12">
-                          {((page.views / topPages[0].views) * 100).toFixed(0)}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="bg-gradient-to-r from-[#F08400] to-orange-400 h-2 rounded-full transition-all duration-700 ease-out"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={pageDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {pageDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+        <Tooltip
+  // formatter={(value: number | string | undefined) => {
+  //   const num = Number(value ?? 0);
+  //   return [`${num.toLocaleString()} views`, 'Views'];
+  // }}
+/>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex flex-wrap justify-center gap-3 mt-3">
+                {pageDistribution.map((entry, index) => (
+                  <div key={index} className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                    <span className="text-xs text-gray-600">{entry.name}</span>
+                    <span className="text-xs font-semibold text-gray-800">{entry.percentage}%</span>
                   </div>
-                );
-              })}
-            </div>
-
-            {topPages.length > 10 && (
-              <div className="mt-5 pt-3 border-t border-gray-100">
-                <Link 
-                  href="/admin/analytics"
-                  className="text-sm text-[#F08400] hover:text-orange-600 font-medium flex items-center gap-1 inline-flex"
-                >
-                  View All {topPages.length} Pages
-                  <ArrowUp className="h-3 w-3 rotate-90" />
-                </Link>
+                ))}
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         {/* SUMMARY SECTION */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -499,9 +678,7 @@ export default function DashboardPage() {
               </div>
               <h4 className="font-semibold text-gray-800">Engagement Rate</h4>
             </div>
-            <p className="text-2xl font-bold text-gray-800">
-              {((topPages[0]?.views || 0) / (visitorStats.total || 1) * 100).toFixed(1)}%
-            </p>
+            <p className="text-3xl font-bold text-gray-800">{engagementRate}%</p>
             <p className="text-xs text-gray-500 mt-1">of visitors viewed homepage</p>
           </div>
           
@@ -512,9 +689,7 @@ export default function DashboardPage() {
               </div>
               <h4 className="font-semibold text-gray-800">Pages per Visitor</h4>
             </div>
-            <p className="text-2xl font-bold text-gray-800">
-              {(topPages.reduce((sum, p) => sum + p.views, 0) / (visitorStats.total || 1)).toFixed(1)}
-            </p>
+            <p className="text-3xl font-bold text-gray-800">{pagesPerVisitor}</p>
             <p className="text-xs text-gray-500 mt-1">average page views per session</p>
           </div>
           
@@ -525,8 +700,8 @@ export default function DashboardPage() {
               </div>
               <h4 className="font-semibold text-gray-800">Monthly Growth</h4>
             </div>
-            <p className={`text-2xl font-bold flex items-center gap-2 ${monthlyChange.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-              {monthlyChange.trend === 'up' ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
+            <p className={`text-3xl font-bold flex items-center gap-2 ${monthlyChange.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+              {monthlyChange.trend === 'up' ? <TrendingUp className="h-6 w-6" /> : <TrendingDown className="h-6 w-6" />}
               {monthlyChange.percentage}
             </p>
             <p className="text-xs text-gray-500 mt-1">compared to previous period</p>
