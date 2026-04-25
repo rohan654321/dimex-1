@@ -36,7 +36,7 @@ export default function ThankYouEmail({ name, formType }: ThankYouEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Thank you for contacting TransRussia & SkladTech Expo</Preview>
+      <Preview>Thank you for contacting DIEMEX Expo</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
@@ -52,7 +52,7 @@ export default function ThankYouEmail({ name, formType }: ThankYouEmailProps) {
             </Text>
             
             <Text style={paragraph}>
-              Thank you for getting in touch with TransRussia & SkladTech Expo. 
+              Thank you for getting in touch with Diemex Expo. 
               We have received your enquiry and our team will review it shortly.
             </Text>
 
@@ -66,17 +66,17 @@ export default function ThankYouEmail({ name, formType }: ThankYouEmailProps) {
               
               <ul style={list}>
                 <li style={listItem}>
-                  <a href="https://transrussia.com/event-brochure" style={link}>
+                  <a href="https://diemex.in/event-brochure" style={link}>
                     Download our Event Brochure
                   </a>
                 </li>
                 <li style={listItem}>
-                  <a href="https://transrussia.com/post-show-report" style={link}>
+                  <a href="https://diemex.in/post-show-report" style={link}>
                     View our Post-Show Report
                   </a>
                 </li>
                 <li style={listItem}>
-                  <a href="https://transrussia.com/sectors" style={link}>
+                  <a href="https://diemex.in/sectors" style={link}>
                     Explore Event Sectors
                   </a>
                 </li>
@@ -84,7 +84,7 @@ export default function ThankYouEmail({ name, formType }: ThankYouEmailProps) {
             </Section>
 
             <Button
-              href="https://transrussia.com"
+              href="https://diemex.in"
               style={button}
             >
               Visit Our Website
@@ -94,12 +94,12 @@ export default function ThankYouEmail({ name, formType }: ThankYouEmailProps) {
           <Hr style={hr} />
 
           <Section style={footer}>
-            <Text style={footerTitle}>TransRussia & SkladTech Expo</Text>
+            <Text style={footerTitle}>Diemex Expo</Text>
             <Text style={footerText}>
-              17-19 March 2026 | Crocus Expo, Pavilion 3 | Moscow, Russia
+             08-10 October 2026 | Auto Cluster Exhibition Centre, Pimpri-chinchwad|Pune, India
             </Text>
             <Text style={footerContact}>
-              Phone: +7-(495)-799-55-85 | Email: transport@ite.group
+              Phone: +91 91483 19993| Email: pad@maxxmedia.in
             </Text>
             <Text style={footerNote}>
               This is an automated email. Please do not reply to this message.

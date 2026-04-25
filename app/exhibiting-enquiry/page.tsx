@@ -27,7 +27,7 @@ const TransRussiaExhibitPage: React.FC = () => {
     firstName: "",
     lastName: "",
     companyName: "",
-    companyWebsite: "",
+    companyWebsite: "", 
     jobTitle: "",
     country: "",
     city: "",
@@ -95,6 +95,7 @@ const TransRussiaExhibitPage: React.FC = () => {
       try {
         setCountriesLoading(true);
         const res = await fetch("https://restcountries.com/v3.1/all?fields=name");
+        
         const data = await res.json();
         const sortedCountries = data
           .map((c: any) => ({ name: c.name.common }))
