@@ -12,7 +12,6 @@ interface Country {
 
 interface State {
   name: string;
-  code: string;
 }
 
 interface City {
@@ -49,13 +48,10 @@ export default function BrochureForm() {
     const fetchCountries = async () => {
       try {
         setCountriesLoading(true);
-        const res = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2");
+        const res = await fetch("https://restcountries.com/v3.1/all?fields=name");
         const data = await res.json();
         const sortedCountries = data
-          .map((c: any) => ({ 
-            name: c.name.common,
-            code: c.cca2 
-          }))
+          .map((c: any) => ({ name: c.name.common }))
           .sort((a: Country, b: Country) => a.name.localeCompare(b.name));
         setCountries(sortedCountries);
       } catch (error) {
@@ -68,7 +64,7 @@ export default function BrochureForm() {
     fetchCountries();
   }, []);
 
-  // Fetch states when country changes
+  // Fetch states when country changes (NO API KEY REQUIRED)
   useEffect(() => {
     const fetchStates = async () => {
       if (!formData.country) {
@@ -79,31 +75,31 @@ export default function BrochureForm() {
 
       try {
         setStatesLoading(true);
-        // Find country code
-        const selectedCountry = countries.find(c => c.name === formData.country);
-        if (!selectedCountry?.code) return;
-
-        // Using a free API for states/cities (you can replace with your preferred API)
+        
+        // Using countriesnow API - no API key required
         const response = await fetch(
-          `https://api.countrystatecity.in/v1/countries/${selectedCountry.code}/states`,
+          'https://countriesnow.space/api/v0.1/countries/states',
           {
+            method: 'POST',
             headers: {
-              'X-CSCAPI-KEY': process.env.NEXT_PUBLIC_CSC_API_KEY || '', // You'll need to sign up for a free key at https://countrystatecity.in/
-            }
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ country: formData.country }),
           }
         );
 
-        if (!response.ok) throw new Error('Failed to fetch states');
+        const result = await response.json();
         
-        const data = await response.json();
-        const sortedStates = data
-          .map((state: any) => ({
-            name: state.name,
-            code: state.iso2
-          }))
-          .sort((a: State, b: State) => a.name.localeCompare(b.name));
+        if (result.data && result.data.states) {
+          const sortedStates = result.data.states
+            .map((state: any) => ({ name: state.name }))
+            .sort((a: State, b: State) => a.name.localeCompare(b.name));
+          
+          setStates(sortedStates);
+        } else {
+          setStates([]);
+        }
         
-        setStates(sortedStates);
         setFormData(prev => ({ ...prev, state: '', city: '' }));
       } catch (error) {
         console.error("Failed to fetch states", error);
@@ -115,9 +111,9 @@ export default function BrochureForm() {
     };
 
     fetchStates();
-  }, [formData.country, countries]);
+  }, [formData.country]);
 
-  // Fetch cities when state changes
+  // Fetch cities when state changes (NO API KEY REQUIRED)
   useEffect(() => {
     const fetchCities = async () => {
       if (!formData.country || !formData.state) {
@@ -128,30 +124,34 @@ export default function BrochureForm() {
 
       try {
         setCitiesLoading(true);
-        const selectedCountry = countries.find(c => c.name === formData.country);
-        const selectedState = states.find(s => s.name === formData.state);
         
-        if (!selectedCountry?.code || !selectedState?.code) return;
-
+        // Using countriesnow API - no API key required
         const response = await fetch(
-          `https://api.countrystatecity.in/v1/countries/${selectedCountry.code}/states/${selectedState.code}/cities`,
+          'https://countriesnow.space/api/v0.1/countries/state/cities',
           {
+            method: 'POST',
             headers: {
-              'X-CSCAPI-KEY': process.env.NEXT_PUBLIC_CSC_API_KEY || '',
-            }
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              country: formData.country,
+              state: formData.state 
+            }),
           }
         );
 
-        if (!response.ok) throw new Error('Failed to fetch cities');
+        const result = await response.json();
         
-        const data = await response.json();
-        const sortedCities = data
-          .map((city: any) => ({
-            name: city.name
-          }))
-          .sort((a: City, b: City) => a.name.localeCompare(b.name));
+        if (result.data && result.data.length > 0) {
+          const sortedCities = result.data
+            .map((city: string) => ({ name: city }))
+            .sort((a: City, b: City) => a.name.localeCompare(b.name));
+          
+          setCities(sortedCities);
+        } else {
+          setCities([]);
+        }
         
-        setCities(sortedCities);
         setFormData(prev => ({ ...prev, city: '' }));
       } catch (error) {
         console.error("Failed to fetch cities", error);
@@ -163,7 +163,7 @@ export default function BrochureForm() {
     };
 
     fetchCities();
-  }, [formData.country, formData.state, countries, states]);
+  }, [formData.country, formData.state]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -337,8 +337,8 @@ export default function BrochureForm() {
             <option value="">
               {countriesLoading ? "Loading countries..." : "Select Country"}
             </option>
-            {countries.map((country) => (
-              <option key={country.code} value={country.name}>
+            {countries.map((country, index) => (
+              <option key={index} value={country.name}>
                 {country.name}
               </option>
             ))}
@@ -365,8 +365,8 @@ export default function BrochureForm() {
                     ? "Select country first" 
                     : "Select State"}
               </option>
-              {states.map((state) => (
-                <option key={state.code} value={state.name}>
+              {states.map((state, index) => (
+                <option key={index} value={state.name}>
                   {state.name}
                 </option>
               ))}
